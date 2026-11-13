@@ -1,0 +1,939 @@
+{
+  "version": 1,
+  "updatedAt": "2026-11-13",
+  "blades": [
+    {
+      "id": "DranSword",
+      "name": "Dran Sword",
+      "line": "BX",
+      "type": "attack",
+      "spin": "right",
+      "verified": true
+    },
+    {
+      "id": "HellsScythe",
+      "name": "Hells Scythe",
+      "line": "BX",
+      "type": "balance",
+      "spin": "right",
+      "verified": true
+    },
+    {
+      "id": "WizardArrow",
+      "name": "Wizard Arrow",
+      "line": "BX",
+      "type": "stamina",
+      "spin": "right",
+      "verified": true
+    },
+    {
+      "id": "KnightShield",
+      "name": "Knight Shield",
+      "line": "BX",
+      "type": "defense",
+      "spin": "right",
+      "verified": true
+    },
+    {
+      "id": "KnightLance",
+      "name": "Knight Lance",
+      "line": "BX",
+      "type": "defense",
+      "spin": "right",
+      "verified": true
+    },
+    {
+      "id": "SharkEdge",
+      "name": "Shark Edge",
+      "line": "BX",
+      "type": "attack",
+      "spin": "right",
+      "verified": true
+    },
+    {
+      "id": "LeonClaw",
+      "name": "Leon Claw",
+      "line": "BX",
+      "type": "balance",
+      "spin": "right",
+      "verified": true
+    },
+    {
+      "id": "ViperTail",
+      "name": "Viper Tail",
+      "line": "BX",
+      "type": "stamina",
+      "spin": "right",
+      "verified": false
+    },
+    {
+      "id": "RhinoHorn",
+      "name": "Rhino Horn",
+      "line": "BX",
+      "type": "defense",
+      "spin": "right",
+      "verified": true
+    },
+    {
+      "id": "DranDagger",
+      "name": "Dran Dagger",
+      "line": "BX",
+      "type": "attack",
+      "spin": "right",
+      "verified": true,
+      "hasbroName": "Dagger Dran"
+    },
+    {
+      "id": "HellsChain",
+      "name": "Hells Chain",
+      "line": "BX",
+      "type": "balance",
+      "spin": "right",
+      "verified": true
+    },
+    {
+      "id": "PhoenixWing",
+      "name": "Phoenix Wing",
+      "line": "BX",
+      "type": "attack",
+      "spin": "right",
+      "verified": true
+    },
+    {
+      "id": "WyvernGale",
+      "name": "Wyvern Gale",
+      "line": "BX",
+      "type": "stamina",
+      "spin": "right",
+      "verified": false
+    },
+    {
+      "id": "UnicornSting",
+      "name": "Unicorn Sting",
+      "line": "BX",
+      "type": "balance",
+      "spin": "right",
+      "verified": true,
+      "hasbroName": "Sting Unicorn"
+    },
+    {
+      "id": "SphinxCowl",
+      "name": "Sphinx Cowl",
+      "line": "BX",
+      "type": "defense",
+      "spin": "right",
+      "verified": true,
+      "hasbroName": "Cowl Sphinx"
+    },
+    {
+      "id": "TyrannoBeat",
+      "name": "Tyranno Beat",
+      "line": "BX",
+      "type": "attack",
+      "spin": "right",
+      "verified": false
+    },
+    {
+      "id": "CobaltDragoon",
+      "name": "Cobalt Dragoon",
+      "line": "BX",
+      "type": "attack",
+      "spin": "left",
+      "verified": true
+    },
+    {
+      "id": "CrimsonGaruda",
+      "name": "Crimson Garuda",
+      "line": "BX",
+      "type": "stamina",
+      "spin": "right",
+      "verified": false
+    },
+    {
+      "id": "DranStrike",
+      "name": "Dran Strike",
+      "line": "BX",
+      "type": "attack",
+      "spin": "right",
+      "verified": false
+    },
+    {
+      "id": "LusterDragoon",
+      "name": "Luster Dragoon",
+      "line": "BX",
+      "type": "attack",
+      "spin": "left",
+      "verified": false,
+      "note": "Neuheit – Typ und Drehrichtung noch nicht bestätigt."
+    },
+    {
+      "id": "AeroPegasus",
+      "name": "Aero Pegasus",
+      "line": "BX",
+      "type": "attack",
+      "spin": "right",
+      "verified": false
+    },
+    {
+      "id": "TuskMammoth",
+      "name": "Tusk Mammoth",
+      "line": "BX",
+      "type": "balance",
+      "spin": "right",
+      "verified": false,
+      "note": "Hasbro-Name (Xtreme Battle Set)."
+    },
+    {
+      "id": "DranBuster",
+      "name": "Dran Buster",
+      "line": "UX",
+      "type": "attack",
+      "spin": "right",
+      "verified": true
+    },
+    {
+      "id": "HellsHammer",
+      "name": "Hells Hammer",
+      "line": "UX",
+      "type": "balance",
+      "spin": "right",
+      "verified": true
+    },
+    {
+      "id": "WizardRod",
+      "name": "Wizard Rod",
+      "line": "UX",
+      "type": "stamina",
+      "spin": "right",
+      "verified": true
+    },
+    {
+      "id": "LeonCrest",
+      "name": "Leon Crest",
+      "line": "UX",
+      "type": "defense",
+      "spin": "right",
+      "verified": false
+    },
+    {
+      "id": "SamuraiSaber",
+      "name": "Samurai Saber",
+      "line": "UX",
+      "type": "attack",
+      "spin": "right",
+      "verified": true,
+      "note": "Klingen-Vorsprünge fahren im Spin ein und aus."
+    },
+    {
+      "id": "SharkScale",
+      "name": "Shark Scale",
+      "line": "UX",
+      "type": "attack",
+      "spin": "right",
+      "verified": false
+    },
+    {
+      "id": "ClockMirage",
+      "name": "Clock Mirage",
+      "line": "UX",
+      "type": "stamina",
+      "spin": "right",
+      "verified": false
+    },
+    {
+      "id": "BulletGriffon",
+      "name": "Bullet Griffon",
+      "line": "UX",
+      "type": "balance",
+      "spin": "right",
+      "verified": false,
+      "integratedRatchet": true,
+      "note": "Spaltet sich im Kampf in Hauptkörper und „Bullet“."
+    },
+    {
+      "id": "GloryValkyrie",
+      "name": "Glory Valkyrie",
+      "line": "UX",
+      "type": "attack",
+      "spin": "right",
+      "verified": true,
+      "integratedRatchet": true,
+      "hasbroName": "Glory Valkerion",
+      "note": "Nachfolger von ValkyrieVolt, Ratchet in die Blade integriert."
+    },
+    {
+      "id": "VanishLucifer",
+      "name": "Vanish Lucifer",
+      "line": "UX",
+      "type": "defense",
+      "spin": "right",
+      "verified": false,
+      "integratedRatchet": true,
+      "note": "Erscheint in Japan am 26.12.2026, ausfahrbare Verteidigungsschicht (Barrier-Gimmick)."
+    },
+    {
+      "id": "DranBrave",
+      "name": "Dran Brave",
+      "line": "CX",
+      "type": "attack",
+      "spin": "right",
+      "verified": true,
+      "note": "CX: Lock Chip + Main Blade + Assist Blade (S)."
+    },
+    {
+      "id": "WizardArc",
+      "name": "Wizard Arc",
+      "line": "CX",
+      "type": "stamina",
+      "spin": "right",
+      "verified": true,
+      "note": "CX: Lock Chip + Main Blade + Assist Blade (R)."
+    },
+    {
+      "id": "PerseusDark",
+      "name": "Perseus Dark",
+      "line": "CX",
+      "type": "defense",
+      "spin": "right",
+      "verified": false,
+      "note": "CX: Assist Blade (B)."
+    },
+    {
+      "id": "KnightFortress",
+      "name": "Knight Fortress",
+      "line": "CX",
+      "type": "defense",
+      "spin": "right",
+      "verified": false,
+      "note": "CX: Assist-Blade-Kürzel „GV“ laut Händlerangabe."
+    }
+  ],
+  "ratchets": [
+    {
+      "id": "0-70",
+      "contacts": null,
+      "heightMm": 7,
+      "note": "Sonderform ohne klassische Zacken."
+    },
+    {
+      "id": "0-80",
+      "contacts": null,
+      "heightMm": 8,
+      "note": "Sonderform ohne klassische Zacken."
+    },
+    {
+      "id": "1-60",
+      "contacts": 1,
+      "heightMm": 6
+    },
+    {
+      "id": "1-80",
+      "contacts": 1,
+      "heightMm": 8
+    },
+    {
+      "id": "2-60",
+      "contacts": 2,
+      "heightMm": 6
+    },
+    {
+      "id": "2-70",
+      "contacts": 2,
+      "heightMm": 7
+    },
+    {
+      "id": "2-80",
+      "contacts": 2,
+      "heightMm": 8
+    },
+    {
+      "id": "3-60",
+      "contacts": 3,
+      "heightMm": 6
+    },
+    {
+      "id": "3-70",
+      "contacts": 3,
+      "heightMm": 7
+    },
+    {
+      "id": "3-80",
+      "contacts": 3,
+      "heightMm": 8
+    },
+    {
+      "id": "3-85",
+      "contacts": 3,
+      "heightMm": 8.5
+    },
+    {
+      "id": "4-50",
+      "contacts": 4,
+      "heightMm": 5
+    },
+    {
+      "id": "4-55",
+      "contacts": 4,
+      "heightMm": 5.5
+    },
+    {
+      "id": "4-60",
+      "contacts": 4,
+      "heightMm": 6
+    },
+    {
+      "id": "4-70",
+      "contacts": 4,
+      "heightMm": 7
+    },
+    {
+      "id": "4-80",
+      "contacts": 4,
+      "heightMm": 8
+    },
+    {
+      "id": "5-60",
+      "contacts": 5,
+      "heightMm": 6
+    },
+    {
+      "id": "5-70",
+      "contacts": 5,
+      "heightMm": 7
+    },
+    {
+      "id": "5-80",
+      "contacts": 5,
+      "heightMm": 8
+    },
+    {
+      "id": "6-60",
+      "contacts": 6,
+      "heightMm": 6
+    },
+    {
+      "id": "6-70",
+      "contacts": 6,
+      "heightMm": 7
+    },
+    {
+      "id": "6-80",
+      "contacts": 6,
+      "heightMm": 8
+    },
+    {
+      "id": "7-60",
+      "contacts": 7,
+      "heightMm": 6
+    },
+    {
+      "id": "7-70",
+      "contacts": 7,
+      "heightMm": 7
+    },
+    {
+      "id": "7-80",
+      "contacts": 7,
+      "heightMm": 8
+    },
+    {
+      "id": "8-70",
+      "contacts": 8,
+      "heightMm": 7
+    },
+    {
+      "id": "9-60",
+      "contacts": 9,
+      "heightMm": 6
+    },
+    {
+      "id": "9-65",
+      "contacts": 9,
+      "heightMm": 6.5
+    },
+    {
+      "id": "9-70",
+      "contacts": 9,
+      "heightMm": 7
+    },
+    {
+      "id": "9-80",
+      "contacts": 9,
+      "heightMm": 8
+    }
+  ],
+  "bits": [
+    {
+      "id": "F",
+      "name": "Flat",
+      "type": "attack"
+    },
+    {
+      "id": "LF",
+      "name": "Low Flat",
+      "type": "attack"
+    },
+    {
+      "id": "GF",
+      "name": "Gear Flat",
+      "type": "attack"
+    },
+    {
+      "id": "FF",
+      "name": "Free Flat",
+      "type": "attack"
+    },
+    {
+      "id": "UF",
+      "name": "Under Flat",
+      "type": "attack",
+      "uncertain": true
+    },
+    {
+      "id": "R",
+      "name": "Rush",
+      "type": "attack"
+    },
+    {
+      "id": "LR",
+      "name": "Low Rush",
+      "type": "attack"
+    },
+    {
+      "id": "RA",
+      "name": "Rubber Accel",
+      "type": "attack"
+    },
+    {
+      "id": "A",
+      "name": "Accel",
+      "type": "attack"
+    },
+    {
+      "id": "Q",
+      "name": "Quake",
+      "type": "attack"
+    },
+    {
+      "id": "C",
+      "name": "Cyclone",
+      "type": "attack"
+    },
+    {
+      "id": "V",
+      "name": "Vortex",
+      "type": "attack",
+      "uncertain": true
+    },
+    {
+      "id": "J",
+      "name": "Jolt",
+      "type": "attack",
+      "uncertain": true
+    },
+    {
+      "id": "T",
+      "name": "Taper",
+      "type": "balance"
+    },
+    {
+      "id": "HT",
+      "name": "High Taper",
+      "type": "balance"
+    },
+    {
+      "id": "P",
+      "name": "Point",
+      "type": "balance"
+    },
+    {
+      "id": "GP",
+      "name": "Gear Point",
+      "type": "balance"
+    },
+    {
+      "id": "TP",
+      "name": "Trans Point",
+      "type": "balance",
+      "uncertain": true
+    },
+    {
+      "id": "U",
+      "name": "Unite",
+      "type": "balance"
+    },
+    {
+      "id": "E",
+      "name": "Elevate",
+      "type": "balance",
+      "uncertain": true
+    },
+    {
+      "id": "H",
+      "name": "Hexa",
+      "type": "balance"
+    },
+    {
+      "id": "L",
+      "name": "Level",
+      "type": "balance"
+    },
+    {
+      "id": "B",
+      "name": "Ball",
+      "type": "stamina"
+    },
+    {
+      "id": "O",
+      "name": "Orb",
+      "type": "stamina"
+    },
+    {
+      "id": "LO",
+      "name": "Low Orb",
+      "type": "stamina"
+    },
+    {
+      "id": "GB",
+      "name": "Gear Ball",
+      "type": "stamina"
+    },
+    {
+      "id": "DB",
+      "name": "Disk Ball",
+      "type": "stamina"
+    },
+    {
+      "id": "FB",
+      "name": "Free Ball",
+      "type": "stamina"
+    },
+    {
+      "id": "N",
+      "name": "Needle",
+      "type": "defense"
+    },
+    {
+      "id": "HN",
+      "name": "High Needle",
+      "type": "defense"
+    },
+    {
+      "id": "GN",
+      "name": "Gear Needle",
+      "type": "defense"
+    },
+    {
+      "id": "UN",
+      "name": "Under Needle",
+      "type": "defense"
+    },
+    {
+      "id": "S",
+      "name": "Spike",
+      "type": "defense"
+    },
+    {
+      "id": "D",
+      "name": "Dot",
+      "type": "defense"
+    },
+    {
+      "id": "BS",
+      "name": "Bound Spike",
+      "type": "defense"
+    },
+    {
+      "id": "W",
+      "name": "Wedge",
+      "type": "defense",
+      "uncertain": true
+    },
+    {
+      "id": "WW",
+      "name": "Wall Wedge",
+      "type": "defense",
+      "note": "Gehört zu Vanish Lucifer."
+    },
+    {
+      "id": "LC",
+      "name": "LC",
+      "type": "balance",
+      "uncertain": true,
+      "note": "Neues Bit (BX-52) – Name und Typ noch nicht bestätigt."
+    }
+  ],
+  "products": [
+    {
+      "code": "BX-01",
+      "name": "Starter DranSword 3-60F",
+      "kind": "starter",
+      "verified": true,
+      "bladeId": "DranSword",
+      "ratchetId": "3-60",
+      "bitId": "F",
+      "includesLauncher": true
+    },
+    {
+      "code": "BX-02",
+      "name": "Starter HellsScythe 4-60T",
+      "kind": "starter",
+      "verified": true,
+      "bladeId": "HellsScythe",
+      "ratchetId": "4-60",
+      "bitId": "T",
+      "includesLauncher": true
+    },
+    {
+      "code": "BX-03",
+      "name": "Starter WizardArrow 4-80B",
+      "kind": "starter",
+      "verified": true,
+      "bladeId": "WizardArrow",
+      "ratchetId": "4-80",
+      "bitId": "B",
+      "includesLauncher": true
+    },
+    {
+      "code": "BX-04",
+      "name": "Starter KnightShield 3-80N",
+      "kind": "starter",
+      "verified": true,
+      "bladeId": "KnightShield",
+      "ratchetId": "3-80",
+      "bitId": "N",
+      "includesLauncher": true
+    },
+    {
+      "code": "BX-10",
+      "name": "Xtreme Stadium",
+      "kind": "stadium",
+      "verified": true
+    },
+    {
+      "code": "BX-13",
+      "name": "Booster KnightLance 4-80HN",
+      "kind": "booster",
+      "verified": true,
+      "bladeId": "KnightLance",
+      "ratchetId": "4-80",
+      "bitId": "HN"
+    },
+    {
+      "code": "BX-14",
+      "name": "Random Booster Vol.1 SharkEdge 3-60LF",
+      "kind": "random-booster",
+      "verified": true,
+      "bladeId": "SharkEdge",
+      "ratchetId": "3-60",
+      "bitId": "LF"
+    },
+    {
+      "code": "BX-15",
+      "name": "Starter LeonClaw 5-60P",
+      "kind": "starter",
+      "verified": true,
+      "bladeId": "LeonClaw",
+      "ratchetId": "5-60",
+      "bitId": "P",
+      "includesLauncher": true
+    },
+    {
+      "code": "BX-16",
+      "name": "Random Booster ViperTail Select 5-80O",
+      "kind": "random-booster",
+      "verified": false,
+      "bladeId": "ViperTail",
+      "ratchetId": "5-80",
+      "bitId": "O"
+    },
+    {
+      "code": "BX-23",
+      "name": "Starter PhoenixWing 9-60GF",
+      "kind": "starter",
+      "verified": true,
+      "bladeId": "PhoenixWing",
+      "ratchetId": "9-60",
+      "bitId": "GF",
+      "includesLauncher": true
+    },
+    {
+      "code": "BX-34",
+      "name": "Starter CobaltDragoon 2-60C",
+      "kind": "starter",
+      "verified": true,
+      "bladeId": "CobaltDragoon",
+      "ratchetId": "2-60",
+      "bitId": "C",
+      "includesLauncher": true,
+      "note": "Linksdreher – Launcher für Linksdrehung beiliegend."
+    },
+    {
+      "code": "BX-37",
+      "name": "Double Xtreme Stadium Set",
+      "kind": "set",
+      "verified": true,
+      "includesLauncher": true,
+      "note": "Motorisierte Mitte mit zweiter Zahnschiene, 3× AA."
+    },
+    {
+      "code": "BX-38",
+      "name": "Booster CrimsonGaruda 4-70TP",
+      "kind": "booster",
+      "verified": false,
+      "bladeId": "CrimsonGaruda",
+      "ratchetId": "4-70",
+      "bitId": "TP"
+    },
+    {
+      "code": "BX-49",
+      "name": "DranStrike 4-50FF",
+      "kind": "booster",
+      "verified": true,
+      "bladeId": "DranStrike",
+      "ratchetId": "4-50",
+      "bitId": "FF"
+    },
+    {
+      "code": "BX-52",
+      "name": "Starter LusterDragoon 6-60LC",
+      "kind": "starter",
+      "verified": true,
+      "bladeId": "LusterDragoon",
+      "ratchetId": "6-60",
+      "bitId": "LC",
+      "includesLauncher": true
+    },
+    {
+      "code": "UX-01",
+      "name": "Starter DranBuster 1-60A",
+      "kind": "starter",
+      "verified": true,
+      "bladeId": "DranBuster",
+      "ratchetId": "1-60",
+      "bitId": "A",
+      "includesLauncher": true
+    },
+    {
+      "code": "UX-02",
+      "name": "Starter HellsHammer 3-70H",
+      "kind": "starter",
+      "verified": true,
+      "bladeId": "HellsHammer",
+      "ratchetId": "3-70",
+      "bitId": "H",
+      "includesLauncher": true
+    },
+    {
+      "code": "UX-03",
+      "name": "Booster WizardRod 5-70DB",
+      "kind": "booster",
+      "verified": true,
+      "bladeId": "WizardRod",
+      "ratchetId": "5-70",
+      "bitId": "DB"
+    },
+    {
+      "code": "UX-06",
+      "name": "Booster LeonCrest 7-60GN",
+      "kind": "booster",
+      "verified": false,
+      "bladeId": "LeonCrest",
+      "ratchetId": "7-60",
+      "bitId": "GN"
+    },
+    {
+      "code": "UX-09",
+      "name": "Starter SamuraiSaber 2-70L",
+      "kind": "starter",
+      "verified": true,
+      "bladeId": "SamuraiSaber",
+      "ratchetId": "2-70",
+      "bitId": "L",
+      "includesLauncher": true,
+      "weightG": 45.6
+    },
+    {
+      "code": "UX-15",
+      "name": "Booster SharkScale",
+      "kind": "booster",
+      "verified": false,
+      "bladeId": "SharkScale"
+    },
+    {
+      "code": "UX-16",
+      "name": "Random Booster ClockMirage",
+      "kind": "random-booster",
+      "verified": true,
+      "bladeId": "ClockMirage",
+      "note": "Inhalt zufällig."
+    },
+    {
+      "code": "UX-19",
+      "name": "Starter BulletGriffon H",
+      "kind": "starter",
+      "verified": true,
+      "bladeId": "BulletGriffon",
+      "bitId": "H",
+      "includesLauncher": true
+    },
+    {
+      "code": "UX-20",
+      "name": "Starter GloryValkyrie LF",
+      "kind": "starter",
+      "verified": true,
+      "bladeId": "GloryValkyrie",
+      "bitId": "LF",
+      "includesLauncher": true,
+      "weightG": 45.4,
+      "hasbroName": "Glory Valkerion LF"
+    },
+    {
+      "code": "TBA-VanishLucifer",
+      "name": "Starter VanishLucifer WW",
+      "kind": "starter",
+      "verified": true,
+      "bladeId": "VanishLucifer",
+      "bitId": "WW",
+      "includesLauncher": true,
+      "note": "Produktnummer noch offen, Japan-Release 26.12.2026."
+    },
+    {
+      "code": "CX-01",
+      "name": "Starter DranBrave S6-60V",
+      "kind": "starter",
+      "verified": true,
+      "bladeId": "DranBrave",
+      "ratchetId": "6-60",
+      "bitId": "V",
+      "includesLauncher": true
+    },
+    {
+      "code": "CX-02",
+      "name": "Starter WizardArc R4-55LO",
+      "kind": "starter",
+      "verified": true,
+      "bladeId": "WizardArc",
+      "ratchetId": "4-55",
+      "bitId": "LO",
+      "includesLauncher": true
+    },
+    {
+      "code": "CX-14",
+      "name": "KnightFortress GV8-70UN",
+      "kind": "booster",
+      "verified": false,
+      "bladeId": "KnightFortress",
+      "ratchetId": "8-70",
+      "bitId": "UN"
+    },
+    {
+      "code": "HAS-XBS",
+      "name": "Hasbro Xtreme Battle Set (Dagger Dran 4-60R + Tusk Mammoth 3-60T)",
+      "kind": "set",
+      "verified": true,
+      "includesLauncher": true,
+      "note": "Mit Stadium und zwei Launchern."
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+export type BeyType = 'attack' | 'defense' | 'stamina' | 'balance';
+export type Spin = 'right' | 'left' | 'both';
+export type Line = 'BX' | 'UX' | 'CX';
+export type ProductKind =
+  | 'starter'
+  | 'booster'
+  | 'random-booster'
+  | 'set'
+  | 'stadium'
+  | 'launcher'
+  | 'other';
+
+export interface Blade {
+  id: string;
+  name: string;
+  /** Westlicher Hasbro-Name, falls abweichend */
+  hasbroName?: string;
+  line: Line;
+  type: BeyType;
+  spin: Spin;
+  /** UX-Blades mit eingebautem Ratchet (z. B. Glory Valkyrie, Bullet Griffon) */
+  integratedRatchet?: boolean;
+  note?: string;
+  verified: boolean;
+}
+
+export interface Ratchet {
+  /** z. B. "3-60" – Zacken-Höhe(x0,1 mm) */
+  id: string;
+  /** Anzahl der Zacken/Kontaktpunkte; null bei Sonderformen */
+  contacts: number | null;
+  /** Höhe in mm */
+  heightMm: number | null;
+  note?: string;
+}
+
+export interface Bit {
+  /** Kürzel, z. B. "LF" */
+  id: string;
+  name: string;
+  type: BeyType;
+  /** true, wenn Typ-Zuordnung nicht gesichert ist */
+  uncertain?: boolean;
+  note?: string;
+}
+
+export interface Product {
+  code: string;
+  name: string;
+  hasbroName?: string;
+  kind: ProductKind;
+  bladeId?: string;
+  ratchetId?: string;
+  bitId?: string;
+  /** Gewicht des kompletten Kreisels in g, nur wenn belegt */
+  weightG?: number;
+  includesLauncher?: boolean;
+  note?: string;
+  verified: boolean;
+  source?: string;
+}
+
+export interface Database {
+  version: number;
+  updatedAt: string;
+  blades: Blade[];
+  ratchets: Ratchet[];
+  bits: Bit[];
+  products: Product[];
+}
+
+export interface NewsItem {
+  id: string;
+  code?: string;
+  title: string;
+  url: string;
+  foundAt: string;
+  source: string;
+}
+
+export interface NewsFeed {
+  updatedAt: string | null;
+  lastRunOk: boolean;
+  items: NewsItem[];
+}
+
+export interface Combo {
+  id: string;
+  name?: string;
+  bladeId: string;
+  ratchetId?: string;
+  bitId: string;
+}

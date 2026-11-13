@@ -1,0 +1,34 @@
+{
+  "name": "beyblade-x-planer",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Beyblade X Kombo-Planer: Teile-Datenbank, Sammlung, Deck-Check und Neuheiten-Radar als Web-App",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "validate-data": "node scripts/validate-data.mjs",
+    "update-data": "node scripts/update-data.mjs",
+    "check": "npm run typecheck && npm run lint && npm run validate-data && npm run test && vite build"
+  },
+  "dependencies": {
+    "preact": "^11.2.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@preact/preset-vite": "^2.10.6",
+    "@testing-library/preact": "^3.2.6",
+    "@types/node": "^26.6.6",
+    "eslint": "^10.15.0",
+    "globals": "^17.14.0",
+    "jsdom": "^31.0.1",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.72.2",
+    "vite": "^8.3.8",
+    "vitest": "^5.1.0"
+  }
+}
