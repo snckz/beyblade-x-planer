@@ -78,6 +78,8 @@ describe('Hasbro-Katalog', () => {
     expect(p('G1491')).toMatchObject({ bladeId: 'CobaltDragoon', ratchetId: '2-60', bitId: 'C' });
     expect([p('F9588-01')?.bladeId, p('F9588-02')?.bladeId]).toEqual(['DranDagger', 'MammothTusk']);
     expect(p('F9588-03')).toBeUndefined();
+    expect(p('F9588-01')?.kind).toBe('set');
+    expect(p('G1491')?.kind).not.toBe('set');
   });
 
   it('löst Hasbro-Seiten per Weiterleitung auf, legt nur echte Hasbro-Kreisel neu an und ist wiederholbar', async () => {
