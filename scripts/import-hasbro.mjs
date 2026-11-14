@@ -127,7 +127,7 @@ export function parseHasbroList(wikitext) {
  */
 export async function mergeHasbro(db, entries, fetchPage) {
   const out = structuredClone(db);
-  const report = { added: { blades: [], ratchets: [], bits: [], products: [] }, names: [], skipped: [], unresolved: [] };
+  const report = { added: { blades: [], ratchets: [], bits: [], products: [] }, names: [], skipped: [], unresolved: [], pageSamples: [] };
   // Neu aufbauen: importierte Hasbro-Produkte und nur dafür angelegte Blades entfernen
   out.products = out.products.filter((p) => !(p.region === 'hasbro' && p.imported));
   const used = new Set(out.products.map((p) => p.bladeId));
@@ -174,6 +174,7 @@ export async function mergeHasbro(db, entries, fetchPage) {
         const names = namesInLinkName(l).map(wkey);
         const pg = await page(l);
         const wt = String(pg?.wikitext ?? '');
+        if (!names.length && report.pageSamples.length < 6) report.pageSamples.push({ code: entry.code, link: l, wikitext: wt.slice(0, 1800) });
         const scope = names.length ? wt : wt.split(/\n==/)[0];
         const found = [];
         for (const m of scope.matchAll(/\[\[([^\]|#]+)(?:#[^\]|]*)?(?:\|([^\]]*))?\]\]/g)) {
