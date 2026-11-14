@@ -2,7 +2,7 @@
 // - Beim Installieren werden index.html, die gehashten Build-Dateien und die Daten vorab gecacht.
 // - Seiten und Daten: Netzwerk zuerst (neue Versionen sofort), offline die letzte Version.
 // - Gehashte Assets: Cache zuerst; veraltete Assets werden beim Aktivieren aufgeräumt.
-const CACHE = 'xplaner-v12';
+const CACHE = 'xplaner-v13';
 // Texterkennung (ca. 7 MB) in eigenem Cache: überlebt App-Updates, nur alte OCR-Versionen werden entfernt.
 const OCR_CACHE = 'xplaner-ocr';
 const STATIC = ['./', 'manifest.webmanifest', 'icons/icon.svg', 'icons/icon-192.png', 'data/db.json', 'data/news.json', 'data/images.json', 'data/events.json', 'data/meta.json', 'data/rates.json', 'bg.webp', 'logo.webp'];
@@ -18,7 +18,12 @@ async function assetList(html) {
     if (res.ok) {
       const list = await res.clone().json();
       if (Array.isArray(list)) {
-        await (await caches.open(CACHE)).put('precache.json', res);
+        const cache = await caches.open(CACHE);
+        // Liste der Vorversion aufheben: deren Dateien bleiben bis zum nächsten Update erhalten,
+        // damit eine noch offene App (alte Version) ihre Tabs weiter nachladen kann.
+        const old = await cache.match('precache.json');
+        if (old) await cache.put('precache-prev.json', old);
+        await cache.put('precache.json', res);
         return list;
       }
     }
@@ -44,7 +49,9 @@ async function cleanup() {
   if (!index) return;
   const listed = await cache.match('precache.json');
   const assets = listed ? await listed.json().catch(() => null) : null;
-  const names = Array.isArray(assets) ? assets : assetsFromHtml(await index.text());
+  const prevRes = await cache.match('precache-prev.json');
+  const prev = prevRes ? await prevRes.json().catch(() => []) : [];
+  const names = [...(Array.isArray(assets) ? assets : assetsFromHtml(await index.text())), ...(Array.isArray(prev) ? prev : [])];
   const current = new Set(names.map((a) => new URL(a, self.registration.scope).href));
   for (const req of await cache.keys()) {
     if (req.url.includes('/assets/') && !current.has(req.url)) await cache.delete(req);

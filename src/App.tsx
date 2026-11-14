@@ -10,16 +10,23 @@ import { ComboBuilder } from './components/ComboBuilder';
 import { Lightbox } from './components/Lightbox';
 import { DetailSheet } from './components/DetailSheet';
 import { IosHint } from './components/IosHint';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { lazy, Suspense } from 'preact/compat';
 
 // Tabs und selten genutzte Fenster erst bei Bedarf laden – der Start bleibt schlank.
 // Gleich nach dem Start werden sie im Leerlauf vorgeladen, damit der Wechsel trotzdem sofort geht.
+// Schlägt das Nachladen fehl (App war während eines Updates offen → alte Dateien gibt es nicht mehr),
+// einmal kurz warten und erneut versuchen; sonst übernimmt die ErrorBoundary (lädt die Seite einmal neu).
+const retry =
+  <T,>(load: () => Promise<T>) =>
+  () =>
+    load().catch(() => new Promise<T>((r) => setTimeout(r, 400)).then(load));
 const loaders = {
-  Lexikon: () => import('./components/Lexikon').then((m) => ({ default: m.Lexikon })),
-  Battle: () => import('./components/Battle').then((m) => ({ default: m.Battle })),
-  Events: () => import('./components/Events').then((m) => ({ default: m.Events })),
-  Collection: () => import('./components/Collection').then((m) => ({ default: m.Collection })),
-  PhotoCheck: () => import('./components/PhotoCheck').then((m) => ({ default: m.PhotoCheck })),
+  Lexikon: retry(() => import('./components/Lexikon').then((m) => ({ default: m.Lexikon }))),
+  Battle: retry(() => import('./components/Battle').then((m) => ({ default: m.Battle }))),
+  Events: retry(() => import('./components/Events').then((m) => ({ default: m.Events }))),
+  Collection: retry(() => import('./components/Collection').then((m) => ({ default: m.Collection }))),
+  PhotoCheck: retry(() => import('./components/PhotoCheck').then((m) => ({ default: m.PhotoCheck }))),
 };
 const Lexikon = lazy(loaders.Lexikon);
 const Battle = lazy(loaders.Battle);
@@ -288,21 +295,23 @@ export function App() {
           ) : (
             <>
               <IosHint hasData={Object.keys(state.owned).length > 0 || state.combos.length > 0} />
-              <Suspense
-                fallback={
-                  <div class="loading" aria-busy="true" aria-label="Lädt">
-                    <div class="spinner" />
-                  </div>
-                }
-              >
-                {tab === 'builder' && (
-                  <ComboBuilder key={preset?.key ?? 0} db={db} state={state} update={update} presetBladeId={preset?.bladeId} presetRatchetId={preset?.ratchetId} presetBitId={preset?.bitId} />
-                )}
-                {tab === 'parts' && <Lexikon db={db} state={state} update={update} />}
-                {tab === 'battle' && <Battle db={db} state={state} update={update} goToBuilder={() => go('builder')} meta={meta} onBuild={buildCombo} />}
-                {tab === 'events' && <Events db={db} events={events.events} news={news} state={state} update={update} />}
-                {tab === 'collection' && <Collection events={events.events} db={db} state={state} update={update} meta={meta} />}
-              </Suspense>
+              <ErrorBoundary>
+                <Suspense
+                  fallback={
+                    <div class="loading" aria-busy="true" aria-label="Lädt">
+                      <div class="spinner" />
+                    </div>
+                  }
+                >
+                  {tab === 'builder' && (
+                    <ComboBuilder key={preset?.key ?? 0} db={db} state={state} update={update} presetBladeId={preset?.bladeId} presetRatchetId={preset?.ratchetId} presetBitId={preset?.bitId} />
+                  )}
+                  {tab === 'parts' && <Lexikon db={db} state={state} update={update} />}
+                  {tab === 'battle' && <Battle db={db} state={state} update={update} goToBuilder={() => go('builder')} meta={meta} onBuild={buildCombo} />}
+                  {tab === 'events' && <Events db={db} events={events.events} news={news} state={state} update={update} />}
+                  {tab === 'collection' && <Collection events={events.events} db={db} state={state} update={update} meta={meta} />}
+                </Suspense>
+              </ErrorBoundary>
             </>
           )}
         </main>
@@ -314,9 +323,11 @@ export function App() {
         {db && detail && <DetailSheet db={db} events={events.events} bladeId={detail} onClose={closeDetail} onUse={useInBuilder} />}
         {db && zoom && <Lightbox db={db} id={zoom.id} kind={zoom.kind} onClose={closeZoom} />}
         {db && check && (
-          <Suspense fallback={null}>
-            <PhotoCheck key={check} db={db} state={state} update={update} meta={meta} initialCode={check} onClose={closeCheck} />
-          </Suspense>
+          <ErrorBoundary>
+            <Suspense fallback={null}>
+              <PhotoCheck key={check} db={db} state={state} update={update} meta={meta} initialCode={check} onClose={closeCheck} />
+            </Suspense>
+          </ErrorBoundary>
         )}
       </div>
     </AppContext.Provider>

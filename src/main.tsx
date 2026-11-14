@@ -5,6 +5,15 @@ import './styles.css';
 
 render(<App />, document.getElementById('app')!);
 
+// Nach erfolgreichem Start darf ein späterer Ladefehler wieder einmal neu laden.
+window.setTimeout(() => {
+  try {
+    sessionStorage.removeItem('bxplaner:reloaded');
+  } catch {
+    /* privat */
+  }
+}, 10_000);
+
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`).catch(() => {
