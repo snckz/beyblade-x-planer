@@ -1490,7 +1490,8 @@
       "bladeId": "DranSword",
       "ratchetId": "3-60",
       "bitId": "F",
-      "includesLauncher": true
+      "includesLauncher": true,
+      "priceJpy": 1980
     },
     {
       "code": "BX-02",
@@ -1500,7 +1501,8 @@
       "bladeId": "HellsScythe",
       "ratchetId": "4-60",
       "bitId": "T",
-      "includesLauncher": true
+      "includesLauncher": true,
+      "priceJpy": 1980
     },
     {
       "code": "BX-03",
@@ -1510,7 +1512,8 @@
       "bladeId": "WizardArrow",
       "ratchetId": "4-80",
       "bitId": "B",
-      "includesLauncher": true
+      "includesLauncher": true,
+      "priceJpy": 1980
     },
     {
       "code": "BX-04",
@@ -1520,7 +1523,8 @@
       "bladeId": "KnightShield",
       "ratchetId": "3-80",
       "bitId": "N",
-      "includesLauncher": true
+      "includesLauncher": true,
+      "priceJpy": 1980
     },
     {
       "code": "BX-10",
@@ -1535,7 +1539,8 @@
       "verified": true,
       "bladeId": "KnightLance",
       "ratchetId": "4-80",
-      "bitId": "HN"
+      "bitId": "HN",
+      "priceJpy": 1400
     },
     {
       "code": "BX-14",
@@ -1544,7 +1549,8 @@
       "verified": true,
       "bladeId": "SharkEdge",
       "ratchetId": "3-60",
-      "bitId": "LF"
+      "bitId": "LF",
+      "priceJpy": 1400
     },
     {
       "code": "BX-15",
@@ -1554,7 +1560,8 @@
       "bladeId": "LeonClaw",
       "ratchetId": "5-60",
       "bitId": "P",
-      "includesLauncher": true
+      "includesLauncher": true,
+      "priceJpy": 1980
     },
     {
       "code": "BX-16",
@@ -1563,7 +1570,8 @@
       "verified": false,
       "bladeId": "ViperTail",
       "ratchetId": "5-80",
-      "bitId": "O"
+      "bitId": "O",
+      "priceJpy": 1400
     },
     {
       "code": "BX-23",
@@ -1573,7 +1581,8 @@
       "bladeId": "PhoenixWing",
       "ratchetId": "9-60",
       "bitId": "GF",
-      "includesLauncher": true
+      "includesLauncher": true,
+      "priceJpy": 2420
     },
     {
       "code": "BX-34",
@@ -1584,7 +1593,8 @@
       "ratchetId": "2-60",
       "bitId": "C",
       "includesLauncher": true,
-      "note": "Linksdreher – Launcher für Linksdrehung beiliegend."
+      "note": "Linksdreher – Launcher für Linksdrehung beiliegend.",
+      "priceJpy": 2321
     },
     {
       "code": "BX-37",
@@ -1601,7 +1611,8 @@
       "verified": false,
       "bladeId": "CrimsonGaruda",
       "ratchetId": "4-70",
-      "bitId": "TP"
+      "bitId": "TP",
+      "priceJpy": 1400
     },
     {
       "code": "BX-49",
@@ -1610,7 +1621,8 @@
       "verified": true,
       "bladeId": "DranStrike",
       "ratchetId": "4-50",
-      "bitId": "FF"
+      "bitId": "FF",
+      "priceJpy": 2200
     },
     {
       "code": "BX-52",
@@ -1620,7 +1632,8 @@
       "bladeId": "LusterDragoon",
       "ratchetId": "6-60",
       "bitId": "LC",
-      "includesLauncher": true
+      "includesLauncher": true,
+      "priceJpy": 2300
     },
     {
       "code": "UX-01",
@@ -1630,7 +1643,8 @@
       "bladeId": "DranBuster",
       "ratchetId": "1-60",
       "bitId": "A",
-      "includesLauncher": true
+      "includesLauncher": true,
+      "priceJpy": 1980
     },
     {
       "code": "UX-02",
@@ -1640,7 +1654,8 @@
       "bladeId": "HellsHammer",
       "ratchetId": "3-70",
       "bitId": "H",
-      "includesLauncher": true
+      "includesLauncher": true,
+      "priceJpy": 1980
     },
     {
       "code": "UX-03",
@@ -1649,7 +1664,8 @@
       "verified": true,
       "bladeId": "WizardRod",
       "ratchetId": "5-70",
-      "bitId": "DB"
+      "bitId": "DB",
+      "priceJpy": 1400
     },
     {
       "code": "UX-06",
@@ -1658,7 +1674,8 @@
       "verified": false,
       "bladeId": "LeonCrest",
       "ratchetId": "7-60",
-      "bitId": "GN"
+      "bitId": "GN",
+      "priceJpy": 1400
     },
     {
       "code": "UX-09",
@@ -1669,14 +1686,16 @@
       "ratchetId": "2-70",
       "bitId": "L",
       "includesLauncher": true,
-      "weightG": 45.6
+      "weightG": 45.6,
+      "priceJpy": 3300
     },
     {
       "code": "UX-15",
       "name": "Booster Shark Scale",
       "kind": "booster",
       "verified": false,
-      "bladeId": "SharkScale"
+      "bladeId": "SharkScale",
+      "priceJpy": null
     },
     {
       "code": "UX-16",
@@ -1684,7 +1703,8 @@
       "kind": "random-booster",
       "verified": true,
       "bladeId": "ClockMirage",
-      "note": "Inhalt zufällig."
+      "note": "Inhalt zufällig.",
+      "priceJpy": null
     },
     {
       "code": "UX-19",
@@ -1693,7 +1713,8 @@
       "verified": true,
       "bladeId": "BulletGriffon",
       "bitId": "H",
-      "includesLauncher": true
+      "includesLauncher": true,
+      "priceJpy": 2600
     },
     {
       "code": "UX-20",
@@ -1704,7 +1725,8 @@
       "bitId": "LF",
       "includesLauncher": true,
       "weightG": 45.4,
-      "hasbroName": "Glory Valkerion LF"
+      "hasbroName": "Glory Valkerion LF",
+      "priceJpy": 2700
     },
     {
       "code": "UX-22",
@@ -1714,7 +1736,8 @@
       "bladeId": "VanishLucifer",
       "bitId": "WW",
       "includesLauncher": true,
-      "note": "Japan-Release 26.12.2026."
+      "note": "Japan-Release 26.12.2026.",
+      "priceJpy": 2500
     },
     {
       "code": "CX-01",
@@ -1724,7 +1747,8 @@
       "bladeId": "DranBrave",
       "ratchetId": "6-60",
       "bitId": "V",
-      "includesLauncher": true
+      "includesLauncher": true,
+      "priceJpy": null
     },
     {
       "code": "CX-02",
@@ -1734,7 +1758,8 @@
       "bladeId": "WizardArc",
       "ratchetId": "4-55",
       "bitId": "LO",
-      "includesLauncher": true
+      "includesLauncher": true,
+      "priceJpy": null
     },
     {
       "code": "CX-14",
@@ -1743,7 +1768,8 @@
       "verified": false,
       "bladeId": "KnightFortress",
       "ratchetId": "8-70",
-      "bitId": "UN"
+      "bitId": "UN",
+      "priceJpy": null
     },
     {
       "code": "BX-00-SP",
@@ -1755,7 +1781,8 @@
       "bitId": "RA",
       "includesLauncher": true,
       "rarity": "limited",
-      "note": "Limitierte BX-00-Version."
+      "note": "Limitierte BX-00-Version.",
+      "priceJpy": null
     },
     {
       "code": "UX-00-GVMC",
@@ -1766,7 +1793,8 @@
       "bitId": "LF",
       "includesLauncher": true,
       "rarity": "limited",
-      "note": "Event-Limited, erschienen am 29.08.2026 für Xtreme-Gear-Sports-Events."
+      "note": "Event-Limited, erschienen am 29.08.2026 für Xtreme-Gear-Sports-Events.",
+      "priceJpy": 2700
     },
     {
       "code": "HAS-XBS",
@@ -1785,7 +1813,8 @@
       "bitId": "B",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/WizardArrow_4-80B"
+      "source": "https://beyblade.fandom.com/wiki/WizardArrow_4-80B",
+      "priceJpy": 1980
     },
     {
       "code": "BX-06",
@@ -1796,7 +1825,8 @@
       "bitId": "N",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/KnightShield_3-80N"
+      "source": "https://beyblade.fandom.com/wiki/KnightShield_3-80N",
+      "priceJpy": 1980
     },
     {
       "code": "BX-19",
@@ -1807,7 +1837,8 @@
       "bitId": "S",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/RhinoHorn_3-80S"
+      "source": "https://beyblade.fandom.com/wiki/RhinoHorn_3-80S",
+      "priceJpy": 1400
     },
     {
       "code": "BX-22",
@@ -1818,7 +1849,8 @@
       "bitId": "F",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/DranSword_3-60F"
+      "source": "https://beyblade.fandom.com/wiki/DranSword_3-60F",
+      "priceJpy": 1980
     },
     {
       "code": "BX-26",
@@ -1829,7 +1861,8 @@
       "bitId": "GP",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/UnicornSting_5-60GP"
+      "source": "https://beyblade.fandom.com/wiki/UnicornSting_5-60GP",
+      "priceJpy": 1400
     },
     {
       "code": "BX-33",
@@ -1840,7 +1873,8 @@
       "bitId": "U",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/WeissTiger_3-60U"
+      "source": "https://beyblade.fandom.com/wiki/WeissTiger_3-60U",
+      "priceJpy": 1400
     },
     {
       "code": "BX-44",
@@ -1851,7 +1885,8 @@
       "bitId": "BS",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/TriceraPress_M-85BS"
+      "source": "https://beyblade.fandom.com/wiki/TriceraPress_M-85BS",
+      "priceJpy": 1500
     },
     {
       "code": "BX-45",
@@ -1862,7 +1897,8 @@
       "bitId": "M",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/SamuraiCalibur_6-70M"
+      "source": "https://beyblade.fandom.com/wiki/SamuraiCalibur_6-70M",
+      "priceJpy": 1500
     },
     {
       "code": "BX-54",
@@ -1873,7 +1909,8 @@
       "bitId": "LP",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/SiegSuperion_0-70LP"
+      "source": "https://beyblade.fandom.com/wiki/SiegSuperion_0-70LP",
+      "priceJpy": 1600
     },
     {
       "code": "UX-08",
@@ -1885,7 +1922,8 @@
       "includesLauncher": true,
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/SilverWolf_3-80FB"
+      "source": "https://beyblade.fandom.com/wiki/SilverWolf_3-80FB",
+      "priceJpy": 2080
     },
     {
       "code": "UX-11",
@@ -1897,7 +1935,8 @@
       "includesLauncher": true,
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/ImpactDrake_9-60LR"
+      "source": "https://beyblade.fandom.com/wiki/ImpactDrake_9-60LR",
+      "priceJpy": 2420
     },
     {
       "code": "UX-13",
@@ -1908,7 +1947,8 @@
       "bitId": "UN",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/GolemRock_1-60UN"
+      "source": "https://beyblade.fandom.com/wiki/GolemRock_1-60UN",
+      "priceJpy": 1400
     },
     {
       "code": "UX-14",
@@ -1920,7 +1960,8 @@
       "includesLauncher": true,
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/ScorpioSpear_0-70Z"
+      "source": "https://beyblade.fandom.com/wiki/ScorpioSpear_0-70Z",
+      "priceJpy": 2200
     },
     {
       "code": "UX-17",
@@ -1932,7 +1973,8 @@
       "includesLauncher": true,
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/MeteorDragoon_3-70J"
+      "source": "https://beyblade.fandom.com/wiki/MeteorDragoon_3-70J",
+      "priceJpy": 2300
     },
     {
       "code": "CX-03",
@@ -1943,7 +1985,8 @@
       "bitId": "W",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/PerseusDark_B6-80W"
+      "source": "https://beyblade.fandom.com/wiki/PerseusDark_B6-80W",
+      "priceJpy": 1600
     },
     {
       "code": "CX-07",
@@ -1954,7 +1997,8 @@
       "includesLauncher": true,
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/PegasusBlast_ATr"
+      "source": "https://beyblade.fandom.com/wiki/PegasusBlast_ATr",
+      "priceJpy": 2600
     },
     {
       "code": "CX-09",
@@ -1966,7 +2010,8 @@
       "includesLauncher": true,
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/SolEclipse_D5-70TK"
+      "source": "https://beyblade.fandom.com/wiki/SolEclipse_D5-70TK",
+      "priceJpy": 2500
     },
     {
       "code": "CX-10",
@@ -1977,7 +2022,8 @@
       "bitId": "DB",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/WolfHunt_F0-60DB"
+      "source": "https://beyblade.fandom.com/wiki/WolfHunt_F0-60DB",
+      "priceJpy": 1700
     },
     {
       "code": "CX-12",
@@ -1988,7 +2034,8 @@
       "bitId": "WW",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/PhoenixFlare_Z9-80WW"
+      "source": "https://beyblade.fandom.com/wiki/PhoenixFlare_Z9-80WW",
+      "priceJpy": 1700
     },
     {
       "code": "CX-13",
@@ -2000,7 +2047,8 @@
       "includesLauncher": true,
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/BahamutBlitz_BK1-50I"
+      "source": "https://beyblade.fandom.com/wiki/BahamutBlitz_BK1-50I",
+      "priceJpy": 2200
     },
     {
       "code": "CX-15",
@@ -2011,7 +2059,8 @@
       "bitId": "Y",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/RagnaRage_FE4-55Y"
+      "source": "https://beyblade.fandom.com/wiki/RagnaRage_FE4-55Y",
+      "priceJpy": 1600
     },
     {
       "code": "CX-00-01",
@@ -2023,7 +2072,8 @@
       "includesLauncher": true,
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/ValkyrieVolt_S4-70V"
+      "source": "https://beyblade.fandom.com/wiki/ValkyrieVolt_S4-70V",
+      "priceJpy": 1800
     },
     {
       "code": "CX-00-04",
@@ -2035,7 +2085,8 @@
       "includesLauncher": true,
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/LeonFang_T4-60A"
+      "source": "https://beyblade.fandom.com/wiki/LeonFang_T4-60A",
+      "priceJpy": 8228
     },
     {
       "code": "CX-00-06",
@@ -2047,7 +2098,8 @@
       "includesLauncher": true,
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/DranArc_S2-70K"
+      "source": "https://beyblade.fandom.com/wiki/DranArc_S2-70K",
+      "priceJpy": null
     },
     {
       "code": "CX-00-07",
@@ -2059,7 +2111,8 @@
       "includesLauncher": true,
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/BucksAntlers_B2-60D"
+      "source": "https://beyblade.fandom.com/wiki/BucksAntlers_B2-60D",
+      "priceJpy": 1800
     },
     {
       "code": "CX-00-08",
@@ -2071,7 +2124,8 @@
       "includesLauncher": true,
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/HornetFort_R7-60T"
+      "source": "https://beyblade.fandom.com/wiki/HornetFort_R7-60T",
+      "priceJpy": 1800
     },
     {
       "code": "CX-00-09",
@@ -2083,7 +2137,8 @@
       "includesLauncher": true,
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/KrakenWriggle_S3-70O"
+      "source": "https://beyblade.fandom.com/wiki/KrakenWriggle_S3-70O",
+      "priceJpy": 1800
     },
     {
       "code": "CX-00-10",
@@ -2095,7 +2150,8 @@
       "includesLauncher": true,
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/DrakeBrave_G4-70I"
+      "source": "https://beyblade.fandom.com/wiki/DrakeBrave_G4-70I",
+      "priceJpy": 1900
     },
     {
       "code": "CX-00-11",
@@ -2107,7 +2163,8 @@
       "includesLauncher": true,
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/TigaRage_FT3-60T"
+      "source": "https://beyblade.fandom.com/wiki/TigaRage_FT3-60T",
+      "priceJpy": 2750
     },
     {
       "code": "BX-07",
@@ -2118,7 +2175,8 @@
       "bitId": "F",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/DranSword_3-60F"
+      "source": "https://beyblade.fandom.com/wiki/DranSword_3-60F",
+      "priceJpy": 1980
     },
     {
       "code": "BX-08-01",
@@ -2129,7 +2187,8 @@
       "bitId": "B",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/HellsScythe_3-80B"
+      "source": "https://beyblade.fandom.com/wiki/HellsScythe_3-80B",
+      "priceJpy": 3960
     },
     {
       "code": "BX-08-02",
@@ -2140,7 +2199,8 @@
       "bitId": "N",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/WizardArrow_4-60N"
+      "source": "https://beyblade.fandom.com/wiki/WizardArrow_4-60N",
+      "priceJpy": 3960
     },
     {
       "code": "BX-08-03",
@@ -2151,7 +2211,8 @@
       "bitId": "T",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/KnightShield_4-80T"
+      "source": "https://beyblade.fandom.com/wiki/KnightShield_4-80T",
+      "priceJpy": 3960
     },
     {
       "code": "BX-17-01",
@@ -2162,7 +2223,8 @@
       "bitId": "F",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/DranSword_3-60F"
+      "source": "https://beyblade.fandom.com/wiki/DranSword_3-60F",
+      "priceJpy": 1980
     },
     {
       "code": "BX-17-02",
@@ -2173,7 +2235,8 @@
       "bitId": "B",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/WizardArrow_4-80B"
+      "source": "https://beyblade.fandom.com/wiki/WizardArrow_4-80B",
+      "priceJpy": 1980
     },
     {
       "code": "BX-20-01",
@@ -2184,7 +2247,8 @@
       "bitId": "R",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/DranDagger_4-60R"
+      "source": "https://beyblade.fandom.com/wiki/DranDagger_4-60R",
+      "priceJpy": 3960
     },
     {
       "code": "BX-20-02",
@@ -2195,7 +2259,8 @@
       "bitId": "T",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/KnightShield_5-80T"
+      "source": "https://beyblade.fandom.com/wiki/KnightShield_5-80T",
+      "priceJpy": 3960
     },
     {
       "code": "BX-20-03",
@@ -2206,7 +2271,8 @@
       "bitId": "F",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/SharkEdge_3-80F"
+      "source": "https://beyblade.fandom.com/wiki/SharkEdge_3-80F",
+      "priceJpy": 3960
     },
     {
       "code": "BX-21-01",
@@ -2217,7 +2283,8 @@
       "bitId": "HT",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/HellsChain_5-60HT"
+      "source": "https://beyblade.fandom.com/wiki/HellsChain_5-60HT",
+      "priceJpy": 3960
     },
     {
       "code": "BX-21-02",
@@ -2228,7 +2295,8 @@
       "bitId": "LF",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/KnightLance_3-60LF"
+      "source": "https://beyblade.fandom.com/wiki/KnightLance_3-60LF",
+      "priceJpy": 3960
     },
     {
       "code": "BX-21-03",
@@ -2239,7 +2307,8 @@
       "bitId": "N",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/WizardArrow_4-80N"
+      "source": "https://beyblade.fandom.com/wiki/WizardArrow_4-80N",
+      "priceJpy": 3960
     },
     {
       "code": "BX-24-01",
@@ -2250,7 +2319,8 @@
       "bitId": "GB",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/WyvernGale_5-80GB"
+      "source": "https://beyblade.fandom.com/wiki/WyvernGale_5-80GB",
+      "priceJpy": 1400
     },
     {
       "code": "BX-24-02",
@@ -2261,7 +2331,8 @@
       "bitId": "T",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/WyvernGale_3-60T"
+      "source": "https://beyblade.fandom.com/wiki/WyvernGale_3-60T",
+      "priceJpy": 1400
     },
     {
       "code": "BX-24-03",
@@ -2272,7 +2343,8 @@
       "bitId": "GB",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/KnightLance_4-60GB"
+      "source": "https://beyblade.fandom.com/wiki/KnightLance_4-60GB",
+      "priceJpy": 1400
     },
     {
       "code": "BX-24-04",
@@ -2283,7 +2355,8 @@
       "bitId": "F",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/ViperTail_5-60F"
+      "source": "https://beyblade.fandom.com/wiki/ViperTail_5-60F",
+      "priceJpy": 1400
     },
     {
       "code": "BX-24-05",
@@ -2294,7 +2367,8 @@
       "bitId": "HN",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/LeonClaw_3-80HN"
+      "source": "https://beyblade.fandom.com/wiki/LeonClaw_3-80HN",
+      "priceJpy": 1400
     },
     {
       "code": "BX-24-06",
@@ -2305,7 +2379,8 @@
       "bitId": "GB",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/WizardArrow_4-80GB"
+      "source": "https://beyblade.fandom.com/wiki/WizardArrow_4-80GB",
+      "priceJpy": 1400
     },
     {
       "code": "BX-27-01",
@@ -2316,7 +2391,8 @@
       "bitId": "GN",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/SphinxCowl_9-80GN"
+      "source": "https://beyblade.fandom.com/wiki/SphinxCowl_9-80GN",
+      "priceJpy": 1400
     },
     {
       "code": "BX-27-02",
@@ -2327,7 +2403,8 @@
       "bitId": "HT",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/SphinxCowl_4-80HT"
+      "source": "https://beyblade.fandom.com/wiki/SphinxCowl_4-80HT",
+      "priceJpy": 1400
     },
     {
       "code": "BX-27-03",
@@ -2338,7 +2415,8 @@
       "bitId": "O",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/SphinxCowl_5-60O"
+      "source": "https://beyblade.fandom.com/wiki/SphinxCowl_5-60O",
+      "priceJpy": 1400
     },
     {
       "code": "BX-31-01",
@@ -2349,7 +2427,8 @@
       "bitId": "Q",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/TyrannoBeat_4-70Q"
+      "source": "https://beyblade.fandom.com/wiki/TyrannoBeat_4-70Q",
+      "priceJpy": 1400
     },
     {
       "code": "BX-31-02",
@@ -2360,7 +2439,8 @@
       "bitId": "S",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/TyrannoBeat_3-60S"
+      "source": "https://beyblade.fandom.com/wiki/TyrannoBeat_3-60S",
+      "priceJpy": 1400
     },
     {
       "code": "BX-31-03",
@@ -2371,7 +2451,8 @@
       "bitId": "O",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/HellsChain_9-80O"
+      "source": "https://beyblade.fandom.com/wiki/HellsChain_9-80O",
+      "priceJpy": 1400
     },
     {
       "code": "BX-31-04",
@@ -2382,7 +2463,8 @@
       "bitId": "P",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/DranDagger_4-70P"
+      "source": "https://beyblade.fandom.com/wiki/DranDagger_4-70P",
+      "priceJpy": 1400
     },
     {
       "code": "BX-31-05",
@@ -2393,7 +2475,8 @@
       "bitId": "Q",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/SharkEdge_1-60Q"
+      "source": "https://beyblade.fandom.com/wiki/SharkEdge_1-60Q",
+      "priceJpy": 1400
     },
     {
       "code": "BX-31-06",
@@ -2404,7 +2487,8 @@
       "bitId": "Q",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/RhinoHorn_5-80Q"
+      "source": "https://beyblade.fandom.com/wiki/RhinoHorn_5-80Q",
+      "priceJpy": 1400
     },
     {
       "code": "BX-35-01",
@@ -2415,7 +2499,8 @@
       "bitId": "D",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/BlackShell_4-60D"
+      "source": "https://beyblade.fandom.com/wiki/BlackShell_4-60D",
+      "priceJpy": 1400
     },
     {
       "code": "BX-35-02",
@@ -2426,7 +2511,8 @@
       "bitId": "B",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/BlackShell_9-80B"
+      "source": "https://beyblade.fandom.com/wiki/BlackShell_9-80B",
+      "priceJpy": 1400
     },
     {
       "code": "BX-35-03",
@@ -2437,7 +2523,8 @@
       "bitId": "D",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/UnicornSting_3-70D"
+      "source": "https://beyblade.fandom.com/wiki/UnicornSting_3-70D",
+      "priceJpy": 1400
     },
     {
       "code": "BX-35-04",
@@ -2448,7 +2535,8 @@
       "bitId": "R",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/WizardRod_1-60R"
+      "source": "https://beyblade.fandom.com/wiki/WizardRod_1-60R",
+      "priceJpy": 1400
     },
     {
       "code": "BX-35-05",
@@ -2459,7 +2547,8 @@
       "bitId": "H",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/PhoenixWing_5-80H"
+      "source": "https://beyblade.fandom.com/wiki/PhoenixWing_5-80H",
+      "priceJpy": 1400
     },
     {
       "code": "BX-35-06",
@@ -2470,7 +2559,8 @@
       "bitId": "D",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/ViperTail_5-70D"
+      "source": "https://beyblade.fandom.com/wiki/ViperTail_5-70D",
+      "priceJpy": 1400
     },
     {
       "code": "BX-36-01",
@@ -2481,7 +2571,8 @@
       "bitId": "E",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/WhaleWave_5-80E"
+      "source": "https://beyblade.fandom.com/wiki/WhaleWave_5-80E",
+      "priceJpy": 1400
     },
     {
       "code": "BX-36-02",
@@ -2492,7 +2583,8 @@
       "bitId": "HN",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/WhaleWave_4-70HN"
+      "source": "https://beyblade.fandom.com/wiki/WhaleWave_4-70HN",
+      "priceJpy": 1400
     },
     {
       "code": "BX-36-03",
@@ -2503,7 +2595,8 @@
       "bitId": "GB",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/WhaleWave_3-80GB"
+      "source": "https://beyblade.fandom.com/wiki/WhaleWave_3-80GB",
+      "priceJpy": 1400
     },
     {
       "code": "BX-36-04",
@@ -2514,7 +2607,8 @@
       "bitId": "HN",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/WhaleWave_4-80HN"
+      "source": "https://beyblade.fandom.com/wiki/WhaleWave_4-80HN",
+      "priceJpy": null
     },
     {
       "code": "BX-39-01",
@@ -2525,7 +2619,8 @@
       "bitId": "GP",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/ShelterDrake_7-80GP"
+      "source": "https://beyblade.fandom.com/wiki/ShelterDrake_7-80GP",
+      "priceJpy": 1400
     },
     {
       "code": "BX-39-02",
@@ -2536,7 +2631,8 @@
       "bitId": "O",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/ShelterDrake_5-70O"
+      "source": "https://beyblade.fandom.com/wiki/ShelterDrake_5-70O",
+      "priceJpy": 1400
     },
     {
       "code": "BX-39-03",
@@ -2547,7 +2643,8 @@
       "bitId": "D",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/ShelterDrake_3-60D"
+      "source": "https://beyblade.fandom.com/wiki/ShelterDrake_3-60D",
+      "priceJpy": 1400
     },
     {
       "code": "BX-46-01",
@@ -2558,7 +2655,8 @@
       "bitId": "R",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/CobaltDrake_9-60R"
+      "source": "https://beyblade.fandom.com/wiki/CobaltDrake_9-60R",
+      "priceJpy": 7500
     },
     {
       "code": "BX-46-02",
@@ -2569,7 +2667,8 @@
       "bitId": "T",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/GoatTackle_7-70T"
+      "source": "https://beyblade.fandom.com/wiki/GoatTackle_7-70T",
+      "priceJpy": 7500
     },
     {
       "code": "BX-48-01",
@@ -2580,7 +2679,8 @@
       "bitId": "F",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/CobaltDragoon_9-80F"
+      "source": "https://beyblade.fandom.com/wiki/CobaltDragoon_9-80F",
+      "priceJpy": 1600
     },
     {
       "code": "BX-48-02",
@@ -2591,7 +2691,8 @@
       "bitId": "E",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/SharkEdge_4-70E"
+      "source": "https://beyblade.fandom.com/wiki/SharkEdge_4-70E",
+      "priceJpy": 1600
     },
     {
       "code": "BX-48-03",
@@ -2602,7 +2703,8 @@
       "bitId": "S",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/MammothTusk_7-60S"
+      "source": "https://beyblade.fandom.com/wiki/MammothTusk_7-60S",
+      "priceJpy": 1600
     },
     {
       "code": "BX-48-04",
@@ -2613,7 +2715,8 @@
       "bitId": "GB",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/HellsScythe_3-85GB"
+      "source": "https://beyblade.fandom.com/wiki/HellsScythe_3-85GB",
+      "priceJpy": 1600
     },
     {
       "code": "BX-48-05",
@@ -2624,7 +2727,8 @@
       "bitId": "Q",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/DranBuster_2-80Q"
+      "source": "https://beyblade.fandom.com/wiki/DranBuster_2-80Q",
+      "priceJpy": 1600
     },
     {
       "code": "BX-50-01",
@@ -2635,7 +2739,8 @@
       "bitId": "DS",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/HeavensRing_0-80DS"
+      "source": "https://beyblade.fandom.com/wiki/HeavensRing_0-80DS",
+      "priceJpy": 1600
     },
     {
       "code": "BX-50-02",
@@ -2646,7 +2751,8 @@
       "bitId": "TP",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/HeavensRing_6-60TP"
+      "source": "https://beyblade.fandom.com/wiki/HeavensRing_6-60TP",
+      "priceJpy": 1600
     },
     {
       "code": "BX-50-03",
@@ -2657,7 +2763,8 @@
       "bitId": "FB",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/ImpactDrake_7-55FB"
+      "source": "https://beyblade.fandom.com/wiki/ImpactDrake_7-55FB",
+      "priceJpy": 1600
     },
     {
       "code": "BX-50-04",
@@ -2668,7 +2775,8 @@
       "bitId": "DS",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/GhostCircle_M-85DS"
+      "source": "https://beyblade.fandom.com/wiki/GhostCircle_M-85DS",
+      "priceJpy": 1600
     },
     {
       "code": "BX-50-05",
@@ -2679,7 +2787,8 @@
       "bitId": "L",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/WolfFlame_D9-65L"
+      "source": "https://beyblade.fandom.com/wiki/WolfFlame_D9-65L",
+      "priceJpy": 1600
     },
     {
       "code": "BX-50-06",
@@ -2690,7 +2799,8 @@
       "bitId": "WB",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/CerberusReaper_B0-80WB"
+      "source": "https://beyblade.fandom.com/wiki/CerberusReaper_B0-80WB",
+      "priceJpy": 1600
     },
     {
       "code": "BX-53-01",
@@ -2701,7 +2811,8 @@
       "bitId": "A",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/AeroPegasus_3-70A"
+      "source": "https://beyblade.fandom.com/wiki/AeroPegasus_3-70A",
+      "priceJpy": 1600
     },
     {
       "code": "BX-53-02",
@@ -2712,7 +2823,8 @@
       "bitId": "B",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/WizardArrow_4-80B"
+      "source": "https://beyblade.fandom.com/wiki/WizardArrow_4-80B",
+      "priceJpy": 1980
     },
     {
       "code": "BX-53-03",
@@ -2723,7 +2835,8 @@
       "bitId": "N",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/KnightShield_3-80N"
+      "source": "https://beyblade.fandom.com/wiki/KnightShield_3-80N",
+      "priceJpy": 1980
     },
     {
       "code": "BX-55-01",
@@ -2734,7 +2847,8 @@
       "bitId": "MO",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/HorusShatter_3-85MO"
+      "source": "https://beyblade.fandom.com/wiki/HorusShatter_3-85MO",
+      "priceJpy": 1600
     },
     {
       "code": "BX-55-02",
@@ -2745,7 +2859,8 @@
       "bitId": "BS",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/HorusShatter_1-60BS"
+      "source": "https://beyblade.fandom.com/wiki/HorusShatter_1-60BS",
+      "priceJpy": 1600
     },
     {
       "code": "BX-55-03",
@@ -2756,7 +2871,8 @@
       "bitId": "HT",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/LeonFang_T9-65HT"
+      "source": "https://beyblade.fandom.com/wiki/LeonFang_T9-65HT",
+      "priceJpy": 1600
     },
     {
       "code": "BX-55-04",
@@ -2767,7 +2883,8 @@
       "bitId": "A",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/FoxBlast_R6-70A"
+      "source": "https://beyblade.fandom.com/wiki/FoxBlast_R6-70A",
+      "priceJpy": 1600
     },
     {
       "code": "BX-55-05",
@@ -2778,7 +2895,8 @@
       "bitId": "DS",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/TriceraPress_4-60DS"
+      "source": "https://beyblade.fandom.com/wiki/TriceraPress_4-60DS",
+      "priceJpy": 1600
     },
     {
       "code": "BX-55-06",
@@ -2789,7 +2907,8 @@
       "bitId": "MO",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/ClockMirage_4-55MO"
+      "source": "https://beyblade.fandom.com/wiki/ClockMirage_4-55MO",
+      "priceJpy": 1600
     },
     {
       "code": "UX-04-01",
@@ -2800,7 +2919,8 @@
       "bitId": "A",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/DranBuster_1-60A"
+      "source": "https://beyblade.fandom.com/wiki/DranBuster_1-60A",
+      "priceJpy": 1980
     },
     {
       "code": "UX-04-02",
@@ -2811,7 +2931,8 @@
       "bitId": "DB",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/WizardRod_5-70DB"
+      "source": "https://beyblade.fandom.com/wiki/WizardRod_5-70DB",
+      "priceJpy": 1400
     },
     {
       "code": "UX-05-01",
@@ -2822,7 +2943,8 @@
       "bitId": "MN",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/ShinobiShadow_1-80MN"
+      "source": "https://beyblade.fandom.com/wiki/ShinobiShadow_1-80MN",
+      "priceJpy": 1400
     },
     {
       "code": "UX-05-02",
@@ -2833,7 +2955,8 @@
       "bitId": "LF",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/ShinobiShadow_9-60LF"
+      "source": "https://beyblade.fandom.com/wiki/ShinobiShadow_9-60LF",
+      "priceJpy": 1400
     },
     {
       "code": "UX-05-03",
@@ -2844,7 +2967,8 @@
       "bitId": "GP",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/ShinobiShadow_3-70GP"
+      "source": "https://beyblade.fandom.com/wiki/ShinobiShadow_3-70GP",
+      "priceJpy": 1400
     },
     {
       "code": "UX-07-01",
@@ -2855,7 +2979,8 @@
       "bitId": "G",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/PhoenixRudder_9-70G"
+      "source": "https://beyblade.fandom.com/wiki/PhoenixRudder_9-70G",
+      "priceJpy": 4100
     },
     {
       "code": "UX-07-02",
@@ -2866,7 +2991,8 @@
       "bitId": "GF",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/SphinxCowl_1-80GF"
+      "source": "https://beyblade.fandom.com/wiki/SphinxCowl_1-80GF",
+      "priceJpy": 4100
     },
     {
       "code": "UX-07-03",
@@ -2877,7 +3003,8 @@
       "bitId": "S",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/WyvernGale_2-60S"
+      "source": "https://beyblade.fandom.com/wiki/WyvernGale_2-60S",
+      "priceJpy": 4100
     },
     {
       "code": "UX-10",
@@ -2888,7 +3015,8 @@
       "bitId": "BS",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/KnightMail_3-85BS"
+      "source": "https://beyblade.fandom.com/wiki/KnightMail_3-85BS",
+      "priceJpy": 5700
     },
     {
       "code": "UX-12-01",
@@ -2899,7 +3027,8 @@
       "bitId": "GB",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/GhostCircle_0-80GB"
+      "source": "https://beyblade.fandom.com/wiki/GhostCircle_0-80GB",
+      "priceJpy": 1400
     },
     {
       "code": "UX-12-02",
@@ -2910,7 +3039,8 @@
       "bitId": "H",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/GhostCircle_4-60H"
+      "source": "https://beyblade.fandom.com/wiki/GhostCircle_4-60H",
+      "priceJpy": 1400
     },
     {
       "code": "UX-12-03",
@@ -2921,7 +3051,8 @@
       "bitId": "F",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/ShinobiShadow_3-80F"
+      "source": "https://beyblade.fandom.com/wiki/ShinobiShadow_3-80F",
+      "priceJpy": 1400
     },
     {
       "code": "UX-12-04",
@@ -2932,7 +3063,8 @@
       "bitId": "E",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/LeonClaw_0-80E"
+      "source": "https://beyblade.fandom.com/wiki/LeonClaw_0-80E",
+      "priceJpy": 1400
     },
     {
       "code": "UX-12-05",
@@ -2943,7 +3075,8 @@
       "bitId": "N",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/PhoenixFeather_2-60N"
+      "source": "https://beyblade.fandom.com/wiki/PhoenixFeather_2-60N",
+      "priceJpy": 1400
     },
     {
       "code": "UX-12-06",
@@ -2954,7 +3087,8 @@
       "bitId": "C",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/WyvernGale_0-80C"
+      "source": "https://beyblade.fandom.com/wiki/WyvernGale_0-80C",
+      "priceJpy": 1400
     },
     {
       "code": "UX-18-01",
@@ -2965,7 +3099,8 @@
       "bitId": "W",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/MummyCurse_7-55W"
+      "source": "https://beyblade.fandom.com/wiki/MummyCurse_7-55W",
+      "priceJpy": 1600
     },
     {
       "code": "UX-18-02",
@@ -2976,7 +3111,8 @@
       "bitId": "C",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/MummyCurse_4-60C"
+      "source": "https://beyblade.fandom.com/wiki/MummyCurse_4-60C",
+      "priceJpy": 1600
     },
     {
       "code": "UX-18-03",
@@ -2987,7 +3123,8 @@
       "bitId": "W",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/PegasusBrush_M3-85W"
+      "source": "https://beyblade.fandom.com/wiki/PegasusBrush_M3-85W",
+      "priceJpy": 1600
     },
     {
       "code": "UX-18-04",
@@ -2998,7 +3135,8 @@
       "bitId": "TP",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/SolBrave_C9-70TP"
+      "source": "https://beyblade.fandom.com/wiki/SolBrave_C9-70TP",
+      "priceJpy": 1600
     },
     {
       "code": "UX-18-05",
@@ -3009,7 +3147,8 @@
       "bitId": "G",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/DranDagger_7-55G"
+      "source": "https://beyblade.fandom.com/wiki/DranDagger_7-55G",
+      "priceJpy": 1600
     },
     {
       "code": "UX-18-06",
@@ -3020,7 +3159,8 @@
       "bitId": "LR",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/WeissTiger_4-80LR"
+      "source": "https://beyblade.fandom.com/wiki/WeissTiger_4-80LR",
+      "priceJpy": 1600
     },
     {
       "code": "UX-21-01",
@@ -3030,7 +3170,8 @@
       "bitId": "Z",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/HellsNether_Z"
+      "source": "https://beyblade.fandom.com/wiki/HellsNether_Z",
+      "priceJpy": 4500
     },
     {
       "code": "UX-21-02",
@@ -3041,7 +3182,8 @@
       "bitId": "R",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/SilverWolf_9-70R"
+      "source": "https://beyblade.fandom.com/wiki/SilverWolf_9-70R",
+      "priceJpy": 4500
     },
     {
       "code": "UX-21-03",
@@ -3052,7 +3194,8 @@
       "bitId": "B",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/WyvernHover_8-80B"
+      "source": "https://beyblade.fandom.com/wiki/WyvernHover_8-80B",
+      "priceJpy": 4500
     },
     {
       "code": "CX-04-01",
@@ -3063,7 +3206,8 @@
       "bitId": "V",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/DranBrave_S6-60V"
+      "source": "https://beyblade.fandom.com/wiki/DranBrave_S6-60V",
+      "priceJpy": 2200
     },
     {
       "code": "CX-04-02",
@@ -3074,7 +3218,8 @@
       "bitId": "W",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/PerseusDark_B6-80W"
+      "source": "https://beyblade.fandom.com/wiki/PerseusDark_B6-80W",
+      "priceJpy": 1600
     },
     {
       "code": "CX-05-01",
@@ -3085,7 +3230,8 @@
       "bitId": "K",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/HellsReaper_T4-70K"
+      "source": "https://beyblade.fandom.com/wiki/HellsReaper_T4-70K",
+      "priceJpy": 1600
     },
     {
       "code": "CX-05-02",
@@ -3096,7 +3242,8 @@
       "bitId": "D",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/RhinoReaper_C4-55D"
+      "source": "https://beyblade.fandom.com/wiki/RhinoReaper_C4-55D",
+      "priceJpy": 1600
     },
     {
       "code": "CX-05-03",
@@ -3107,7 +3254,8 @@
       "bitId": "O",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/HellsArc_T3-85O"
+      "source": "https://beyblade.fandom.com/wiki/HellsArc_T3-85O",
+      "priceJpy": 1600
     },
     {
       "code": "CX-05-04",
@@ -3118,7 +3266,8 @@
       "bitId": "K",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/LeonCrest_9-80K"
+      "source": "https://beyblade.fandom.com/wiki/LeonCrest_9-80K",
+      "priceJpy": 1600
     },
     {
       "code": "CX-05-05",
@@ -3129,7 +3278,8 @@
       "bitId": "LF",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/PhoenixRudder_4-70LF"
+      "source": "https://beyblade.fandom.com/wiki/PhoenixRudder_4-70LF",
+      "priceJpy": 1600
     },
     {
       "code": "CX-05-06",
@@ -3140,7 +3290,8 @@
       "bitId": "K",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/WhaleWave_7-60K"
+      "source": "https://beyblade.fandom.com/wiki/WhaleWave_7-60K",
+      "priceJpy": 1600
     },
     {
       "code": "CX-06-01",
@@ -3151,7 +3302,8 @@
       "bitId": "GR",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/FoxBrush_J9-70GR"
+      "source": "https://beyblade.fandom.com/wiki/FoxBrush_J9-70GR",
+      "priceJpy": 1600
     },
     {
       "code": "CX-06-02",
@@ -3162,7 +3314,8 @@
       "bitId": "DB",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/FoxBrush_J0-80DB"
+      "source": "https://beyblade.fandom.com/wiki/FoxBrush_J0-80DB",
+      "priceJpy": 1600
     },
     {
       "code": "CX-06-03",
@@ -3173,7 +3326,8 @@
       "bitId": "U",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/FoxBrush_J2-60U"
+      "source": "https://beyblade.fandom.com/wiki/FoxBrush_J2-60U",
+      "priceJpy": 1600
     },
     {
       "code": "CX-08-01",
@@ -3184,7 +3338,8 @@
       "bitId": "WB",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/CerberusFlame_W5-80WB"
+      "source": "https://beyblade.fandom.com/wiki/CerberusFlame_W5-80WB",
+      "priceJpy": 1600
     },
     {
       "code": "CX-08-02",
@@ -3195,7 +3350,8 @@
       "bitId": "HT",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/WhaleFlame_M3-85HT"
+      "source": "https://beyblade.fandom.com/wiki/WhaleFlame_M3-85HT",
+      "priceJpy": 1600
     },
     {
       "code": "CX-08-03",
@@ -3206,7 +3362,8 @@
       "bitId": "F",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/CerberusDark_W1-60F"
+      "source": "https://beyblade.fandom.com/wiki/CerberusDark_W1-60F",
+      "priceJpy": 1600
     },
     {
       "code": "CX-08-04",
@@ -3217,7 +3374,8 @@
       "bitId": "MN",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/DranBuster_5-80MN"
+      "source": "https://beyblade.fandom.com/wiki/DranBuster_5-80MN",
+      "priceJpy": 1600
     },
     {
       "code": "CX-08-05",
@@ -3228,7 +3386,8 @@
       "bitId": "WB",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/BlackShell_7-70WB"
+      "source": "https://beyblade.fandom.com/wiki/BlackShell_7-70WB",
+      "priceJpy": 1600
     },
     {
       "code": "CX-08-06",
@@ -3239,7 +3398,8 @@
       "bitId": "WB",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/CobaltDragoon_4-55WB"
+      "source": "https://beyblade.fandom.com/wiki/CobaltDragoon_4-55WB",
+      "priceJpy": 1600
     },
     {
       "code": "CX-11-01",
@@ -3249,7 +3409,8 @@
       "bitId": "HOp",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/EmperorMight_HOp"
+      "source": "https://beyblade.fandom.com/wiki/EmperorMight_HOp",
+      "priceJpy": 5000
     },
     {
       "code": "CX-11-02",
@@ -3260,7 +3421,8 @@
       "bitId": "HN",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/GolemRock_M-85HN"
+      "source": "https://beyblade.fandom.com/wiki/GolemRock_M-85HN",
+      "priceJpy": 5000
     },
     {
       "code": "CX-11-03",
@@ -3271,7 +3433,8 @@
       "bitId": "FB",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/SharkGill_5-60FB"
+      "source": "https://beyblade.fandom.com/wiki/SharkGill_5-60FB",
+      "priceJpy": 5000
     },
     {
       "code": "CX-16",
@@ -3282,7 +3445,8 @@
       "bitId": "I",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/BahamutBlitz_BK1-50I"
+      "source": "https://beyblade.fandom.com/wiki/BahamutBlitz_BK1-50I",
+      "priceJpy": 2200
     },
     {
       "code": "CX-17-01",
@@ -3293,7 +3457,8 @@
       "bitId": "GU",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/UnicornDelta_PO3-60GU"
+      "source": "https://beyblade.fandom.com/wiki/UnicornDelta_PO3-60GU",
+      "priceJpy": 1600
     },
     {
       "code": "CX-17-02",
@@ -3304,7 +3469,8 @@
       "bitId": "GR",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/UnicornDelta_PO1-80GR"
+      "source": "https://beyblade.fandom.com/wiki/UnicornDelta_PO1-80GR",
+      "priceJpy": 1600
     },
     {
       "code": "CX-17-03",
@@ -3315,7 +3481,8 @@
       "bitId": "LO",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/SamuraiSaber_9-65LO"
+      "source": "https://beyblade.fandom.com/wiki/SamuraiSaber_9-65LO",
+      "priceJpy": 1600
     },
     {
       "code": "CX-17-04",
@@ -3326,7 +3493,8 @@
       "bitId": "GU",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/HellsHammer_3-85GU"
+      "source": "https://beyblade.fandom.com/wiki/HellsHammer_3-85GU",
+      "priceJpy": 1600
     },
     {
       "code": "CX-17-05",
@@ -3337,7 +3505,8 @@
       "bitId": "N",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/TyrannoBeat_3-60N"
+      "source": "https://beyblade.fandom.com/wiki/TyrannoBeat_3-60N",
+      "priceJpy": 1600
     },
     {
       "code": "CX-17-06",
@@ -3348,7 +3517,8 @@
       "bitId": "GU",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/CrimsonGaruda_7-80GU"
+      "source": "https://beyblade.fandom.com/wiki/CrimsonGaruda_7-80GU",
+      "priceJpy": 1600
     },
     {
       "code": "CX-18",
@@ -3359,7 +3529,8 @@
       "bitId": "Nr",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/BrachioWhip_OW5-70Nr"
+      "source": "https://beyblade.fandom.com/wiki/BrachioWhip_OW5-70Nr",
+      "priceJpy": 1600
     },
     {
       "code": "CX-19",
@@ -3370,7 +3541,8 @@
       "bitId": "GN",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/CrocoTread_TQ5-50GN"
+      "source": "https://beyblade.fandom.com/wiki/CrocoTread_TQ5-50GN",
+      "priceJpy": 1600
     },
     {
       "code": "CX-20",
@@ -3381,7 +3553,8 @@
       "bitId": "MT",
       "verified": false,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/PhoenixForce_WHM-65MT"
+      "source": "https://beyblade.fandom.com/wiki/PhoenixForce_WHM-65MT",
+      "priceJpy": 6600
     }
   ]
 }
