@@ -1,7 +1,55 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="112" fill="#0b0d14"/>
-  <circle cx="256" cy="256" r="168" fill="none" stroke="#2b3145" stroke-width="28"/>
-  <path d="M256 92 L300 212 L420 256 L300 300 L256 420 L212 300 L92 256 L212 212 Z" fill="#ff4d3d"/>
-  <circle cx="256" cy="256" r="34" fill="#0b0d14"/>
-  <circle cx="256" cy="256" r="14" fill="#f5c542"/>
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="42%" r="75%">
+      <stop offset="0" stop-color="#3a0d0b"/>
+      <stop offset=".45" stop-color="#150709"/>
+      <stop offset="1" stop-color="#07080d"/>
+    </radialGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#ff3b30" stop-opacity=".55"/>
+      <stop offset=".6" stop-color="#ff3b30" stop-opacity=".12"/>
+      <stop offset="1" stop-color="#ff3b30" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="wing" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ff7a6e"/>
+      <stop offset=".5" stop-color="#ff3b30"/>
+      <stop offset="1" stop-color="#b3150d"/>
+    </linearGradient>
+    <linearGradient id="metal" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f4f5f8"/>
+      <stop offset=".5" stop-color="#9aa0ad"/>
+      <stop offset="1" stop-color="#3b3f4a"/>
+    </linearGradient>
+    <linearGradient id="hub" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2a2d38"/>
+      <stop offset="1" stop-color="#0b0c12"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#bg)"/>
+  <circle cx="256" cy="256" r="230" fill="url(#glow)"/>
+  <!-- Bewegungsbögen -->
+  <g fill="none" stroke-linecap="round">
+    <path d="M70 300 A190 190 0 0 1 150 96" stroke="#ff3b30" stroke-opacity=".55" stroke-width="10"/>
+    <path d="M442 212 A190 190 0 0 1 362 416" stroke="#ff3b30" stroke-opacity=".55" stroke-width="10"/>
+    <path d="M96 352 A210 210 0 0 1 112 118" stroke="#ffffff" stroke-opacity=".18" stroke-width="5"/>
+    <path d="M416 160 A210 210 0 0 1 400 394" stroke="#ffffff" stroke-opacity=".18" stroke-width="5"/>
+  </g>
+  <!-- Metallring -->
+  <circle cx="256" cy="256" r="150" fill="#0d0e14"/>
+  <circle cx="256" cy="256" r="150" fill="none" stroke="url(#metal)" stroke-width="14"/>
+  <!-- drei geschwungene Klingen -->
+  <g fill="url(#wing)">
+    <path id="w" d="M256 118 C318 120 372 162 382 226 C352 196 314 184 278 192 C292 168 284 140 256 118 Z"/>
+    <use href="#w" transform="rotate(120 256 256)"/>
+    <use href="#w" transform="rotate(240 256 256)"/>
+  </g>
+  <g fill="#ffffff" fill-opacity=".35">
+    <path id="h" d="M262 126 C300 132 334 152 352 182 C330 168 306 162 284 164 C288 150 280 136 262 126 Z"/>
+    <use href="#h" transform="rotate(120 256 256)"/>
+    <use href="#h" transform="rotate(240 256 256)"/>
+  </g>
+  <!-- Nabe -->
+  <circle cx="256" cy="256" r="66" fill="url(#hub)" stroke="url(#metal)" stroke-width="8"/>
+  <circle cx="256" cy="256" r="30" fill="#ff3b30"/>
+  <circle cx="256" cy="256" r="12" fill="#ffffff"/>
 </svg>
