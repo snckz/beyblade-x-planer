@@ -973,3 +973,15 @@ input, select, textarea { font-size: max(16px, 1em); }
 .add-list > li, .showcase > li { content-visibility: auto; contain-intrinsic-size: auto 80px; }
 .showcase > li { contain-intrinsic-size: auto 260px; }
 .load-more { height: 1px; }
+
+/* iOS/Safari: App-Gefühl */
+html { background: #08090e; }
+body { overscroll-behavior-y: none; -webkit-tap-highlight-color: transparent; }
+/* Langes Drücken auf Knöpfe/Bilder öffnet kein iOS-Menü und markiert keinen Text */
+button, .btn, .chip, .tab, nav a, .tile, .row-btn, .bey-img, .live-btns button { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+img { -webkit-touch-callout: none; }
+.deck-share img { -webkit-touch-callout: default; } /* hier ist „Bild sichern“ per Lang-Drücken gewollt */
+/* Hinweis „Zum Home-Bildschirm“ */
+.ios-hint { display: grid; gap: 8px; }
+.ios-hint .share-ico { display: inline-grid; place-items: center; width: 22px; height: 22px; vertical-align: -5px; border-radius: 6px; background: rgba(255, 255, 255, .1); }
+.ios-hint .share-ico svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }

@@ -9,6 +9,7 @@ import { wishReleases } from './lib/reminders';
 import { ComboBuilder } from './components/ComboBuilder';
 import { Lightbox } from './components/Lightbox';
 import { DetailSheet } from './components/DetailSheet';
+import { IosHint } from './components/IosHint';
 import { lazy, Suspense } from 'preact/compat';
 
 // Tabs und selten genutzte Fenster erst bei Bedarf laden – der Start bleibt schlank.
@@ -285,21 +286,24 @@ export function App() {
               <div class="spinner" />
             </div>
           ) : (
-            <Suspense
-              fallback={
-                <div class="loading" aria-busy="true" aria-label="Lädt">
-                  <div class="spinner" />
-                </div>
-              }
-            >
-              {tab === 'builder' && (
-                <ComboBuilder key={preset?.key ?? 0} db={db} state={state} update={update} presetBladeId={preset?.bladeId} presetRatchetId={preset?.ratchetId} presetBitId={preset?.bitId} />
-              )}
-              {tab === 'parts' && <Lexikon db={db} state={state} update={update} />}
-              {tab === 'battle' && <Battle db={db} state={state} update={update} goToBuilder={() => go('builder')} meta={meta} onBuild={buildCombo} />}
-              {tab === 'events' && <Events db={db} events={events.events} news={news} state={state} update={update} />}
-              {tab === 'collection' && <Collection events={events.events} db={db} state={state} update={update} meta={meta} />}
-            </Suspense>
+            <>
+              <IosHint hasData={Object.keys(state.owned).length > 0 || state.combos.length > 0} />
+              <Suspense
+                fallback={
+                  <div class="loading" aria-busy="true" aria-label="Lädt">
+                    <div class="spinner" />
+                  </div>
+                }
+              >
+                {tab === 'builder' && (
+                  <ComboBuilder key={preset?.key ?? 0} db={db} state={state} update={update} presetBladeId={preset?.bladeId} presetRatchetId={preset?.ratchetId} presetBitId={preset?.bitId} />
+                )}
+                {tab === 'parts' && <Lexikon db={db} state={state} update={update} />}
+                {tab === 'battle' && <Battle db={db} state={state} update={update} goToBuilder={() => go('builder')} meta={meta} onBuild={buildCombo} />}
+                {tab === 'events' && <Events db={db} events={events.events} news={news} state={state} update={update} />}
+                {tab === 'collection' && <Collection events={events.events} db={db} state={state} update={update} meta={meta} />}
+              </Suspense>
+            </>
           )}
         </main>
 

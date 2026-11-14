@@ -12,3 +12,7 @@ if ('serviceWorker' in navigator && import.meta.env.PROD) {
     });
   });
 }
+
+// Speicher als „dauerhaft“ markieren: Browser (v. a. Safari) löschen Sammlung & Kombos dann nicht beim Aufräumen.
+// Als Home-Bildschirm-App wird das meist ohne Rückfrage gewährt.
+void navigator.storage?.persist?.().catch(() => undefined);
