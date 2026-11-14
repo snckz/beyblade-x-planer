@@ -87,6 +87,13 @@ describe('Bewertung', () => {
     expect(r.overall).toBe('owned');
     expect(r.reasons[0]).toContain('schon in deiner Sammlung');
   });
+  it('limitierte Kreisel werden als Sammlerstück bewertet statt abgelehnt', () => {
+    const lim = db.products.find((x) => /^CX-00/.test(x.code) && x.bladeId)!;
+    // alles schon besessen außer dem limitierten → Deckgewinn klein
+    const r = rateProduct(db, Object.fromEntries(db.products.filter((x) => x.kind === 'starter' && x.code !== lim.code).slice(0, 30).map((x) => [x.code, 1])), opponents, lim, null, null);
+    expect(r.reasons[0]).toMatch(/Sammeln und Tauschen|Sammlerstück/);
+    expect(r.overall === 'skip').toBe(false);
+  });
   it('empfiehlt einen starken Zuwachs, ein hoher Preis bremst', () => {
     const rates = { source: '', date: '2026-11-13', base: 'EUR' as const, JPY: 170, THB: 37 };
     const cheap = rateProduct(db, {}, opponents, p, { amount: 1, cur: 'THB' }, rates);

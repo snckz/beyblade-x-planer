@@ -6,7 +6,7 @@ import { newId } from '../lib/storage';
 import { nb, resolveCombo } from '../lib/analysis';
 import { displayName } from '../lib/names';
 import { FINISH, type Finish, type Match } from '../lib/matches';
-import { ComboPicker } from './ComboPicker';
+import { DeckPicker, DEFAULT_DECK, toPart, type Part } from './DeckPicker';
 
 interface Props {
   db: Database;
@@ -15,44 +15,39 @@ interface Props {
   onClose: () => void;
 }
 
-type Part = Omit<Combo, 'id' | 'name'>;
-const part = (c: Combo): Part => ({ bladeId: c.bladeId, ratchetId: c.ratchetId, bitId: c.bitId });
-const same = (a: Part, b: Part) => a.bladeId === b.bladeId && (a.ratchetId ?? '') === (b.ratchetId ?? '') && a.bitId === b.bitId;
-/** Nächster Kreisel der Rotation – abgeleitet aus dem aktuellen, damit Handwahl und Rückgängig nie aus dem Takt kommen. */
-const nextIn = (list: Combo[], cur: Part) => {
-  const i = list.findIndex((c) => same(part(c), cur));
-  return part(list[(i + 1) % list.length]!);
-};
-
-function fallback(db: Database, preferred: Part, skipBlade?: string): Part {
-  if (resolveCombo(db, { id: '', ...preferred })) return preferred;
-  const blade = db.blades.find((b) => b.id !== skipBlade && resolveCombo(db, { id: '', bladeId: b.id, ratchetId: b.integratedRatchet ? undefined : db.ratchets[0]?.id, bitId: db.bits[0]?.id ?? '' }));
-  return { bladeId: blade?.id ?? '', ratchetId: blade?.integratedRatchet ? undefined : db.ratchets[0]?.id, bitId: db.bits[0]?.id ?? '' };
-}
+const valid = (db: Database, p: Part) => !!resolveCombo(db, { id: '', ...p });
 
 /**
  * Live-Punktezähler fürs Stadion: Punkte nach WBO (Spin 1, Over 2, Burst 2, Xtreme 3), Ziel 4 oder 7.
- * Jede Runde landet automatisch im Battle-Tagebuch. Mit eigenem Deck rotieren die Kreisel Runde für Runde.
+ * Zwei Arten: nur Punkte zählen (ohne Kreisel) oder mit Kreiseln – dann landet jede Runde im Battle-Tagebuch.
+ * Mit 3er-Deck kommt Runde für Runde der nächste Kreisel dran (wie im Turnier).
  */
 export function LiveMatch({ db, state, update, onClose }: Props) {
   const ref = useRef<HTMLDivElement>(null);
-  const deck = state.deck.map((id) => state.combos.find((c) => c.id === id)).filter((c): c is Combo => !!c && !!resolveCombo(db, c));
-  const oppDeck = state.opponent.filter((c) => resolveCombo(db, c));
+  const savedDeck = state.deck.map((id) => state.combos.find((c) => c.id === id)).filter((c): c is Combo => !!c && valid(db, c));
+  const savedOpp = state.opponent.filter((c) => valid(db, c));
   const [target, setTarget] = useState<4 | 7>(4);
-  const [mine, setMine] = useState<Part>(() => (deck[0] ? part(deck[0]) : fallback(db, { bladeId: 'DranSword', ratchetId: '3-60', bitId: 'F' })));
-  const [opp, setOpp] = useState<Part>(() => (oppDeck[0] ? part(oppDeck[0]) : fallback(db, { bladeId: 'WizardRod', ratchetId: '1-60', bitId: 'H' }, 'DranSword')));
-  const [rotate, setRotate] = useState(deck.length === 3);
-  const [log, setLog] = useState<Match[]>([]);
+  const [withBeys, setWithBeys] = useState(savedDeck.length > 0);
+  const [mineDeck, setMineDeck] = useState<Part[]>(() =>
+    savedDeck.length === 3 ? savedDeck.map(toPart) : savedDeck.length ? [toPart(savedDeck[0]!)] : [DEFAULT_DECK[0]!],
+  );
+  const [oppDeck, setOppDeck] = useState<Part[]>(() => (savedOpp.length ? savedOpp.map(toPart) : [{ bladeId: 'WizardRod', ratchetId: '1-60', bitId: 'H' }]));
+  const [saveDeck, setSaveDeck] = useState(savedDeck.length < 3);
+  const [log, setLog] = useState<{ won: boolean; finish: Finish; id?: string }[]>([]);
   const [setup, setSetup] = useState(true);
 
+  // Rotation aus der Rundenzahl: Rückgängig bringt automatisch den richtigen Kreisel zurück.
+  const mine = mineDeck[log.length % mineDeck.length]!;
+  const opp = oppDeck[log.length % oppDeck.length]!;
   const me = log.filter((m) => m.won).reduce((s, m) => s + FINISH[m.finish].points, 0);
   const them = log.filter((m) => !m.won).reduce((s, m) => s + FINISH[m.finish].points, 0);
   const over = me >= target || them >= target;
+  const ready = !withBeys || (mineDeck.every((p) => valid(db, p)) && oppDeck.every((p) => valid(db, p)));
 
-  // Schließen mit Rückfrage, wenn ein Match läuft (die Runden selbst sind schon im Tagebuch).
+  // Schließen mit Rückfrage, wenn ein Match läuft.
   const running = log.length > 0 && !over;
   const close = () => {
-    if (running && !window.confirm('Match beenden? Die bisherigen Runden bleiben im Tagebuch.')) return;
+    if (running && !window.confirm(withBeys ? 'Match beenden? Die bisherigen Runden bleiben im Tagebuch.' : 'Match beenden? Der Spielstand geht verloren.')) return;
     onClose();
   };
   useModal(ref, close);
@@ -78,34 +73,54 @@ export function LiveMatch({ db, state, update, onClose }: Props) {
   };
 
   const score = (won: boolean, finish: Finish) => {
-    if (over || !resolveCombo(db, { id: '', ...mine }) || !resolveCombo(db, { id: '', ...opp })) return;
-    const m: Match = { id: newId(), date: new Date().toISOString(), mine, opp, won, finish };
-    setLog((l) => [...l, m]);
-    update((s) => ({ ...s, matches: [...s.matches, m].slice(-500) }));
+    if (over) return;
     navigator.vibrate?.(won ? 40 : [20, 40, 20]);
-    // Turnier-Rotation: nächster Kreisel aus dem Deck
-    if (rotate && deck.length === 3) setMine(nextIn(deck, mine));
-    if (oppDeck.length > 1) setOpp(nextIn(oppDeck, opp));
+    if (!withBeys) {
+      setLog((l) => [...l, { won, finish }]);
+      return;
+    }
+    const m: Match = { id: newId(), date: new Date().toISOString(), mine, opp, won, finish };
+    setLog((l) => [...l, { won, finish, id: m.id }]);
+    update((s) => ({ ...s, matches: [...s.matches, m].slice(-500) }));
   };
   const undo = () => {
     const last = log[log.length - 1];
     if (!last) return;
     setLog((l) => l.slice(0, -1));
-    update((s) => ({ ...s, matches: s.matches.filter((m) => m.id !== last.id) }));
-    setMine(last.mine);
-    setOpp(last.opp);
+    if (last.id) update((s) => ({ ...s, matches: s.matches.filter((m) => m.id !== last.id) }));
   };
-  const restart = () => {
-    setLog([]);
-    if (deck[0]) setMine(part(deck[0]));
-    if (oppDeck[0]) setOpp(part(oppDeck[0]));
+  const restart = () => setLog([]);
+  const start = () => {
+    if (!ready) return;
+    // Gewähltes 3er-Deck auf Wunsch als „Mein Deck“ speichern
+    if (withBeys && saveDeck && mineDeck.length === 3) {
+      update((s) => {
+        const ids: string[] = [];
+        const combos = [...s.combos];
+        mineDeck.forEach((p, i) => {
+          const found = combos.find((c) => c.bladeId === p.bladeId && (c.ratchetId ?? '') === (p.ratchetId ?? '') && c.bitId === p.bitId);
+          if (found) ids.push(found.id);
+          else {
+            const c = { id: newId(), name: `Deck ${i + 1}`, ...p };
+            combos.unshift(c);
+            ids.push(c.id);
+          }
+        });
+        return { ...s, combos, deck: ids };
+      });
+      setSaveDeck(false);
+    }
+    setSetup(false);
   };
 
   const pad = (won: boolean) => (
     <div class={`live-side ${won ? 'me' : 'them'}`}>
       <div class="live-head">
-        <span class="live-who">{won ? 'Du' : 'Gegner'}</span>
-        <span class="live-combo">{label(won ? mine : opp)}</span>
+        <span class="live-who">
+          {won ? 'Du' : 'Gegner'}
+          {withBeys && (won ? mineDeck : oppDeck).length > 1 && <small> · Kreisel {(log.length % (won ? mineDeck : oppDeck).length) + 1}/{(won ? mineDeck : oppDeck).length}</small>}
+        </span>
+        {withBeys && <span class="live-combo">{label(won ? mine : opp)}</span>}
       </div>
       <span class="live-score" aria-live="polite">
         {won ? me : them}
@@ -129,9 +144,13 @@ export function LiveMatch({ db, state, update, onClose }: Props) {
           Schließen
         </button>
         <span class="live-title">Live-Match</span>
-        <button type="button" class="btn btn-sm" onClick={() => setSetup(!setup)} aria-expanded={setup}>
-          {setup ? 'Fertig' : 'Kreisel'}
-        </button>
+        {setup ? (
+          <span class="btn-sm" aria-hidden="true" />
+        ) : (
+          <button type="button" class="btn btn-sm" onClick={() => setSetup(true)}>
+            Einstellungen
+          </button>
+        )}
       </div>
 
       {setup ? (
@@ -145,18 +164,64 @@ export function LiveMatch({ db, state, update, onClose }: Props) {
               7 Punkte (Finale)
             </button>
           </div>
-          <p class="eyebrow">Dein Kreisel</p>
-          {deck.length === 3 && (
-            <label class="toggle">
-              <input type="checkbox" checked={rotate} onChange={(e) => setRotate(e.currentTarget.checked)} />
-              <span>Deck-Rotation (3on3): nach jeder Runde der nächste Kreisel</span>
-            </label>
+          <p class="eyebrow">Wie willst du spielen?</p>
+          <div class="segmented seg-2" role="group" aria-label="Spielart">
+            <button type="button" class={!withBeys ? 'on' : ''} aria-pressed={!withBeys} onClick={() => setWithBeys(false)}>
+              Nur Punkte zählen
+            </button>
+            <button type="button" class={withBeys ? 'on' : ''} aria-pressed={withBeys} onClick={() => setWithBeys(true)}>
+              Mit Kreiseln
+            </button>
+          </div>
+          {!withBeys ? (
+            <p class="fineprint">Einfach losspielen – ohne Kreisel eintragen. Wird nicht im Tagebuch gespeichert.</p>
+          ) : (
+            <>
+              <p class="fineprint">Jede Runde landet im Battle-Tagebuch. Beim 3er-Deck kommt nach jeder Runde der nächste Kreisel dran.</p>
+              <div class="side-head">
+                <p class="eyebrow">Dein Deck</p>
+                <div class="segmented seg-2 seg-mini" role="group" aria-label="Anzahl deiner Kreisel">
+                  <button type="button" class={mineDeck.length === 1 ? 'on' : ''} aria-pressed={mineDeck.length === 1} onClick={() => setMineDeck(mineDeck.slice(0, 1))}>
+                    1 Kreisel
+                  </button>
+                  <button
+                    type="button"
+                    class={mineDeck.length === 3 ? 'on' : ''}
+                    aria-pressed={mineDeck.length === 3}
+                    onClick={() => setMineDeck(savedDeck.length === 3 ? savedDeck.map(toPart) : [mineDeck[0]!, ...DEFAULT_DECK.slice(1)])}
+                  >
+                    3er-Deck
+                  </button>
+                </div>
+              </div>
+              <DeckPicker db={db} value={mineDeck} onChange={setMineDeck} label="Dein Kreisel" />
+              {mineDeck.length === 3 && (
+                <label class="toggle">
+                  <input type="checkbox" checked={saveDeck} onChange={(e) => setSaveDeck(e.currentTarget.checked)} />
+                  <span>Als „Mein Deck“ speichern</span>
+                </label>
+              )}
+              <div class="side-head">
+                <p class="eyebrow">Gegner</p>
+                <div class="segmented seg-2 seg-mini" role="group" aria-label="Anzahl Gegner-Kreisel">
+                  <button type="button" class={oppDeck.length === 1 ? 'on' : ''} aria-pressed={oppDeck.length === 1} onClick={() => setOppDeck(oppDeck.slice(0, 1))}>
+                    1 Kreisel
+                  </button>
+                  <button
+                    type="button"
+                    class={oppDeck.length === 3 ? 'on' : ''}
+                    aria-pressed={oppDeck.length === 3}
+                    onClick={() => setOppDeck(savedOpp.length === 3 ? savedOpp.map(toPart) : [oppDeck[0]!, DEFAULT_DECK[2]!, DEFAULT_DECK[0]!])}
+                  >
+                    3er-Deck
+                  </button>
+                </div>
+              </div>
+              <DeckPicker db={db} value={oppDeck} onChange={setOppDeck} label="Gegner-Kreisel" />
+            </>
           )}
-          <ComboPicker db={db} value={{ id: 'mine', ...mine }} label="Dein Kreisel" onChange={(c) => setMine(part(c))} />
-          <p class="eyebrow">Gegner{oppDeck.length > 1 ? ' (rotiert durch dein eingetragenes Gegner-Deck)' : ''}</p>
-          <ComboPicker db={db} value={{ id: 'opp', ...opp }} label="Gegner" onChange={(c) => setOpp(part(c))} />
-          <button type="button" class="btn btn-primary" onClick={() => setSetup(false)}>
-            Los geht's
+          <button type="button" class="btn btn-primary" onClick={start} disabled={!ready}>
+            {log.length ? 'Weiter' : "Los geht's"}
           </button>
         </div>
       ) : (

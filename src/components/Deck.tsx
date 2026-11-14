@@ -3,6 +3,8 @@ import type { UserState } from '../lib/storage';
 import { analyze, checkDeck, nb, resolveCombo, TYPE_LABEL } from '../lib/analysis';
 import { Empty, Section, SpinBadge, TypeBadge } from './ui';
 import { BeyImage } from './BeyImage';
+import { DeckPicker, DEFAULT_DECK, type Part } from './DeckPicker';
+import { newId } from '../lib/storage';
 import { useEffect, useState } from 'preact/hooks';
 import { useApp } from '../lib/context';
 import { canShareFile, deckFile, renderDeckImage } from '../lib/deckImage';
@@ -19,6 +21,14 @@ export function Deck({ db, state, update, goToBuilder }: Props) {
   const check = checkDeck(db, combos);
   const missingTypes = (['attack', 'defense', 'stamina'] as const).filter((t) => !check.types.includes(t));
   const { images } = useApp();
+  const [building, setBuilding] = useState(false);
+  const [draft, setDraft] = useState<Part[]>(DEFAULT_DECK);
+  const saveDraft = () =>
+    update((s) => {
+      const list = draft.map((p, i) => s.combos.find((c) => c.bladeId === p.bladeId && (c.ratchetId ?? '') === (p.ratchetId ?? '') && c.bitId === p.bitId) ?? { id: newId(), name: `Deck ${i + 1}`, ...p });
+      const fresh = list.filter((c) => !s.combos.includes(c));
+      return { ...s, combos: [...fresh, ...s.combos], deck: list.map((c) => c.id) };
+    });
   const [sharing, setSharing] = useState(false);
   const [shareMsg, setShareMsg] = useState('');
   const [img, setImg] = useState<{ file: File; url: string } | null>(null);
@@ -56,12 +66,34 @@ export function Deck({ db, state, update, goToBuilder }: Props) {
     });
 
   if (!combos.length) {
+    if (building)
+      return (
+        <Section title="Deck zusammenstellen">
+          <div class="card glass stack-sm">
+            <p class="muted">Wähle deine 3 Kreisel. Im Turnier darf kein Blade, Ratchet oder Bit doppelt vorkommen.</p>
+            <DeckPicker db={db} value={draft} onChange={setDraft} label="Kreisel" />
+            <div class="btn-row">
+              <button type="button" class="btn btn-primary" onClick={saveDraft} disabled={!draft.every((p) => resolveCombo(db, { id: '', ...p }))}>
+                Als mein Deck speichern
+              </button>
+              <button type="button" class="btn btn-ghost" onClick={() => setBuilding(false)}>
+                Abbrechen
+              </button>
+            </div>
+          </div>
+        </Section>
+      );
     return (
       <Empty title="Noch kein Deck">
-        <p>Speichere Kombos und tippe auf „+ Deck“. Ein Turnier-Deck hat 3 Kreisel ohne doppelte Teile.</p>
-        <button type="button" class="btn btn-primary" onClick={goToBuilder}>
-          Kombo bauen
-        </button>
+        <p>Ein Turnier-Deck hat 3 Kreisel ohne doppelte Teile. Stell es direkt hier zusammen.</p>
+        <div class="btn-row" style={{ justifyContent: 'center' }}>
+          <button type="button" class="btn btn-primary" onClick={() => setBuilding(true)}>
+            3er-Deck zusammenstellen
+          </button>
+          <button type="button" class="btn" onClick={goToBuilder}>
+            Kombo bauen
+          </button>
+        </div>
       </Empty>
     );
   }

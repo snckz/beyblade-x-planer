@@ -4,8 +4,9 @@ import type { ShopPrice } from './storage';
 import { deckValue, type Candidate, type PartPool, type ScoreCache } from './optimizer';
 import { ownedParts } from './data';
 import { shopVerdict, type Verdict } from './price';
+import { rarityOf } from './rarity';
 
-export type Overall = 'buy' | 'maybe' | 'skip' | 'owned';
+export type Overall = 'buy' | 'maybe' | 'skip' | 'owned' | 'collect';
 
 export interface Rating {
   owned: number;
@@ -19,7 +20,7 @@ export interface Rating {
   reasons: string[];
 }
 
-export const OVERALL_LABEL: Record<Overall, string> = { buy: 'Ja, kaufen!', maybe: 'Kann man machen', skip: 'Nein, lieber nicht', owned: 'Hast du schon ✓' };
+export const OVERALL_LABEL: Record<Overall, string> = { buy: 'Ja, kaufen!', maybe: 'Kann man machen', skip: 'Nein, lieber nicht', owned: 'Hast du schon ✓', collect: 'Sammlerstück' };
 
 /** Preis-Ampel auf eine Gewinn-Einschätzung anwenden (gleiche Regel für Einzelkauf und Random Booster). */
 export function judge(gain: number, pv: { verdict: Verdict } | null): Overall {
@@ -90,6 +91,20 @@ export function rateProduct(
     if (pv) reasons.push(pv.verdict === 'good' ? 'Der Preis ist gut.' : pv.verdict === 'ok' ? 'Der Preis ist okay.' : 'Der Preis ist hoch.');
     overall = judge(gain, pv);
     if (p.kind === 'random-booster') reasons.push('Random Booster: Welcher Kreisel drin ist, siehst du erst beim Öffnen.');
+  }
+  // Limitierte Kreisel: der Wert liegt im Sammeln/Tauschen, nicht (nur) im Deck – kein „Nein“ nur wegen der Turnierstärke.
+  const rare = items.some((x) => rarityOf(x) === 'limited' || rarityOf(x) === 'ultra');
+  if (rare && overall !== 'owned') {
+    const ultra = items.some((x) => rarityOf(x) === 'ultra');
+    reasons.unshift(
+      ultra
+        ? 'Ultra-limitiert (Turnierpreis oder winzige Auflage): echtes Sammlerstück – kaum zu bekommen und gefragt zum Tauschen.'
+        : 'Limitierte Auflage (Event, Lotterie oder Sonderfarbe): gut zum Sammeln und Tauschen – später oft schwer zu bekommen und teurer.',
+    );
+    if (overall === 'skip' || overall === 'maybe') {
+      overall = pv?.verdict === 'high' ? 'maybe' : 'collect';
+      if (pv?.verdict === 'high') reasons.push('Fürs Sammeln okay, aber der Preis ist hoch – vergleichen lohnt sich.');
+    }
   }
   return { owned: n, fresh, gain, deck: res.picks, price: pv, overall, reasons };
 }
