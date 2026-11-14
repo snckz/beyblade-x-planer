@@ -98,7 +98,7 @@ export function parseBeyPage(wikitext) {
   const typeM = /\b(Attack|Defense|Defence|Stamina|Balance)[ -]Type\b/i.exec(intro) ?? /\b(Attack|Defense|Defence|Stamina|Balance)[ -]Type\b/i.exec(text);
   const type = typeM ? typeM[1].toLowerCase().replace('defence', 'defense') : undefined;
   const spin = /\bleft[- ]spin/i.test(intro) ? 'left' : /\b(dual|both)[- ]spin/i.test(intro) ? 'both' : 'right';
-  const bitName = /\bBit - ([A-Z][^\]|}#\n]*?)\s*(?:\]\]|\||\}\}|\n|$)/.exec(text)?.[1]?.trim();
+  const bitName = /\bBit - ([A-Z][^\]|}#\n=]*?)\s*(?:\]\]|\||\}\}|=|\n|$)/.exec(text)?.[1]?.trim();
   const isBey = !!typeM || /\b(Blade|Bit|Ratchet) - /.test(text);
   return { type, spin, bitName, isBey, ratchetIntegratedBit: /ratchet integrated bit/i.test(text) };
 }

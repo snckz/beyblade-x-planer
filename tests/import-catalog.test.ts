@@ -50,6 +50,7 @@ Main article: [[Bit - Cyclone]]`;
     expect(parseBeyPage(wt)).toMatchObject({ type: 'attack', spin: 'left', bitName: 'Cyclone', isBey: true });
     expect(parseBeyPage("is a Stamina Type Beyblade.\n{{Main|Bit - Low Flat}}").bitName).toBe('Low Flat');
     expect(parseBeyPage('Balance Type\nMain article: Bit - Gear Point\nmore').bitName).toBe('Gear Point');
+    expect(parseBeyPage('Balance Type\n==Bit - Merge==\ntext').bitName).toBe('Merge');
   });
 });
 

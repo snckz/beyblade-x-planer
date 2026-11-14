@@ -1320,164 +1320,164 @@
     },
     {
       "id": "M",
-      "name": "Merge==",
+      "name": "Merge",
       "type": "balance",
       "uncertain": true,
       "imported": true,
       "note": "Aus dem Wiki übernommen (SamuraiCalibur 6-70M); Typ vom Kreisel abgeleitet.",
-      "wikiTitle": "Bit - Merge=="
+      "wikiTitle": "Bit - Merge"
     },
     {
       "id": "LP",
-      "name": "Low Point==",
+      "name": "Low Point",
       "type": "balance",
       "uncertain": true,
       "imported": true,
       "note": "Aus dem Wiki übernommen (SiegSuperion 0-70LP); Typ vom Kreisel abgeleitet.",
-      "wikiTitle": "Bit - Low Point=="
+      "wikiTitle": "Bit - Low Point"
     },
     {
       "id": "Z",
-      "name": "Zap==",
+      "name": "Zap",
       "type": "balance",
       "uncertain": true,
       "imported": true,
       "note": "Aus dem Wiki übernommen (ScorpioSpear 0-70Z); Typ vom Kreisel abgeleitet.",
-      "wikiTitle": "Bit - Zap=="
+      "wikiTitle": "Bit - Zap"
     },
     {
       "id": "ATr",
-      "name": "Turbo==",
+      "name": "Turbo",
       "type": "attack",
       "uncertain": true,
       "imported": true,
       "note": "Aus dem Wiki übernommen (PegasusBlast ATr); Typ vom Kreisel abgeleitet.",
-      "wikiTitle": "Bit - Turbo=="
+      "wikiTitle": "Bit - Turbo"
     },
     {
       "id": "TK",
-      "name": "Trans Kick==",
+      "name": "Trans Kick",
       "type": "balance",
       "uncertain": true,
       "imported": true,
       "note": "Aus dem Wiki übernommen (SolEclipse D5-70TK); Typ vom Kreisel abgeleitet.",
-      "wikiTitle": "Bit - Trans Kick=="
+      "wikiTitle": "Bit - Trans Kick"
     },
     {
       "id": "I",
-      "name": "Ignition==",
+      "name": "Ignition",
       "type": "attack",
       "uncertain": true,
       "imported": true,
       "note": "Aus dem Wiki übernommen (BahamutBlitz BK1-50I); Typ vom Kreisel abgeleitet.",
-      "wikiTitle": "Bit - Ignition=="
+      "wikiTitle": "Bit - Ignition"
     },
     {
       "id": "Y",
-      "name": "Yielding==",
+      "name": "Yielding",
       "type": "stamina",
       "uncertain": true,
       "imported": true,
       "note": "Aus dem Wiki übernommen (RagnaRage FE4-55Y); Typ vom Kreisel abgeleitet.",
-      "wikiTitle": "Bit - Yielding=="
+      "wikiTitle": "Bit - Yielding"
     },
     {
       "id": "K",
-      "name": "Kick==",
+      "name": "Kick",
       "type": "balance",
       "uncertain": true,
       "imported": true,
       "note": "Aus dem Wiki übernommen (DranArc S2-70K); Typ vom Kreisel abgeleitet.",
-      "wikiTitle": "Bit - Kick=="
+      "wikiTitle": "Bit - Kick"
     },
     {
       "id": "DS",
-      "name": "Disk Spike==",
+      "name": "Disk Spike",
       "type": "defense",
       "uncertain": true,
       "imported": true,
-      "wikiTitle": "Bit - Disk Spike==",
+      "wikiTitle": "Bit - Disk Spike",
       "note": "Aus dem Wiki übernommen (HeavensRing 0-80DS); Typ vom Kreisel abgeleitet."
     },
     {
       "id": "WB",
-      "name": "Wall Ball==",
+      "name": "Wall Ball",
       "type": "stamina",
       "uncertain": true,
       "imported": true,
-      "wikiTitle": "Bit - Wall Ball==",
+      "wikiTitle": "Bit - Wall Ball",
       "note": "Aus dem Wiki übernommen (CerberusReaper B0-80WB); Typ vom Kreisel abgeleitet."
     },
     {
       "id": "MO",
-      "name": "Metal Orb==",
+      "name": "Metal Orb",
       "type": "stamina",
       "uncertain": true,
       "imported": true,
-      "wikiTitle": "Bit - Metal Orb==",
+      "wikiTitle": "Bit - Metal Orb",
       "note": "Aus dem Wiki übernommen (HorusShatter 3-85MO); Typ vom Kreisel abgeleitet."
     },
     {
       "id": "MN",
-      "name": "Metal Needle==",
+      "name": "Metal Needle",
       "type": "defense",
       "uncertain": true,
       "imported": true,
-      "wikiTitle": "Bit - Metal Needle==",
+      "wikiTitle": "Bit - Metal Needle",
       "note": "Aus dem Wiki übernommen (ShinobiShadow 1-80MN); Typ vom Kreisel abgeleitet."
     },
     {
       "id": "G",
-      "name": "Glide==",
+      "name": "Glide",
       "type": "stamina",
       "uncertain": true,
       "imported": true,
-      "wikiTitle": "Bit - Glide==",
+      "wikiTitle": "Bit - Glide",
       "note": "Aus dem Wiki übernommen (PhoenixRudder 9-70G); Typ vom Kreisel abgeleitet."
     },
     {
       "id": "GR",
-      "name": "Gear Rush==",
+      "name": "Gear Rush",
       "type": "attack",
       "uncertain": true,
       "imported": true,
-      "wikiTitle": "Bit - Gear Rush==",
+      "wikiTitle": "Bit - Gear Rush",
       "note": "Aus dem Wiki übernommen (FoxBrush J9-70GR); Typ vom Kreisel abgeleitet."
     },
     {
       "id": "HOp",
-      "name": "Operate==",
+      "name": "Operate",
       "type": "balance",
       "uncertain": true,
       "imported": true,
-      "wikiTitle": "Bit - Operate==",
+      "wikiTitle": "Bit - Operate",
       "note": "Aus dem Wiki übernommen (EmperorMight HOp); Typ vom Kreisel abgeleitet."
     },
     {
       "id": "GU",
-      "name": "Gear Unite==",
+      "name": "Gear Unite",
       "type": "balance",
       "uncertain": true,
       "imported": true,
-      "wikiTitle": "Bit - Gear Unite==",
+      "wikiTitle": "Bit - Gear Unite",
       "note": "Aus dem Wiki übernommen (UnicornDelta PO3-60GU); Typ vom Kreisel abgeleitet."
     },
     {
       "id": "Nr",
-      "name": "Narrow==",
+      "name": "Narrow",
       "type": "stamina",
       "uncertain": true,
       "imported": true,
-      "wikiTitle": "Bit - Narrow==",
+      "wikiTitle": "Bit - Narrow",
       "note": "Aus dem Wiki übernommen (BrachioWhip OW5-70Nr); Typ vom Kreisel abgeleitet."
     },
     {
       "id": "MT",
-      "name": "Metal Taper==",
+      "name": "Metal Taper",
       "type": "balance",
       "uncertain": true,
       "imported": true,
-      "wikiTitle": "Bit - Metal Taper==",
+      "wikiTitle": "Bit - Metal Taper",
       "note": "Aus dem Wiki übernommen (PhoenixForce WHM-65MT); Typ vom Kreisel abgeleitet."
     }
   ],
