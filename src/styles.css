@@ -976,7 +976,7 @@ input, select, textarea { font-size: max(16px, 1em); }
 
 /* iOS/Safari: App-Gefühl */
 /* Dunkle Farbe nur ganz unten (Canvas) – der Body bleibt durchsichtig, sonst verdeckt er das Hintergrundbild (.bg, z-index -1). */
-html { background: #08090e; }
+html { background: #08090e; overscroll-behavior: none; }
 body { background: transparent; overscroll-behavior-y: none; -webkit-tap-highlight-color: transparent; }
 /* Langes Drücken auf Knöpfe/Bilder öffnet kein iOS-Menü und markiert keinen Text */
 button, .btn, .chip, .tab, nav a, .tile, .row-btn, .bey-img, .live-btns button { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
