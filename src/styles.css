@@ -519,7 +519,7 @@ input[type='text'], input[type='search'], select { background-color: rgba(8, 10,
 button.bey-img { padding: 0; cursor: zoom-in; }
 button.bey-img:active { transform: scale(.95); }
 .lightbox {
-  position: fixed; inset: 0; z-index: 70; display: grid; place-items: center; align-content: center; gap: 16px; padding: 24px;
+  position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; align-content: center; gap: 16px; padding: 24px;
   background: rgba(4, 5, 9, .92); animation: fade .18s ease-out; cursor: zoom-out; outline: none;
 }
 .lightbox img {
@@ -937,3 +937,15 @@ input, select, textarea { font-size: max(16px, 1em); }
 .buy-q.have { border-color: rgba(52, 199, 89, .45); background: rgba(52, 199, 89, .14); color: #6ee28f; }
 .photo-result.o-owned { border-left-color: var(--stamina); }
 .photo-verdict.o-owned { color: #6ee28f; }
+
+/* Meine Produkte: Kopf antippbar, Bearbeiten-Modus */
+.section-link { display: flex; align-items: baseline; gap: 10px; padding: 0; border: 0; background: none; color: inherit; font: inherit; cursor: pointer; text-align: left; }
+.section-link-hint { color: var(--faint); font-size: 12px; font-weight: 600; }
+.btn-row-tight { display: flex; gap: 6px; }
+.list.editing .row { border-color: rgba(255, 59, 48, .3); }
+/* Vitrine */
+.showcase { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.show-card { position: relative; display: grid; justify-items: center; gap: 6px; padding: 14px 10px; border-radius: 20px; background: var(--card-bg); border: 1px solid var(--card-line); text-align: center; }
+.show-card strong { font-size: 15px; letter-spacing: -.02em; line-height: 1.2; }
+.show-card .muted { font-size: 13px; }
+.show-count { position: absolute; top: 8px; right: 10px; font-size: 12px; font-weight: 700; color: var(--text); background: rgba(255, 255, 255, .1); padding: 2px 8px; border-radius: 999px; }

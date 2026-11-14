@@ -14,6 +14,7 @@ import { Advisor } from './Advisor';
 import { ShopMode } from './ShopMode';
 import { PhotoCheck } from './PhotoCheck';
 import { AddProducts } from './AddProducts';
+import { Showcase } from './Showcase';
 import { nb } from '../lib/analysis';
 import { convert, priceHint, sumPrices, yen } from '../lib/price';
 
@@ -34,6 +35,8 @@ export function Collection({ db, state, update, events = [], meta }: Props) {
   const [shop, setShop] = useState(false);
   const [photo, setPhoto] = useState(false);
   const [adding, setAdding] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [showcase, setShowcase] = useState(false);
   const ownedProducts = db.products.filter((p) => (state.owned[p.code] ?? 0) > 0);
   const unknownCodes = Object.keys(state.owned).filter((c) => !db.products.some((p) => p.code === c));
   const total = ownedProducts.reduce((n, p) => n + (state.owned[p.code] ?? 0), 0);
@@ -130,6 +133,7 @@ export function Collection({ db, state, update, events = [], meta }: Props) {
         </span>
       </button>
       {scan && <Scanner db={db} state={state} update={update} onClose={() => setScan(false)} />}
+      {showcase && <Showcase db={db} state={state} onClose={() => setShowcase(false)} />}
       {adding && <AddProducts db={db} state={state} update={update} onClose={() => setAdding(false)} />}
       {photo && <PhotoCheck db={db} state={state} update={update} meta={meta} onClose={() => setPhoto(false)} />}
       {ownedProducts.length ? (
@@ -152,8 +156,29 @@ export function Collection({ db, state, update, events = [], meta }: Props) {
               <span class="kpi-label">Bits</span>
             </div>
           </div>
-          <Section title="Meine Produkte" aside={<button type="button" class="btn btn-ghost" onClick={() => setAdding(true)}>Bearbeiten</button>}>
-            <ul class="list">
+          <section class="section">
+            <div class="section-head">
+              {/* Antippen öffnet die Vitrine mit allen Kreiseln */}
+              <button type="button" class="section-link" onClick={() => setShowcase(true)} aria-label="Alle meine Kreisel ansehen">
+                <h2>Meine Produkte</h2>
+                <span class="section-link-hint">Alle ansehen ›</span>
+              </button>
+              {editing ? (
+                <div class="btn-row-tight">
+                  <button type="button" class="btn btn-sm" onClick={() => setAdding(true)}>
+                    + Hinzufügen
+                  </button>
+                  <button type="button" class="btn btn-sm btn-primary" onClick={() => setEditing(false)}>
+                    Fertig
+                  </button>
+                </div>
+              ) : (
+                <button type="button" class="btn btn-ghost" onClick={() => setEditing(true)}>
+                  Bearbeiten
+                </button>
+              )}
+            </div>
+            <ul class={`list${editing ? ' editing' : ''}`}>
               {ownedProducts.map((p) => {
                 const b = db.blades.find((x) => x.id === p.bladeId);
                 return (
@@ -163,20 +188,24 @@ export function Collection({ db, state, update, events = [], meta }: Props) {
                       <span class="row-title">{nb(displayProductName(p, db))}</span>
                     </div>
                     {b && <TypeBadge type={b.type} small />}
-                    <div class="stepper stepper-sm" aria-label={`Anzahl ${p.name}`}>
-                      <button type="button" onClick={() => changeOwned(p.code, -1)} aria-label={(state.owned[p.code] ?? 0) <= 1 ? `${p.name} aus der Sammlung entfernen` : 'Eins weniger'}>
-                        {(state.owned[p.code] ?? 0) <= 1 ? '×' : '−'}
-                      </button>
-                      <span aria-live="polite">{state.owned[p.code]}</span>
-                      <button type="button" onClick={() => changeOwned(p.code, 1)} aria-label="Eins mehr">
-                        +
-                      </button>
-                    </div>
+                    {!editing ? (
+                      <span class="count">{state.owned[p.code]}×</span>
+                    ) : (
+                      <div class="stepper stepper-sm" aria-label={`Anzahl ${p.name}`}>
+                        <button type="button" onClick={() => changeOwned(p.code, -1)} aria-label={(state.owned[p.code] ?? 0) <= 1 ? `${p.name} aus der Sammlung entfernen` : 'Eins weniger'}>
+                          {(state.owned[p.code] ?? 0) <= 1 ? '×' : '−'}
+                        </button>
+                        <span aria-live="polite">{state.owned[p.code]}</span>
+                        <button type="button" onClick={() => changeOwned(p.code, 1)} aria-label="Eins mehr">
+                          +
+                        </button>
+                      </div>
+                    )}
                   </li>
                 );
               })}
             </ul>
-          </Section>
+          </section>
           <Section title="Teile zum Kombinieren">
             <div class="card parts-grid">
               <div>
@@ -256,7 +285,8 @@ export function Collection({ db, state, update, events = [], meta }: Props) {
               </button>
             )}
             <p class="fineprint">
-              Japan-Verkaufspreis (Takara Tomy) laut Beyblade Wiki{wishSum.missing ? `, ${wishSum.missing} ohne Preis` : ''}. In Thailand und Europa (Hasbro) weichen die Preise ab – als grober Richtwert zum Vergleichen.
+              Japan-Verkaufspreis (Takara Tomy) laut Beyblade Wiki{wishSum.missing ? `, ${wishSum.missing} ohne Preis` : ''}. In Thailand und Europa (Hasbro) weichen die Preise ab – als grober
+              Richtwert zum Vergleichen.
               {rates && ` Kurs: EZB vom ${new Date(`${rates.date}T12:00:00`).toLocaleDateString('de-AT')}.`}
             </p>
           </div>
@@ -271,11 +301,7 @@ export function Collection({ db, state, update, events = [], meta }: Props) {
       {unknownCodes.length > 0 && (
         <p class="fineprint">
           Nicht mehr in der Datenbank: {unknownCodes.join(', ')}{' '}
-          <button
-            type="button"
-            class="link-btn"
-            onClick={() => update((s) => ({ ...s, owned: Object.fromEntries(Object.entries(s.owned).filter(([c]) => !unknownCodes.includes(c))) }))}
-          >
+          <button type="button" class="link-btn" onClick={() => update((s) => ({ ...s, owned: Object.fromEntries(Object.entries(s.owned).filter(([c]) => !unknownCodes.includes(c))) }))}>
             entfernen
           </button>
         </p>
