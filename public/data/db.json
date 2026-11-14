@@ -315,6 +315,250 @@
       "spin": "right",
       "verified": false,
       "note": "CX: Assist-Blade-Kürzel „GV“ laut Händlerangabe."
+    },
+    {
+      "id": "WeissTiger",
+      "name": "Weiss Tiger",
+      "line": "BX",
+      "type": "balance",
+      "spin": "right",
+      "verified": false,
+      "imported": true,
+      "wikiTitle": "WeissTiger 3-60U"
+    },
+    {
+      "id": "TriceraPress",
+      "name": "Tricera Press",
+      "line": "BX",
+      "type": "defense",
+      "spin": "right",
+      "verified": false,
+      "imported": true,
+      "wikiTitle": "TriceraPress M-85BS"
+    },
+    {
+      "id": "SamuraiCalibur",
+      "name": "Samurai Calibur",
+      "line": "BX",
+      "type": "balance",
+      "spin": "right",
+      "verified": false,
+      "imported": true,
+      "wikiTitle": "SamuraiCalibur 6-70M"
+    },
+    {
+      "id": "SiegSuperion",
+      "name": "Sieg Superion",
+      "line": "BX",
+      "type": "balance",
+      "spin": "right",
+      "verified": false,
+      "imported": true,
+      "wikiTitle": "SiegSuperion 0-70LP"
+    },
+    {
+      "id": "SilverWolf",
+      "name": "Silver Wolf",
+      "line": "UX",
+      "type": "stamina",
+      "spin": "right",
+      "verified": false,
+      "imported": true,
+      "wikiTitle": "SilverWolf 3-80FB"
+    },
+    {
+      "id": "ImpactDrake",
+      "name": "Impact Drake",
+      "line": "UX",
+      "type": "attack",
+      "spin": "right",
+      "verified": false,
+      "imported": true,
+      "wikiTitle": "ImpactDrake 9-60LR"
+    },
+    {
+      "id": "GolemRock",
+      "name": "Golem Rock",
+      "line": "UX",
+      "type": "defense",
+      "spin": "right",
+      "verified": false,
+      "imported": true,
+      "wikiTitle": "GolemRock 1-60UN"
+    },
+    {
+      "id": "ScorpioSpear",
+      "name": "Scorpio Spear",
+      "line": "UX",
+      "type": "balance",
+      "spin": "right",
+      "verified": false,
+      "imported": true,
+      "wikiTitle": "ScorpioSpear 0-70Z"
+    },
+    {
+      "id": "MeteorDragoon",
+      "name": "Meteor Dragoon",
+      "line": "UX",
+      "type": "attack",
+      "spin": "left",
+      "verified": false,
+      "imported": true,
+      "wikiTitle": "MeteorDragoon 3-70J"
+    },
+    {
+      "id": "PegasusBlast",
+      "name": "Pegasus Blast",
+      "line": "CX",
+      "type": "attack",
+      "spin": "right",
+      "verified": false,
+      "imported": true,
+      "wikiTitle": "PegasusBlast ATr",
+      "integratedRatchet": true
+    },
+    {
+      "id": "SolEclipse",
+      "name": "Sol Eclipse",
+      "line": "CX",
+      "type": "balance",
+      "spin": "right",
+      "verified": false,
+      "imported": true,
+      "wikiTitle": "SolEclipse D5-70TK",
+      "note": "CX: Assist Blade (D)."
+    },
+    {
+      "id": "WolfHunt",
+      "name": "Wolf Hunt",
+      "line": "CX",
+      "type": "stamina",
+      "spin": "right",
+      "verified": false,
+      "imported": true,
+      "wikiTitle": "WolfHunt F0-60DB",
+      "note": "CX: Assist Blade (F)."
+    },
+    {
+      "id": "PhoenixFlare",
+      "name": "Phoenix Flare",
+      "line": "CX",
+      "type": "defense",
+      "spin": "right",
+      "verified": false,
+      "imported": true,
+      "wikiTitle": "PhoenixFlare Z9-80WW",
+      "note": "CX: Assist Blade (Z)."
+    },
+    {
+      "id": "BahamutBlitz",
+      "name": "Bahamut Blitz",
+      "line": "CX",
+      "type": "attack",
+      "spin": "right",
+      "verified": false,
+      "imported": true,
+      "wikiTitle": "BahamutBlitz BK1-50I",
+      "note": "CX: Assist Blade (BK)."
+    },
+    {
+      "id": "RagnaRage",
+      "name": "Ragna Rage",
+      "line": "CX",
+      "type": "stamina",
+      "spin": "right",
+      "verified": false,
+      "imported": true,
+      "wikiTitle": "RagnaRage FE4-55Y",
+      "note": "CX: Assist Blade (FE)."
+    },
+    {
+      "id": "ValkyrieVolt",
+      "name": "Valkyrie Volt",
+      "line": "CX",
+      "type": "attack",
+      "spin": "right",
+      "verified": false,
+      "imported": true,
+      "wikiTitle": "ValkyrieVolt S4-70V",
+      "note": "CX: Assist Blade (S)."
+    },
+    {
+      "id": "LeonFang",
+      "name": "Leon Fang",
+      "line": "CX",
+      "type": "attack",
+      "spin": "right",
+      "verified": false,
+      "imported": true,
+      "wikiTitle": "LeonFang T4-60A",
+      "note": "CX: Assist Blade (T)."
+    },
+    {
+      "id": "DranArc",
+      "name": "Dran Arc",
+      "line": "CX",
+      "type": "balance",
+      "spin": "right",
+      "verified": false,
+      "imported": true,
+      "wikiTitle": "DranArc S2-70K",
+      "note": "CX: Assist Blade (S)."
+    },
+    {
+      "id": "BucksAntlers",
+      "name": "Bucks Antlers",
+      "line": "CX",
+      "type": "defense",
+      "spin": "right",
+      "verified": false,
+      "imported": true,
+      "wikiTitle": "BucksAntlers B2-60D",
+      "note": "CX: Assist Blade (B)."
+    },
+    {
+      "id": "HornetFort",
+      "name": "Hornet Fort",
+      "line": "CX",
+      "type": "balance",
+      "spin": "right",
+      "verified": false,
+      "imported": true,
+      "wikiTitle": "HornetFort R7-60T",
+      "note": "CX: Assist Blade (R)."
+    },
+    {
+      "id": "KrakenWriggle",
+      "name": "Kraken Wriggle",
+      "line": "CX",
+      "type": "stamina",
+      "spin": "right",
+      "verified": false,
+      "imported": true,
+      "wikiTitle": "KrakenWriggle S3-70O",
+      "note": "CX: Assist Blade (S)."
+    },
+    {
+      "id": "DrakeBrave",
+      "name": "Drake Brave",
+      "line": "CX",
+      "type": "attack",
+      "spin": "right",
+      "verified": false,
+      "imported": true,
+      "wikiTitle": "DrakeBrave G4-70I",
+      "note": "CX: Assist Blade (G)."
+    },
+    {
+      "id": "TigaRage",
+      "name": "Tiga Rage",
+      "line": "CX",
+      "type": "balance",
+      "spin": "right",
+      "verified": false,
+      "imported": true,
+      "wikiTitle": "TigaRage FT3-60T",
+      "note": "CX: Assist Blade (FT)."
     }
   ],
   "ratchets": [
@@ -469,6 +713,26 @@
       "id": "9-80",
       "contacts": 9,
       "heightMm": 8
+    },
+    {
+      "id": "M-85",
+      "contacts": null,
+      "heightMm": 8.5,
+      "imported": true,
+      "note": "Sonderform ohne klassische Zacken."
+    },
+    {
+      "id": "0-60",
+      "contacts": null,
+      "heightMm": 6,
+      "imported": true,
+      "note": "Sonderform ohne klassische Zacken."
+    },
+    {
+      "id": "1-50",
+      "contacts": 1,
+      "heightMm": 5,
+      "imported": true
     }
   ],
   "bits": [
@@ -670,6 +934,70 @@
       "type": "balance",
       "uncertain": true,
       "note": "Neues Bit (BX-52) – Name und Typ noch nicht bestätigt."
+    },
+    {
+      "id": "M",
+      "name": "M",
+      "type": "balance",
+      "uncertain": true,
+      "imported": true,
+      "note": "Aus dem Wiki übernommen (SamuraiCalibur 6-70M); Typ vom Kreisel abgeleitet."
+    },
+    {
+      "id": "LP",
+      "name": "LP",
+      "type": "balance",
+      "uncertain": true,
+      "imported": true,
+      "note": "Aus dem Wiki übernommen (SiegSuperion 0-70LP); Typ vom Kreisel abgeleitet."
+    },
+    {
+      "id": "Z",
+      "name": "Z",
+      "type": "balance",
+      "uncertain": true,
+      "imported": true,
+      "note": "Aus dem Wiki übernommen (ScorpioSpear 0-70Z); Typ vom Kreisel abgeleitet."
+    },
+    {
+      "id": "ATr",
+      "name": "ATr",
+      "type": "attack",
+      "uncertain": true,
+      "imported": true,
+      "note": "Aus dem Wiki übernommen (PegasusBlast ATr); Typ vom Kreisel abgeleitet."
+    },
+    {
+      "id": "TK",
+      "name": "TK",
+      "type": "balance",
+      "uncertain": true,
+      "imported": true,
+      "note": "Aus dem Wiki übernommen (SolEclipse D5-70TK); Typ vom Kreisel abgeleitet."
+    },
+    {
+      "id": "I",
+      "name": "I",
+      "type": "attack",
+      "uncertain": true,
+      "imported": true,
+      "note": "Aus dem Wiki übernommen (BahamutBlitz BK1-50I); Typ vom Kreisel abgeleitet."
+    },
+    {
+      "id": "Y",
+      "name": "Y",
+      "type": "stamina",
+      "uncertain": true,
+      "imported": true,
+      "note": "Aus dem Wiki übernommen (RagnaRage FE4-55Y); Typ vom Kreisel abgeleitet."
+    },
+    {
+      "id": "K",
+      "name": "K",
+      "type": "balance",
+      "uncertain": true,
+      "imported": true,
+      "note": "Aus dem Wiki übernommen (DranArc S2-70K); Typ vom Kreisel abgeleitet."
     }
   ],
   "products": [
@@ -966,6 +1294,350 @@
       "verified": true,
       "includesLauncher": true,
       "note": "Mit Stadium und zwei Launchern."
+    },
+    {
+      "code": "BX-05",
+      "name": "Booster WizardArrow 4-80B",
+      "kind": "booster",
+      "bladeId": "WizardArrow",
+      "ratchetId": "4-80",
+      "bitId": "B",
+      "verified": false,
+      "imported": true,
+      "source": "https://beyblade.fandom.com/wiki/WizardArrow_4-80B"
+    },
+    {
+      "code": "BX-06",
+      "name": "Booster KnightShield 3-80N",
+      "kind": "booster",
+      "bladeId": "KnightShield",
+      "ratchetId": "3-80",
+      "bitId": "N",
+      "verified": false,
+      "imported": true,
+      "source": "https://beyblade.fandom.com/wiki/KnightShield_3-80N"
+    },
+    {
+      "code": "BX-19",
+      "name": "Booster RhinoHorn 3-80S",
+      "kind": "booster",
+      "bladeId": "RhinoHorn",
+      "ratchetId": "3-80",
+      "bitId": "S",
+      "verified": false,
+      "imported": true,
+      "source": "https://beyblade.fandom.com/wiki/RhinoHorn_3-80S"
+    },
+    {
+      "code": "BX-22",
+      "name": "Booster DranSword 3-60F",
+      "kind": "booster",
+      "bladeId": "DranSword",
+      "ratchetId": "3-60",
+      "bitId": "F",
+      "verified": false,
+      "imported": true,
+      "source": "https://beyblade.fandom.com/wiki/DranSword_3-60F"
+    },
+    {
+      "code": "BX-26",
+      "name": "Booster UnicornSting 5-60GP",
+      "kind": "booster",
+      "bladeId": "UnicornSting",
+      "ratchetId": "5-60",
+      "bitId": "GP",
+      "verified": false,
+      "imported": true,
+      "source": "https://beyblade.fandom.com/wiki/UnicornSting_5-60GP"
+    },
+    {
+      "code": "BX-33",
+      "name": "Booster WeissTiger 3-60U",
+      "kind": "booster",
+      "bladeId": "WeissTiger",
+      "ratchetId": "3-60",
+      "bitId": "U",
+      "verified": false,
+      "imported": true,
+      "source": "https://beyblade.fandom.com/wiki/WeissTiger_3-60U"
+    },
+    {
+      "code": "BX-44",
+      "name": "Booster TriceraPress M-85BS",
+      "kind": "booster",
+      "bladeId": "TriceraPress",
+      "ratchetId": "M-85",
+      "bitId": "BS",
+      "verified": false,
+      "imported": true,
+      "source": "https://beyblade.fandom.com/wiki/TriceraPress_M-85BS"
+    },
+    {
+      "code": "BX-45",
+      "name": "Booster SamuraiCalibur 6-70M",
+      "kind": "booster",
+      "bladeId": "SamuraiCalibur",
+      "ratchetId": "6-70",
+      "bitId": "M",
+      "verified": false,
+      "imported": true,
+      "source": "https://beyblade.fandom.com/wiki/SamuraiCalibur_6-70M"
+    },
+    {
+      "code": "BX-54",
+      "name": "Booster SiegSuperion 0-70LP",
+      "kind": "booster",
+      "bladeId": "SiegSuperion",
+      "ratchetId": "0-70",
+      "bitId": "LP",
+      "verified": false,
+      "imported": true,
+      "source": "https://beyblade.fandom.com/wiki/SiegSuperion_0-70LP"
+    },
+    {
+      "code": "UX-08",
+      "name": "Starter SilverWolf 3-80FB",
+      "kind": "starter",
+      "bladeId": "SilverWolf",
+      "ratchetId": "3-80",
+      "bitId": "FB",
+      "includesLauncher": true,
+      "verified": false,
+      "imported": true,
+      "source": "https://beyblade.fandom.com/wiki/SilverWolf_3-80FB"
+    },
+    {
+      "code": "UX-11",
+      "name": "Starter ImpactDrake 9-60LR",
+      "kind": "starter",
+      "bladeId": "ImpactDrake",
+      "ratchetId": "9-60",
+      "bitId": "LR",
+      "includesLauncher": true,
+      "verified": false,
+      "imported": true,
+      "source": "https://beyblade.fandom.com/wiki/ImpactDrake_9-60LR"
+    },
+    {
+      "code": "UX-13",
+      "name": "Booster GolemRock 1-60UN",
+      "kind": "booster",
+      "bladeId": "GolemRock",
+      "ratchetId": "1-60",
+      "bitId": "UN",
+      "verified": false,
+      "imported": true,
+      "source": "https://beyblade.fandom.com/wiki/GolemRock_1-60UN"
+    },
+    {
+      "code": "UX-14",
+      "name": "Starter ScorpioSpear 0-70Z",
+      "kind": "starter",
+      "bladeId": "ScorpioSpear",
+      "ratchetId": "0-70",
+      "bitId": "Z",
+      "includesLauncher": true,
+      "verified": false,
+      "imported": true,
+      "source": "https://beyblade.fandom.com/wiki/ScorpioSpear_0-70Z"
+    },
+    {
+      "code": "UX-17",
+      "name": "Starter MeteorDragoon 3-70J",
+      "kind": "starter",
+      "bladeId": "MeteorDragoon",
+      "ratchetId": "3-70",
+      "bitId": "J",
+      "includesLauncher": true,
+      "verified": false,
+      "imported": true,
+      "source": "https://beyblade.fandom.com/wiki/MeteorDragoon_3-70J"
+    },
+    {
+      "code": "UX-22",
+      "name": "Starter VanishLucifer WW",
+      "kind": "starter",
+      "bladeId": "VanishLucifer",
+      "bitId": "WW",
+      "includesLauncher": true,
+      "verified": false,
+      "imported": true,
+      "source": "https://beyblade.fandom.com/wiki/VanishLucifer_WW"
+    },
+    {
+      "code": "CX-03",
+      "name": "Booster PerseusDark B6-80W",
+      "kind": "booster",
+      "bladeId": "PerseusDark",
+      "ratchetId": "6-80",
+      "bitId": "W",
+      "verified": false,
+      "imported": true,
+      "source": "https://beyblade.fandom.com/wiki/PerseusDark_B6-80W"
+    },
+    {
+      "code": "CX-07",
+      "name": "Starter PegasusBlast ATr",
+      "kind": "starter",
+      "bladeId": "PegasusBlast",
+      "bitId": "ATr",
+      "includesLauncher": true,
+      "verified": false,
+      "imported": true,
+      "source": "https://beyblade.fandom.com/wiki/PegasusBlast_ATr"
+    },
+    {
+      "code": "CX-09",
+      "name": "Starter SolEclipse D5-70TK",
+      "kind": "starter",
+      "bladeId": "SolEclipse",
+      "ratchetId": "5-70",
+      "bitId": "TK",
+      "includesLauncher": true,
+      "verified": false,
+      "imported": true,
+      "source": "https://beyblade.fandom.com/wiki/SolEclipse_D5-70TK"
+    },
+    {
+      "code": "CX-10",
+      "name": "Booster WolfHunt F0-60DB",
+      "kind": "booster",
+      "bladeId": "WolfHunt",
+      "ratchetId": "0-60",
+      "bitId": "DB",
+      "verified": false,
+      "imported": true,
+      "source": "https://beyblade.fandom.com/wiki/WolfHunt_F0-60DB"
+    },
+    {
+      "code": "CX-12",
+      "name": "Booster PhoenixFlare Z9-80WW",
+      "kind": "booster",
+      "bladeId": "PhoenixFlare",
+      "ratchetId": "9-80",
+      "bitId": "WW",
+      "verified": false,
+      "imported": true,
+      "source": "https://beyblade.fandom.com/wiki/PhoenixFlare_Z9-80WW"
+    },
+    {
+      "code": "CX-13",
+      "name": "Starter BahamutBlitz BK1-50I",
+      "kind": "starter",
+      "bladeId": "BahamutBlitz",
+      "ratchetId": "1-50",
+      "bitId": "I",
+      "includesLauncher": true,
+      "verified": false,
+      "imported": true,
+      "source": "https://beyblade.fandom.com/wiki/BahamutBlitz_BK1-50I"
+    },
+    {
+      "code": "CX-15",
+      "name": "Booster RagnaRage FE4-55Y",
+      "kind": "booster",
+      "bladeId": "RagnaRage",
+      "ratchetId": "4-55",
+      "bitId": "Y",
+      "verified": false,
+      "imported": true,
+      "source": "https://beyblade.fandom.com/wiki/RagnaRage_FE4-55Y"
+    },
+    {
+      "code": "CX-00-01",
+      "name": "Starter ValkyrieVolt S4-70V",
+      "kind": "starter",
+      "bladeId": "ValkyrieVolt",
+      "ratchetId": "4-70",
+      "bitId": "V",
+      "includesLauncher": true,
+      "verified": false,
+      "imported": true,
+      "source": "https://beyblade.fandom.com/wiki/ValkyrieVolt_S4-70V"
+    },
+    {
+      "code": "CX-00-04",
+      "name": "Starter LeonFang T4-60A",
+      "kind": "starter",
+      "bladeId": "LeonFang",
+      "ratchetId": "4-60",
+      "bitId": "A",
+      "includesLauncher": true,
+      "verified": false,
+      "imported": true,
+      "source": "https://beyblade.fandom.com/wiki/LeonFang_T4-60A"
+    },
+    {
+      "code": "CX-00-06",
+      "name": "Starter DranArc S2-70K",
+      "kind": "starter",
+      "bladeId": "DranArc",
+      "ratchetId": "2-70",
+      "bitId": "K",
+      "includesLauncher": true,
+      "verified": false,
+      "imported": true,
+      "source": "https://beyblade.fandom.com/wiki/DranArc_S2-70K"
+    },
+    {
+      "code": "CX-00-07",
+      "name": "Starter BucksAntlers B2-60D",
+      "kind": "starter",
+      "bladeId": "BucksAntlers",
+      "ratchetId": "2-60",
+      "bitId": "D",
+      "includesLauncher": true,
+      "verified": false,
+      "imported": true,
+      "source": "https://beyblade.fandom.com/wiki/BucksAntlers_B2-60D"
+    },
+    {
+      "code": "CX-00-08",
+      "name": "Starter HornetFort R7-60T",
+      "kind": "starter",
+      "bladeId": "HornetFort",
+      "ratchetId": "7-60",
+      "bitId": "T",
+      "includesLauncher": true,
+      "verified": false,
+      "imported": true,
+      "source": "https://beyblade.fandom.com/wiki/HornetFort_R7-60T"
+    },
+    {
+      "code": "CX-00-09",
+      "name": "Starter KrakenWriggle S3-70O",
+      "kind": "starter",
+      "bladeId": "KrakenWriggle",
+      "ratchetId": "3-70",
+      "bitId": "O",
+      "includesLauncher": true,
+      "verified": false,
+      "imported": true,
+      "source": "https://beyblade.fandom.com/wiki/KrakenWriggle_S3-70O"
+    },
+    {
+      "code": "CX-00-10",
+      "name": "Starter DrakeBrave G4-70I",
+      "kind": "starter",
+      "bladeId": "DrakeBrave",
+      "ratchetId": "4-70",
+      "bitId": "I",
+      "includesLauncher": true,
+      "verified": false,
+      "imported": true,
+      "source": "https://beyblade.fandom.com/wiki/DrakeBrave_G4-70I"
+    },
+    {
+      "code": "CX-00-11",
+      "name": "Starter TigaRage FT3-60T",
+      "kind": "starter",
+      "bladeId": "TigaRage",
+      "ratchetId": "3-60",
+      "bitId": "T",
+      "includesLauncher": true,
+      "verified": false,
+      "imported": true,
+      "source": "https://beyblade.fandom.com/wiki/TigaRage_FT3-60T"
     }
   ]
 }
