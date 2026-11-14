@@ -191,7 +191,12 @@ export function App() {
   const hasbroNames = state.prefs.hasbroNames;
   setHasbroNames(hasbroNames);
   const bladeName = useCallback((b: { name: string; hasbroName?: string }) => (hasbroNames && b.hasbroName ? b.hasbroName : b.name), [hasbroNames]);
-  const ctx = useMemo(() => ({ images, rates, openBlade, openImage, openCheck, bladeName, hasbroNames }), [images, rates, openBlade, openImage, openCheck, bladeName, hasbroNames]);
+  const owned = state.owned;
+  const ownedCount = useCallback((code: string) => owned[code] ?? 0, [owned]);
+  const ctx = useMemo(
+    () => ({ images, rates, openBlade, openImage, openCheck, ownedCount, bladeName, hasbroNames }),
+    [images, rates, openBlade, openImage, openCheck, ownedCount, bladeName, hasbroNames],
+  );
   const toggleNames = () => setState((s) => ({ ...s, prefs: { ...s.prefs, hasbroNames: !s.prefs.hasbroNames } }));
 
   const unread = news.items.filter((n) => !state.seenNews.includes(n.id)).length;
@@ -282,7 +287,7 @@ export function App() {
               {tab === 'parts' && <Lexikon db={db} state={state} update={update} />}
               {tab === 'battle' && <Battle db={db} state={state} update={update} goToBuilder={() => go('builder')} meta={meta} onBuild={buildCombo} />}
               {tab === 'events' && <Events db={db} events={events.events} news={news} state={state} update={update} />}
-              {tab === 'collection' && <Collection events={events.events} db={db} state={state} update={update} goToParts={() => go('parts')} meta={meta} />}
+              {tab === 'collection' && <Collection events={events.events} db={db} state={state} update={update} meta={meta} />}
             </>
           )}
         </main>

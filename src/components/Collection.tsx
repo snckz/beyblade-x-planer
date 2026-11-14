@@ -13,6 +13,7 @@ import { Transfer } from './Transfer';
 import { Advisor } from './Advisor';
 import { ShopMode } from './ShopMode';
 import { PhotoCheck } from './PhotoCheck';
+import { AddProducts } from './AddProducts';
 import { nb } from '../lib/analysis';
 import { convert, priceHint, sumPrices, yen } from '../lib/price';
 
@@ -21,11 +22,10 @@ interface Props {
   db: Database;
   state: UserState;
   update: (fn: (s: UserState) => UserState) => void;
-  goToParts: () => void;
   meta?: MetaFeed | null;
 }
 
-export function Collection({ db, state, update, goToParts, events = [], meta }: Props) {
+export function Collection({ db, state, update, events = [], meta }: Props) {
   const parts = useMemo(() => ownedParts(db, state.owned), [db, state.owned]);
   const fileRef = useRef<HTMLInputElement>(null);
   const [msg, setMsg] = useState('');
@@ -33,6 +33,7 @@ export function Collection({ db, state, update, goToParts, events = [], meta }: 
   const [transfer, setTransfer] = useState(false);
   const [shop, setShop] = useState(false);
   const [photo, setPhoto] = useState(false);
+  const [adding, setAdding] = useState(false);
   const ownedProducts = db.products.filter((p) => (state.owned[p.code] ?? 0) > 0);
   const unknownCodes = Object.keys(state.owned).filter((c) => !db.products.some((p) => p.code === c));
   const total = ownedProducts.reduce((n, p) => n + (state.owned[p.code] ?? 0), 0);
@@ -129,6 +130,7 @@ export function Collection({ db, state, update, goToParts, events = [], meta }: 
         </span>
       </button>
       {scan && <Scanner db={db} state={state} update={update} onClose={() => setScan(false)} />}
+      {adding && <AddProducts db={db} state={state} update={update} onClose={() => setAdding(false)} />}
       {photo && <PhotoCheck db={db} state={state} update={update} meta={meta} onClose={() => setPhoto(false)} />}
       {ownedProducts.length ? (
         <>
@@ -150,7 +152,7 @@ export function Collection({ db, state, update, goToParts, events = [], meta }: 
               <span class="kpi-label">Bits</span>
             </div>
           </div>
-          <Section title="Meine Produkte" aside={<button type="button" class="btn btn-ghost" onClick={goToParts}>Bearbeiten</button>}>
+          <Section title="Meine Produkte" aside={<button type="button" class="btn btn-ghost" onClick={() => setAdding(true)}>Bearbeiten</button>}>
             <ul class="list">
               {ownedProducts.map((p) => {
                 const b = db.blades.find((x) => x.id === p.bladeId);
@@ -190,8 +192,8 @@ export function Collection({ db, state, update, goToParts, events = [], meta }: 
         </>
       ) : (
         <Empty title="Deine Sammlung ist leer">
-          <p>Trag unter „Teile“ mit + ein, welche Produkte du hast. Dann kannst du nur mit deinen Teilen kombinieren.</p>
-          <button type="button" class="btn btn-primary" onClick={goToParts}>
+          <p>Tipp auf „Produkte hinzufügen“ und trag mit + ein, was du hast – oder nimm den Kauf-Check mit der Nummer von der Packung.</p>
+          <button type="button" class="btn btn-primary" onClick={() => setAdding(true)}>
             Produkte hinzufügen
           </button>
         </Empty>

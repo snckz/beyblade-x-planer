@@ -5,7 +5,7 @@ import { deckValue, type Candidate, type PartPool, type ScoreCache } from './opt
 import { ownedParts } from './data';
 import { shopVerdict, type Verdict } from './price';
 
-export type Overall = 'buy' | 'maybe' | 'skip';
+export type Overall = 'buy' | 'maybe' | 'skip' | 'owned';
 
 export interface Rating {
   owned: number;
@@ -19,7 +19,7 @@ export interface Rating {
   reasons: string[];
 }
 
-export const OVERALL_LABEL: Record<Overall, string> = { buy: 'Ja, kaufen!', maybe: 'Kann man machen', skip: 'Nein, lieber nicht' };
+export const OVERALL_LABEL: Record<Overall, string> = { buy: 'Ja, kaufen!', maybe: 'Kann man machen', skip: 'Nein, lieber nicht', owned: 'Hast du schon ✓' };
 
 /** Preis-Ampel auf eine Gewinn-Einschätzung anwenden (gleiche Regel für Einzelkauf und Random Booster). */
 export function judge(gain: number, pv: { verdict: Verdict } | null): Overall {
@@ -71,8 +71,9 @@ export function rateProduct(
     reasons.push('Zu dieser Packung fehlen noch die Teile-Daten – den Nutzen fürs Deck kann ich nicht berechnen.');
     if (pv) reasons.push(pv.verdict === 'good' ? 'Der Preis ist gut.' : pv.verdict === 'ok' ? 'Der Preis ist okay.' : 'Der Preis ist hoch.');
   } else if (n > 0) {
-    overall = 'skip';
-    reasons.push(`Hast du schon (${n}×).`);
+    // Kein Kaufurteil – einfach: ist schon da
+    overall = 'owned';
+    reasons.push(n > 1 ? `Ist ${n}× in deiner Sammlung.` : 'Ist schon in deiner Sammlung.');
   } else if (!fresh) {
     overall = 'skip';
     reasons.push('Alle Teile hast du schon aus anderen Packungen.');

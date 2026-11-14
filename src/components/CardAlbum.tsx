@@ -17,7 +17,7 @@ interface Props {
 
 /** Sammelalbum: jedes Produkt als Karte mit Seltenheit; gesammelte Karten leuchten, fehlende sind gedimmt. */
 export function CardAlbum({ db, state, update }: Props) {
-  const { openBlade, openCheck, rates } = useApp();
+  const { openBlade, openCheck, ownedCount, rates } = useApp();
   const [rarity, setRarity] = useState<Rarity | ''>('');
   const [query, setQuery] = useState('');
   const [onlyMissing, setOnlyMissing] = useState(false);
@@ -50,8 +50,7 @@ export function CardAlbum({ db, state, update }: Props) {
     });
 
   const wished = (code: string) => state.wishlist.includes(code);
-  const toggleWish = (code: string) =>
-    update((s) => ({ ...s, wishlist: s.wishlist.includes(code) ? s.wishlist.filter((c) => c !== code) : [...s.wishlist, code] }));
+  const toggleWish = (code: string) => update((s) => ({ ...s, wishlist: s.wishlist.includes(code) ? s.wishlist.filter((c) => c !== code) : [...s.wishlist, code] }));
 
   return (
     <div class="stack">
@@ -74,8 +73,18 @@ export function CardAlbum({ db, state, update }: Props) {
             if (!total) return null;
             const got = cards.filter((c) => c.r === r && owned(c.p.code) > 0).length;
             return (
-              <button key={r} type="button" class={`rarity-chip rar-${r}${rarity === r ? ' on' : ''}`} aria-pressed={rarity === r} onClick={() => setRarity(rarity === r ? '' : r)} title={RARITY_HINT[r]}>
-                {RARITY_LABEL[r]} <span>{got}/{total}</span>
+              <button
+                key={r}
+                type="button"
+                class={`rarity-chip rar-${r}${rarity === r ? ' on' : ''}`}
+                aria-pressed={rarity === r}
+                onClick={() => setRarity(rarity === r ? '' : r)}
+                title={RARITY_HINT[r]}
+              >
+                {RARITY_LABEL[r]}{' '}
+                <span>
+                  {got}/{total}
+                </span>
               </button>
             );
           })}
@@ -121,8 +130,13 @@ export function CardAlbum({ db, state, update }: Props) {
                   {nb(displayProductName(p, db).replace(/^(Starter|Booster|Set|Random Booster( Vol\.\d+)?)\s+/, ''))}
                 </button>
                 {price && <p class="bcard-price">{price}</p>}
-                <button type="button" class="buy-q" onClick={() => openCheck(p.code)} aria-label={`Soll ich ${p.name} kaufen?`}>
-                  Kaufen?
+                <button
+                  type="button"
+                  class={`buy-q${ownedCount(p.code) ? ' have' : ''}`}
+                  onClick={() => openCheck(p.code)}
+                  aria-label={ownedCount(p.code) ? `${p.name}: hast du schon` : `Soll ich ${p.name} kaufen?`}
+                >
+                  {ownedCount(p.code) ? '✓ Hab ich' : 'Kaufen?'}
                 </button>
                 <div class="bcard-foot">
                   <TypeBadge type={blade.type} small />

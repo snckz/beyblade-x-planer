@@ -927,3 +927,13 @@ input[type='text'], input[type='search'], select { border-radius: 16px; backgrou
 .bcard .buy-q { justify-self: start; margin: 2px 0 4px; }
 .mini-list li { align-items: center; }
 .mini-list .buy-q { margin-left: auto; }
+
+/* App-Gefühl: kein Doppeltipp-Zoom, kein Zoom beim Antippen von Eingabefeldern (iOS zoomt unter 16px) */
+html { touch-action: manipulation; -webkit-text-size-adjust: 100%; }
+input, select, textarea { font-size: max(16px, 1em); }
+.add-list .row-own .row-title { color: var(--text); }
+.add-list .row:not(.row-own) .row-title { color: var(--muted); }
+
+.buy-q.have { border-color: rgba(52, 199, 89, .45); background: rgba(52, 199, 89, .14); color: #6ee28f; }
+.photo-result.o-owned { border-left-color: var(--stamina); }
+.photo-verdict.o-owned { color: #6ee28f; }

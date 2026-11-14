@@ -78,10 +78,10 @@ describe('Preise und Käufe', () => {
 
 describe('Bewertung', () => {
   const p = db.products.find((x) => x.code === 'BX-05')!;
-  it('rät ab, wenn man es schon hat', () => {
+  it('sagt nur „Hast du schon“, wenn man es schon hat', () => {
     const r = rateProduct(db, { 'BX-05': 1 }, opponents, p, null, null);
-    expect(r.overall).toBe('skip');
-    expect(r.reasons[0]).toContain('Hast du schon');
+    expect(r.overall).toBe('owned');
+    expect(r.reasons[0]).toContain('schon in deiner Sammlung');
   });
   it('empfiehlt einen starken Zuwachs, ein hoher Preis bremst', () => {
     const rates = { source: '', date: '2026-11-13', base: 'EUR' as const, JPY: 170, THB: 37 };

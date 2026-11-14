@@ -15,10 +15,12 @@ export interface AppCtx {
   openImage: (id: string, kind?: ImageKind) => void;
   /** „Kaufen?“ – öffnet den Kauf-Check direkt mit Bewertung für diese Packung */
   openCheck: (code: string) => void;
+  /** wie oft ein Produkt in der Sammlung ist */
+  ownedCount: (code: string) => number;
 }
 
 export type ImageKind = 'blade' | 'bit' | 'ratchet';
 
-export const AppContext = createContext<AppCtx>({ images: { source: '', blades: {} }, rates: null, bladeName: (b) => b.name, hasbroNames: false, openBlade: () => {}, openImage: () => {}, openCheck: () => {} });
+export const AppContext = createContext<AppCtx>({ images: { source: '', blades: {} }, rates: null, bladeName: (b) => b.name, hasbroNames: false, openBlade: () => {}, openImage: () => {}, openCheck: () => {}, ownedCount: () => 0 });
 
 export const useApp = () => useContext(AppContext);

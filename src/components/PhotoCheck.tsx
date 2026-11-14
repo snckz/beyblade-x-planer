@@ -274,7 +274,8 @@ function Result({ db, state, update, product, rate, cur, setCur, msg, setMsg }: 
   const main = ratings[0]!;
   const avgGain = ratings.reduce((s, r) => s + r.gain, 0) / ratings.length;
   const best = ratings.reduce((a, b) => (b.gain > a.gain ? b : a), main);
-  const overall = isRandom ? judge(avgGain, main.price) : main.overall;
+  const overall = isRandom ? (group.every((p) => (state.owned[p.code] ?? 0) > 0) ? 'owned' : judge(avgGain, main.price)) : main.overall;
+  const own = overall === 'owned';
   const blade = product.bladeId ? db.blades.find((b) => b.id === product.bladeId) : undefined;
   const sym = cur === 'THB' ? '฿' : '€';
   const ref = refPrice(product, rates);
@@ -320,37 +321,39 @@ function Result({ db, state, update, product, rate, cur, setCur, msg, setMsg }: 
         )}
       </div>
 
-      <div class="card stack-sm">
-        <div class="shop-price">
-          <PriceInput value={price} cur={cur} label={`Preis im Laden in ${cur === 'THB' ? 'Baht' : 'Euro'}`} onCommit={setPrice} />
-          <div class="segmented seg-2 cur-switch" role="group" aria-label="Währung">
-            <button type="button" class={cur === 'THB' ? 'on' : ''} aria-pressed={cur === 'THB'} onClick={() => setCur('THB')}>
-              ฿
-            </button>
-            <button type="button" class={cur === 'EUR' ? 'on' : ''} aria-pressed={cur === 'EUR'} onClick={() => setCur('EUR')}>
-              €
-            </button>
+      {!own && (
+        <div class="card stack-sm">
+          <div class="shop-price">
+            <PriceInput value={price} cur={cur} label={`Preis im Laden in ${cur === 'THB' ? 'Baht' : 'Euro'}`} onCommit={setPrice} />
+            <div class="segmented seg-2 cur-switch" role="group" aria-label="Währung">
+              <button type="button" class={cur === 'THB' ? 'on' : ''} aria-pressed={cur === 'THB'} onClick={() => setCur('THB')}>
+                ฿
+              </button>
+              <button type="button" class={cur === 'EUR' ? 'on' : ''} aria-pressed={cur === 'EUR'} onClick={() => setCur('EUR')}>
+                €
+              </button>
+            </div>
           </div>
+          <p class="muted">
+            Vergleichspreis:{' '}
+            {ref
+              ? `${ref.label} ≈ ${fmt(cur === 'THB' ? ref.thb : ref.eur)} ${sym}`
+              : product.priceJpy
+                ? `Japan ${yen(product.priceJpy)}`
+                : product.priceUsd
+                  ? `USA $${product.priceUsd.toFixed(2).replace('.', ',')}`
+                  : 'unbekannt'}
+            {product.kind === 'set' && ' (ganzes Set)'}
+            {main.price && (
+              <span class={`verdict-inline v-${main.price.verdict}`}>
+                {' '}
+                · {VERDICT_LABEL[main.price.verdict]} ({main.price.ratio < 1 ? '−' : '+'}
+                {Math.round(Math.abs(main.price.ratio - 1) * 100)} %)
+              </span>
+            )}
+          </p>
         </div>
-        <p class="muted">
-          Vergleichspreis:{' '}
-          {ref
-            ? `${ref.label} ≈ ${fmt(cur === 'THB' ? ref.thb : ref.eur)} ${sym}`
-            : product.priceJpy
-              ? `Japan ${yen(product.priceJpy)}`
-              : product.priceUsd
-                ? `USA $${product.priceUsd.toFixed(2).replace('.', ',')}`
-                : 'unbekannt'}
-          {product.kind === 'set' && ' (ganzes Set)'}
-          {main.price && (
-            <span class={`verdict-inline v-${main.price.verdict}`}>
-              {' '}
-              · {VERDICT_LABEL[main.price.verdict]} ({main.price.ratio < 1 ? '−' : '+'}
-              {Math.round(Math.abs(main.price.ratio - 1) * 100)} %)
-            </span>
-          )}
-        </p>
-      </div>
+      )}
 
       {isRandom && (
         <details class="card">
@@ -369,7 +372,7 @@ function Result({ db, state, update, product, rate, cur, setCur, msg, setMsg }: 
         {!isRandom && (
           <button
             type="button"
-            class="btn btn-primary"
+            class={own ? 'btn' : 'btn btn-primary'}
             onClick={() => {
               // Set = alle Kreisel des Sets. Random Booster: welcher drin war, trägst du nach dem Öffnen in der Sammlung ein.
               const codes = purchaseCodes(db.products, product);
@@ -381,7 +384,7 @@ function Result({ db, state, update, product, rate, cur, setCur, msg, setMsg }: 
               setMsg(codes.length > 1 ? `Alle ${codes.length} Kreisel des Sets sind jetzt in deiner Sammlung.` : `${product.code} ist jetzt in deiner Sammlung.`);
             }}
           >
-            Gekauft – in die Sammlung
+            {own ? 'Noch eins dazu' : 'Gekauft – in die Sammlung'}
           </button>
         )}
         {!state.wishlist.includes(product.code) && (main.owned ?? 0) === 0 && (
