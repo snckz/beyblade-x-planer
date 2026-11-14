@@ -1,3 +1,4 @@
+import { displayName } from '../lib/names';
 import { useState } from 'preact/hooks';
 import type { Combo, Database } from '../lib/types';
 import type { UserState } from '../lib/storage';
@@ -17,7 +18,7 @@ type Part = Omit<Combo, 'id' | 'name'>;
 
 const label = (db: Database, c: Part) => {
   const r = resolveCombo(db, { id: '', ...c });
-  return r ? nb(`${r.blade.name} ${r.ratchet?.id ?? ''}${r.bit.id}`) : `${c.bladeId} ${c.ratchetId ?? ''}${c.bitId}`;
+  return r ? nb(`${displayName(r.blade)} ${r.ratchet?.id ?? ''}${r.bit.id}`) : `${c.bladeId} ${c.ratchetId ?? ''}${c.bitId}`;
 };
 const pct = (a: number, b: number) => (b ? Math.round((a / b) * 100) : 0);
 

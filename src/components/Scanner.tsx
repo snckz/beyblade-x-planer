@@ -1,3 +1,4 @@
+import { displayProductName } from '../lib/names';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import type { Database, Product } from '../lib/types';
 import type { UserState } from '../lib/storage';
@@ -142,7 +143,7 @@ export function Scanner({ db, state, update, onClose }: Props) {
 
   const camera = phase === 'starting' || phase === 'scanning';
   const pick = phase === 'unknown' || phase === 'nocam' || phase === 'noreader';
-  const results = pick ? searchProducts(db.products, query).slice(0, 30) : [];
+  const results = pick ? searchProducts(db.products, query, db.blades).slice(0, 30) : [];
   const blade = product && db.blades.find((b) => b.id === product.bladeId);
 
   return (
@@ -198,7 +199,7 @@ export function Scanner({ db, state, update, onClose }: Props) {
                     <button type="button" class="row row-btn" onClick={() => (code ? assign(p) : (setProduct(p), setPhase('found')))}>
                       <span class="code">{p.code}</span>
                       <span class="row-main">
-                        <span class="row-title">{p.name}</span>
+                        <span class="row-title">{displayProductName(p, db)}</span>
                       </span>
                     </button>
                   </li>
@@ -212,7 +213,7 @@ export function Scanner({ db, state, update, onClose }: Props) {
               {blade && <BeyImage bladeId={blade.id} type={blade.type} size="lg" alt={blade.name} />}
               <div>
                 <p class="eyebrow">{product.code}</p>
-                <p class="row-title">{product.name}</p>
+                <p class="row-title">{displayProductName(product, db)}</p>
                 {priceHint(product, rates) && <p class="muted">{priceHint(product, rates)}</p>}
                 {(state.owned[product.code] ?? 0) > 0 && <p class="muted">Hast du schon {state.owned[product.code]}×.</p>}
               </div>

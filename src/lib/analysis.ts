@@ -1,3 +1,4 @@
+import { displayName } from './names';
 import type { BeyType, Blade, Bit, Combo, Database, Ratchet } from './types';
 
 export const TYPE_LABEL: Record<BeyType, string> = {
@@ -55,7 +56,7 @@ export function nb(label: string): string {
 }
 
 export function comboLabel(r: Resolved): string {
-  return `${r.blade.name.replace(/ /g, '')} ${r.ratchet ? r.ratchet.id : ''}${r.bit.id}`.replace(/\s+/g, ' ').trim();
+  return `${displayName(r.blade).replace(/ /g, '')} ${r.ratchet ? r.ratchet.id : ''}${r.bit.id}`.replace(/\s+/g, ' ').trim();
 }
 
 const BASE: Record<BeyType, { attack: number; stamina: number; defense: number }> = {

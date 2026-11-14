@@ -19,9 +19,16 @@ export interface UserState {
   barcodes: Record<string, string>;
   /** eingetragene Kämpfe (Battle-Tagebuch) */
   matches: Match[];
+  /** Anzeige-Einstellungen */
+  prefs: Prefs;
 }
 
-export const EMPTY_STATE: UserState = { owned: {}, combos: [], deck: [], seenNews: [], opponent: [], wishlist: [], barcodes: {}, matches: [] };
+export interface Prefs {
+  /** Hasbro-Namen (wie auf europäischen Packungen) statt japanischer Takara-Tomy-Namen */
+  hasbroNames: boolean;
+}
+
+export const EMPTY_STATE: UserState = { owned: {}, combos: [], deck: [], seenNews: [], opponent: [], wishlist: [], barcodes: {}, matches: [], prefs: { hasbroNames: false } };
 
 function isRecordOfNumbers(v: unknown): v is Record<string, number> {
   return !!v && typeof v === 'object' && Object.values(v).every((n) => typeof n === 'number' && Number.isFinite(n) && n >= 0);
@@ -49,6 +56,7 @@ export function sanitize(raw: unknown): UserState {
         ? Object.fromEntries(Object.entries(r.barcodes).filter(([k, v]) => /^\d{8,14}$/.test(k) && typeof v === 'string'))
         : {},
     matches: sanitizeMatches(r.matches),
+    prefs: { hasbroNames: !!(r.prefs && typeof r.prefs === 'object' && (r.prefs as Prefs).hasbroNames === true) },
   };
 }
 

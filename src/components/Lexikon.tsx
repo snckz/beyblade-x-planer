@@ -1,3 +1,4 @@
+import { displayName, otherName } from '../lib/names';
 import { useState } from 'preact/hooks';
 import type { BeyType, Database } from '../lib/types';
 import type { UserState } from '../lib/storage';
@@ -84,10 +85,10 @@ export function Lexikon({ db, state, update }: Props) {
                 <div class="row-main">
                   <span class="code code-inline">{b.line}</span>
                   <button type="button" class="row-title link-btn title-btn" onClick={() => openBlade(b.id)}>
-                    {b.name} <UnverifiedMark show={!b.verified} />
+                    {displayName(b)} <UnverifiedMark show={!b.verified} />
                   </button>
                   <span class="row-sub">
-                    {b.hasbroName ? `Hasbro: ${b.hasbroName}` : ''}
+                    {otherName(b) ?? ''}
                     {b.integratedRatchet ? `${b.hasbroName ? ' · ' : ''}Ratchet integriert` : ''}
                   </span>
                   {b.note && <span class="row-note">{b.note}</span>}

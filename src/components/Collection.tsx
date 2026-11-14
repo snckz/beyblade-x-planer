@@ -1,3 +1,4 @@
+import { displayProductName } from '../lib/names';
 import { useMemo, useRef, useState } from 'preact/hooks';
 import type { BeyEvent, Database } from '../lib/types';
 import { wishReleases } from '../lib/reminders';
@@ -118,7 +119,7 @@ export function Collection({ db, state, update, goToParts, events = [] }: Props)
                   <li key={p.code} class="row">
                     <span class="code">{p.code.startsWith('TBA') ? 'neu' : p.code}</span>
                     <div class="row-main">
-                      <span class="row-title">{nb(p.name)}</span>
+                      <span class="row-title">{nb(displayProductName(p, db))}</span>
                     </div>
                     {b && <TypeBadge type={b.type} small />}
                     <span class="count">{state.owned[p.code]}×</span>
@@ -158,7 +159,7 @@ export function Collection({ db, state, update, goToParts, events = [] }: Props)
                 return (
                   <li key={p.code} class="row">
                     <div class="row-main">
-                      <span class="row-title">{nb(p.name)}</span>
+                      <span class="row-title">{nb(displayProductName(p, db))}</span>
                       <span class="row-sub">
                         {p.code} · {price ?? 'Preis unbekannt'}
                       </span>

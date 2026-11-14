@@ -1,3 +1,5 @@
+import { CompareCombos } from './CompareCombos';
+import { displayName } from '../lib/names';
 import { useMemo, useState } from 'preact/hooks';
 import type { Combo, Database } from '../lib/types';
 import type { UserState } from '../lib/storage';
@@ -118,7 +120,7 @@ export function ComboBuilder({ db, state, update, presetBladeId, presetRatchetId
               <SpinBadge spin={resolved.blade.spin} />
             </div>
               <button type="button" class="link-btn" onClick={() => openBlade(resolved.blade.id)}>
-                Lexikon: {resolved.blade.name} →
+                Lexikon: {displayName(resolved.blade)} →
               </button>
             </div>
 
@@ -165,6 +167,7 @@ export function ComboBuilder({ db, state, update, presetBladeId, presetRatchetId
         <Empty title="Wähle Blade, Ratchet und Bit">Dann siehst du Typ, Profil und Hinweise zu deiner Kombo.</Empty>
       )}
 
+      <CompareCombos db={db} initial={bladeId && bitId ? { bladeId, ratchetId: ratchetId || undefined, bitId } : undefined} />
       <SavedCombos db={db} state={state} update={update} />
     </div>
   );

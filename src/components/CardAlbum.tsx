@@ -1,3 +1,4 @@
+import { displayProductName } from '../lib/names';
 import { useMemo, useState } from 'preact/hooks';
 import type { Database, Rarity } from '../lib/types';
 import type { UserState } from '../lib/storage';
@@ -36,7 +37,7 @@ export function CardAlbum({ db, state, update }: Props) {
     (c) =>
       (!rarity || c.r === rarity) &&
       (!onlyMissing || owned(c.p.code) === 0) &&
-      (!q || `${c.p.code}${c.p.name}${c.p.hasbroName ?? ''}`.toLowerCase().replace(/\s+/g, '').includes(q)),
+      (!q || `${c.p.code}${c.p.name}${c.p.hasbroName ?? ''}${c.blade.hasbroName ?? ''}`.toLowerCase().replace(/\s+/g, '').includes(q)),
   );
 
   const setOwned = (code: string, delta: number) =>
@@ -117,7 +118,7 @@ export function CardAlbum({ db, state, update }: Props) {
                   <BeyImage bladeId={blade.id} type={blade.type} size="lg" alt={blade.name} />
                 </div>
                 <button type="button" class="bcard-name" onClick={() => openBlade(blade.id)}>
-                  {nb(p.name.replace(/^(Starter|Booster|Set|Random Booster( Vol\.\d+)?)\s+/, ''))}
+                  {nb(displayProductName(p, db).replace(/^(Starter|Booster|Set|Random Booster( Vol\.\d+)?)\s+/, ''))}
                 </button>
                 {price && <p class="bcard-price">{price}</p>}
                 <div class="bcard-foot">

@@ -117,10 +117,14 @@ if (existsSync(dbUrl)) {
   keep(old.ratchets, ratchets, 'id');
   keep(old.bits, bits, 'id');
   keep(old.products, products, 'code');
-  // Gewichte aus scripts/update-weights.mjs behalten.
+  // Gewichte (update-weights.mjs) und Hasbro-Namen (update-hasbro.mjs) behalten.
   for (const b of blades) {
     const o = old.blades?.find((x) => x.id === b.id);
     if (o && o.weightG !== undefined && b.weightG === undefined) b.weightG = o.weightG;
+    if (o?.hasbroName && !b.hasbroName) {
+      b.hasbroName = o.hasbroName;
+      if (o.hasbroNameAuto) b.hasbroNameAuto = true;
+    }
   }
   // Von scripts/verify-catalog.mjs bestätigte Einträge bleiben bestätigt.
   for (const b of blades) if (!b.verified && old.blades?.find((x) => x.id === b.id)?.verified) b.verified = true;

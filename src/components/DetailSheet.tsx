@@ -1,3 +1,4 @@
+import { displayName, displayProductName } from '../lib/names';
 import { useEffect, useRef } from 'preact/hooks';
 import type { BeyEvent, Database } from '../lib/types';
 import { TYPE_HINT, TYPE_LABEL } from '../lib/analysis';
@@ -47,6 +48,7 @@ export function DetailSheet({ db, events, bladeId, onClose, onUse }: Props) {
     ['Linie', LINE_LABEL[blade.line]],
     ['Ratchet', blade.integratedRatchet ? 'In Blade integriert' : 'Austauschbar'],
     ['Hasbro-Name', blade.hasbroName ?? null],
+    ['Japan-Name', blade.hasbroName ? blade.name : null],
     ['Gewicht (Kreisel)', weight ? `${weight} g` : null],
     ['Erschienen in', products.map((p) => (p.code.startsWith('TBA') ? 'Neuheit' : p.code)).join(', ') || null],
     ['Datenstatus', blade.verified ? 'Geprüft' : 'Ungeprüft'],
@@ -64,7 +66,7 @@ export function DetailSheet({ db, events, bladeId, onClose, onUse }: Props) {
           <div class="sheet-hero-text">
             <p class="eyebrow">{blade.line} · Blade</p>
             <h2 id="sheet-title" class="sheet-title">
-              {blade.name} <UnverifiedMark show={!blade.verified} />
+              {displayName(blade)} <UnverifiedMark show={!blade.verified} />
             </h2>
             <div class="badges badges-left">
               <TypeBadge type={blade.type} />
@@ -97,7 +99,7 @@ export function DetailSheet({ db, events, bladeId, onClose, onUse }: Props) {
                 {products.map((p) => (
                   <li key={p.code}>
                     <span class="code">{p.code.startsWith('TBA') ? 'neu' : p.code}</span>
-                    <span>{p.name}</span>
+                    <span>{displayProductName(p, db)}</span>
                   </li>
                 ))}
               </ul>

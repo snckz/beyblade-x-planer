@@ -15,6 +15,8 @@ export interface Blade {
   name: string;
   /** Westlicher Hasbro-Name, falls abweichend */
   hasbroName?: string;
+  /** true = vom Daten-Update automatisch zugeordnet (darf neu berechnet werden) */
+  hasbroNameAuto?: boolean;
   line: Line;
   type: BeyType;
   spin: Spin;
@@ -60,6 +62,8 @@ export interface Product {
   code: string;
   name: string;
   hasbroName?: string;
+  /** true = vom Daten-Update automatisch zugeordnet (darf neu berechnet werden) */
+  hasbroNameAuto?: boolean;
   kind: ProductKind;
   bladeId?: string;
   ratchetId?: string;

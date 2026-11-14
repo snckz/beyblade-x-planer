@@ -1,4 +1,4 @@
-import type { Database, EventFeed, ImageIndex, MetaFeed, NewsFeed, Product, Rates } from './types';
+import type { Blade, Database, EventFeed, ImageIndex, MetaFeed, NewsFeed, Product, Rates } from './types';
 
 const base = import.meta.env.BASE_URL;
 
@@ -80,10 +80,12 @@ export function ownedParts(db: Database, owned: Record<string, number>) {
   return { blades, ratchets, bits };
 }
 
-export function searchProducts(products: Product[], query: string): Product[] {
+/** Suche nach Code, Name und Blade – auch mit Hasbro-Namen („Sword Dran“), wenn die Blades übergeben werden. */
+export function searchProducts(products: Product[], query: string, blades: Blade[] = []): Product[] {
   const q = query.trim().toLowerCase().replace(/\s+/g, '');
   if (!q) return products;
+  const hasbro = new Map(blades.filter((b) => b.hasbroName).map((b) => [b.id, b.hasbroName!]));
   return products.filter((p) =>
-    [p.code, p.name, p.hasbroName ?? '', p.bladeId ?? ''].some((s) => s.toLowerCase().replace(/\s+/g, '').includes(q)),
+    [p.code, p.name, p.hasbroName ?? '', p.bladeId ?? '', hasbro.get(p.bladeId ?? '') ?? ''].some((s) => s.toLowerCase().replace(/\s+/g, '').includes(q)),
   );
 }

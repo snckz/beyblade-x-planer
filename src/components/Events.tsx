@@ -1,3 +1,4 @@
+import { displayName } from '../lib/names';
 import type { BeyEvent, Database, NewsFeed } from '../lib/types';
 import type { UserState } from '../lib/storage';
 import { daysUntil } from '../lib/data';
@@ -82,7 +83,7 @@ export function Events({ db, events, news, state, update }: Props) {
           <span class="event-actions">
             {blade && (
               <button type="button" class="link-btn" onClick={() => openBlade(blade.id)}>
-                {blade.name} ansehen →
+                {displayName(blade)} ansehen →
               </button>
             )}
             {daysUntil(e.endDate ?? e.date) >= 0 && (

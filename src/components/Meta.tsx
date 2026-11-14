@@ -1,3 +1,4 @@
+import { displayName } from '../lib/names';
 import type { Database, MetaFeed, MetaTrend } from '../lib/types';
 import type { UserState } from '../lib/storage';
 import { newId } from '../lib/storage';
@@ -47,7 +48,7 @@ export function Meta({ db, meta, update, onBuild }: Props) {
               <BeyImage bladeId={r.blade.id} type={r.blade.type} size="sm" alt={r.blade.name} zoomable={false} />
               <div class="row-main">
                 <span class="row-title">
-                  {r.blade.name} {nb(`${r.ratchet?.id ?? ''}${r.bit.id}`)}
+                  {displayName(r.blade)} {nb(`${r.ratchet?.id ?? ''}${r.bit.id}`)}
                 </span>
                 <span class="meta-tags">
                   <TypeBadge type={deriveType(r.blade, r.bit)} small />
@@ -55,7 +56,7 @@ export function Meta({ db, meta, update, onBuild }: Props) {
                 </span>
                 <span class="row-sub">{c.note}</span>
               </div>
-              <button type="button" class="btn btn-ghost btn-sm" onClick={() => onBuild(c.bladeId, c.ratchetId ?? undefined, c.bitId)} aria-label={`${r.blade.name} ${r.ratchet?.id ?? ''}${r.bit.id} im Kombo-Planer öffnen`}>
+              <button type="button" class="btn btn-ghost btn-sm" onClick={() => onBuild(c.bladeId, c.ratchetId ?? undefined, c.bitId)} aria-label={`${displayName(r.blade)} ${r.ratchet?.id ?? ''}${r.bit.id} im Kombo-Planer öffnen`}>
                 Bauen
               </button>
             </li>
@@ -73,7 +74,7 @@ export function Meta({ db, meta, update, onBuild }: Props) {
                   {d.combos
                     .map(([bl, ra, bi]) => {
                       const res = resolveCombo(db, { id: '', bladeId: bl, ratchetId: ra ?? undefined, bitId: bi });
-                      return res ? `${res.blade.name} ${nb(`${res.ratchet?.id ?? ''}${res.bit.id}`)}` : `${bl} ${ra ?? ''}${bi}`;
+                      return res ? `${displayName(res.blade)} ${nb(`${res.ratchet?.id ?? ''}${res.bit.id}`)}` : `${bl} ${ra ?? ''}${bi}`;
                     })
                     .join(' · ')}
                 </span>

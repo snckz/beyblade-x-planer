@@ -4,6 +4,7 @@ import { daysUntil, loadDatabase, loadEvents, loadImages, loadMeta, loadNews, lo
 import { loadState, saveState, type UserState } from './lib/storage';
 import { AppContext, type ImageKind } from './lib/context';
 import { preloadImages } from './lib/images';
+import { setHasbroNames } from './lib/names';
 import { decodeState, importError, importQuestion, mergeState } from './lib/transfer';
 import { wishReleases } from './lib/reminders';
 import { ComboBuilder } from './components/ComboBuilder';
@@ -180,7 +181,11 @@ export function App() {
     },
     [go],
   );
-  const ctx = useMemo(() => ({ images, rates, openBlade, openImage }), [images, rates, openBlade, openImage]);
+  const hasbroNames = state.prefs.hasbroNames;
+  setHasbroNames(hasbroNames);
+  const bladeName = useCallback((b: { name: string; hasbroName?: string }) => (hasbroNames && b.hasbroName ? b.hasbroName : b.name), [hasbroNames]);
+  const ctx = useMemo(() => ({ images, rates, openBlade, openImage, bladeName, hasbroNames }), [images, rates, openBlade, openImage, bladeName, hasbroNames]);
+  const toggleNames = () => setState((s) => ({ ...s, prefs: { ...s.prefs, hasbroNames: !s.prefs.hasbroNames } }));
 
   const unread = news.items.filter((n) => !state.seenNews.includes(n.id)).length;
   const soon = events.events.filter((e) => {
@@ -228,6 +233,17 @@ export function App() {
           <nav class="tabs-top" aria-label="Hauptnavigation">
             {TABS.map((t) => navLink(t, false))}
           </nav>
+          <button
+            type="button"
+            class={`name-toggle${hasbroNames ? ' on' : ''}`}
+            onClick={toggleNames}
+            aria-pressed={hasbroNames}
+            aria-label="JP / Hasbro-Namen"
+            title="Namen wie auf japanischen (Takara Tomy) oder europäischen (Hasbro) Packungen"
+          >
+            <span class={hasbroNames ? '' : 'sel'}>JP</span>
+            <span class={hasbroNames ? 'sel' : ''}>Hasbro</span>
+          </button>
         </header>
 
         <main class="main" id="main">

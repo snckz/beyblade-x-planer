@@ -1,3 +1,4 @@
+import { displayName } from '../lib/names';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import type { BeyType, Blade, Bit, Ratchet } from '../lib/types';
 import { TYPE_LABEL } from '../lib/analysis';
@@ -36,7 +37,7 @@ export function PartField(props: FieldProps) {
   let sub = '';
   let type: BeyType | undefined;
   if (blade) {
-    main = blade.name;
+    main = displayName(blade);
     sub = `${blade.line}${blade.spin === 'left' ? ' · Linksdreher' : ''}${blade.integratedRatchet ? ' · Ratchet integriert' : ''}`;
     type = blade.type;
   } else if (bit) {
@@ -104,10 +105,12 @@ function PickerSheet({ kind, label, blades = [], ratchets = [], bits = [], value
     ref.current?.focus();
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && closeRef.current();
     document.addEventListener('keydown', onKey);
+    const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     return () => {
       document.removeEventListener('keydown', onKey);
-      document.body.style.overflow = '';
+      // vorherigen Wert zurück – liegt z. B. noch das Live-Match darunter, bleibt der Hintergrund gesperrt
+      document.body.style.overflow = prevOverflow;
       prev?.focus?.();
     };
   }, []);
@@ -116,7 +119,7 @@ function PickerSheet({ kind, label, blades = [], ratchets = [], bits = [], value
   const match = (s: string) => !q || s.toLowerCase().replace(/\s+/g, '').includes(q);
   const count = (id: string) => counts?.get(id);
 
-  const bladeList = blades.filter((b) => (!type || b.type === type) && match(`${b.name}${b.hasbroName ?? ''}${b.id}`)).sort((a, b) => a.name.localeCompare(b.name));
+  const bladeList = blades.filter((b) => (!type || b.type === type) && match(`${b.name}${b.hasbroName ?? ''}${b.id}`)).sort((a, b) => displayName(a).localeCompare(displayName(b)));
   const bitList = bits.filter((b) => (!type || b.type === type) && match(`${b.id}${b.name}`));
   const ratchetList = ratchets.filter((r) => match(r.id));
 
@@ -151,7 +154,7 @@ function PickerSheet({ kind, label, blades = [], ratchets = [], bits = [], value
               {bladeList.map((b) => (
                 <button key={b.id} type="button" class={`tile type-edge-${b.type}${b.id === value ? ' selected' : ''}`} onClick={() => onPick(b.id)} aria-pressed={b.id === value}>
                   <BeyImage bladeId={b.id} type={b.type} size="md" alt="" zoomable={false} />
-                  <span class="tile-name">{b.name}</span>
+                  <span class="tile-name">{displayName(b)}</span>
                   <span class="tile-meta">
                     <span class={`type-dot dot-${b.type}`} />
                     {TYPE_LABEL[b.type]}

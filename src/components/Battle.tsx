@@ -22,6 +22,8 @@ import { Deck } from './Deck';
 import { Meta } from './Meta';
 import { ComboPicker } from './ComboPicker';
 import { BattleLog } from './BattleLog';
+import { DeckOptimizer } from './DeckOptimizer';
+import { LiveMatch } from './LiveMatch';
 import { Section, TypeBadge } from './ui';
 
 interface Props {
@@ -39,6 +41,7 @@ const tone = (m: Matchup) => (m.score >= 10 ? 'win' : m.score <= -10 ? 'lose' : 
 export function Battle(props: Props) {
   const { db, state, update } = props;
   const [onlyOwned, setOnlyOwned] = useState(true);
+  const [live, setLive] = useState(false);
   const parts = useMemo(() => ownedParts(db, state.owned), [db, state.owned]);
   const hasParts = parts.bits.size > 0;
 
@@ -72,7 +75,16 @@ export function Battle(props: Props) {
 
   return (
     <div class="stack">
+      <button type="button" class="card glass live-cta" onClick={() => setLive(true)}>
+        <span class="live-cta-icon" aria-hidden="true">▶</span>
+        <span>
+          <strong>Live-Match starten</strong>
+          <small>Punkte zählen im Stadion – landet automatisch im Tagebuch</small>
+        </span>
+      </button>
+      {live && <LiveMatch db={db} state={state} update={update} onClose={() => setLive(false)} />}
       <Deck {...props} />
+      <DeckOptimizer db={db} state={state} update={update} meta={props.meta} />
 
       <span id="gegner" class="anchor" aria-hidden="true" />
       <Section

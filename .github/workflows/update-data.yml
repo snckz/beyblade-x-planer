@@ -14,6 +14,7 @@ on:
       - 'scripts/verify-catalog.mjs'
       - 'scripts/update-weights.mjs'
       - 'scripts/update-meta.mjs'
+      - 'scripts/update-hasbro.mjs'
       - 'scripts/seed-db.mjs'
 
 permissions:
@@ -39,6 +40,8 @@ jobs:
         run: node scripts/verify-catalog.mjs
       - name: Blade-Gewichte aus dem Wiki
         run: node scripts/update-weights.mjs
+      - name: Hasbro-Namen aus dem Wiki
+        run: node scripts/update-hasbro.mjs
       - name: Turnier-Meta (wöchentlich)
         run: node scripts/update-meta.mjs
       - name: Wechselkurse (EZB) für Preis-Hinweise
