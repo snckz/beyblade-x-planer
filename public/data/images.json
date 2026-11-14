@@ -180,6 +180,198 @@
       "thumb": "https://static.wikia.nocookie.net/beyblade/images/b/b6/KnightFortress_GV8-70UN.png/revision/latest/scale-to-width-down/400?cb=20260214031248",
       "page": "https://beyblade.fandom.com/wiki/KnightFortress_GV8-70UN",
       "title": "KnightFortress GV8-70UN"
+    },
+    "StormPegasus": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/1/11/StormPegasis.jpg/revision/latest/scale-to-width-down/400?cb=20101023055310",
+      "page": "https://beyblade.fandom.com/wiki/Storm_Pegasus_105RF",
+      "title": "Storm Pegasus 105RF"
+    }
+  },
+  "bits": {
+    "F": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/b/b0/BitFlat.png/revision/latest/scale-to-width-down/236?cb=20240913063436",
+      "page": "https://beyblade.fandom.com/wiki/Bit_-_Flat",
+      "title": "Bit - Flat"
+    },
+    "LF": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/0/0e/BitLowFlat.png/revision/latest/scale-to-width-down/233?cb=20260802062128",
+      "page": "https://beyblade.fandom.com/wiki/Bit_-_Low_Flat",
+      "title": "Bit - Low Flat"
+    },
+    "GF": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/b/bd/BitGearFlat.png/revision/latest/scale-to-width-down/228?cb=20260809063549",
+      "page": "https://beyblade.fandom.com/wiki/Bit_-_Gear_Flat",
+      "title": "Bit - Gear Flat"
+    },
+    "FF": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/b/b4/BitFreeFlat.png/revision/latest/scale-to-width-down/243?cb=20260903173129",
+      "page": "https://beyblade.fandom.com/wiki/Bit_-_Free_Flat",
+      "title": "Bit - Free Flat"
+    },
+    "UF": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/5/55/BitUnderFlat.png/revision/latest/scale-to-width-down/258?cb=20261111034421",
+      "page": "https://beyblade.fandom.com/wiki/Bit_-_Under_Flat",
+      "title": "Bit - Under Flat"
+    },
+    "R": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/e/e1/BitRush.png/revision/latest/scale-to-width-down/232?cb=20260808045328",
+      "page": "https://beyblade.fandom.com/wiki/Bit_-_Rush",
+      "title": "Bit - Rush"
+    },
+    "LR": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/3/36/BitLowRush.png/revision/latest/scale-to-width-down/250?cb=20261019211633",
+      "page": "https://beyblade.fandom.com/wiki/Bit_-_Low_Rush",
+      "title": "Bit - Low Rush"
+    },
+    "RA": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/5/5a/BitRubberAccel.png/revision/latest/scale-to-width-down/312?cb=20260926040640",
+      "page": "https://beyblade.fandom.com/wiki/Bit_-_Rubber_Accel",
+      "title": "Bit - Rubber Accel"
+    },
+    "A": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/8/8e/BitAccel.png/revision/latest/scale-to-width-down/251?cb=20260815023830",
+      "page": "https://beyblade.fandom.com/wiki/Bit_-_Accel",
+      "title": "Bit - Accel"
+    },
+    "Q": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/e/ed/BitQuake.png/revision/latest/scale-to-width-down/240?cb=20260819065239",
+      "page": "https://beyblade.fandom.com/wiki/Bit_-_Quake",
+      "title": "Bit - Quake"
+    },
+    "C": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/f/fb/BitCyclone.png/revision/latest/scale-to-width-down/241?cb=20260822063610",
+      "page": "https://beyblade.fandom.com/wiki/Bit_-_Cyclone",
+      "title": "Bit - Cyclone"
+    },
+    "V": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/f/f9/BitVortex.png/revision/latest/scale-to-width-down/243?cb=20261028043323",
+      "page": "https://beyblade.fandom.com/wiki/Bit_-_Vortex",
+      "title": "Bit - Vortex"
+    },
+    "J": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/1/10/BitJolt.png/revision/latest?cb=20260810211427",
+      "page": "https://beyblade.fandom.com/wiki/Bit_-_Jolt",
+      "title": "Bit - Jolt"
+    },
+    "T": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/a/ad/BitTaper.png/revision/latest/scale-to-width-down/243?cb=20250317055452",
+      "page": "https://beyblade.fandom.com/wiki/Bit_-_Taper",
+      "title": "Bit - Taper"
+    },
+    "HT": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/b/b5/BitHighTaper.png/revision/latest/scale-to-width-down/231?cb=20260808045810",
+      "page": "https://beyblade.fandom.com/wiki/Bit_-_High_Taper",
+      "title": "Bit - High Taper"
+    },
+    "P": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/b/bf/BitPoint.png/revision/latest/scale-to-width-down/226?cb=20260803013833",
+      "page": "https://beyblade.fandom.com/wiki/Bit_-_Point",
+      "title": "Bit - Point"
+    },
+    "GP": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/3/36/BitGearPoint.png/revision/latest/scale-to-width-down/225?cb=20261019212223",
+      "page": "https://beyblade.fandom.com/wiki/Bit_-_Gear_Point",
+      "title": "Bit - Gear Point"
+    },
+    "TP": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/d/d0/BitTransPoint.png/revision/latest/scale-to-width-down/297?cb=20261019211524",
+      "page": "https://beyblade.fandom.com/wiki/Bit_-_Trans_Point",
+      "title": "Bit - Trans Point"
+    },
+    "U": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/a/a0/BitUnite.png/revision/latest/scale-to-width-down/253?cb=20260822063426",
+      "page": "https://beyblade.fandom.com/wiki/Bit_-_Unite",
+      "title": "Bit - Unite"
+    },
+    "E": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/6/68/Elevate_%28BX-00%29.png/revision/latest?cb=20260411072232",
+      "page": "https://beyblade.fandom.com/wiki/Bit_-_Elevate",
+      "title": "Bit - Elevate"
+    },
+    "H": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/8/8c/BitHexa.png/revision/latest/scale-to-width-down/233?cb=20260822062551",
+      "page": "https://beyblade.fandom.com/wiki/Bit_-_Hexa",
+      "title": "Bit - Hexa"
+    },
+    "L": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/5/56/BitLevel.png/revision/latest/scale-to-width-down/243?cb=20260926040209",
+      "page": "https://beyblade.fandom.com/wiki/Bit_-_Level",
+      "title": "Bit - Level"
+    },
+    "B": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/8/8c/BitBall.png/revision/latest/scale-to-width-down/245?cb=20250608045235",
+      "page": "https://beyblade.fandom.com/wiki/Bit_-_Ball",
+      "title": "Bit - Ball"
+    },
+    "O": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/1/17/BitOrb.png/revision/latest/scale-to-width-down/224?cb=20260803014115",
+      "page": "https://beyblade.fandom.com/wiki/Bit_-_Orb",
+      "title": "Bit - Orb"
+    },
+    "LO": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/f/f4/BitLowOrb.png/revision/latest/scale-to-width-down/263?cb=20261028043557",
+      "page": "https://beyblade.fandom.com/wiki/Bit_-_Low_Orb",
+      "title": "Bit - Low Orb"
+    },
+    "GB": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/9/97/BitGearBall.png/revision/latest/scale-to-width-down/240?cb=20260809063653",
+      "page": "https://beyblade.fandom.com/wiki/Bit_-_Gear_Ball",
+      "title": "Bit - Gear Ball"
+    },
+    "DB": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/1/10/BitDiskBall.png/revision/latest/scale-to-width-down/400?cb=20260815024201",
+      "page": "https://beyblade.fandom.com/wiki/Bit_-_Disk_Ball",
+      "title": "Bit - Disk Ball"
+    },
+    "FB": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/7/78/BitFreeBall.png/revision/latest/scale-to-width-down/255?cb=20260926040041",
+      "page": "https://beyblade.fandom.com/wiki/Bit_-_Free_Ball",
+      "title": "Bit - Free Ball"
+    },
+    "N": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/2/26/BitNeedle.png/revision/latest/scale-to-width-down/253?cb=20250609060238",
+      "page": "https://beyblade.fandom.com/wiki/Bit_-_Needle",
+      "title": "Bit - Needle"
+    },
+    "HN": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/2/2f/BitHighNeedle.png/revision/latest/scale-to-width-down/240?cb=20260802062012",
+      "page": "https://beyblade.fandom.com/wiki/Bit_-_High_Needle",
+      "title": "Bit - High Needle"
+    },
+    "GN": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/9/9d/BitGearNeedle.png/revision/latest/scale-to-width-down/247?cb=20260813014758",
+      "page": "https://beyblade.fandom.com/wiki/Bit_-_Gear_Needle",
+      "title": "Bit - Gear Needle"
+    },
+    "UN": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/1/16/BitUnderNeedle.png/revision/latest/scale-to-width-down/275?cb=20261019212037",
+      "page": "https://beyblade.fandom.com/wiki/Bit_-_Under_Needle",
+      "title": "Bit - Under Needle"
+    },
+    "S": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/7/7d/BitSpike.png/revision/latest/scale-to-width-down/244?cb=20260808045148",
+      "page": "https://beyblade.fandom.com/wiki/Bit_-_Spike",
+      "title": "Bit - Spike"
+    },
+    "D": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/b/b2/BitDot.png/revision/latest/scale-to-width-down/224?cb=20260826060342",
+      "page": "https://beyblade.fandom.com/wiki/Bit_-_Dot",
+      "title": "Bit - Dot"
+    },
+    "BS": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/8/88/BitBoundSpike.png/revision/latest/scale-to-width-down/254?cb=20260926040323",
+      "page": "https://beyblade.fandom.com/wiki/Bit_-_Bound_Spike",
+      "title": "Bit - Bound Spike"
+    },
+    "W": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/2/29/BitWedge.png/revision/latest/scale-to-width-down/255?cb=20261028043835",
+      "page": "https://beyblade.fandom.com/wiki/Bit_-_Wedge",
+      "title": "Bit - Wedge"
+    },
+    "WW": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/9/9a/BitWallWedge.png/revision/latest?cb=20260115043200",
+      "page": "https://beyblade.fandom.com/wiki/Bit_-_Wall_Wedge",
+      "title": "Bit - Wall Wedge"
     }
   }
 }
