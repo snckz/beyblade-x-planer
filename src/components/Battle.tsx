@@ -19,6 +19,7 @@ import { ARCHETYPES, deckDuel, suggestImprovements, toBey, type Bey, type Matchu
 import { ownedParts } from '../lib/data';
 import { BeyImage } from './BeyImage';
 import { Deck } from './Deck';
+import { PartField } from './PartPicker';
 import { Section, TypeBadge } from './ui';
 
 interface Props {
@@ -32,49 +33,30 @@ function ComboPicker({ db, value, onChange, label }: { db: Database; value: Comb
   const blade = db.blades.find((b) => b.id === value.bladeId);
   const integrated = !!blade?.integratedRatchet;
   return (
-    <fieldset class="picker">
-      <legend class="sr-only">{label}</legend>
-      <select
-        aria-label={`${label}: Blade`}
+    <div class="picker" role="group" aria-label={label}>
+      <PartField
+        compact
+        kind="blade"
+        label="Blade"
+        blades={db.blades}
         value={value.bladeId}
-        onChange={(e) => {
-          const b = db.blades.find((x) => x.id === e.currentTarget.value);
-          onChange({ ...value, bladeId: e.currentTarget.value, ratchetId: b?.integratedRatchet ? undefined : (value.ratchetId ?? '3-60') });
+        onChange={(id) => {
+          const b = db.blades.find((x) => x.id === id);
+          onChange({ ...value, bladeId: id, ratchetId: b?.integratedRatchet ? undefined : (value.ratchetId ?? '3-60') });
         }}
-      >
-        <option value="">Blade …</option>
-        {[...db.blades]
-          .sort((a, b) => a.name.localeCompare(b.name))
-          .map((b) => (
-            <option key={b.id} value={b.id}>
-              {b.name}
-            </option>
-          ))}
-      </select>
-      <select
-        aria-label={`${label}: Ratchet`}
+      />
+      <PartField
+        compact
+        kind="ratchet"
+        label="Ratchet"
+        ratchets={db.ratchets}
         value={integrated ? '' : (value.ratchetId ?? '')}
         disabled={integrated}
-        onChange={(e) => onChange({ ...value, ratchetId: e.currentTarget.value || undefined })}
-      >
-        <option value="">{integrated ? 'integriert' : 'Ratchet …'}</option>
-        {db.ratchets.map((r) => (
-          <option key={r.id} value={r.id}>
-            {r.id}
-          </option>
-        ))}
-      </select>
-      <select aria-label={`${label}: Bit`} value={value.bitId} onChange={(e) => onChange({ ...value, bitId: e.currentTarget.value })}>
-        <option value="">Bit …</option>
-        {[...db.bits]
-          .sort((a, b) => a.id.localeCompare(b.id))
-          .map((b) => (
-            <option key={b.id} value={b.id}>
-              {b.id} – {b.name}
-            </option>
-          ))}
-      </select>
-    </fieldset>
+        disabledText="integriert"
+        onChange={(id) => onChange({ ...value, ratchetId: id })}
+      />
+      <PartField compact kind="bit" label="Bit" bits={[...db.bits].sort((a, b) => a.id.localeCompare(b.id))} value={value.bitId} onChange={(id) => onChange({ ...value, bitId: id })} />
+    </div>
   );
 }
 

@@ -7,22 +7,26 @@ interface Props {
   type: BeyType;
   size?: 'sm' | 'md' | 'lg';
   alt: string;
+  /** Antippen vergrößert das Bild (nur wenn ein Foto vorhanden ist) */
+  zoomable?: boolean;
 }
 
 /**
  * Zeigt das Bild der Blade direkt vom Beyblade Wiki (nur verlinkt, nicht kopiert).
  * Ohne Bild oder bei Ladefehler: eigenes, generisches Kreisel-Emblem in der Typ-Farbe.
  */
-export function BeyImage({ bladeId, type, size = 'md', alt }: Props) {
-  const { images } = useApp();
+export function BeyImage({ bladeId, type, size = 'md', alt, zoomable = true }: Props) {
+  const { images, openImage } = useApp();
   const img = images.blades[bladeId];
   const [failed, setFailed] = useState(false);
 
   if (img && !failed) {
+    const pic = <img src={img.thumb} alt={alt} loading="lazy" decoding="async" referrerpolicy="no-referrer" onError={() => setFailed(true)} />;
+    if (!zoomable) return <span class={`bey-img bey-img-${size} has-photo`}>{pic}</span>;
     return (
-      <span class={`bey-img bey-img-${size}`}>
-        <img src={img.thumb} alt={alt} loading="lazy" decoding="async" referrerpolicy="no-referrer" onError={() => setFailed(true)} />
-      </span>
+      <button type="button" class={`bey-img bey-img-${size} has-photo zoom`} onClick={() => openImage(bladeId)} aria-label={`${alt}: Bild vergrößern`}>
+        {pic}
+      </button>
     );
   }
   return (

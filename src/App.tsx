@@ -4,7 +4,8 @@ import { daysUntil, loadDatabase, loadEvents, loadImages, loadNews } from './lib
 import { loadState, saveState, type UserState } from './lib/storage';
 import { AppContext } from './lib/context';
 import { ComboBuilder } from './components/ComboBuilder';
-import { PartsBrowser } from './components/PartsBrowser';
+import { Lexikon } from './components/Lexikon';
+import { Lightbox } from './components/Lightbox';
 import { Collection } from './components/Collection';
 import { Battle } from './components/Battle';
 import { Events } from './components/Events';
@@ -14,14 +15,14 @@ type Tab = 'builder' | 'parts' | 'battle' | 'events' | 'collection';
 
 const TABS: { id: Tab; label: string; title: string; icon: string }[] = [
   { id: 'builder', label: 'Kombo', title: 'Kombo-Planer', icon: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Zm0 5a4 4 0 1 1 0 8 4 4 0 0 1 0-8Z' },
-  { id: 'parts', label: 'Teile', title: 'Teile', icon: 'M4 6h16M4 12h16M4 18h10' },
+  { id: 'parts', label: 'Lexikon', title: 'Lexikon', icon: 'M5 4h10a4 4 0 0 1 4 4v12H9a4 4 0 0 1-4-4zM5 16a4 4 0 0 1 4-4h10' },
   { id: 'battle', label: 'Battle', title: 'Battle', icon: 'M5 19 19 5M14 5h5v5M5 5l5 5M14 14l5 5M19 14v5h-5' },
   { id: 'events', label: 'Termine', title: 'Termine & News', icon: 'M5 6h14v14H5zM5 10h14M9 3v4M15 3v4' },
   { id: 'collection', label: 'Sammlung', title: 'Sammlung', icon: 'M4 7l8-4 8 4-8 4-8-4Zm0 5l8 4 8-4M4 17l8 4 8-4' },
 ];
 
 // Alte Links (#deck, #news) auf die neuen Tabs umleiten.
-const ALIAS: Record<string, Tab> = { deck: 'battle', news: 'events' };
+const ALIAS: Record<string, Tab> = { deck: 'battle', news: 'events', lexikon: 'parts' };
 
 function readTab(): Tab {
   const raw = window.location.hash.slice(1);
@@ -39,6 +40,7 @@ export function App() {
   const [tab, setTab] = useState<Tab>(readTab);
   const [storageOk, setStorageOk] = useState(true);
   const [detail, setDetail] = useState<string | null>(null);
+  const [zoom, setZoom] = useState<string | null>(null);
   const [preset, setPreset] = useState<{ bladeId: string; key: number } | null>(null);
 
   const load = useCallback(() => {
@@ -67,6 +69,8 @@ export function App() {
   }, []);
   const openBlade = useCallback((id: string) => setDetail(id), []);
   const closeDetail = useCallback(() => setDetail(null), []);
+  const openImage = useCallback((id: string) => setZoom(id), []);
+  const closeZoom = useCallback(() => setZoom(null), []);
   const useInBuilder = useCallback(
     (bladeId: string) => {
       setDetail(null);
@@ -75,7 +79,7 @@ export function App() {
     },
     [go],
   );
-  const ctx = useMemo(() => ({ images, openBlade }), [images, openBlade]);
+  const ctx = useMemo(() => ({ images, openBlade, openImage }), [images, openBlade, openImage]);
 
   const unread = news.items.filter((n) => !state.seenNews.includes(n.id)).length;
   const soon = events.events.filter((e) => {
@@ -127,9 +131,9 @@ export function App() {
             </span>
             <div>
               <p class="brand-name">
-                X<span>-Planer</span>
+                Beyblade<span> Planer</span>
               </p>
-              <p class="brand-sub">Beyblade X · Kombos, Battle &amp; Termine</p>
+              <p class="brand-sub">Inoffizielle Fan-App · Beyblade X</p>
             </div>
           </div>
           <nav class="tabs-top" aria-label="Hauptnavigation">
@@ -156,7 +160,7 @@ export function App() {
           ) : (
             <>
               {tab === 'builder' && <ComboBuilder key={preset?.key ?? 0} db={db} state={state} update={update} presetBladeId={preset?.bladeId} />}
-              {tab === 'parts' && <PartsBrowser db={db} state={state} update={update} />}
+              {tab === 'parts' && <Lexikon db={db} state={state} update={update} />}
               {tab === 'battle' && <Battle db={db} state={state} update={update} goToBuilder={() => go('builder')} />}
               {tab === 'events' && <Events db={db} events={events.events} news={news} state={state} update={update} />}
               {tab === 'collection' && <Collection db={db} state={state} update={update} goToParts={() => go('parts')} />}
@@ -169,6 +173,7 @@ export function App() {
         </nav>
 
         {db && detail && <DetailSheet db={db} events={events.events} bladeId={detail} onClose={closeDetail} onUse={useInBuilder} />}
+        {db && zoom && <Lightbox db={db} bladeId={zoom} onClose={closeZoom} />}
       </div>
     </AppContext.Provider>
   );

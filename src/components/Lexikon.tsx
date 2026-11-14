@@ -6,6 +6,7 @@ import { TYPE_LABEL } from '../lib/analysis';
 import { Empty, SpinBadge, TypeBadge, UnverifiedMark } from './ui';
 import { BeyImage } from './BeyImage';
 import { useApp } from '../lib/context';
+import { bitText, ratchetText, TERMS } from '../lib/lexicon';
 
 interface Props {
   db: Database;
@@ -13,7 +14,7 @@ interface Props {
   update: (fn: (s: UserState) => UserState) => void;
 }
 
-type View = 'products' | 'blades' | 'bits';
+type View = 'blades' | 'bits' | 'ratchets' | 'terms' | 'products';
 const KIND_LABEL: Record<Product['kind'], string> = {
   starter: 'Starter',
   booster: 'Booster',
@@ -24,9 +25,9 @@ const KIND_LABEL: Record<Product['kind'], string> = {
   other: 'Sonstiges',
 };
 
-export function PartsBrowser({ db, state, update }: Props) {
+export function Lexikon({ db, state, update }: Props) {
   const { openBlade } = useApp();
-  const [view, setView] = useState<View>('products');
+  const [view, setView] = useState<View>('blades');
   const [query, setQuery] = useState('');
   const [type, setType] = useState<BeyType | ''>('');
 
@@ -42,6 +43,9 @@ export function PartsBrowser({ db, state, update }: Props) {
     (b) => (!type || b.type === type) && (!q || `${b.name} ${b.hasbroName ?? ''}`.toLowerCase().includes(q)),
   );
   const bits = db.bits.filter((b) => (!type || b.type === type) && (!q || `${b.id} ${b.name}`.toLowerCase().includes(q)));
+  const ratchets = db.ratchets.filter((r) => !q || r.id.includes(q));
+  const terms = TERMS.filter((t) => !q || `${t.term} ${t.text}`.toLowerCase().includes(q));
+  const showTypeFilter = view !== 'ratchets' && view !== 'terms';
 
   const setOwned = (code: string, delta: number) =>
     update((s) => {
@@ -57,9 +61,11 @@ export function PartsBrowser({ db, state, update }: Props) {
       <div class="segmented" role="tablist" aria-label="Ansicht">
         {(
           [
-            ['products', 'Produkte'],
             ['blades', 'Blades'],
             ['bits', 'Bits'],
+            ['ratchets', 'Ratchets'],
+            ['terms', 'Begriffe'],
+            ['products', 'Produkte'],
           ] as const
         ).map(([id, label]) => (
           <button key={id} type="button" role="tab" aria-selected={view === id} class={view === id ? 'on' : ''} onClick={() => setView(id)}>
@@ -76,7 +82,7 @@ export function PartsBrowser({ db, state, update }: Props) {
           onInput={(e) => setQuery(e.currentTarget.value)}
           aria-label="Suchen"
         />
-        <div class="type-filter" role="group" aria-label="Nach Typ filtern">
+        {showTypeFilter && <div class="type-filter" role="group" aria-label="Nach Typ filtern">
           {(['attack', 'defense', 'stamina', 'balance'] as const).map((t) => (
             <button
               key={t}
@@ -88,7 +94,7 @@ export function PartsBrowser({ db, state, update }: Props) {
               {TYPE_LABEL[t]}
             </button>
           ))}
-        </div>
+        </div>}
       </div>
 
       {view === 'products' &&
@@ -100,17 +106,21 @@ export function PartsBrowser({ db, state, update }: Props) {
               return (
                 <li key={p.code} class={`row product${n ? ' owned' : ''}`}>
                   {b ? (
-                    <button type="button" class="img-btn" onClick={() => openBlade(b.id)} aria-label={`${b.name}: Details`}>
-                      <BeyImage bladeId={b.id} type={b.type} size="sm" alt={b.name} />
-                    </button>
+                    <BeyImage bladeId={b.id} type={b.type} size="sm" alt={b.name} />
                   ) : (
                     <span class="bey-img bey-img-sm bey-placeholder" aria-hidden="true">◎</span>
                   )}
                   <div class="row-main">
                     <span class="code code-inline">{p.code.startsWith('TBA') ? 'neu' : p.code}</span>
-                    <span class="row-title">
-                      {p.name} <UnverifiedMark show={!p.verified} />
-                    </span>
+                    {b ? (
+                      <button type="button" class="row-title link-btn title-btn" onClick={() => openBlade(b.id)}>
+                        {p.name} <UnverifiedMark show={!p.verified} />
+                      </button>
+                    ) : (
+                      <span class="row-title">
+                        {p.name} <UnverifiedMark show={!p.verified} />
+                      </span>
+                    )}
                     <span class="row-sub">
                       {KIND_LABEL[p.kind]}
                       {p.includesLauncher ? ' · mit Launcher' : ''}
@@ -146,9 +156,7 @@ export function PartsBrowser({ db, state, update }: Props) {
           <ul class="list">
             {blades.map((b) => (
               <li key={b.id} class="row row-click">
-                <button type="button" class="img-btn" onClick={() => openBlade(b.id)} aria-label={`${b.name}: Details`}>
-                  <BeyImage bladeId={b.id} type={b.type} size="sm" alt={b.name} />
-                </button>
+                <BeyImage bladeId={b.id} type={b.type} size="sm" alt={b.name} />
                 <div class="row-main">
                   <span class="code code-inline">{b.line}</span>
                   <button type="button" class="row-title link-btn title-btn" onClick={() => openBlade(b.id)}>
@@ -175,20 +183,67 @@ export function PartsBrowser({ db, state, update }: Props) {
         (bits.length ? (
           <ul class="list">
             {bits.map((b) => (
-              <li key={b.id} class="row">
-                <span class="code code-bit">{b.id}</span>
-                <div class="row-main">
-                  <span class="row-title">
-                    {b.name} <UnverifiedMark show={!!b.uncertain} />
-                  </span>
-                  {b.note && <span class="row-note">{b.note}</span>}
-                </div>
-                <TypeBadge type={b.type} small />
+              <li key={b.id}>
+                <details class="row lex">
+                  <summary>
+                    <span class="code code-bit">{b.id}</span>
+                    <span class="row-main">
+                      <span class="row-title">
+                        {b.name} <UnverifiedMark show={!!b.uncertain} />
+                      </span>
+                    </span>
+                    <TypeBadge type={b.type} small />
+                  </summary>
+                  <p class="lex-text">{bitText(b)}</p>
+                </details>
               </li>
             ))}
           </ul>
         ) : (
           <Empty title="Keine Bits gefunden" />
+        ))}
+
+      {view === 'ratchets' && (
+        <>
+          <div class="card glass">
+            <p class="muted">
+              Die erste Zahl ist die Anzahl der Zacken, die zweite die Höhe in Zehntel-Millimetern. <strong>3-60</strong> heißt also 3 Zacken und 6,0 mm.
+            </p>
+          </div>
+          <ul class="list">
+            {ratchets.map((r) => (
+              <li key={r.id} class="row">
+                <span class="code code-bit">{r.id}</span>
+                <div class="row-main">
+                  <span class="row-sub">{ratchetText(r)}</span>
+                  <span class="height-bar" aria-hidden="true">
+                    <span style={{ width: `${Math.min(100, ((r.heightMm ?? 0) / 9) * 100)}%` }} />
+                  </span>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+
+      {view === 'terms' &&
+        (terms.length ? (
+          <ul class="list">
+            {terms.map((t) => (
+              <li key={t.term}>
+                <details class="row lex">
+                  <summary>
+                    <span class="row-main">
+                      <span class="row-title">{t.term}</span>
+                    </span>
+                  </summary>
+                  <p class="lex-text">{t.text}</p>
+                </details>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <Empty title="Kein Begriff gefunden" />
         ))}
       <p class="fineprint">
         Datenstand {db.updatedAt}. „ungeprüft“ heißt: aus Händler- oder Fanangaben, noch nicht gegen eine offizielle Quelle bestätigt.

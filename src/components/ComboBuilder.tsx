@@ -6,6 +6,7 @@ import { analyze, nb, resolveCombo, TYPE_HINT } from '../lib/analysis';
 import { ownedParts } from '../lib/data';
 import { Empty, Section, SpinBadge, StatBar, TypeBadge } from './ui';
 import { BeyImage } from './BeyImage';
+import { PartField } from './PartPicker';
 import { useApp } from '../lib/context';
 
 interface Props {
@@ -86,57 +87,18 @@ export function ComboBuilder({ db, state, update, presetBladeId }: Props) {
             </label>
           )}
           <div class="layers">
-            <label class="field">
-              <span class="field-label">
-                <span class="layer-dot l1" />
-                Blade
-              </span>
-              <select value={bladeSel} onChange={(e) => setBladeId(e.currentTarget.value)}>
-                <option value="">Blade wählen …</option>
-                {(['BX', 'UX', 'CX'] as const).map((line) => (
-                  <optgroup key={line} label={`${line}-Linie`}>
-                    {blades
-                      .filter((b) => b.line === line)
-                      .map((b) => (
-                        <option key={b.id} value={b.id}>
-                          {b.name}
-                          {b.spin === 'left' ? ' ↺' : ''}
-                          {useOwned ? ` (${parts.blades.get(b.id)}×)` : ''}
-                        </option>
-                      ))}
-                  </optgroup>
-                ))}
-              </select>
-            </label>
-            <label class="field">
-              <span class="field-label">
-                <span class="layer-dot l2" />
-                Ratchet
-              </span>
-              <select value={integrated ? '' : ratchetSel} disabled={integrated} onChange={(e) => setRatchetId(e.currentTarget.value)}>
-                <option value="">{integrated ? 'In Blade integriert' : 'Ratchet wählen …'}</option>
-                {ratchets.map((r) => (
-                  <option key={r.id} value={r.id}>
-                    {r.id}
-                    {r.heightMm !== null ? ` · ${r.heightMm.toFixed(1)} mm` : ''}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label class="field">
-              <span class="field-label">
-                <span class="layer-dot l3" />
-                Bit
-              </span>
-              <select value={bitSel} onChange={(e) => setBitId(e.currentTarget.value)}>
-                <option value="">Bit wählen …</option>
-                {bits.map((b) => (
-                  <option key={b.id} value={b.id}>
-                    {b.id} – {b.name}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <PartField kind="blade" label="Blade" blades={blades} value={bladeSel} onChange={setBladeId} counts={useOwned ? parts.blades : undefined} />
+            <PartField
+              kind="ratchet"
+              label="Ratchet"
+              ratchets={ratchets}
+              value={integrated ? '' : ratchetSel}
+              onChange={setRatchetId}
+              disabled={integrated}
+              disabledText="In Blade integriert"
+              counts={useOwned ? parts.ratchets : undefined}
+            />
+            <PartField kind="bit" label="Bit" bits={bits} value={bitSel} onChange={setBitId} counts={useOwned ? parts.bits : undefined} />
           </div>
           {useOwned && !blades.length && <p class="muted">In deiner Sammlung sind noch keine Blades.</p>}
         </div>
@@ -145,17 +107,19 @@ export function ComboBuilder({ db, state, update, presetBladeId }: Props) {
       {result && resolved ? (
         <div class={`card result type-edge-${result.type}`} aria-live="polite">
           <div class="result-head">
-            <button type="button" class="img-btn" onClick={() => openBlade(resolved.blade.id)} aria-label={`${resolved.blade.name}: Details`}>
-              <BeyImage bladeId={resolved.blade.id} type={result.type} size="md" alt={resolved.blade.name} />
-            </button>
+            <BeyImage bladeId={resolved.blade.id} type={result.type} size="md" alt={resolved.blade.name} />
             <div class="result-title">
               <p class="eyebrow">Deine Kombo</p>
               <h3 class="combo-name">{nb(result.label)}</h3>
-            </div>
-            <div class="badges">
+            <div class="badges badges-left">
               <TypeBadge type={result.type} />
               <SpinBadge spin={resolved.blade.spin} />
             </div>
+              <button type="button" class="link-btn" onClick={() => openBlade(resolved.blade.id)}>
+                Lexikon: {resolved.blade.name} →
+              </button>
+            </div>
+
           </div>
           <p class="muted">{TYPE_HINT[result.type]}</p>
           <div class="stats">

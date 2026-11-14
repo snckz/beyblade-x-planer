@@ -1,10 +1,11 @@
-# X-Planer · Beyblade X
+# Beyblade Planer · inoffizielle Beyblade-X-Fan-App
 
 Web-App (PWA) zum Planen von Beyblade-X-Kombos – läuft im Browser und lässt sich auf iPhone/Android wie eine App zum Homescreen hinzufügen.
 
 ## Funktionen
 
 - **Kombo-Planer:** Blade, Ratchet und Bit wählen → Typ, Richtwert-Profil, Warnungen (z. B. integrierter Ratchet, Burst-Risiko, Linksdreher) und Tipps. Optional nur mit Teilen aus der eigenen Sammlung.
+- **Lexikon:** Blades, Bits und Ratchets mit Erklärungen, Begriffe (X-Dash, Finishes, Linien …) und Produkte.
 - **Teile-Datenbank:** Produkte (BX/UX/CX, Takara Tomy + Hasbro-Namen), Blades und Bits mit Suche und Typ-Filter. Ungeprüfte Angaben sind markiert.
 - **Sammlung:** Produkte mit +/− erfassen, verfügbare Teile werden automatisch berechnet. Export/Import als JSON.
 - **Battle:** Deck-Check (3 Kreisel, keine doppelten Teile), Gegner-Deck eingeben, Matchup-Matrix mit Siegchance, empfohlene Reihenfolge und Tausch-Vorschläge (Bit/Ratchet), auf Wunsch nur aus der eigenen Sammlung.
