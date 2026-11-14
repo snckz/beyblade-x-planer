@@ -62,10 +62,47 @@ export function validateNews(news) {
   return errors;
 }
 
+const KINDS_EVENT = new Set(['release', 'tournament', 'event']);
+const DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+export function validateEvents(feed, bladeIds = new Set()) {
+  const errors = [];
+  if (!feed || !Array.isArray(feed.events)) return ['events.json: events muss ein Array sein'];
+  const ids = new Set();
+  for (const e of feed.events) {
+    if (!e.id || !e.title) errors.push(`Termin unvollständig: ${JSON.stringify(e)}`);
+    if (ids.has(e.id)) errors.push(`Termin doppelt: ${e.id}`);
+    ids.add(e.id);
+    if (!KINDS_EVENT.has(e.kind)) errors.push(`Termin ${e.id}: ungültige Art ${e.kind}`);
+    if (!DATE.test(e.date ?? '') || Number.isNaN(Date.parse(e.date))) errors.push(`Termin ${e.id}: ungültiges Datum ${e.date}`);
+    if (e.endDate && (!DATE.test(e.endDate) || e.endDate < e.date)) errors.push(`Termin ${e.id}: ungültiges Enddatum`);
+    if (e.url && !/^https:\/\//.test(e.url)) errors.push(`Termin ${e.id}: URL muss https sein`);
+    if (e.bladeId && bladeIds.size && !bladeIds.has(e.bladeId)) errors.push(`Termin ${e.id}: Blade ${e.bladeId} unbekannt`);
+    if (typeof e.confirmed !== 'boolean') errors.push(`Termin ${e.id}: confirmed fehlt`);
+  }
+  return errors;
+}
+
+export function validateImages(index) {
+  const errors = [];
+  if (!index || typeof index.blades !== 'object') return ['images.json: blades fehlt'];
+  for (const [id, img] of Object.entries(index.blades)) {
+    if (!/^https:\/\/static\.wikia\.nocookie\.net\//.test(img.thumb ?? '')) errors.push(`Bild ${id}: unerlaubte Bild-Adresse`);
+    if (!/^https:\/\/beyblade\.fandom\.com\/wiki\//.test(img.page ?? '')) errors.push(`Bild ${id}: Wiki-Link fehlt`);
+  }
+  return errors;
+}
+
 const isMain = !!process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
 if (isMain) {
   const read = (f) => JSON.parse(readFileSync(new URL(`../public/data/${f}`, import.meta.url), 'utf8'));
-  const errors = [...validateDb(read('db.json')), ...validateNews(read('news.json'))];
+  const db = read('db.json');
+  const errors = [
+    ...validateDb(db),
+    ...validateNews(read('news.json')),
+    ...validateEvents(read('events.json'), new Set(db.blades.map((b) => b.id))),
+    ...validateImages(read('images.json')),
+  ];
   if (errors.length) {
     console.error(`❌ ${errors.length} Fehler:\n- ` + errors.join('\n- '));
     process.exit(1);

@@ -10,9 +10,11 @@ export interface UserState {
   deck: string[];
   /** IDs gelesener News */
   seenNews: string[];
+  /** Gegner-Deck für die Battle-Analyse (max. 3) */
+  opponent: Combo[];
 }
 
-export const EMPTY_STATE: UserState = { owned: {}, combos: [], deck: [], seenNews: [] };
+export const EMPTY_STATE: UserState = { owned: {}, combos: [], deck: [], seenNews: [], opponent: [] };
 
 function isRecordOfNumbers(v: unknown): v is Record<string, number> {
   return !!v && typeof v === 'object' && Object.values(v).every((n) => typeof n === 'number' && Number.isFinite(n) && n >= 0);
@@ -22,15 +24,18 @@ function isRecordOfNumbers(v: unknown): v is Record<string, number> {
 export function sanitize(raw: unknown): UserState {
   if (!raw || typeof raw !== 'object') return { ...EMPTY_STATE };
   const r = raw as Partial<UserState>;
-  const combos = Array.isArray(r.combos)
-    ? r.combos.filter((c): c is Combo => !!c && typeof c.id === 'string' && typeof c.bladeId === 'string' && typeof c.bitId === 'string')
-    : [];
+  const isCombo = (c: unknown): c is Combo => {
+    const x = c as Combo;
+    return !!x && typeof x.id === 'string' && typeof x.bladeId === 'string' && typeof x.bitId === 'string';
+  };
+  const combos = Array.isArray(r.combos) ? r.combos.filter(isCombo) : [];
   const ids = new Set(combos.map((c) => c.id));
   return {
     owned: isRecordOfNumbers(r.owned) ? r.owned : {},
     combos,
     deck: Array.isArray(r.deck) ? r.deck.filter((id) => typeof id === 'string' && ids.has(id)).slice(0, 3) : [],
     seenNews: Array.isArray(r.seenNews) ? r.seenNews.filter((s) => typeof s === 'string') : [],
+    opponent: Array.isArray(r.opponent) ? r.opponent.filter(isCombo).slice(0, 3) : [],
   };
 }
 

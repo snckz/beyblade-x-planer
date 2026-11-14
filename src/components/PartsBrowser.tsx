@@ -4,6 +4,8 @@ import type { UserState } from '../lib/storage';
 import { searchProducts } from '../lib/data';
 import { TYPE_LABEL } from '../lib/analysis';
 import { Empty, SpinBadge, TypeBadge, UnverifiedMark } from './ui';
+import { BeyImage } from './BeyImage';
+import { useApp } from '../lib/context';
 
 interface Props {
   db: Database;
@@ -23,6 +25,7 @@ const KIND_LABEL: Record<Product['kind'], string> = {
 };
 
 export function PartsBrowser({ db, state, update }: Props) {
+  const { openBlade } = useApp();
   const [view, setView] = useState<View>('products');
   const [query, setQuery] = useState('');
   const [type, setType] = useState<BeyType | ''>('');
@@ -96,8 +99,15 @@ export function PartsBrowser({ db, state, update }: Props) {
               const n = state.owned[p.code] ?? 0;
               return (
                 <li key={p.code} class={`row product${n ? ' owned' : ''}`}>
-                  <span class="code">{p.code.startsWith('TBA') ? 'neu' : p.code}</span>
+                  {b ? (
+                    <button type="button" class="img-btn" onClick={() => openBlade(b.id)} aria-label={`${b.name}: Details`}>
+                      <BeyImage bladeId={b.id} type={b.type} size="sm" alt={b.name} />
+                    </button>
+                  ) : (
+                    <span class="bey-img bey-img-sm bey-placeholder" aria-hidden="true">◎</span>
+                  )}
                   <div class="row-main">
+                    <span class="code code-inline">{p.code.startsWith('TBA') ? 'neu' : p.code}</span>
                     <span class="row-title">
                       {p.name} <UnverifiedMark show={!p.verified} />
                     </span>
@@ -135,12 +145,15 @@ export function PartsBrowser({ db, state, update }: Props) {
         (blades.length ? (
           <ul class="list">
             {blades.map((b) => (
-              <li key={b.id} class="row">
-                <span class="code">{b.line}</span>
+              <li key={b.id} class="row row-click">
+                <button type="button" class="img-btn" onClick={() => openBlade(b.id)} aria-label={`${b.name}: Details`}>
+                  <BeyImage bladeId={b.id} type={b.type} size="sm" alt={b.name} />
+                </button>
                 <div class="row-main">
-                  <span class="row-title">
+                  <span class="code code-inline">{b.line}</span>
+                  <button type="button" class="row-title link-btn title-btn" onClick={() => openBlade(b.id)}>
                     {b.name} <UnverifiedMark show={!b.verified} />
-                  </span>
+                  </button>
                   <span class="row-sub">
                     {b.hasbroName ? `Hasbro: ${b.hasbroName}` : ''}
                     {b.integratedRatchet ? `${b.hasbroName ? ' · ' : ''}Ratchet integriert` : ''}

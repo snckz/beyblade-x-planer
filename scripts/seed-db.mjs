@@ -1,6 +1,6 @@
 // Erzeugt public/data/db.json aus einer gut lesbaren Kurzform.
 // Nur einmal bzw. bei manueller Pflege ausführen: node scripts/seed-db.mjs
-import { writeFileSync } from 'node:fs';
+import { existsSync, writeFileSync } from 'node:fs';
 
 const B = (id, line, type, spin, verified, extra = {}) => ({ id, name: id.replace(/([a-z])([A-Z])/g, '$1 $2'), line, type, spin, verified, ...extra });
 
@@ -98,5 +98,6 @@ const products = [
 
 const db = { version: 1, updatedAt: new Date().toISOString().slice(0, 10), blades, ratchets, bits, products };
 writeFileSync(new URL('../public/data/db.json', import.meta.url), JSON.stringify(db, null, 2) + '\n');
-writeFileSync(new URL('../public/data/news.json', import.meta.url), JSON.stringify({ updatedAt: null, lastRunOk: true, items: [] }, null, 2) + '\n');
+const newsUrl = new URL('../public/data/news.json', import.meta.url);
+if (!existsSync(newsUrl)) writeFileSync(newsUrl, JSON.stringify({ updatedAt: null, lastRunOk: true, items: [] }, null, 2) + '\n');
 console.log(`db.json: ${blades.length} Blades, ${ratchets.length} Ratchets, ${bits.length} Bits, ${products.length} Produkte`);

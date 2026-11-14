@@ -1,4 +1,4 @@
-import type { Database, NewsFeed, Product } from './types';
+import type { Database, EventFeed, ImageIndex, NewsFeed, Product } from './types';
 
 const base = import.meta.env.BASE_URL;
 
@@ -19,6 +19,30 @@ export async function loadNews(): Promise<NewsFeed> {
   } catch {
     return { updatedAt: null, lastRunOk: false, items: [] };
   }
+}
+
+export async function loadImages(): Promise<ImageIndex> {
+  try {
+    return await getJson<ImageIndex>('images.json');
+  } catch {
+    return { source: '', blades: {} };
+  }
+}
+
+export async function loadEvents(): Promise<EventFeed> {
+  try {
+    return await getJson<EventFeed>('events.json');
+  } catch {
+    return { updatedAt: '', events: [] };
+  }
+}
+
+/** Tage bis zu einem Datum (YYYY-MM-DD), lokal gerechnet; negativ = vorbei. */
+export function daysUntil(date: string, today = new Date()): number {
+  const [y, m, d] = date.split('-').map(Number);
+  const target = new Date(y!, m! - 1, d!);
+  const start = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  return Math.round((target.getTime() - start.getTime()) / 86400000);
 }
 
 /** Teile, die durch die Sammlung (gekaufte Produkte) verfügbar sind, mit Anzahl. */

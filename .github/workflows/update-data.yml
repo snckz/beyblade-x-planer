@@ -22,6 +22,9 @@ jobs:
           node-version: 22
       - name: Wiki nach neuen Produkten durchsuchen
         run: node scripts/update-data.mjs
+      - name: Wiki-Bilder verknüpfen (neue Blades; sonntags alle neu prüfen)
+        run: |
+          if [ "$(date -u +%u)" = "7" ]; then node scripts/update-images.mjs --all; else node scripts/update-images.mjs; fi
       - name: Daten prüfen
         run: node scripts/validate-data.mjs
       - name: Änderungen committen
@@ -34,7 +37,7 @@ jobs:
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git add public/data
-            git commit -m "Neuheiten-Radar: neue Produkte gefunden"
+            git commit -m "Neuheiten-Radar: Daten aktualisiert"
             git pull --rebase origin main
             git push origin HEAD:main
             echo "changed=true" >> "$GITHUB_OUTPUT"

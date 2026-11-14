@@ -7,7 +7,9 @@ Web-App (PWA) zum Planen von Beyblade-X-Kombos – läuft im Browser und lässt 
 - **Kombo-Planer:** Blade, Ratchet und Bit wählen → Typ, Richtwert-Profil, Warnungen (z. B. integrierter Ratchet, Burst-Risiko, Linksdreher) und Tipps. Optional nur mit Teilen aus der eigenen Sammlung.
 - **Teile-Datenbank:** Produkte (BX/UX/CX, Takara Tomy + Hasbro-Namen), Blades und Bits mit Suche und Typ-Filter. Ungeprüfte Angaben sind markiert.
 - **Sammlung:** Produkte mit +/− erfassen, verfügbare Teile werden automatisch berechnet. Export/Import als JSON.
-- **Deck-Check:** 3 Kreisel, keine doppelte Blade/Ratchet/Bit – Turnier-Faustregel.
+- **Battle:** Deck-Check (3 Kreisel, keine doppelten Teile), Gegner-Deck eingeben, Matchup-Matrix mit Siegchance, empfohlene Reihenfolge und Tausch-Vorschläge (Bit/Ratchet), auf Wunsch nur aus der eigenen Sammlung.
+- **Termine:** Releases und Turniere mit Countdown (`public/data/events.json`), zweimal pro Woche per Scheduled Task recherchiert.
+- **Detailseiten:** Steckbrief im Wiki-Stil je Blade. Bilder werden direkt vom Beyblade Wiki verlinkt (nicht kopiert), mit Quellenlink; ohne Bild erscheint ein eigenes Emblem.
 - **Neuheiten-Radar:** GitHub Action durchsucht täglich das Beyblade Wiki nach neuen Produktnummern und zeigt Treffer im News-Tab.
 - **Offline:** Nach dem ersten Öffnen funktioniert die App auch ohne Internet.
 
@@ -25,6 +27,8 @@ npm run check      # Typecheck, Lint, Datenprüfung, Tests, Build
 
 - `public/data/db.json` – Teile und Produkte. Wird aus `scripts/seed-db.mjs` erzeugt (`node scripts/seed-db.mjs`), dort neue Produkte eintragen.
 - `public/data/news.json` – wird vom Neuheiten-Radar automatisch gefüllt.
+- `public/data/images.json` – Bild-Links aus dem Beyblade Wiki (`node scripts/update-images.mjs`, läuft im Radar-Workflow mit).
+- `public/data/events.json` – Releases und Turniere.
 - `npm run validate-data` prüft Verweise, IDs und Formate.
 
 ## Veröffentlichung (GitHub Pages)

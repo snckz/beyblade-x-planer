@@ -1,0 +1,28 @@
+{
+  "updatedAt": "2026-11-14",
+  "events": [
+    {
+      "id": "gp-final-2026",
+      "kind": "tournament",
+      "date": "2026-12-12",
+      "endDate": "2026-12-13",
+      "title": "Beyblade X GP Final 2026",
+      "place": "ICONSIAM, Bangkok",
+      "country": "TH",
+      "url": "https://beyblade.com/gpfinal2026/",
+      "note": "Erste Weltmeisterschaft der Beyblade-X-GP-Serie. Teilnahme nur für Qualifizierte, Zuschauen möglich.",
+      "confirmed": true
+    },
+    {
+      "id": "release-vanishlucifer",
+      "kind": "release",
+      "date": "2026-12-26",
+      "title": "Starter VanishLucifer WW",
+      "place": "Japan (Takara Tomy)",
+      "country": "JP",
+      "note": "Neuer UX-Defense-Typ mit ausfahrbarer Verteidigungsschicht, ca. 2.500 Yen.",
+      "bladeId": "VanishLucifer",
+      "confirmed": true
+    }
+  ]
+}

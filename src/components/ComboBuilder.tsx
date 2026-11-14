@@ -5,18 +5,22 @@ import { newId } from '../lib/storage';
 import { analyze, nb, resolveCombo, TYPE_HINT } from '../lib/analysis';
 import { ownedParts } from '../lib/data';
 import { Empty, Section, SpinBadge, StatBar, TypeBadge } from './ui';
+import { BeyImage } from './BeyImage';
+import { useApp } from '../lib/context';
 
 interface Props {
   db: Database;
   state: UserState;
   update: (fn: (s: UserState) => UserState) => void;
+  presetBladeId?: string;
 }
 
-export function ComboBuilder({ db, state, update }: Props) {
+export function ComboBuilder({ db, state, update, presetBladeId }: Props) {
+  const { openBlade } = useApp();
   const parts = useMemo(() => ownedParts(db, state.owned), [db, state.owned]);
   const hasCollection = parts.blades.size > 0;
   const [onlyOwned, setOnlyOwned] = useState(false);
-  const [bladeId, setBladeId] = useState('');
+  const [bladeId, setBladeId] = useState(presetBladeId ?? '');
   const [ratchetId, setRatchetId] = useState('');
   const [bitId, setBitId] = useState('');
   const [name, setName] = useState('');
@@ -141,7 +145,10 @@ export function ComboBuilder({ db, state, update }: Props) {
       {result && resolved ? (
         <div class={`card result type-edge-${result.type}`} aria-live="polite">
           <div class="result-head">
-            <div>
+            <button type="button" class="img-btn" onClick={() => openBlade(resolved.blade.id)} aria-label={`${resolved.blade.name}: Details`}>
+              <BeyImage bladeId={resolved.blade.id} type={result.type} size="md" alt={resolved.blade.name} />
+            </button>
+            <div class="result-title">
               <p class="eyebrow">Deine Kombo</p>
               <h3 class="combo-name">{nb(result.label)}</h3>
             </div>

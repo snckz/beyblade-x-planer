@@ -2,6 +2,7 @@ import type { Database } from '../lib/types';
 import type { UserState } from '../lib/storage';
 import { analyze, checkDeck, nb, resolveCombo, TYPE_LABEL } from '../lib/analysis';
 import { Empty, Section, SpinBadge, TypeBadge } from './ui';
+import { BeyImage } from './BeyImage';
 
 interface Props {
   db: Database;
@@ -45,6 +46,7 @@ export function Deck({ db, state, update, goToBuilder }: Props) {
             return (
               <li key={c.id} class={`card deck-slot ${a ? `type-edge-${a.type}` : ''}`}>
                 <span class="slot-no">{i + 1}</span>
+                {r && a && <BeyImage bladeId={r.blade.id} type={a.type} size="sm" alt={r.blade.name} />}
                 <div class="row-main">
                   <span class="row-title">{c.name ?? (a ? nb(a.label) : 'Unbekannte Teile')}</span>
                   {c.name && a && <span class="row-sub">{nb(a.label)}</span>}

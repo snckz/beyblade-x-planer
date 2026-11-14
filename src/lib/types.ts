@@ -22,6 +22,8 @@ export interface Blade {
   integratedRatchet?: boolean;
   note?: string;
   verified: boolean;
+  /** erzwingt eine bestimmte Beyblade-Wiki-Seite für das Bild */
+  wikiTitle?: string;
 }
 
 export interface Ratchet {
@@ -90,4 +92,37 @@ export interface Combo {
   bladeId: string;
   ratchetId?: string;
   bitId: string;
+}
+
+export interface WikiImage {
+  thumb: string;
+  page: string;
+  title: string;
+}
+
+export interface ImageIndex {
+  source: string;
+  blades: Record<string, WikiImage>;
+}
+
+export type EventKind = 'release' | 'tournament' | 'event';
+
+export interface BeyEvent {
+  id: string;
+  kind: EventKind;
+  /** YYYY-MM-DD */
+  date: string;
+  endDate?: string;
+  title: string;
+  place?: string;
+  country?: string;
+  url?: string;
+  note?: string;
+  bladeId?: string;
+  confirmed: boolean;
+}
+
+export interface EventFeed {
+  updatedAt: string;
+  events: BeyEvent[];
 }

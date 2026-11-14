@@ -1,35 +1,45 @@
-import { useCallback, useEffect, useState } from 'preact/hooks';
-import type { Database, NewsFeed } from './lib/types';
-import { loadDatabase, loadNews } from './lib/data';
+import { useCallback, useEffect, useMemo, useState } from 'preact/hooks';
+import type { Database, EventFeed, ImageIndex, NewsFeed } from './lib/types';
+import { daysUntil, loadDatabase, loadEvents, loadImages, loadNews } from './lib/data';
 import { loadState, saveState, type UserState } from './lib/storage';
+import { AppContext } from './lib/context';
 import { ComboBuilder } from './components/ComboBuilder';
 import { PartsBrowser } from './components/PartsBrowser';
 import { Collection } from './components/Collection';
-import { Deck } from './components/Deck';
-import { News } from './components/News';
+import { Battle } from './components/Battle';
+import { Events } from './components/Events';
+import { DetailSheet } from './components/DetailSheet';
 
-type Tab = 'builder' | 'parts' | 'collection' | 'deck' | 'news';
+type Tab = 'builder' | 'parts' | 'battle' | 'events' | 'collection';
 
-const TABS: { id: Tab; label: string; icon: string }[] = [
-  { id: 'builder', label: 'Kombo', icon: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Zm0 5a4 4 0 1 1 0 8 4 4 0 0 1 0-8Z' },
-  { id: 'parts', label: 'Teile', icon: 'M4 6h16M4 12h16M4 18h10' },
-  { id: 'collection', label: 'Sammlung', icon: 'M4 7l8-4 8 4-8 4-8-4Zm0 5l8 4 8-4M4 17l8 4 8-4' },
-  { id: 'deck', label: 'Deck', icon: 'M6 4h12v16H6zM9 8h6M9 12h6M9 16h3' },
-  { id: 'news', label: 'News', icon: 'M5 12a7 7 0 0 1 14 0M8.5 12a3.5 3.5 0 0 1 7 0M12 12v8' },
+const TABS: { id: Tab; label: string; title: string; icon: string }[] = [
+  { id: 'builder', label: 'Kombo', title: 'Kombo-Planer', icon: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Zm0 5a4 4 0 1 1 0 8 4 4 0 0 1 0-8Z' },
+  { id: 'parts', label: 'Teile', title: 'Teile', icon: 'M4 6h16M4 12h16M4 18h10' },
+  { id: 'battle', label: 'Battle', title: 'Battle', icon: 'M5 19 19 5M14 5h5v5M5 5l5 5M14 14l5 5M19 14v5h-5' },
+  { id: 'events', label: 'Termine', title: 'Termine & News', icon: 'M5 6h14v14H5zM5 10h14M9 3v4M15 3v4' },
+  { id: 'collection', label: 'Sammlung', title: 'Sammlung', icon: 'M4 7l8-4 8 4-8 4-8-4Zm0 5l8 4 8-4M4 17l8 4 8-4' },
 ];
 
+// Alte Links (#deck, #news) auf die neuen Tabs umleiten.
+const ALIAS: Record<string, Tab> = { deck: 'battle', news: 'events' };
+
 function readTab(): Tab {
-  const h = window.location.hash.slice(1) as Tab;
+  const raw = window.location.hash.slice(1);
+  const h = (ALIAS[raw] ?? raw) as Tab;
   return TABS.some((t) => t.id === h) ? h : 'builder';
 }
 
 export function App() {
   const [db, setDb] = useState<Database | null>(null);
   const [news, setNews] = useState<NewsFeed>({ updatedAt: null, lastRunOk: true, items: [] });
+  const [images, setImages] = useState<ImageIndex>({ source: '', blades: {} });
+  const [events, setEvents] = useState<EventFeed>({ updatedAt: '', events: [] });
   const [error, setError] = useState<string | null>(null);
   const [state, setState] = useState<UserState>(loadState);
   const [tab, setTab] = useState<Tab>(readTab);
   const [storageOk, setStorageOk] = useState(true);
+  const [detail, setDetail] = useState<string | null>(null);
+  const [preset, setPreset] = useState<{ bladeId: string; key: number } | null>(null);
 
   const load = useCallback(() => {
     setError(null);
@@ -37,6 +47,8 @@ export function App() {
       .then(setDb)
       .catch(() => setError('Die Teile-Datenbank konnte nicht geladen werden. Prüfe deine Internetverbindung.'));
     void loadNews().then(setNews);
+    void loadImages().then(setImages);
+    void loadEvents().then(setEvents);
   }, []);
 
   useEffect(load, [load]);
@@ -53,71 +65,111 @@ export function App() {
     setTab(t);
     window.scrollTo({ top: 0 });
   }, []);
+  const openBlade = useCallback((id: string) => setDetail(id), []);
+  const closeDetail = useCallback(() => setDetail(null), []);
+  const useInBuilder = useCallback(
+    (bladeId: string) => {
+      setDetail(null);
+      setPreset({ bladeId, key: Date.now() });
+      go('builder');
+    },
+    [go],
+  );
+  const ctx = useMemo(() => ({ images, openBlade }), [images, openBlade]);
 
   const unread = news.items.filter((n) => !state.seenNews.includes(n.id)).length;
+  const soon = events.events.filter((e) => {
+    const d = daysUntil(e.date);
+    return d >= 0 && d <= 14;
+  }).length;
+  const badge = (t: Tab) => (t === 'events' ? unread + soon : 0);
   const current = TABS.find((t) => t.id === tab)!;
 
-  return (
-    <div class="app">
-      <header class="top">
-        <div class="brand">
-          <svg class="logo" viewBox="0 0 40 40" aria-hidden="true">
-            <circle cx="20" cy="20" r="17" class="logo-ring" />
-            <path d="M20 6l4 10 10 4-10 4-4 10-4-10-10-4 10-4z" class="logo-star" />
+  const navLink = (t: (typeof TABS)[number], withIcon: boolean) => (
+    <a
+      key={t.id}
+      href={`#${t.id}`}
+      class={tab === t.id ? 'on' : ''}
+      aria-current={tab === t.id ? 'page' : undefined}
+      onClick={(e) => {
+        e.preventDefault();
+        go(t.id);
+      }}
+    >
+      {withIcon ? (
+        <span class="tab-icon">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d={t.icon} />
           </svg>
-          <div>
-            <p class="brand-name">X-Planer</p>
-            <p class="brand-sub">Beyblade X Kombos &amp; Sammlung</p>
-          </div>
+          {badge(t.id) > 0 && <span class="dot-count">{badge(t.id)}</span>}
+        </span>
+      ) : null}
+      <span>{t.label}</span>
+      {!withIcon && badge(t.id) > 0 && <span class="dot-count">{badge(t.id)}</span>}
+    </a>
+  );
+
+  return (
+    <AppContext.Provider value={ctx}>
+      <div class="app">
+        <div class="bg" aria-hidden="true">
+          <span class="blob b1" />
+          <span class="blob b2" />
+          <span class="blob b3" />
+          <span class="rings" />
         </div>
-        <nav class="tabs-top" aria-label="Hauptnavigation">
-          {TABS.map((t) => (
-            <a key={t.id} href={`#${t.id}`} class={tab === t.id ? 'on' : ''} aria-current={tab === t.id ? 'page' : undefined} onClick={(e) => { e.preventDefault(); go(t.id); }}>
-              {t.label}
-              {t.id === 'news' && unread > 0 && <span class="dot-count">{unread}</span>}
-            </a>
-          ))}
-        </nav>
-      </header>
-
-      <main class="main" id="main">
-        <h1 class="page-title">{current.label === 'Kombo' ? 'Kombo-Planer' : current.label}</h1>
-        {!storageOk && <p class="banner">Speichern auf diesem Gerät ist blockiert (z. B. privater Modus). Änderungen gehen beim Schließen verloren.</p>}
-        {error ? (
-          <div class="card error" role="alert">
-            <p>{error}</p>
-            <button type="button" class="btn btn-primary" onClick={load}>
-              Erneut versuchen
-            </button>
-          </div>
-        ) : !db ? (
-          <div class="loading" aria-busy="true" aria-label="Lädt">
-            <div class="spinner" />
-          </div>
-        ) : (
-          <>
-            {tab === 'builder' && <ComboBuilder db={db} state={state} update={update} />}
-            {tab === 'parts' && <PartsBrowser db={db} state={state} update={update} />}
-            {tab === 'collection' && <Collection db={db} state={state} update={update} goToParts={() => go('parts')} />}
-            {tab === 'deck' && <Deck db={db} state={state} update={update} goToBuilder={() => go('builder')} />}
-            {tab === 'news' && <News news={news} state={state} update={update} />}
-          </>
-        )}
-      </main>
-
-      <nav class="tabbar" aria-label="Hauptnavigation">
-        {TABS.map((t) => (
-          <a key={t.id} href={`#${t.id}`} class={tab === t.id ? 'on' : ''} aria-current={tab === t.id ? 'page' : undefined} onClick={(e) => { e.preventDefault(); go(t.id); }}>
-            <span class="tab-icon">
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d={t.icon} />
+        <header class="top glass-bar">
+          <div class="brand">
+            <span class="logo" aria-hidden="true">
+              <svg viewBox="0 0 40 40">
+                <path d="M9 8h7l4 7 4-7h7l-7.5 12L31 32h-7l-4-7-4 7H9l7.5-12z" class="logo-x" />
               </svg>
-              {t.id === 'news' && unread > 0 && <span class="dot-count">{unread}</span>}
             </span>
-            <span>{t.label}</span>
-          </a>
-        ))}
-      </nav>
-    </div>
+            <div>
+              <p class="brand-name">
+                X<span>-Planer</span>
+              </p>
+              <p class="brand-sub">Beyblade X · Kombos, Battle &amp; Termine</p>
+            </div>
+          </div>
+          <nav class="tabs-top" aria-label="Hauptnavigation">
+            {TABS.map((t) => navLink(t, false))}
+          </nav>
+        </header>
+
+        <main class="main" id="main">
+          <h1 class="page-title">
+            <span>{current.title}</span>
+          </h1>
+          {!storageOk && <p class="banner">Speichern auf diesem Gerät ist blockiert (z. B. privater Modus). Änderungen gehen beim Schließen verloren.</p>}
+          {error ? (
+            <div class="card glass error" role="alert">
+              <p>{error}</p>
+              <button type="button" class="btn btn-primary" onClick={load}>
+                Erneut versuchen
+              </button>
+            </div>
+          ) : !db ? (
+            <div class="loading" aria-busy="true" aria-label="Lädt">
+              <div class="spinner" />
+            </div>
+          ) : (
+            <>
+              {tab === 'builder' && <ComboBuilder key={preset?.key ?? 0} db={db} state={state} update={update} presetBladeId={preset?.bladeId} />}
+              {tab === 'parts' && <PartsBrowser db={db} state={state} update={update} />}
+              {tab === 'battle' && <Battle db={db} state={state} update={update} goToBuilder={() => go('builder')} />}
+              {tab === 'events' && <Events db={db} events={events.events} news={news} state={state} update={update} />}
+              {tab === 'collection' && <Collection db={db} state={state} update={update} goToParts={() => go('parts')} />}
+            </>
+          )}
+        </main>
+
+        <nav class="tabbar glass-bar" aria-label="Hauptnavigation">
+          {TABS.map((t) => navLink(t, true))}
+        </nav>
+
+        {db && detail && <DetailSheet db={db} events={events.events} bladeId={detail} onClose={closeDetail} onUse={useInBuilder} />}
+      </div>
+    </AppContext.Provider>
   );
 }
