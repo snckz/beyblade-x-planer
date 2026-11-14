@@ -62,7 +62,14 @@ export async function findImageInPage(fetchFn, title, name) {
   const key = String(name).toLowerCase().replace(/[^a-z0-9]/g, '');
   const files = (d?.query?.pages ?? []).filter((f) => /\.(png|jpe?g|webp)$/i.test(f.title ?? '') && f.imageinfo?.[0]?.thumburl && ALLOWED_HOST.test(f.imageinfo[0].thumburl));
   const hit = files.find((f) => f.title.toLowerCase().replace(/[^a-z0-9]/g, '').includes(key));
-  return hit ? { thumb: hit.imageinfo[0].thumburl, page: wikiUrl(title), title } : null;
+  if (hit) return { thumb: hit.imageinfo[0].thumburl, page: wikiUrl(title), title };
+  // Letzter Versuch: Dateisuche im Wiki (Namensraum 6 = Dateien).
+  const s = await query(fetchFn, { generator: 'search', gsrsearch: `${name} Bit`, gsrnamespace: '6', gsrlimit: '20', prop: 'imageinfo', iiprop: 'url', iiurlwidth: '400' });
+  const found = (s?.query?.pages ?? [])
+    .filter((f) => /\.(png|jpe?g|webp)$/i.test(f.title ?? '') && f.imageinfo?.[0]?.thumburl && ALLOWED_HOST.test(f.imageinfo[0].thumburl))
+    .filter((f) => f.title.toLowerCase().replace(/[^a-z0-9]/g, '').includes(key))
+    .sort((a, b) => (a.index ?? 0) - (b.index ?? 0))[0];
+  return found ? { thumb: found.imageinfo[0].thumburl, page: wikiUrl(title), title } : null;
 }
 
 export async function findBitImage(fetchFn, bit) {
