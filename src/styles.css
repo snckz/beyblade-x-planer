@@ -546,3 +546,54 @@ button.bey-img:active { transform: scale(.95); }
 .combo-name { word-break: normal; overflow-wrap: anywhere; hyphens: none; }
 .result-head { align-items: flex-start; }
 .result-title { display: grid; gap: 6px; }
+
+/* ===== Bit-Fotos ===== */
+.bit-img { flex: none; display: grid; place-items: center; overflow: hidden; border-radius: 12px; background: #fff; border: 1px solid var(--glass-line); }
+.bit-img img { width: 100%; height: 100%; object-fit: contain; padding: 4px; }
+.bit-img-sm { width: 44px; height: 44px; }
+.bit-img-md { width: 64px; height: 64px; }
+.bit-fallback { background: rgba(255, 255, 255, .06); font: 800 13px var(--mono); }
+.part-field.compact .bit-img-sm { width: 36px; height: 36px; }
+
+/* ===== Sammelkarten ===== */
+.album-head { display: grid; gap: 14px; }
+.album-progress { display: flex; gap: 16px; align-items: center; }
+.album-progress > div { flex: 1; display: grid; gap: 8px; }
+.album-count { font: 900 italic 34px/1 var(--font); }
+.album-count small { font-size: 16px; color: var(--muted); font-style: normal; }
+.progress { height: 8px; border-radius: 4px; background: rgba(255, 255, 255, .08); overflow: hidden; }
+.progress span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--accent), var(--balance)); transition: width .4s; }
+.rarity-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.rarity-chip { height: 32px; padding: 0 12px; border-radius: 999px; font-size: 12.5px; font-weight: 750; cursor: pointer; border: 1px solid var(--rc); color: var(--rc); background: transparent; }
+.rarity-chip span { opacity: .7; margin-left: 4px; font-family: var(--mono); font-size: 11.5px; }
+.rarity-chip.on { background: var(--rc); color: #0b0d14; }
+.rar-standard { --rc: #b9c0d0; } .rar-random { --rc: #5aa2ff; } .rar-limited { --rc: #f5c542; } .rar-ultra { --rc: #e86bff; }
+
+.album { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(158px, 1fr)); gap: 12px; }
+.bcard {
+  position: relative; display: grid; gap: 8px; padding: 10px 10px 12px; border-radius: 18px; overflow: hidden;
+  background: linear-gradient(160deg, rgba(255, 255, 255, .08), rgba(255, 255, 255, .02) 40%), rgba(20, 23, 34, .95);
+  border: 2px solid color-mix(in srgb, var(--rc) 45%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .15), 0 8px 22px rgba(0, 0, 0, .3);
+}
+.bcard.rar-limited { border-color: var(--rc); background: linear-gradient(160deg, rgba(245, 197, 66, .22), rgba(20, 23, 34, .95) 45%, rgba(245, 197, 66, .12)), rgba(20, 23, 34, .95); }
+.bcard.rar-ultra { border-color: var(--rc); }
+.bcard.rar-limited::after, .bcard.rar-ultra::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none; mix-blend-mode: screen; opacity: .35;
+  background: linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, .55) 45%, transparent 60%);
+  background-size: 250% 100%; animation: shine 3.5s ease-in-out infinite;
+}
+.bcard.rar-ultra::before { content: ''; position: absolute; inset: 0; pointer-events: none; opacity: .25; background: linear-gradient(135deg, #ff5a8a, #ffd25a, #5affc8, #5aa2ff, #e86bff); }
+.bcard-top { display: flex; justify-content: space-between; align-items: center; gap: 6px; position: relative; }
+.bcard-code { font: 800 11px var(--mono); color: var(--muted); }
+.bcard-rar { font-size: 10px; font-weight: 850; text-transform: uppercase; letter-spacing: .06em; color: var(--rc); }
+.bcard-art { display: grid; place-items: center; padding: 6px 0; position: relative; border-radius: 14px; background: radial-gradient(circle at 50% 45%, color-mix(in srgb, var(--rc) 28%, transparent), transparent 70%); }
+.bcard-art .bey-img-lg { width: 108px; height: 108px; }
+.bcard:not(.got) .bcard-art .bey-img { filter: grayscale(.85) brightness(.75); }
+.bcard-name { position: relative; padding: 0; border: 0; background: none; text-align: left; font-weight: 800; font-size: 14px; line-height: 1.25; cursor: pointer; min-height: 2.5em; }
+.bcard-foot { display: flex; justify-content: space-between; align-items: center; gap: 6px; position: relative; }
+.stepper-sm button { width: 28px; height: 28px; font-size: 16px; }
+.stepper-sm span { min-width: 18px; font-size: 13px; }
+.bcard.got { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .2), 0 0 0 1px color-mix(in srgb, var(--rc) 50%, transparent), 0 10px 28px rgba(0, 0, 0, .35); }
+@keyframes shine { 0%, 100% { background-position: 120% 0; } 50% { background-position: -20% 0; } }
+@media (prefers-reduced-motion: reduce) { .bcard::after { animation: none; } }

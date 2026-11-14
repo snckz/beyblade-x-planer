@@ -4,6 +4,12 @@ on:
   schedule:
     - cron: '17 5 * * *' # täglich ca. 6–7 Uhr österreichischer Zeit
   workflow_dispatch:
+  # Neue Teile oder geänderte Bild-Logik: Bilder sofort verknüpfen statt bis morgen zu warten.
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/update-images.mjs'
+      - 'scripts/seed-db.mjs'
 
 permissions:
   contents: write

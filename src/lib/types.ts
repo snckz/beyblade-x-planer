@@ -44,7 +44,11 @@ export interface Bit {
   /** true, wenn Typ-Zuordnung nicht gesichert ist */
   uncertain?: boolean;
   note?: string;
+  /** erzwingt eine bestimmte Beyblade-Wiki-Seite für das Bild */
+  wikiTitle?: string;
 }
+
+export type Rarity = 'standard' | 'random' | 'limited' | 'ultra';
 
 export interface Product {
   code: string;
@@ -60,6 +64,8 @@ export interface Product {
   note?: string;
   verified: boolean;
   source?: string;
+  /** überschreibt die automatisch abgeleitete Seltenheit */
+  rarity?: Rarity;
 }
 
 export interface Database {
@@ -103,6 +109,7 @@ export interface WikiImage {
 export interface ImageIndex {
   source: string;
   blades: Record<string, WikiImage>;
+  bits?: Record<string, WikiImage>;
 }
 
 export type EventKind = 'release' | 'tournament' | 'event';

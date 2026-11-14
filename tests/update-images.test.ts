@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 // @ts-expect-error – JS-Modul ohne Typen
-import { pickPage, run } from '../scripts/update-images.mjs';
+import { pickBitPage, pickPage, run } from '../scripts/update-images.mjs';
 // @ts-expect-error – JS-Modul ohne Typen
 import { validateImages } from '../scripts/validate-data.mjs';
 
@@ -33,12 +33,26 @@ describe('update-images', () => {
       return { ok: true, status: 200, json: async () => ({ query: { pages } }) };
     };
     const res = await run({ fetchFn, dataDir: pathToFileURL(dir + '/') });
-    expect(res).toEqual({ changed: true, count: 1 });
+    expect(res).toEqual({ changed: true, count: 1, bits: 0 });
     const out = JSON.parse(readFileSync(join(dir, 'images.json'), 'utf8'));
     expect(out.blades.GloryValkyrie.page).toBe('https://beyblade.fandom.com/wiki/Glory_Valkyrie_LF');
     expect(validateImages(out)).toEqual([]);
     const down = await run({ fetchFn: async () => { throw new Error('offline'); }, dataDir: pathToFileURL(dir + '/'), refreshAll: true });
     expect(down.changed).toBe(false);
     expect(JSON.parse(readFileSync(join(dir, 'images.json'), 'utf8'))).toEqual(out);
+  });
+});
+
+describe('pickBitPage', () => {
+  it('nimmt nur exakte Bit-Titel, nicht ähnliche', () => {
+    const bit = { id: 'F', name: 'Flat' };
+    const pages = [
+      { title: 'Low Flat', thumbnail: T(IMG) },
+      { title: 'Flat', thumbnail: T(IMG) },
+      { title: 'Bit - Flat', thumbnail: T(IMG) },
+    ];
+    expect(pickBitPage(bit, pages)?.title).toBe('Bit - Flat');
+    expect(pickBitPage(bit, [{ title: 'Gear Flat', thumbnail: T(IMG) }])).toBeNull();
+    expect(pickBitPage({ id: 'B', name: 'Ball' }, [{ title: 'Ball (Bit)', thumbnail: T(IMG) }])?.title).toBe('Ball (Bit)');
   });
 });

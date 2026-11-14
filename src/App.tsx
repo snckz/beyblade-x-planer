@@ -131,9 +131,8 @@ export function App() {
             </span>
             <div>
               <p class="brand-name">
-                Beyblade<span> Planer</span>
+                Beyblade<span> X</span>
               </p>
-              <p class="brand-sub">Inoffizielle Fan-App · Beyblade X</p>
             </div>
           </div>
           <nav class="tabs-top" aria-label="Hauptnavigation">

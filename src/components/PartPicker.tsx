@@ -3,6 +3,7 @@ import type { BeyType, Blade, Bit, Ratchet } from '../lib/types';
 import { TYPE_LABEL } from '../lib/analysis';
 import { BeyImage } from './BeyImage';
 import { TypeBadge } from './ui';
+import { BitImage } from './BitImage';
 
 type Kind = 'blade' | 'ratchet' | 'bit';
 
@@ -61,8 +62,10 @@ export function PartField(props: FieldProps) {
       <button type="button" class={`part-btn${value ? ' has-value' : ''}`} onClick={() => setOpen(true)} disabled={disabled} aria-haspopup="dialog" aria-label={`${label}: ${main}`}>
         {blade ? (
           <BeyImage bladeId={blade.id} type={blade.type} size="sm" alt="" zoomable={false} />
+        ) : bit ? (
+          <BitImage bit={bit} />
         ) : (
-          <span class={`part-glyph ${DOT[kind]}`}>{kind === 'ratchet' ? (ratchet?.id ?? 'R') : (bit?.id ?? (kind === 'bit' ? 'B' : '◎'))}</span>
+          <span class={`part-glyph ${DOT[kind]}`}>{kind === 'ratchet' ? (ratchet?.id ?? 'R') : (kind === 'bit' ? 'B' : '◎')}</span>
         )}
         <span class="part-text">
           <span class={value || disabled ? 'part-main' : 'part-main placeholder'}>{main}</span>
@@ -179,8 +182,10 @@ function PickerSheet({ kind, label, blades = [], ratchets = [], bits = [], value
             <div class="grid grid-bits">
               {bitList.map((b) => (
                 <button key={b.id} type="button" class={`tile tile-bit type-edge-${b.type}${b.id === value ? ' selected' : ''}`} onClick={() => onPick(b.id)} aria-pressed={b.id === value}>
-                  <span class="tile-big">{b.id}</span>
-                  <span class="tile-name">{b.name}</span>
+                  <BitImage bit={b} size="md" />
+                  <span class="tile-name">
+                    <strong>{b.id}</strong> · {b.name}
+                  </span>
                   <span class="tile-meta">
                     <span class={`type-dot dot-${b.type}`} />
                     {TYPE_LABEL[b.type]}

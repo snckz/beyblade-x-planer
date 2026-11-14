@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-13",
+  "updatedAt": "2026-11-14",
   "blades": [
     {
       "id": "DranSword",
@@ -173,6 +173,15 @@
       "type": "attack",
       "spin": "right",
       "verified": false
+    },
+    {
+      "id": "StormPegasus",
+      "name": "Storm Pegasus",
+      "line": "BX",
+      "type": "attack",
+      "spin": "right",
+      "verified": false,
+      "note": "Limitierte Neuauflage des Metal-Fight-Klassikers für Beyblade X."
     },
     {
       "id": "TuskMammoth",
@@ -926,6 +935,29 @@
       "bladeId": "KnightFortress",
       "ratchetId": "8-70",
       "bitId": "UN"
+    },
+    {
+      "code": "BX-00-SP",
+      "name": "Starter Storm Pegasus 3-70RA",
+      "kind": "starter",
+      "verified": false,
+      "bladeId": "StormPegasus",
+      "ratchetId": "3-70",
+      "bitId": "RA",
+      "includesLauncher": true,
+      "rarity": "limited",
+      "note": "Limitierte BX-00-Version."
+    },
+    {
+      "code": "UX-00-GVMC",
+      "name": "Starter Glory Valkyrie LF Metal Coat: Blue",
+      "kind": "starter",
+      "verified": true,
+      "bladeId": "GloryValkyrie",
+      "bitId": "LF",
+      "includesLauncher": true,
+      "rarity": "limited",
+      "note": "Event-Limited, erschienen am 29.08.2026 für Xtreme-Gear-Sports-Events."
     },
     {
       "code": "HAS-XBS",

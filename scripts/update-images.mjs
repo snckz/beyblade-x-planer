@@ -39,28 +39,67 @@ export async function findImage(fetchFn, blade) {
   return page ? { thumb: page.thumbnail.source, page: wikiUrl(page.title), title: page.title } : null;
 }
 
+/**
+ * Bit-Seite wählen: Der Bit-Name ist oft ein allgemeines Wort („Flat“, „Ball“), daher nur
+ * Titel akzeptieren, die genau dem Namen entsprechen (optional mit Zusatz wie „(Bit)“ oder „Bit - “).
+ */
+export function pickBitPage(bit, pages) {
+  const want = norm(bit.name);
+  const ok = (pages ?? []).filter((p) => p?.thumbnail?.source && ALLOWED_HOST.test(p.thumbnail.source));
+  const strip = (t) => norm(String(t).replace(/^bit\s*-\s*/i, '').replace(/\((bit|beyblade x|x)\)/i, ''));
+  const exact = ok.filter((p) => strip(p.title) === want);
+  if (!exact.length) return null;
+  const pref = (p) => (/\(bit\)|^bit\s*-/i.test(p.title) ? 0 : 1);
+  return exact.sort((a, b) => pref(a) - pref(b) || (a.index ?? 0) - (b.index ?? 0))[0];
+}
+
+export async function findBitImage(fetchFn, bit) {
+  const common = { prop: 'pageimages', piprop: 'thumbnail', pithumbsize: '400', redirects: '1' };
+  if (bit.wikiTitle) {
+    const d = await query(fetchFn, { ...common, titles: bit.wikiTitle });
+    const p = (d?.query?.pages ?? []).find((x) => x?.thumbnail?.source && ALLOWED_HOST.test(x.thumbnail.source));
+    return p ? { thumb: p.thumbnail.source, page: wikiUrl(p.title), title: p.title } : null;
+  }
+  // Direkte Titel-Kandidaten zuerst (schnell und eindeutig), dann Suche.
+  const titles = [`Bit - ${bit.name}`, `${bit.name} (Bit)`, bit.name].join('|');
+  const direct = await query(fetchFn, { ...common, titles });
+  let page = pickBitPage(bit, direct?.query?.pages);
+  if (!page) {
+    const d = await query(fetchFn, { ...common, generator: 'search', gsrsearch: `${bit.name} Bit Beyblade X`, gsrnamespace: '0', gsrlimit: '10' });
+    page = pickBitPage(bit, d?.query?.pages);
+  }
+  return page ? { thumb: page.thumbnail.source, page: wikiUrl(page.title), title: page.title } : null;
+}
+
 export async function run({ fetchFn = fetch, dataDir = new URL('../public/data/', import.meta.url), refreshAll = false } = {}) {
   const db = JSON.parse(readFileSync(new URL('db.json', dataDir), 'utf8'));
   const path = new URL('images.json', dataDir);
-  let images = {};
+  let blades = {};
+  let bits = {};
   try {
-    images = JSON.parse(readFileSync(path, 'utf8')).blades ?? {};
+    const old = JSON.parse(readFileSync(path, 'utf8'));
+    blades = old.blades ?? {};
+    bits = old.bits ?? {};
   } catch {
     /* noch keine Datei */
   }
   let changed = false;
   let failures = 0;
-  for (const blade of db.blades) {
-    if (!refreshAll && images[blade.id]) continue;
+  const jobs = [
+    ...db.blades.map((x) => ({ x, store: blades, find: findImage })),
+    ...(db.bits ?? []).map((x) => ({ x, store: bits, find: findBitImage })),
+  ];
+  for (const { x, store, find } of jobs) {
+    if (!refreshAll && store[x.id]) continue;
     try {
-      const img = await findImage(fetchFn, blade);
-      if (img && JSON.stringify(img) !== JSON.stringify(images[blade.id])) {
-        images[blade.id] = img;
+      const img = await find(fetchFn, x);
+      if (img && JSON.stringify(img) !== JSON.stringify(store[x.id])) {
+        store[x.id] = img;
         changed = true;
       }
     } catch (err) {
       failures++;
-      console.warn(`⚠️ ${blade.id}: ${err.message}`);
+      console.warn(`⚠️ ${x.id}: ${err.message}`);
       if (failures >= 3) {
         console.warn('Wiki nicht erreichbar – Abbruch, bestehende Bilder bleiben.');
         break;
@@ -68,10 +107,12 @@ export async function run({ fetchFn = fetch, dataDir = new URL('../public/data/'
     }
   }
   if (changed) {
-    writeFileSync(path, JSON.stringify({ source: 'Beyblade Wiki (beyblade.fandom.com)', blades: images }, null, 2) + '\n');
+    writeFileSync(path, JSON.stringify({ source: 'Beyblade Wiki (beyblade.fandom.com)', blades, bits }, null, 2) + '\n');
   }
-  console.log(`Bilder: ${Object.keys(images).length}/${db.blades.length} Blades verknüpft${changed ? ' (aktualisiert)' : ''}.`);
-  return { changed, count: Object.keys(images).length };
+  const count = Object.keys(blades).length;
+  console.log(`Bilder: ${count}/${db.blades.length} Blades, ${Object.keys(bits).length}/${(db.bits ?? []).length} Bits verknüpft${changed ? ' (aktualisiert)' : ''}.`);
+  for (const [id, img] of Object.entries(bits)) console.log(`  Bit ${id} → ${img.title}`);
+  return { changed, count, bits: Object.keys(bits).length };
 }
 
 const isMain = !!process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
