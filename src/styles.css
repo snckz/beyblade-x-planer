@@ -326,6 +326,7 @@ input::placeholder { color: var(--faint); }
 @media (min-width: 860px) { .main { padding-bottom: 48px; } }
 
 /* Klassische Beyblade-Typo: fett, kursiv, Großbuchstaben, X-Akzent */
+.brand-logo { display: block; height: 34px; width: auto; max-width: 70vw; }
 .brand-name { font-style: italic; font-weight: 900; text-transform: uppercase; letter-spacing: .02em; font-size: 22px; line-height: 1; }
 .brand-name span { color: var(--accent); font-weight: 900; }
 .page-title { font-style: italic; font-weight: 900; text-transform: uppercase; letter-spacing: -.01em; font-size: 30px; position: relative; display: inline-block; }

@@ -121,9 +121,7 @@ export function App() {
         </div>
         <header class="top glass-bar">
           <div class="brand">
-            <p class="brand-name">
-              Beyblade<span> X</span>
-            </p>
+            <img class="brand-logo" src="./logo.webp" alt="Beyblade X" width="600" height="94" />
           </div>
           <nav class="tabs-top" aria-label="Hauptnavigation">
             {TABS.map((t) => navLink(t, false))}
