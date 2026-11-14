@@ -95,7 +95,6 @@ const products = [
   P('CX-14', 'KnightFortress GV8-70UN', 'booster', false, bey('KnightFortress', '8-70', 'UN')),
   P('BX-00-SP', 'Starter Storm Pegasus 3-70RA', 'starter', false, { ...bey('StormPegasus', '3-70', 'RA'), includesLauncher: true, rarity: 'limited', note: 'Limitierte BX-00-Version.' }),
   P('UX-00-GVMC', 'Starter Glory Valkyrie LF Metal Coat: Blue', 'starter', true, { ...bey('GloryValkyrie', undefined, 'LF'), includesLauncher: true, rarity: 'limited', note: 'Event-Limited, erschienen am 29.08.2026 für Xtreme-Gear-Sports-Events.' }),
-  P('HAS-XBS', 'Hasbro Xtreme Battle Set (Dagger Dran 4-60R + Tusk Mammoth 3-60T)', 'set', true, { includesLauncher: true, note: 'Mit Stadium und zwei Launchern.' }),
 ];
 
 // Lesbare Produktnamen: „Starter DranSword 3-60F“ → „Starter Dran Sword 3-60F“.

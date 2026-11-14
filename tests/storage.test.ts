@@ -27,6 +27,11 @@ describe('storage', () => {
     expect(s.barcodes).toEqual({ '4904810000000': 'BX-01' });
     expect(s.shopPrices).toEqual({});
   });
+  it('ersetzt den alten Battle-Set-Eintrag durch beide Kreisel', () => {
+    const s = sanitize({ owned: { 'HAS-XBS': 1, 'BX-01': 2 }, wishlist: ['HAS-XBS'] });
+    expect(s.owned).toEqual({ 'BX-01': 2, 'F9588-01': 1, 'F9588-02': 1 });
+    expect(s.wishlist).toEqual(['F9588-01', 'F9588-02']);
+  });
   it('verwirft ungültige Ladenpreise', () => {
     const s = sanitize({ shopPrices: { A: { amount: 450, cur: 'THB' }, B: { amount: -1, cur: 'THB' }, C: { amount: 5, cur: 'USD' }, D: 7 } });
     expect(s.shopPrices).toEqual({ A: { amount: 450, cur: 'THB' } });

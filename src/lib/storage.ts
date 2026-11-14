@@ -42,6 +42,24 @@ function isRecordOfNumbers(v: unknown): v is Record<string, number> {
 }
 
 /** Robust gegen kaputte oder veraltete Daten im Speicher. */
+/**
+ * Alte Produktcodes, die durch genauere ersetzt wurden. Wer den alten Eintrag hatte, bekommt die neuen
+ * (z. B. das Hasbro Xtreme Battle Set als zwei Kreisel statt eines Eintrags ohne Kreisel).
+ */
+const LEGACY_CODES: Record<string, string[]> = { 'HAS-XBS': ['F9588-01', 'F9588-02'] };
+
+function migrateCodes(owned: Record<string, number>): Record<string, number> {
+  const out = { ...owned };
+  for (const [old, next] of Object.entries(LEGACY_CODES)) {
+    const n = out[old];
+    if (!n) continue;
+    delete out[old];
+    for (const c of next) out[c] = Math.max(out[c] ?? 0, n);
+  }
+  return out;
+}
+const migrateList = (list: string[]) => [...new Set(list.flatMap((c) => LEGACY_CODES[c] ?? [c]))];
+
 export function sanitize(raw: unknown): UserState {
   if (!raw || typeof raw !== 'object') return { ...EMPTY_STATE };
   const r = raw as Partial<UserState>;
@@ -52,16 +70,13 @@ export function sanitize(raw: unknown): UserState {
   const combos = Array.isArray(r.combos) ? r.combos.filter(isCombo) : [];
   const ids = new Set(combos.map((c) => c.id));
   return {
-    owned: isRecordOfNumbers(r.owned) ? r.owned : {},
+    owned: isRecordOfNumbers(r.owned) ? migrateCodes(r.owned) : {},
     combos,
     deck: Array.isArray(r.deck) ? r.deck.filter((id) => typeof id === 'string' && ids.has(id)).slice(0, 3) : [],
     seenNews: Array.isArray(r.seenNews) ? r.seenNews.filter((s) => typeof s === 'string') : [],
     opponent: Array.isArray(r.opponent) ? r.opponent.filter(isCombo).slice(0, 3) : [],
-    wishlist: Array.isArray(r.wishlist) ? [...new Set(r.wishlist.filter((s) => typeof s === 'string'))] : [],
-    barcodes:
-      r.barcodes && typeof r.barcodes === 'object'
-        ? Object.fromEntries(Object.entries(r.barcodes).filter(([k, v]) => /^\d{8,14}$/.test(k) && typeof v === 'string'))
-        : {},
+    wishlist: migrateList(Array.isArray(r.wishlist) ? [...new Set(r.wishlist.filter((s) => typeof s === 'string'))] : []),
+    barcodes: r.barcodes && typeof r.barcodes === 'object' ? Object.fromEntries(Object.entries(r.barcodes).filter(([k, v]) => /^\d{8,14}$/.test(k) && typeof v === 'string')) : {},
     matches: sanitizeMatches(r.matches),
     prefs: { hasbroNames: !!(r.prefs && typeof r.prefs === 'object' && (r.prefs as Prefs).hasbroNames === true) },
     shopPrices:
@@ -103,7 +118,5 @@ export function importState(text: string): UserState {
 }
 
 export function newId(): string {
-  return typeof crypto !== 'undefined' && 'randomUUID' in crypto
-    ? crypto.randomUUID()
-    : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+  return typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 }

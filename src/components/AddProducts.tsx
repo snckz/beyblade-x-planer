@@ -2,6 +2,7 @@ import { useMemo, useRef, useState } from 'preact/hooks';
 import type { Database, Product } from '../lib/types';
 import type { UserState } from '../lib/storage';
 import { searchProducts } from '../lib/data';
+import { groupKey } from '../lib/price';
 import { displayProductName, regionLabel } from '../lib/names';
 import { nb } from '../lib/analysis';
 import { useModal } from '../lib/useModal';
@@ -30,9 +31,7 @@ export function AddProducts({ db, state, update, onClose }: Props) {
 
   const list = useMemo(() => {
     const base = db.products.filter((p) => p.bladeId && p.kind !== 'stadium');
-    return searchProducts(base, query, db.blades).filter(
-      (p) => (region === 'all' || (region === 'hasbro') === (p.region === 'hasbro')) && (!onlyMine || (state.owned[p.code] ?? 0) > 0),
-    );
+    return searchProducts(base, query, db.blades).filter((p) => (region === 'all' || (region === 'hasbro') === (p.region === 'hasbro')) && (!onlyMine || (state.owned[p.code] ?? 0) > 0));
   }, [db, query, region, onlyMine, state.owned]);
   const total = Object.values(state.owned).reduce((s, n) => s + n, 0);
 
@@ -101,7 +100,8 @@ export function AddProducts({ db, state, update, onClose }: Props) {
                   <div class="row-main">
                     <span class="row-title">{nb(displayProductName(p, db).replace(/^(Starter|Booster|Set|Random Booster)\s+/, ''))}</span>
                     <span class="row-sub">
-                      <span class={`region-tag ${p.region === 'hasbro' ? 'hasbro' : 'takara'}`}>{regionLabel(p)}</span> {p.code} · {KIND[p.kind] ?? 'Produkt'}
+                      <span class={`region-tag ${p.region === 'hasbro' ? 'hasbro' : 'takara'}`}>{regionLabel(p)}</span> {p.code} ·{' '}
+                      {p.kind === 'set' && groupKey(p) !== p.code ? `aus Set ${groupKey(p)}` : (KIND[p.kind] ?? 'Produkt')}
                     </span>
                   </div>
                   <div class="stepper stepper-sm" aria-label={`Anzahl ${p.name}`}>

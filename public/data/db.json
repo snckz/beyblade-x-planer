@@ -2534,14 +2534,6 @@
       "priceJpy": 2700
     },
     {
-      "code": "HAS-XBS",
-      "name": "Hasbro Xtreme Battle Set (Dagger Dran 4-60R + Tusk Mammoth 3-60T)",
-      "kind": "set",
-      "verified": true,
-      "includesLauncher": true,
-      "note": "Mit Stadium und zwei Launchern."
-    },
-    {
       "code": "BX-05",
       "name": "Booster Wizard Arrow 4-80B",
       "kind": "booster",

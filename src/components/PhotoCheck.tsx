@@ -235,6 +235,18 @@ export function PhotoCheck({ db, state, update, meta, onClose, initialCode }: Pr
 
 function ProductList({ db, list, onPick }: { db: Database; list: Product[]; onPick: (p: Product) => void }) {
   if (!list.length) return <p class="muted">Nichts gefunden.</p>;
+  // Sets mit mehreren Kreiseln: alle Kreisel nennen, nicht nur den ersten
+  const title = (p: Product) => {
+    if (p.kind === 'random-booster' && groupKey(p) !== p.code) return `${groupKey(p)} Random Booster (Inhalt zufällig)`;
+    if (p.kind !== 'set') return nb(displayProductName(p, db));
+    const members = db.products.filter((x) => x.kind === 'set' && groupKey(x) === groupKey(p));
+    if (members.length < 2) return nb(displayProductName(p, db));
+    const names = members.map((x) => {
+      const b = db.blades.find((bl) => bl.id === x.bladeId);
+      return b ? (b.hasbroName && p.region === 'hasbro' ? b.hasbroName : b.name) : x.name;
+    });
+    return `${groupKey(p)} Set: ${names.join(' + ')}`;
+  };
   return (
     <ul class="list">
       {list.map((p) => (
@@ -242,7 +254,7 @@ function ProductList({ db, list, onPick }: { db: Database; list: Product[]; onPi
           <button type="button" class="row row-btn" onClick={() => onPick(p)}>
             {p.bladeId && <BeyImage bladeId={p.bladeId} type={db.blades.find((b) => b.id === p.bladeId)?.type ?? 'balance'} size="sm" alt="" zoomable={false} />}
             <span class="row-main">
-              <span class="row-title">{nb(displayProductName(p, db))}</span>
+              <span class="row-title">{title(p)}</span>
               <span class="row-sub">
                 <span class={`region-tag ${p.region === 'hasbro' ? 'hasbro' : 'takara'}`}>{regionLabel(p)}</span> {p.code}
               </span>
