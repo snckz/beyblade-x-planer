@@ -9,7 +9,9 @@
       "type": "attack",
       "spin": "right",
       "verified": true,
-      "weightG": 34.6
+      "weightG": 34.6,
+      "hasbroName": "Sword Dran",
+      "hasbroNameAuto": true
     },
     {
       "id": "HellsScythe",
@@ -18,7 +20,9 @@
       "type": "balance",
       "spin": "right",
       "verified": true,
-      "weightG": 32.7
+      "weightG": 32.7,
+      "hasbroName": "Scythe Incendio",
+      "hasbroNameAuto": true
     },
     {
       "id": "WizardArrow",
@@ -27,7 +31,9 @@
       "type": "stamina",
       "spin": "right",
       "verified": true,
-      "weightG": 31.8
+      "weightG": 31.8,
+      "hasbroName": "Arrow Wizard",
+      "hasbroNameAuto": true
     },
     {
       "id": "KnightShield",
@@ -36,7 +42,9 @@
       "type": "defense",
       "spin": "right",
       "verified": true,
-      "weightG": 32.4
+      "weightG": 32.4,
+      "hasbroName": "Helm Knight",
+      "hasbroNameAuto": true
     },
     {
       "id": "KnightLance",
@@ -45,7 +53,9 @@
       "type": "defense",
       "spin": "right",
       "verified": true,
-      "weightG": 32.9
+      "weightG": 32.9,
+      "hasbroName": "Lance Knight",
+      "hasbroNameAuto": true
     },
     {
       "id": "SharkEdge",
@@ -54,7 +64,9 @@
       "type": "attack",
       "spin": "right",
       "verified": true,
-      "weightG": 34.5
+      "weightG": 34.5,
+      "hasbroName": "Keel Shark",
+      "hasbroNameAuto": true
     },
     {
       "id": "LeonClaw",
@@ -63,7 +75,9 @@
       "type": "balance",
       "spin": "right",
       "verified": true,
-      "weightG": 31.4
+      "weightG": 31.4,
+      "hasbroName": "Claw Leon",
+      "hasbroNameAuto": true
     },
     {
       "id": "ViperTail",
@@ -81,7 +95,9 @@
       "type": "defense",
       "spin": "right",
       "verified": true,
-      "weightG": 32.7
+      "weightG": 32.7,
+      "hasbroName": "Horn Rhino",
+      "hasbroNameAuto": true
     },
     {
       "id": "DranDagger",
@@ -109,7 +125,9 @@
       "type": "attack",
       "spin": "right",
       "verified": true,
-      "weightG": 38
+      "weightG": 38,
+      "hasbroName": "Soar Phoenix",
+      "hasbroNameAuto": true
     },
     {
       "id": "WyvernGale",
@@ -165,7 +183,9 @@
       "type": "balance",
       "spin": "right",
       "verified": true,
-      "weightG": 35
+      "weightG": 35,
+      "hasbroName": "Scarlet Garuda",
+      "hasbroNameAuto": true
     },
     {
       "id": "DranStrike",
@@ -174,7 +194,9 @@
       "type": "attack",
       "spin": "right",
       "verified": true,
-      "weightG": 41.4
+      "weightG": 41.4,
+      "hasbroName": "Strike Dran",
+      "hasbroNameAuto": true
     },
     {
       "id": "LusterDragoon",
@@ -213,7 +235,9 @@
       "type": "attack",
       "spin": "right",
       "verified": true,
-      "weightG": 36.5
+      "weightG": 36.5,
+      "hasbroName": "Buster Dran",
+      "hasbroNameAuto": true
     },
     {
       "id": "HellsHammer",
@@ -222,7 +246,9 @@
       "type": "balance",
       "spin": "right",
       "verified": true,
-      "weightG": 33
+      "weightG": 33,
+      "hasbroName": "Hammer Incendio",
+      "hasbroNameAuto": true
     },
     {
       "id": "WizardRod",
@@ -231,7 +257,9 @@
       "type": "stamina",
       "spin": "right",
       "verified": true,
-      "weightG": 35.3
+      "weightG": 35.3,
+      "hasbroName": "Wand Wizard",
+      "hasbroNameAuto": true
     },
     {
       "id": "LeonCrest",
@@ -259,7 +287,9 @@
       "type": "attack",
       "spin": "right",
       "verified": true,
-      "weightG": 37.6
+      "weightG": 37.6,
+      "hasbroName": "Scale Shark",
+      "hasbroNameAuto": true
     },
     {
       "id": "ClockMirage",
@@ -268,7 +298,9 @@
       "type": "stamina",
       "spin": "right",
       "verified": false,
-      "weightG": 37.7
+      "weightG": 37.7,
+      "hasbroName": "Mirage Clock",
+      "hasbroNameAuto": true
     },
     {
       "id": "BulletGriffon",
@@ -279,7 +311,9 @@
       "verified": true,
       "integratedRatchet": true,
       "note": "Spaltet sich im Kampf in Hauptkörper und „Bullet“.",
-      "weightG": null
+      "weightG": null,
+      "hasbroName": "Rocket Griffon",
+      "hasbroNameAuto": true
     },
     {
       "id": "GloryValkyrie",
@@ -312,7 +346,9 @@
       "spin": "right",
       "verified": true,
       "note": "CX: Lock Chip + Main Blade + Assist Blade (S).",
-      "weightG": null
+      "weightG": null,
+      "hasbroName": "Courage Dran",
+      "hasbroNameAuto": true
     },
     {
       "id": "WizardArc",
@@ -322,7 +358,9 @@
       "spin": "right",
       "verified": true,
       "note": "CX: Lock Chip + Main Blade + Assist Blade (R).",
-      "weightG": null
+      "weightG": null,
+      "hasbroName": "Arc Wizard",
+      "hasbroNameAuto": true
     },
     {
       "id": "PerseusDark",
@@ -332,7 +370,9 @@
       "spin": "right",
       "verified": true,
       "note": "CX: Assist Blade (B).",
-      "weightG": null
+      "weightG": null,
+      "hasbroName": "Dark Perseus",
+      "hasbroNameAuto": true
     },
     {
       "id": "KnightFortress",
@@ -343,7 +383,9 @@
       "verified": true,
       "note": "CX: Assist Blade (GV).",
       "wikiTitle": "KnightFortress GV8-70UN",
-      "weightG": null
+      "weightG": null,
+      "hasbroName": "Armor Knight",
+      "hasbroNameAuto": true
     },
     {
       "id": "WeissTiger",
@@ -387,7 +429,9 @@
       "verified": false,
       "imported": true,
       "wikiTitle": "SiegSuperion 0-70LP",
-      "weightG": 40
+      "weightG": 40,
+      "hasbroName": "Suppress Superion",
+      "hasbroNameAuto": true
     },
     {
       "id": "SilverWolf",
@@ -398,7 +442,9 @@
       "verified": true,
       "imported": true,
       "wikiTitle": "SilverWolf 3-80FB",
-      "weightG": 36.8
+      "weightG": 36.8,
+      "hasbroName": "Sterling Wolf",
+      "hasbroNameAuto": true
     },
     {
       "id": "ImpactDrake",
@@ -420,7 +466,9 @@
       "verified": true,
       "imported": true,
       "wikiTitle": "GolemRock 1-60UN",
-      "weightG": 34
+      "weightG": 34,
+      "hasbroName": "Rock Golem",
+      "hasbroNameAuto": true
     },
     {
       "id": "ScorpioSpear",
@@ -502,7 +550,9 @@
       "imported": true,
       "wikiTitle": "BahamutBlitz BK1-50I",
       "note": "CX: Assist Blade (BK).",
-      "weightG": null
+      "weightG": null,
+      "hasbroName": "Blitz Bahamut",
+      "hasbroNameAuto": true
     },
     {
       "id": "RagnaRage",
@@ -514,7 +564,9 @@
       "imported": true,
       "wikiTitle": "RagnaRage FE4-55Y",
       "note": "CX: Assist Blade (FE).",
-      "weightG": null
+      "weightG": null,
+      "hasbroName": "Rage Ragna",
+      "hasbroNameAuto": true
     },
     {
       "id": "ValkyrieVolt",
@@ -538,7 +590,9 @@
       "imported": true,
       "wikiTitle": "LeonFang T4-60A",
       "note": "CX: Assist Blade (T).",
-      "weightG": null
+      "weightG": null,
+      "hasbroName": "Fang Leon",
+      "hasbroNameAuto": true
     },
     {
       "id": "DranArc",
@@ -574,7 +628,9 @@
       "imported": true,
       "wikiTitle": "HornetFort R7-60T",
       "note": "CX: Assist Blade (R).",
-      "weightG": null
+      "weightG": null,
+      "hasbroName": "Fort Hornet",
+      "hasbroNameAuto": true
     },
     {
       "id": "KrakenWriggle",
@@ -586,7 +642,9 @@
       "imported": true,
       "wikiTitle": "KrakenWriggle S3-70O",
       "note": "CX: Assist Blade (S).",
-      "weightG": null
+      "weightG": null,
+      "hasbroName": "Wriggle Kraken",
+      "hasbroNameAuto": true
     },
     {
       "id": "DrakeBrave",
@@ -621,7 +679,9 @@
       "verified": true,
       "imported": true,
       "wikiTitle": "BlackShell 4-60D",
-      "weightG": 32.4
+      "weightG": 32.4,
+      "hasbroName": "Obsidian Shell",
+      "hasbroNameAuto": true
     },
     {
       "id": "WhaleWave",
@@ -632,7 +692,9 @@
       "verified": true,
       "imported": true,
       "wikiTitle": "WhaleWave 5-80E",
-      "weightG": 38.2
+      "weightG": 38.2,
+      "hasbroName": "Tide Whale",
+      "hasbroNameAuto": true
     },
     {
       "id": "ShelterDrake",
@@ -688,7 +750,9 @@
       "verified": true,
       "imported": true,
       "wikiTitle": "HeavensRing 0-80DS",
-      "weightG": 37.4
+      "weightG": 37.4,
+      "hasbroName": "Ring Aether",
+      "hasbroNameAuto": true
     },
     {
       "id": "GhostCircle",
@@ -734,7 +798,9 @@
       "verified": false,
       "imported": true,
       "wikiTitle": "HorusShatter 3-85MO",
-      "weightG": 32.9
+      "weightG": 32.9,
+      "hasbroName": "Shatter Horus",
+      "hasbroNameAuto": true
     },
     {
       "id": "FoxBlast",
@@ -757,7 +823,9 @@
       "verified": true,
       "imported": true,
       "wikiTitle": "ShinobiShadow 1-80MN",
-      "weightG": 28.2
+      "weightG": 28.2,
+      "hasbroName": "Shadow Shinobi",
+      "hasbroNameAuto": true
     },
     {
       "id": "PhoenixRudder",
@@ -768,7 +836,9 @@
       "verified": true,
       "imported": true,
       "wikiTitle": "PhoenixRudder 9-70G",
-      "weightG": 34.5
+      "weightG": 34.5,
+      "hasbroName": "Rudder Phoenix",
+      "hasbroNameAuto": true
     },
     {
       "id": "KnightMail",
@@ -790,7 +860,9 @@
       "verified": true,
       "imported": true,
       "wikiTitle": "PhoenixFeather 2-60N",
-      "weightG": 33.3
+      "weightG": 33.3,
+      "hasbroName": "Feather Phoenix",
+      "hasbroNameAuto": true
     },
     {
       "id": "MummyCurse",
@@ -801,7 +873,9 @@
       "verified": true,
       "imported": true,
       "wikiTitle": "MummyCurse 7-55W",
-      "weightG": 37.5
+      "weightG": 37.5,
+      "hasbroName": "Curse Mummy",
+      "hasbroNameAuto": true
     },
     {
       "id": "PegasusBrush",
@@ -837,7 +911,9 @@
       "imported": true,
       "wikiTitle": "HellsNether Z",
       "integratedRatchet": true,
-      "weightG": null
+      "weightG": null,
+      "hasbroName": "Nether Incendio",
+      "hasbroNameAuto": true
     },
     {
       "id": "WyvernHover",
@@ -860,7 +936,9 @@
       "imported": true,
       "wikiTitle": "HellsReaper T4-70K",
       "note": "CX: Assist Blade (T).",
-      "weightG": null
+      "weightG": null,
+      "hasbroName": "Reaper Incendio",
+      "hasbroNameAuto": true
     },
     {
       "id": "RhinoReaper",
@@ -872,7 +950,9 @@
       "imported": true,
       "wikiTitle": "RhinoReaper C4-55D",
       "note": "CX: Assist Blade (C).",
-      "weightG": null
+      "weightG": null,
+      "hasbroName": "Reaper Rhino",
+      "hasbroNameAuto": true
     },
     {
       "id": "HellsArc",
@@ -896,7 +976,9 @@
       "imported": true,
       "wikiTitle": "FoxBrush J9-70GR",
       "note": "CX: Assist Blade (J).",
-      "weightG": null
+      "weightG": null,
+      "hasbroName": "Brush Fox",
+      "hasbroNameAuto": true
     },
     {
       "id": "CerberusFlame",
@@ -908,7 +990,9 @@
       "imported": true,
       "wikiTitle": "CerberusFlame W5-80WB",
       "note": "CX: Assist Blade (W).",
-      "weightG": null
+      "weightG": null,
+      "hasbroName": "Flame Cerberus",
+      "hasbroNameAuto": true
     },
     {
       "id": "WhaleFlame",
@@ -967,7 +1051,9 @@
       "imported": true,
       "wikiTitle": "UnicornDelta PO3-60GU",
       "note": "CX: Assist Blade (PO).",
-      "weightG": null
+      "weightG": null,
+      "hasbroName": "Delta Unicorn",
+      "hasbroNameAuto": true
     },
     {
       "id": "BrachioWhip",
@@ -979,7 +1065,9 @@
       "imported": true,
       "wikiTitle": "BrachioWhip OW5-70Nr",
       "note": "CX: Assist Blade (OW).",
-      "weightG": null
+      "weightG": null,
+      "hasbroName": "Whip Brachio",
+      "hasbroNameAuto": true
     },
     {
       "id": "CrocoTread",
@@ -991,7 +1079,9 @@
       "imported": true,
       "wikiTitle": "CrocoTread TQ5-50GN",
       "note": "CX: Assist Blade (TQ).",
-      "weightG": null
+      "weightG": null,
+      "hasbroName": "Tread Croc",
+      "hasbroNameAuto": true
     },
     {
       "id": "PhoenixForce",
