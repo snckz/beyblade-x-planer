@@ -1,0 +1,118 @@
+{
+  "blades": [
+    "ViperTail",
+    "WyvernGale",
+    "TyrannoBeat",
+    "DranStrike",
+    "LusterDragoon",
+    "AeroPegasus",
+    "BulletGriffon",
+    "PerseusDark",
+    "WeissTiger",
+    "TriceraPress",
+    "SamuraiCalibur",
+    "SilverWolf",
+    "ImpactDrake",
+    "GolemRock",
+    "ScorpioSpear",
+    "MeteorDragoon",
+    "PegasusBlast",
+    "SolEclipse",
+    "WolfHunt",
+    "PhoenixFlare",
+    "BahamutBlitz",
+    "RagnaRage",
+    "ValkyrieVolt",
+    "LeonFang",
+    "DranArc",
+    "BucksAntlers",
+    "HornetFort",
+    "KrakenWriggle",
+    "DrakeBrave",
+    "TigaRage",
+    "BlackShell",
+    "WhaleWave",
+    "ShelterDrake",
+    "CobaltDrake",
+    "GoatTackle",
+    "MammothTusk",
+    "HeavensRing",
+    "GhostCircle",
+    "WolfFlame",
+    "CerberusReaper",
+    "ShinobiShadow",
+    "PhoenixRudder",
+    "KnightMail",
+    "PhoenixFeather",
+    "MummyCurse",
+    "PegasusBrush",
+    "SolBrave",
+    "HellsNether",
+    "WyvernHover",
+    "HellsReaper",
+    "RhinoReaper",
+    "HellsArc",
+    "FoxBrush",
+    "CerberusFlame",
+    "WhaleFlame",
+    "CerberusDark",
+    "EmperorMight",
+    "SharkGill",
+    "UnicornDelta",
+    "BrachioWhip",
+    "CrocoTread"
+  ],
+  "bits": [
+    "UF",
+    "V",
+    "TP",
+    "E",
+    "W",
+    "M",
+    "Z",
+    "TK",
+    "I",
+    "K",
+    "DS",
+    "MN",
+    "G"
+  ],
+  "products": 135,
+  "mismatches": [
+    {
+      "blade": "CrimsonGaruda",
+      "page": "CrimsonGaruda 7-80GU",
+      "issues": [
+        "Typ stamina → Wiki: balance"
+      ]
+    },
+    {
+      "blade": "LeonCrest",
+      "page": "LeonCrest 9-80K",
+      "issues": [
+        "Typ defense → Wiki: balance"
+      ]
+    },
+    {
+      "bit": "DS",
+      "issues": [
+        "Typ defense → Wiki: stamina (übernommen)"
+      ]
+    }
+  ],
+  "unreleased": [
+    "ClockMirage (2026-12-26)",
+    "VanishLucifer (2026-12-26)",
+    "SiegSuperion (2026-11-21)",
+    "HorusShatter (2026-12-26)",
+    "FoxBlast (2026-12-26)",
+    "PhoenixForce (2026-11-21)"
+  ],
+  "notFound": [
+    "StormPegasus",
+    "TuskMammoth",
+    "SharkScale",
+    "KnightFortress"
+  ],
+  "fetched": 175
+}

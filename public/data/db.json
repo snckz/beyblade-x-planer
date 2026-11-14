@@ -64,7 +64,7 @@
       "line": "BX",
       "type": "stamina",
       "spin": "right",
-      "verified": false
+      "verified": true
     },
     {
       "id": "RhinoHorn",
@@ -105,7 +105,7 @@
       "line": "BX",
       "type": "stamina",
       "spin": "right",
-      "verified": false
+      "verified": true
     },
     {
       "id": "UnicornSting",
@@ -131,7 +131,7 @@
       "line": "BX",
       "type": "attack",
       "spin": "right",
-      "verified": false
+      "verified": true
     },
     {
       "id": "CobaltDragoon",
@@ -155,7 +155,7 @@
       "line": "BX",
       "type": "attack",
       "spin": "right",
-      "verified": false
+      "verified": true
     },
     {
       "id": "LusterDragoon",
@@ -163,7 +163,7 @@
       "line": "BX",
       "type": "attack",
       "spin": "left",
-      "verified": false,
+      "verified": true,
       "note": "Neuheit – Typ und Drehrichtung noch nicht bestätigt."
     },
     {
@@ -172,7 +172,7 @@
       "line": "BX",
       "type": "attack",
       "spin": "right",
-      "verified": false
+      "verified": true
     },
     {
       "id": "StormPegasus",
@@ -255,7 +255,7 @@
       "line": "UX",
       "type": "balance",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "integratedRatchet": true,
       "note": "Spaltet sich im Kampf in Hauptkörper und „Bullet“."
     },
@@ -304,7 +304,7 @@
       "line": "CX",
       "type": "defense",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "note": "CX: Assist Blade (B)."
     },
     {
@@ -322,7 +322,7 @@
       "line": "BX",
       "type": "balance",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "WeissTiger 3-60U"
     },
@@ -332,7 +332,7 @@
       "line": "BX",
       "type": "defense",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "TriceraPress M-85BS"
     },
@@ -342,7 +342,7 @@
       "line": "BX",
       "type": "balance",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "SamuraiCalibur 6-70M"
     },
@@ -362,7 +362,7 @@
       "line": "UX",
       "type": "stamina",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "SilverWolf 3-80FB"
     },
@@ -372,7 +372,7 @@
       "line": "UX",
       "type": "attack",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "ImpactDrake 9-60LR"
     },
@@ -382,7 +382,7 @@
       "line": "UX",
       "type": "defense",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "GolemRock 1-60UN"
     },
@@ -392,7 +392,7 @@
       "line": "UX",
       "type": "balance",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "ScorpioSpear 0-70Z"
     },
@@ -402,7 +402,7 @@
       "line": "UX",
       "type": "attack",
       "spin": "left",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "MeteorDragoon 3-70J"
     },
@@ -412,7 +412,7 @@
       "line": "CX",
       "type": "attack",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "PegasusBlast ATr",
       "integratedRatchet": true
@@ -423,7 +423,7 @@
       "line": "CX",
       "type": "balance",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "SolEclipse D5-70TK",
       "note": "CX: Assist Blade (D)."
@@ -434,7 +434,7 @@
       "line": "CX",
       "type": "stamina",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "WolfHunt F0-60DB",
       "note": "CX: Assist Blade (F)."
@@ -445,7 +445,7 @@
       "line": "CX",
       "type": "defense",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "PhoenixFlare Z9-80WW",
       "note": "CX: Assist Blade (Z)."
@@ -456,7 +456,7 @@
       "line": "CX",
       "type": "attack",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "BahamutBlitz BK1-50I",
       "note": "CX: Assist Blade (BK)."
@@ -467,7 +467,7 @@
       "line": "CX",
       "type": "stamina",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "RagnaRage FE4-55Y",
       "note": "CX: Assist Blade (FE)."
@@ -478,7 +478,7 @@
       "line": "CX",
       "type": "attack",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "ValkyrieVolt S4-70V",
       "note": "CX: Assist Blade (S)."
@@ -489,7 +489,7 @@
       "line": "CX",
       "type": "attack",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "LeonFang T4-60A",
       "note": "CX: Assist Blade (T)."
@@ -500,7 +500,7 @@
       "line": "CX",
       "type": "balance",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "DranArc S2-70K",
       "note": "CX: Assist Blade (S)."
@@ -511,7 +511,7 @@
       "line": "CX",
       "type": "defense",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "BucksAntlers B2-60D",
       "note": "CX: Assist Blade (B)."
@@ -522,7 +522,7 @@
       "line": "CX",
       "type": "balance",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "HornetFort R7-60T",
       "note": "CX: Assist Blade (R)."
@@ -533,7 +533,7 @@
       "line": "CX",
       "type": "stamina",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "KrakenWriggle S3-70O",
       "note": "CX: Assist Blade (S)."
@@ -544,7 +544,7 @@
       "line": "CX",
       "type": "attack",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "DrakeBrave G4-70I",
       "note": "CX: Assist Blade (G)."
@@ -555,7 +555,7 @@
       "line": "CX",
       "type": "balance",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "TigaRage FT3-60T",
       "note": "CX: Assist Blade (FT)."
@@ -566,7 +566,7 @@
       "line": "BX",
       "type": "defense",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "BlackShell 4-60D"
     },
@@ -576,7 +576,7 @@
       "line": "BX",
       "type": "balance",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "WhaleWave 5-80E"
     },
@@ -586,7 +586,7 @@
       "line": "BX",
       "type": "balance",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "ShelterDrake 7-80GP"
     },
@@ -596,7 +596,7 @@
       "line": "BX",
       "type": "attack",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "CobaltDrake 9-60R"
     },
@@ -606,7 +606,7 @@
       "line": "BX",
       "type": "balance",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "GoatTackle 7-70T"
     },
@@ -616,7 +616,7 @@
       "line": "BX",
       "type": "defense",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "MammothTusk 7-60S"
     },
@@ -626,7 +626,7 @@
       "line": "BX",
       "type": "defense",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "HeavensRing 0-80DS"
     },
@@ -636,7 +636,7 @@
       "line": "BX",
       "type": "defense",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "GhostCircle M-85DS"
     },
@@ -646,7 +646,7 @@
       "line": "BX",
       "type": "attack",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "WolfFlame D9-65L",
       "note": "CX: Assist Blade (D)."
@@ -657,7 +657,7 @@
       "line": "BX",
       "type": "stamina",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "CerberusReaper B0-80WB",
       "note": "CX: Assist Blade (B)."
@@ -689,7 +689,7 @@
       "line": "UX",
       "type": "defense",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "ShinobiShadow 1-80MN"
     },
@@ -699,7 +699,7 @@
       "line": "UX",
       "type": "stamina",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "PhoenixRudder 9-70G"
     },
@@ -709,7 +709,7 @@
       "line": "UX",
       "type": "defense",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "KnightMail 3-85BS"
     },
@@ -719,7 +719,7 @@
       "line": "UX",
       "type": "defense",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "PhoenixFeather 2-60N"
     },
@@ -729,7 +729,7 @@
       "line": "UX",
       "type": "defense",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "MummyCurse 7-55W"
     },
@@ -739,7 +739,7 @@
       "line": "UX",
       "type": "defense",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "PegasusBrush M3-85W",
       "note": "CX: Assist Blade (M)."
@@ -750,7 +750,7 @@
       "line": "UX",
       "type": "balance",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "SolBrave C9-70TP",
       "note": "CX: Assist Blade (C)."
@@ -761,7 +761,7 @@
       "line": "UX",
       "type": "balance",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "HellsNether Z",
       "integratedRatchet": true
@@ -772,7 +772,7 @@
       "line": "UX",
       "type": "stamina",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "WyvernHover 8-80B"
     },
@@ -782,7 +782,7 @@
       "line": "CX",
       "type": "balance",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "HellsReaper T4-70K",
       "note": "CX: Assist Blade (T)."
@@ -793,7 +793,7 @@
       "line": "CX",
       "type": "defense",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "RhinoReaper C4-55D",
       "note": "CX: Assist Blade (C)."
@@ -804,7 +804,7 @@
       "line": "CX",
       "type": "stamina",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "HellsArc T3-85O",
       "note": "CX: Assist Blade (T)."
@@ -815,7 +815,7 @@
       "line": "CX",
       "type": "attack",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "FoxBrush J9-70GR",
       "note": "CX: Assist Blade (J)."
@@ -826,7 +826,7 @@
       "line": "CX",
       "type": "stamina",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "CerberusFlame W5-80WB",
       "note": "CX: Assist Blade (W)."
@@ -837,7 +837,7 @@
       "line": "CX",
       "type": "balance",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "WhaleFlame M3-85HT",
       "note": "CX: Assist Blade (M)."
@@ -848,7 +848,7 @@
       "line": "CX",
       "type": "attack",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "CerberusDark W1-60F",
       "note": "CX: Assist Blade (W)."
@@ -859,7 +859,7 @@
       "line": "CX",
       "type": "balance",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "EmperorMight HOp",
       "integratedRatchet": true
@@ -870,7 +870,7 @@
       "line": "CX",
       "type": "stamina",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "SharkGill 5-60FB"
     },
@@ -880,7 +880,7 @@
       "line": "CX",
       "type": "balance",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "UnicornDelta PO3-60GU",
       "note": "CX: Assist Blade (PO)."
@@ -891,7 +891,7 @@
       "line": "CX",
       "type": "stamina",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "BrachioWhip OW5-70Nr",
       "note": "CX: Assist Blade (OW)."
@@ -902,7 +902,7 @@
       "line": "CX",
       "type": "defense",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "CrocoTread TQ5-50GN",
       "note": "CX: Assist Blade (TQ)."
@@ -1147,8 +1147,7 @@
     {
       "id": "UF",
       "name": "Under Flat",
-      "type": "attack",
-      "uncertain": true
+      "type": "attack"
     },
     {
       "id": "R",
@@ -1183,8 +1182,7 @@
     {
       "id": "V",
       "name": "Vortex",
-      "type": "attack",
-      "uncertain": true
+      "type": "attack"
     },
     {
       "id": "J",
@@ -1215,8 +1213,7 @@
     {
       "id": "TP",
       "name": "Trans Point",
-      "type": "balance",
-      "uncertain": true
+      "type": "balance"
     },
     {
       "id": "U",
@@ -1226,8 +1223,7 @@
     {
       "id": "E",
       "name": "Elevate",
-      "type": "balance",
-      "uncertain": true
+      "type": "balance"
     },
     {
       "id": "H",
@@ -1307,8 +1303,7 @@
     {
       "id": "W",
       "name": "Wedge",
-      "type": "defense",
-      "uncertain": true
+      "type": "defense"
     },
     {
       "id": "WW",
@@ -1327,9 +1322,8 @@
       "id": "M",
       "name": "Merge",
       "type": "balance",
-      "uncertain": true,
       "imported": true,
-      "note": "Aus dem Wiki übernommen (SamuraiCalibur 6-70M); Typ vom Kreisel abgeleitet.",
+      "note": "Aus dem Beyblade Wiki übernommen und geprüft.",
       "wikiTitle": "Bit - Merge"
     },
     {
@@ -1345,9 +1339,8 @@
       "id": "Z",
       "name": "Zap",
       "type": "balance",
-      "uncertain": true,
       "imported": true,
-      "note": "Aus dem Wiki übernommen (ScorpioSpear 0-70Z); Typ vom Kreisel abgeleitet.",
+      "note": "Aus dem Beyblade Wiki übernommen und geprüft.",
       "wikiTitle": "Bit - Zap"
     },
     {
@@ -1362,18 +1355,16 @@
       "id": "TK",
       "name": "Trans Kick",
       "type": "balance",
-      "uncertain": true,
       "imported": true,
-      "note": "Aus dem Wiki übernommen (SolEclipse D5-70TK); Typ vom Kreisel abgeleitet.",
+      "note": "Aus dem Beyblade Wiki übernommen und geprüft.",
       "wikiTitle": "Bit - Trans Kick"
     },
     {
       "id": "I",
       "name": "Ignition",
       "type": "attack",
-      "uncertain": true,
       "imported": true,
-      "note": "Aus dem Wiki übernommen (BahamutBlitz BK1-50I); Typ vom Kreisel abgeleitet.",
+      "note": "Aus dem Beyblade Wiki übernommen und geprüft.",
       "wikiTitle": "Bit - Ignition"
     },
     {
@@ -1389,19 +1380,17 @@
       "id": "K",
       "name": "Kick",
       "type": "balance",
-      "uncertain": true,
       "imported": true,
-      "note": "Aus dem Wiki übernommen (DranArc S2-70K); Typ vom Kreisel abgeleitet.",
+      "note": "Aus dem Beyblade Wiki übernommen und geprüft.",
       "wikiTitle": "Bit - Kick"
     },
     {
       "id": "DS",
       "name": "Disk Spike",
-      "type": "defense",
-      "uncertain": true,
+      "type": "stamina",
       "imported": true,
       "wikiTitle": "Bit - Disk Spike",
-      "note": "Aus dem Wiki übernommen (HeavensRing 0-80DS); Typ vom Kreisel abgeleitet."
+      "note": "Aus dem Beyblade Wiki übernommen und geprüft."
     },
     {
       "id": "WB",
@@ -1425,19 +1414,17 @@
       "id": "MN",
       "name": "Metal Needle",
       "type": "defense",
-      "uncertain": true,
       "imported": true,
       "wikiTitle": "Bit - Metal Needle",
-      "note": "Aus dem Wiki übernommen (ShinobiShadow 1-80MN); Typ vom Kreisel abgeleitet."
+      "note": "Aus dem Beyblade Wiki übernommen und geprüft."
     },
     {
       "id": "G",
       "name": "Glide",
       "type": "stamina",
-      "uncertain": true,
       "imported": true,
       "wikiTitle": "Bit - Glide",
-      "note": "Aus dem Wiki übernommen (PhoenixRudder 9-70G); Typ vom Kreisel abgeleitet."
+      "note": "Aus dem Beyblade Wiki übernommen und geprüft."
     },
     {
       "id": "GR",
@@ -1570,7 +1557,7 @@
       "code": "BX-16",
       "name": "Random Booster Viper Tail Select 5-80O",
       "kind": "random-booster",
-      "verified": false,
+      "verified": true,
       "bladeId": "ViperTail",
       "ratchetId": "5-80",
       "bitId": "O",
@@ -1814,7 +1801,7 @@
       "bladeId": "WizardArrow",
       "ratchetId": "4-80",
       "bitId": "B",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/WizardArrow_4-80B",
       "priceJpy": 1980
@@ -1826,7 +1813,7 @@
       "bladeId": "KnightShield",
       "ratchetId": "3-80",
       "bitId": "N",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/KnightShield_3-80N",
       "priceJpy": 1980
@@ -1838,7 +1825,7 @@
       "bladeId": "RhinoHorn",
       "ratchetId": "3-80",
       "bitId": "S",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/RhinoHorn_3-80S",
       "priceJpy": 1400
@@ -1850,7 +1837,7 @@
       "bladeId": "DranSword",
       "ratchetId": "3-60",
       "bitId": "F",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/DranSword_3-60F",
       "priceJpy": 1980
@@ -1862,7 +1849,7 @@
       "bladeId": "UnicornSting",
       "ratchetId": "5-60",
       "bitId": "GP",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/UnicornSting_5-60GP",
       "priceJpy": 1400
@@ -1874,7 +1861,7 @@
       "bladeId": "WeissTiger",
       "ratchetId": "3-60",
       "bitId": "U",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/WeissTiger_3-60U",
       "priceJpy": 1400
@@ -1886,7 +1873,7 @@
       "bladeId": "TriceraPress",
       "ratchetId": "M-85",
       "bitId": "BS",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/TriceraPress_M-85BS",
       "priceJpy": 1500
@@ -1898,7 +1885,7 @@
       "bladeId": "SamuraiCalibur",
       "ratchetId": "6-70",
       "bitId": "M",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/SamuraiCalibur_6-70M",
       "priceJpy": 1500
@@ -1923,7 +1910,7 @@
       "ratchetId": "3-80",
       "bitId": "FB",
       "includesLauncher": true,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/SilverWolf_3-80FB",
       "priceJpy": 2080
@@ -1936,7 +1923,7 @@
       "ratchetId": "9-60",
       "bitId": "LR",
       "includesLauncher": true,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/ImpactDrake_9-60LR",
       "priceJpy": 2420
@@ -1948,7 +1935,7 @@
       "bladeId": "GolemRock",
       "ratchetId": "1-60",
       "bitId": "UN",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/GolemRock_1-60UN",
       "priceJpy": 1400
@@ -1961,7 +1948,7 @@
       "ratchetId": "0-70",
       "bitId": "Z",
       "includesLauncher": true,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/ScorpioSpear_0-70Z",
       "priceJpy": 2200
@@ -1974,7 +1961,7 @@
       "ratchetId": "3-70",
       "bitId": "J",
       "includesLauncher": true,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/MeteorDragoon_3-70J",
       "priceJpy": 2300
@@ -1986,7 +1973,7 @@
       "bladeId": "PerseusDark",
       "ratchetId": "6-80",
       "bitId": "W",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/PerseusDark_B6-80W",
       "priceJpy": 1600
@@ -1998,7 +1985,7 @@
       "bladeId": "PegasusBlast",
       "bitId": "ATr",
       "includesLauncher": true,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/PegasusBlast_ATr",
       "priceJpy": 2600
@@ -2011,7 +1998,7 @@
       "ratchetId": "5-70",
       "bitId": "TK",
       "includesLauncher": true,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/SolEclipse_D5-70TK",
       "priceJpy": 2500
@@ -2023,7 +2010,7 @@
       "bladeId": "WolfHunt",
       "ratchetId": "0-60",
       "bitId": "DB",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/WolfHunt_F0-60DB",
       "priceJpy": 1700
@@ -2035,7 +2022,7 @@
       "bladeId": "PhoenixFlare",
       "ratchetId": "9-80",
       "bitId": "WW",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/PhoenixFlare_Z9-80WW",
       "priceJpy": 1700
@@ -2048,7 +2035,7 @@
       "ratchetId": "1-50",
       "bitId": "I",
       "includesLauncher": true,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/BahamutBlitz_BK1-50I",
       "priceJpy": 2200
@@ -2060,7 +2047,7 @@
       "bladeId": "RagnaRage",
       "ratchetId": "4-55",
       "bitId": "Y",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/RagnaRage_FE4-55Y",
       "priceJpy": 1600
@@ -2073,7 +2060,7 @@
       "ratchetId": "4-70",
       "bitId": "V",
       "includesLauncher": true,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/ValkyrieVolt_S4-70V",
       "priceJpy": 1800
@@ -2086,7 +2073,7 @@
       "ratchetId": "4-60",
       "bitId": "A",
       "includesLauncher": true,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/LeonFang_T4-60A",
       "priceJpy": 8228
@@ -2099,7 +2086,7 @@
       "ratchetId": "2-70",
       "bitId": "K",
       "includesLauncher": true,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/DranArc_S2-70K",
       "priceJpy": null
@@ -2112,7 +2099,7 @@
       "ratchetId": "2-60",
       "bitId": "D",
       "includesLauncher": true,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/BucksAntlers_B2-60D",
       "priceJpy": 1800
@@ -2125,7 +2112,7 @@
       "ratchetId": "7-60",
       "bitId": "T",
       "includesLauncher": true,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/HornetFort_R7-60T",
       "priceJpy": 1800
@@ -2138,7 +2125,7 @@
       "ratchetId": "3-70",
       "bitId": "O",
       "includesLauncher": true,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/KrakenWriggle_S3-70O",
       "priceJpy": 1800
@@ -2151,7 +2138,7 @@
       "ratchetId": "4-70",
       "bitId": "I",
       "includesLauncher": true,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/DrakeBrave_G4-70I",
       "priceJpy": 1900
@@ -2164,7 +2151,7 @@
       "ratchetId": "3-60",
       "bitId": "T",
       "includesLauncher": true,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/TigaRage_FT3-60T",
       "priceJpy": 2750
@@ -2176,7 +2163,7 @@
       "bladeId": "DranSword",
       "ratchetId": "3-60",
       "bitId": "F",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/DranSword_3-60F",
       "priceJpy": null
@@ -2188,7 +2175,7 @@
       "bladeId": "HellsScythe",
       "ratchetId": "3-80",
       "bitId": "B",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/HellsScythe_3-80B",
       "priceJpy": null
@@ -2200,7 +2187,7 @@
       "bladeId": "WizardArrow",
       "ratchetId": "4-60",
       "bitId": "N",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/WizardArrow_4-60N",
       "priceJpy": null
@@ -2212,7 +2199,7 @@
       "bladeId": "KnightShield",
       "ratchetId": "4-80",
       "bitId": "T",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/KnightShield_4-80T",
       "priceJpy": null
@@ -2224,7 +2211,7 @@
       "bladeId": "DranSword",
       "ratchetId": "3-60",
       "bitId": "F",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/DranSword_3-60F",
       "priceJpy": null
@@ -2236,7 +2223,7 @@
       "bladeId": "WizardArrow",
       "ratchetId": "4-80",
       "bitId": "B",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/WizardArrow_4-80B",
       "priceJpy": null
@@ -2248,7 +2235,7 @@
       "bladeId": "DranDagger",
       "ratchetId": "4-60",
       "bitId": "R",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/DranDagger_4-60R",
       "priceJpy": null
@@ -2260,7 +2247,7 @@
       "bladeId": "KnightShield",
       "ratchetId": "5-80",
       "bitId": "T",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/KnightShield_5-80T",
       "priceJpy": null
@@ -2272,7 +2259,7 @@
       "bladeId": "SharkEdge",
       "ratchetId": "3-80",
       "bitId": "F",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/SharkEdge_3-80F",
       "priceJpy": null
@@ -2284,7 +2271,7 @@
       "bladeId": "HellsChain",
       "ratchetId": "5-60",
       "bitId": "HT",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/HellsChain_5-60HT",
       "priceJpy": null
@@ -2296,7 +2283,7 @@
       "bladeId": "KnightLance",
       "ratchetId": "3-60",
       "bitId": "LF",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/KnightLance_3-60LF",
       "priceJpy": null
@@ -2308,7 +2295,7 @@
       "bladeId": "WizardArrow",
       "ratchetId": "4-80",
       "bitId": "N",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/WizardArrow_4-80N",
       "priceJpy": null
@@ -2320,7 +2307,7 @@
       "bladeId": "WyvernGale",
       "ratchetId": "5-80",
       "bitId": "GB",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/WyvernGale_5-80GB",
       "priceJpy": 1400
@@ -2332,7 +2319,7 @@
       "bladeId": "WyvernGale",
       "ratchetId": "3-60",
       "bitId": "T",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/WyvernGale_3-60T",
       "priceJpy": 1400
@@ -2344,7 +2331,7 @@
       "bladeId": "KnightLance",
       "ratchetId": "4-60",
       "bitId": "GB",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/KnightLance_4-60GB",
       "priceJpy": 1400
@@ -2356,7 +2343,7 @@
       "bladeId": "ViperTail",
       "ratchetId": "5-60",
       "bitId": "F",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/ViperTail_5-60F",
       "priceJpy": 1400
@@ -2368,7 +2355,7 @@
       "bladeId": "LeonClaw",
       "ratchetId": "3-80",
       "bitId": "HN",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/LeonClaw_3-80HN",
       "priceJpy": 1400
@@ -2380,7 +2367,7 @@
       "bladeId": "WizardArrow",
       "ratchetId": "4-80",
       "bitId": "GB",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/WizardArrow_4-80GB",
       "priceJpy": 1400
@@ -2392,7 +2379,7 @@
       "bladeId": "SphinxCowl",
       "ratchetId": "9-80",
       "bitId": "GN",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/SphinxCowl_9-80GN",
       "priceJpy": 1400
@@ -2404,7 +2391,7 @@
       "bladeId": "SphinxCowl",
       "ratchetId": "4-80",
       "bitId": "HT",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/SphinxCowl_4-80HT",
       "priceJpy": 1400
@@ -2416,7 +2403,7 @@
       "bladeId": "SphinxCowl",
       "ratchetId": "5-60",
       "bitId": "O",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/SphinxCowl_5-60O",
       "priceJpy": 1400
@@ -2428,7 +2415,7 @@
       "bladeId": "TyrannoBeat",
       "ratchetId": "4-70",
       "bitId": "Q",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/TyrannoBeat_4-70Q",
       "priceJpy": 1400
@@ -2440,7 +2427,7 @@
       "bladeId": "TyrannoBeat",
       "ratchetId": "3-60",
       "bitId": "S",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/TyrannoBeat_3-60S",
       "priceJpy": 1400
@@ -2452,7 +2439,7 @@
       "bladeId": "HellsChain",
       "ratchetId": "9-80",
       "bitId": "O",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/HellsChain_9-80O",
       "priceJpy": 1400
@@ -2464,7 +2451,7 @@
       "bladeId": "DranDagger",
       "ratchetId": "4-70",
       "bitId": "P",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/DranDagger_4-70P",
       "priceJpy": 1400
@@ -2476,7 +2463,7 @@
       "bladeId": "SharkEdge",
       "ratchetId": "1-60",
       "bitId": "Q",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/SharkEdge_1-60Q",
       "priceJpy": 1400
@@ -2488,7 +2475,7 @@
       "bladeId": "RhinoHorn",
       "ratchetId": "5-80",
       "bitId": "Q",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/RhinoHorn_5-80Q",
       "priceJpy": 1400
@@ -2500,7 +2487,7 @@
       "bladeId": "BlackShell",
       "ratchetId": "4-60",
       "bitId": "D",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/BlackShell_4-60D",
       "priceJpy": 1400
@@ -2512,7 +2499,7 @@
       "bladeId": "BlackShell",
       "ratchetId": "9-80",
       "bitId": "B",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/BlackShell_9-80B",
       "priceJpy": 1400
@@ -2524,7 +2511,7 @@
       "bladeId": "UnicornSting",
       "ratchetId": "3-70",
       "bitId": "D",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/UnicornSting_3-70D",
       "priceJpy": 1400
@@ -2536,7 +2523,7 @@
       "bladeId": "WizardRod",
       "ratchetId": "1-60",
       "bitId": "R",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/WizardRod_1-60R",
       "priceJpy": 1400
@@ -2548,7 +2535,7 @@
       "bladeId": "PhoenixWing",
       "ratchetId": "5-80",
       "bitId": "H",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/PhoenixWing_5-80H",
       "priceJpy": 1400
@@ -2560,7 +2547,7 @@
       "bladeId": "ViperTail",
       "ratchetId": "5-70",
       "bitId": "D",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/ViperTail_5-70D",
       "priceJpy": 1400
@@ -2572,7 +2559,7 @@
       "bladeId": "WhaleWave",
       "ratchetId": "5-80",
       "bitId": "E",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/WhaleWave_5-80E",
       "priceJpy": 1400
@@ -2584,7 +2571,7 @@
       "bladeId": "WhaleWave",
       "ratchetId": "4-70",
       "bitId": "HN",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/WhaleWave_4-70HN",
       "priceJpy": 1400
@@ -2596,7 +2583,7 @@
       "bladeId": "WhaleWave",
       "ratchetId": "3-80",
       "bitId": "GB",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/WhaleWave_3-80GB",
       "priceJpy": 1400
@@ -2620,7 +2607,7 @@
       "bladeId": "ShelterDrake",
       "ratchetId": "7-80",
       "bitId": "GP",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/ShelterDrake_7-80GP",
       "priceJpy": 1400
@@ -2632,7 +2619,7 @@
       "bladeId": "ShelterDrake",
       "ratchetId": "5-70",
       "bitId": "O",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/ShelterDrake_5-70O",
       "priceJpy": 1400
@@ -2644,7 +2631,7 @@
       "bladeId": "ShelterDrake",
       "ratchetId": "3-60",
       "bitId": "D",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/ShelterDrake_3-60D",
       "priceJpy": 1400
@@ -2656,7 +2643,7 @@
       "bladeId": "CobaltDrake",
       "ratchetId": "9-60",
       "bitId": "R",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/CobaltDrake_9-60R",
       "priceJpy": null
@@ -2668,7 +2655,7 @@
       "bladeId": "GoatTackle",
       "ratchetId": "7-70",
       "bitId": "T",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/GoatTackle_7-70T",
       "priceJpy": null
@@ -2680,7 +2667,7 @@
       "bladeId": "CobaltDragoon",
       "ratchetId": "9-80",
       "bitId": "F",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/CobaltDragoon_9-80F",
       "priceJpy": 1600
@@ -2692,7 +2679,7 @@
       "bladeId": "SharkEdge",
       "ratchetId": "4-70",
       "bitId": "E",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/SharkEdge_4-70E",
       "priceJpy": 1600
@@ -2704,7 +2691,7 @@
       "bladeId": "MammothTusk",
       "ratchetId": "7-60",
       "bitId": "S",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/MammothTusk_7-60S",
       "priceJpy": 1600
@@ -2716,7 +2703,7 @@
       "bladeId": "HellsScythe",
       "ratchetId": "3-85",
       "bitId": "GB",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/HellsScythe_3-85GB",
       "priceJpy": 1600
@@ -2728,7 +2715,7 @@
       "bladeId": "DranBuster",
       "ratchetId": "2-80",
       "bitId": "Q",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/DranBuster_2-80Q",
       "priceJpy": 1600
@@ -2740,7 +2727,7 @@
       "bladeId": "HeavensRing",
       "ratchetId": "0-80",
       "bitId": "DS",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/HeavensRing_0-80DS",
       "priceJpy": 1600
@@ -2752,7 +2739,7 @@
       "bladeId": "HeavensRing",
       "ratchetId": "6-60",
       "bitId": "TP",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/HeavensRing_6-60TP",
       "priceJpy": 1600
@@ -2764,7 +2751,7 @@
       "bladeId": "ImpactDrake",
       "ratchetId": "7-55",
       "bitId": "FB",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/ImpactDrake_7-55FB",
       "priceJpy": 1600
@@ -2776,7 +2763,7 @@
       "bladeId": "GhostCircle",
       "ratchetId": "M-85",
       "bitId": "DS",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/GhostCircle_M-85DS",
       "priceJpy": 1600
@@ -2788,7 +2775,7 @@
       "bladeId": "WolfFlame",
       "ratchetId": "9-65",
       "bitId": "L",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/WolfFlame_D9-65L",
       "priceJpy": 1600
@@ -2800,7 +2787,7 @@
       "bladeId": "CerberusReaper",
       "ratchetId": "0-80",
       "bitId": "WB",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/CerberusReaper_B0-80WB",
       "priceJpy": 1600
@@ -2812,7 +2799,7 @@
       "bladeId": "AeroPegasus",
       "ratchetId": "3-70",
       "bitId": "A",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/AeroPegasus_3-70A",
       "priceJpy": null
@@ -2824,7 +2811,7 @@
       "bladeId": "WizardArrow",
       "ratchetId": "4-80",
       "bitId": "B",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/WizardArrow_4-80B",
       "priceJpy": null
@@ -2836,7 +2823,7 @@
       "bladeId": "KnightShield",
       "ratchetId": "3-80",
       "bitId": "N",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/KnightShield_3-80N",
       "priceJpy": null
@@ -2920,7 +2907,7 @@
       "bladeId": "DranBuster",
       "ratchetId": "1-60",
       "bitId": "A",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/DranBuster_1-60A",
       "priceJpy": null
@@ -2932,7 +2919,7 @@
       "bladeId": "WizardRod",
       "ratchetId": "5-70",
       "bitId": "DB",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/WizardRod_5-70DB",
       "priceJpy": null
@@ -2944,7 +2931,7 @@
       "bladeId": "ShinobiShadow",
       "ratchetId": "1-80",
       "bitId": "MN",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/ShinobiShadow_1-80MN",
       "priceJpy": 1400
@@ -2956,7 +2943,7 @@
       "bladeId": "ShinobiShadow",
       "ratchetId": "9-60",
       "bitId": "LF",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/ShinobiShadow_9-60LF",
       "priceJpy": 1400
@@ -2968,7 +2955,7 @@
       "bladeId": "ShinobiShadow",
       "ratchetId": "3-70",
       "bitId": "GP",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/ShinobiShadow_3-70GP",
       "priceJpy": 1400
@@ -2980,7 +2967,7 @@
       "bladeId": "PhoenixRudder",
       "ratchetId": "9-70",
       "bitId": "G",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/PhoenixRudder_9-70G",
       "priceJpy": null
@@ -2992,7 +2979,7 @@
       "bladeId": "SphinxCowl",
       "ratchetId": "1-80",
       "bitId": "GF",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/SphinxCowl_1-80GF",
       "priceJpy": null
@@ -3004,7 +2991,7 @@
       "bladeId": "WyvernGale",
       "ratchetId": "2-60",
       "bitId": "S",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/WyvernGale_2-60S",
       "priceJpy": null
@@ -3016,7 +3003,7 @@
       "bladeId": "KnightMail",
       "ratchetId": "3-85",
       "bitId": "BS",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/KnightMail_3-85BS",
       "priceJpy": null
@@ -3028,7 +3015,7 @@
       "bladeId": "GhostCircle",
       "ratchetId": "0-80",
       "bitId": "GB",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/GhostCircle_0-80GB",
       "priceJpy": 1400
@@ -3040,7 +3027,7 @@
       "bladeId": "GhostCircle",
       "ratchetId": "4-60",
       "bitId": "H",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/GhostCircle_4-60H",
       "priceJpy": 1400
@@ -3052,7 +3039,7 @@
       "bladeId": "ShinobiShadow",
       "ratchetId": "3-80",
       "bitId": "F",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/ShinobiShadow_3-80F",
       "priceJpy": 1400
@@ -3064,7 +3051,7 @@
       "bladeId": "LeonClaw",
       "ratchetId": "0-80",
       "bitId": "E",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/LeonClaw_0-80E",
       "priceJpy": 1400
@@ -3076,7 +3063,7 @@
       "bladeId": "PhoenixFeather",
       "ratchetId": "2-60",
       "bitId": "N",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/PhoenixFeather_2-60N",
       "priceJpy": 1400
@@ -3088,7 +3075,7 @@
       "bladeId": "WyvernGale",
       "ratchetId": "0-80",
       "bitId": "C",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/WyvernGale_0-80C",
       "priceJpy": 1400
@@ -3100,7 +3087,7 @@
       "bladeId": "MummyCurse",
       "ratchetId": "7-55",
       "bitId": "W",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/MummyCurse_7-55W",
       "priceJpy": 1600
@@ -3112,7 +3099,7 @@
       "bladeId": "MummyCurse",
       "ratchetId": "4-60",
       "bitId": "C",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/MummyCurse_4-60C",
       "priceJpy": 1600
@@ -3124,7 +3111,7 @@
       "bladeId": "PegasusBrush",
       "ratchetId": "3-85",
       "bitId": "W",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/PegasusBrush_M3-85W",
       "priceJpy": 1600
@@ -3136,7 +3123,7 @@
       "bladeId": "SolBrave",
       "ratchetId": "9-70",
       "bitId": "TP",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/SolBrave_C9-70TP",
       "priceJpy": 1600
@@ -3148,7 +3135,7 @@
       "bladeId": "DranDagger",
       "ratchetId": "7-55",
       "bitId": "G",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/DranDagger_7-55G",
       "priceJpy": 1600
@@ -3160,7 +3147,7 @@
       "bladeId": "WeissTiger",
       "ratchetId": "4-80",
       "bitId": "LR",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/WeissTiger_4-80LR",
       "priceJpy": 1600
@@ -3171,7 +3158,7 @@
       "kind": "set",
       "bladeId": "HellsNether",
       "bitId": "Z",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/HellsNether_Z",
       "priceJpy": null
@@ -3183,7 +3170,7 @@
       "bladeId": "SilverWolf",
       "ratchetId": "9-70",
       "bitId": "R",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/SilverWolf_9-70R",
       "priceJpy": null
@@ -3195,7 +3182,7 @@
       "bladeId": "WyvernHover",
       "ratchetId": "8-80",
       "bitId": "B",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/WyvernHover_8-80B",
       "priceJpy": null
@@ -3207,7 +3194,7 @@
       "bladeId": "DranBrave",
       "ratchetId": "6-60",
       "bitId": "V",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/DranBrave_S6-60V",
       "priceJpy": null
@@ -3219,7 +3206,7 @@
       "bladeId": "PerseusDark",
       "ratchetId": "6-80",
       "bitId": "W",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/PerseusDark_B6-80W",
       "priceJpy": null
@@ -3231,7 +3218,7 @@
       "bladeId": "HellsReaper",
       "ratchetId": "4-70",
       "bitId": "K",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/HellsReaper_T4-70K",
       "priceJpy": 1600
@@ -3243,7 +3230,7 @@
       "bladeId": "RhinoReaper",
       "ratchetId": "4-55",
       "bitId": "D",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/RhinoReaper_C4-55D",
       "priceJpy": 1600
@@ -3255,7 +3242,7 @@
       "bladeId": "HellsArc",
       "ratchetId": "3-85",
       "bitId": "O",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/HellsArc_T3-85O",
       "priceJpy": 1600
@@ -3279,7 +3266,7 @@
       "bladeId": "PhoenixRudder",
       "ratchetId": "4-70",
       "bitId": "LF",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/PhoenixRudder_4-70LF",
       "priceJpy": 1600
@@ -3291,7 +3278,7 @@
       "bladeId": "WhaleWave",
       "ratchetId": "7-60",
       "bitId": "K",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/WhaleWave_7-60K",
       "priceJpy": 1600
@@ -3303,7 +3290,7 @@
       "bladeId": "FoxBrush",
       "ratchetId": "9-70",
       "bitId": "GR",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/FoxBrush_J9-70GR",
       "priceJpy": 1600
@@ -3315,7 +3302,7 @@
       "bladeId": "FoxBrush",
       "ratchetId": "0-80",
       "bitId": "DB",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/FoxBrush_J0-80DB",
       "priceJpy": 1600
@@ -3327,7 +3314,7 @@
       "bladeId": "FoxBrush",
       "ratchetId": "2-60",
       "bitId": "U",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/FoxBrush_J2-60U",
       "priceJpy": 1600
@@ -3339,7 +3326,7 @@
       "bladeId": "CerberusFlame",
       "ratchetId": "5-80",
       "bitId": "WB",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/CerberusFlame_W5-80WB",
       "priceJpy": 1600
@@ -3351,7 +3338,7 @@
       "bladeId": "WhaleFlame",
       "ratchetId": "3-85",
       "bitId": "HT",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/WhaleFlame_M3-85HT",
       "priceJpy": 1600
@@ -3363,7 +3350,7 @@
       "bladeId": "CerberusDark",
       "ratchetId": "1-60",
       "bitId": "F",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/CerberusDark_W1-60F",
       "priceJpy": 1600
@@ -3375,7 +3362,7 @@
       "bladeId": "DranBuster",
       "ratchetId": "5-80",
       "bitId": "MN",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/DranBuster_5-80MN",
       "priceJpy": 1600
@@ -3387,7 +3374,7 @@
       "bladeId": "BlackShell",
       "ratchetId": "7-70",
       "bitId": "WB",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/BlackShell_7-70WB",
       "priceJpy": 1600
@@ -3399,7 +3386,7 @@
       "bladeId": "CobaltDragoon",
       "ratchetId": "4-55",
       "bitId": "WB",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/CobaltDragoon_4-55WB",
       "priceJpy": 1600
@@ -3410,7 +3397,7 @@
       "kind": "set",
       "bladeId": "EmperorMight",
       "bitId": "HOp",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/EmperorMight_HOp",
       "priceJpy": null
@@ -3422,7 +3409,7 @@
       "bladeId": "GolemRock",
       "ratchetId": "M-85",
       "bitId": "HN",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/GolemRock_M-85HN",
       "priceJpy": null
@@ -3434,7 +3421,7 @@
       "bladeId": "SharkGill",
       "ratchetId": "5-60",
       "bitId": "FB",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/SharkGill_5-60FB",
       "priceJpy": null
@@ -3446,7 +3433,7 @@
       "bladeId": "BahamutBlitz",
       "ratchetId": "1-50",
       "bitId": "I",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/BahamutBlitz_BK1-50I",
       "priceJpy": null
@@ -3458,7 +3445,7 @@
       "bladeId": "UnicornDelta",
       "ratchetId": "3-60",
       "bitId": "GU",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/UnicornDelta_PO3-60GU",
       "priceJpy": 1600
@@ -3470,7 +3457,7 @@
       "bladeId": "UnicornDelta",
       "ratchetId": "1-80",
       "bitId": "GR",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/UnicornDelta_PO1-80GR",
       "priceJpy": 1600
@@ -3482,7 +3469,7 @@
       "bladeId": "SamuraiSaber",
       "ratchetId": "9-65",
       "bitId": "LO",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/SamuraiSaber_9-65LO",
       "priceJpy": 1600
@@ -3494,7 +3481,7 @@
       "bladeId": "HellsHammer",
       "ratchetId": "3-85",
       "bitId": "GU",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/HellsHammer_3-85GU",
       "priceJpy": 1600
@@ -3506,7 +3493,7 @@
       "bladeId": "TyrannoBeat",
       "ratchetId": "3-60",
       "bitId": "N",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/TyrannoBeat_3-60N",
       "priceJpy": 1600
@@ -3530,7 +3517,7 @@
       "bladeId": "BrachioWhip",
       "ratchetId": "5-70",
       "bitId": "Nr",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/BrachioWhip_OW5-70Nr",
       "priceJpy": 1600
@@ -3542,7 +3529,7 @@
       "bladeId": "CrocoTread",
       "ratchetId": "5-50",
       "bitId": "GN",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/CrocoTread_TQ5-50GN",
       "priceJpy": 1600
