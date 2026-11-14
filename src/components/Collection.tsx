@@ -109,8 +109,8 @@ export function Collection({ db, state, update, goToParts, events = [], meta }: 
           <circle cx="12" cy="13" r="3.5" />
         </svg>
         <span>
-          <strong>Foto-Check</strong>
-          <small>Packung fotografieren – erkennen und bewerten lassen</small>
+          <strong>Kauf-Check: Foto oder Name</strong>
+          <small>Packung fotografieren oder eintippen – und bewerten lassen</small>
         </span>
       </button>
       {scan && <Scanner db={db} state={state} update={update} onClose={() => setScan(false)} />}

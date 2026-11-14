@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useRef, useState } from 'preact/hooks';
 import type { Database, MetaFeed, Product } from '../lib/types';
 import type { ShopPrice, UserState } from '../lib/storage';
-import { recognizePhoto } from '../lib/photo';
+import { findByCode, findByName, recognizePhoto } from '../lib/photo';
 import { judge, rateProduct, OVERALL_LABEL, type Rating } from '../lib/rate';
 import { metaOpponents } from '../lib/battle';
 import type { ScoreCache } from '../lib/optimizer';
@@ -83,6 +83,16 @@ export function PhotoCheck({ db, state, update, meta, onClose }: Props) {
   // Vertreter eines Kaufs: erstes Produkt des Sets/Random Boosters (gleicher Schlüssel für Preis und Wunschliste wie im Kaufberater)
   const head = (p: Product) => db.products.find((x) => x.kind === p.kind && groupKey(x) === groupKey(p)) ?? p;
 
+  // Eingetippter Text: Produktcode („bx05“), ganzer Name in beliebiger Reihenfolge („Sword Dran“) oder Teil davon.
+  // Ein Set oder Random Booster erscheint nur einmal.
+  const textMatches = (q: string): Product[] => {
+    const all = [...findByCode(q, db), ...findByName(q, db), ...searchProducts(db.products, q, db.blades)].filter((p) => p.kind !== 'stadium');
+    return all
+      .map(head)
+      .filter((p, i, a) => a.findIndex((x) => x.code === p.code) === i)
+      .slice(0, 10);
+  };
+
   // Vom Nutzer bestätigt → Barcode darf gelernt werden
   const choose = (p: Product) => {
     if ((phase.k === 'none' || phase.k === 'pick') && phase.barcode) learn(phase.barcode, head(p));
@@ -97,15 +107,15 @@ export function PhotoCheck({ db, state, update, meta, onClose }: Props) {
   };
 
   return (
-    <div ref={ref} class="live shop" role="dialog" aria-modal="true" aria-label="Foto-Check" tabIndex={-1}>
+    <div ref={ref} class="live shop" role="dialog" aria-modal="true" aria-label="Kauf-Check" tabIndex={-1}>
       <div class="live-bar">
         <button type="button" class="btn btn-sm" onClick={onClose}>
           Schließen
         </button>
-        <span class="live-title">Foto-Check</span>
+        <span class="live-title">Kauf-Check</span>
         {phase.k !== 'idle' ? (
           <button type="button" class="btn btn-sm btn-primary" onClick={reset}>
-            Neues Foto
+            Neuer Check
           </button>
         ) : (
           <span class="btn-sm" aria-hidden="true" />
@@ -137,6 +147,28 @@ export function PhotoCheck({ db, state, update, meta, onClose }: Props) {
 
       <div class="shop-body stack-sm">
         {phase.k === 'idle' && (
+          <div class="card glass stack-sm">
+            <label class="shop-input">
+              <span class="sr-only">Packung eintippen</span>
+              <input
+                type="search"
+                value={query}
+                onInput={(e) => setQuery(e.currentTarget.value)}
+                placeholder="Code oder Name eintippen, z. B. BX-05"
+                enterKeyHint="search"
+                autoComplete="off"
+                autoCapitalize="off"
+                spellcheck={false}
+              />
+            </label>
+            {query.trim().length >= 2 ? (
+              <ProductList db={db} list={textMatches(query)} onPick={choose} />
+            ) : (
+              <p class="fineprint">Japanischer oder Hasbro-Name, Produktcode – du bekommst dieselbe Bewertung wie beim Foto.</p>
+            )}
+          </div>
+        )}
+        {phase.k === 'idle' && !query.trim() && (
           <div class="card glass stack-sm photo-start">
             <span class="photo-icon" aria-hidden="true">
               📷
@@ -179,20 +211,12 @@ export function PhotoCheck({ db, state, update, meta, onClose }: Props) {
             <p>
               <strong>{phase.k === 'error' ? 'Das Foto konnte nicht gelesen werden.' : 'Auf dem Foto habe ich keine Packung erkannt.'}</strong>
             </p>
-            <p class="muted">Probier ein schärferes Foto der Vorderseite – oder such sie hier:</p>
+            <p class="muted">Probier ein schärferes Foto der Vorderseite – oder tipp Code bzw. Namen ein:</p>
             <label class="shop-input">
               <span class="sr-only">Packung suchen</span>
               <input value={query} onInput={(e) => setQuery(e.currentTarget.value)} placeholder="Name oder Code, z. B. BX-05" />
             </label>
-            {query.trim() && (
-              <ProductList
-                db={db}
-                list={searchProducts(db.products, query, db.blades)
-                  .filter((p) => p.kind !== 'stadium')
-                  .slice(0, 10)}
-                onPick={choose}
-              />
-            )}
+            {query.trim() && <ProductList db={db} list={textMatches(query)} onPick={choose} />}
           </div>
         )}
 
@@ -263,7 +287,9 @@ function Result({ db, state, update, product, rate, cur, setCur, msg, setMsg }: 
           {blade && <BeyImage bladeId={blade.id} type={blade.type} size="md" alt="" zoomable={false} />}
           <div class="row-main">
             <span class="eyebrow">{isRandom ? `${groupKey(product)} · Random Booster` : product.code}</span>
-            <span class="row-title">{isRandom ? product.name.replace(/\s*\(.*?\)\s*$/, '') : group.length > 1 ? `${groupKey(product)} Set (${group.length} Kreisel)` : nb(displayProductName(product, db))}</span>
+            <span class="row-title">
+              {isRandom ? product.name.replace(/\s*\(.*?\)\s*$/, '') : group.length > 1 ? `${groupKey(product)} Set (${group.length} Kreisel)` : nb(displayProductName(product, db))}
+            </span>
           </div>
         </div>
         <p class={`photo-verdict o-${overall}`}>{OVERALL_LABEL[overall]}</p>

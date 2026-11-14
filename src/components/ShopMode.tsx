@@ -85,8 +85,8 @@ export function ShopMode({ db, state, update, meta, onClose }: Props) {
             <circle cx="12" cy="13" r="3.5" />
           </svg>
           <span>
-            <strong>Foto-Check</strong>
-            <small>Packung im Laden fotografieren – sofort Bewertung</small>
+            <strong>Kauf-Check: Foto oder Name</strong>
+            <small>Packung fotografieren oder eintippen – sofort Bewertung</small>
           </span>
         </button>
         <div class="shop-head">
