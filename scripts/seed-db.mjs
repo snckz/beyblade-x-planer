@@ -90,7 +90,7 @@ const products = [
   P('UX-16', 'Random Booster ClockMirage', 'random-booster', true, { bladeId: 'ClockMirage', note: 'Inhalt zufällig.' }),
   P('UX-19', 'Starter BulletGriffon H', 'starter', true, { ...bey('BulletGriffon', undefined, 'H'), includesLauncher: true }),
   P('UX-20', 'Starter GloryValkyrie LF', 'starter', true, { ...bey('GloryValkyrie', undefined, 'LF'), includesLauncher: true, weightG: 45.4, hasbroName: 'Glory Valkerion LF' }),
-  P('TBA-VanishLucifer', 'Starter VanishLucifer WW', 'starter', true, { ...bey('VanishLucifer', undefined, 'WW'), includesLauncher: true, note: 'Produktnummer noch offen, Japan-Release 26.12.2026.' }),
+  P('UX-22', 'Starter VanishLucifer WW', 'starter', true, { ...bey('VanishLucifer', undefined, 'WW'), includesLauncher: true, note: 'Japan-Release 26.12.2026.' }),
   P('CX-01', 'Starter DranBrave S6-60V', 'starter', true, { ...bey('DranBrave', '6-60', 'V'), includesLauncher: true }),
   P('CX-02', 'Starter WizardArc R4-55LO', 'starter', true, { ...bey('WizardArc', '4-55', 'LO'), includesLauncher: true }),
   P('CX-14', 'KnightFortress GV8-70UN', 'booster', false, bey('KnightFortress', '8-70', 'UN')),

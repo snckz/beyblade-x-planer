@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest';
-import { mkdtempSync, readFileSync, writeFileSync, copyFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -13,7 +13,10 @@ const dataDir = new URL('../public/data/', import.meta.url);
 
 function tmpData() {
   const dir = mkdtempSync(join(tmpdir(), 'bx-'));
-  copyFileSync(new URL('db.json', dataDir), join(dir, 'db.json'));
+  // Nur die von Hand gepflegten Daten – der Katalog-Import ändert die echte db.json laufend.
+  const db = JSON.parse(readFileSync(new URL('db.json', dataDir), 'utf8'));
+  for (const k of ['blades', 'ratchets', 'bits', 'products']) db[k] = db[k].filter((x: { imported?: boolean }) => !x.imported);
+  writeFileSync(join(dir, 'db.json'), JSON.stringify(db));
   writeFileSync(join(dir, 'news.json'), JSON.stringify({ updatedAt: null, lastRunOk: true, items: [] }));
   return { dir, url: pathToFileURL(dir + '/') };
 }

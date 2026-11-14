@@ -1226,14 +1226,14 @@
       "hasbroName": "Glory Valkerion LF"
     },
     {
-      "code": "TBA-VanishLucifer",
+      "code": "UX-22",
       "name": "Starter VanishLucifer WW",
       "kind": "starter",
       "verified": true,
       "bladeId": "VanishLucifer",
       "bitId": "WW",
       "includesLauncher": true,
-      "note": "Produktnummer noch offen, Japan-Release 26.12.2026."
+      "note": "Japan-Release 26.12.2026."
     },
     {
       "code": "CX-01",
@@ -1452,17 +1452,6 @@
       "verified": false,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/MeteorDragoon_3-70J"
-    },
-    {
-      "code": "UX-22",
-      "name": "Starter VanishLucifer WW",
-      "kind": "starter",
-      "bladeId": "VanishLucifer",
-      "bitId": "WW",
-      "includesLauncher": true,
-      "verified": false,
-      "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/VanishLucifer_WW"
     },
     {
       "code": "CX-03",

@@ -59,18 +59,36 @@ export function parseList(wikitext) {
     const { code, pos } = marks[i];
     const end = i + 1 < marks.length ? marks[i + 1].pos : text.length;
     const seg = text.slice(pos, end);
-    const entry = byCode.get(code) ?? { code, text: '', beys: [] };
+    const entry = byCode.get(code) ?? { code, text: '', beys: [], links: [] };
     entry.text += ' ' + seg.replace(LINK_RE, ' ').slice(0, 300);
     for (const l of seg.matchAll(LINK_RE)) {
       const target = l[1].trim();
       if (/^(file|image|category|template):/i.test(target)) continue;
       const bey = parseBeyTitle(target);
-      if (bey && !entry.beys.some((b) => b.title === bey.title)) entry.beys.push({ ...bey, page: target });
+      if (bey) {
+        if (!entry.beys.some((b) => b.title === bey.title)) entry.beys.push({ ...bey, page: target });
+      } else if (!entry.links.includes(target)) entry.links.push(target);
     }
     byCode.set(code, entry);
   }
-  return [...byCode.values()].filter((e) => e.beys.length);
+  return [...byCode.values()].filter((e) => e.beys.length || e.links.length);
 }
+
+/** Alle Kreisel-Links einer Seite (z. B. Random-Booster- oder Set-Seite). */
+export function beysOnPage(wikitext) {
+  const beys = [];
+  for (const l of String(wikitext).matchAll(LINK_RE)) {
+    const target = l[1].trim();
+    if (/^(file|image|category|template):/i.test(target)) continue;
+    const bey = parseBeyTitle(target);
+    if (bey && !beys.some((b) => b.title === bey.title)) beys.push({ ...bey, page: target });
+  }
+  return beys;
+}
+
+/** Nicht-Kreisel-Seiten, die sich als Produktseite eignen (Booster, Sets) – keine Teile- oder Themenseiten. */
+const PRODUCT_LINK = /random booster|booster|deck set|set\b|select|starter/i;
+const NOT_PRODUCT = /^(blade|bit|ratchet|lock chip|main blade|assist blade) - |^(takara tomy|hasbro|beyblade x|xtreme|launcher|stadium)/i;
 
 /** Liest Typ, Drehrichtung und Teile-Namen aus dem Wikitext einer Kreisel-Seite. */
 export function parseBeyPage(wikitext) {
@@ -80,8 +98,8 @@ export function parseBeyPage(wikitext) {
   const typeM = /\b(Attack|Defense|Defence|Stamina|Balance)[ -]Type\b/i.exec(intro) ?? /\b(Attack|Defense|Defence|Stamina|Balance)[ -]Type\b/i.exec(text);
   const type = typeM ? typeM[1].toLowerCase().replace('defence', 'defense') : undefined;
   const spin = /\bleft[- ]spin/i.test(intro) ? 'left' : /\b(dual|both)[- ]spin/i.test(intro) ? 'both' : 'right';
-  const bitName = /\[\[Bit - ([^\]|#]+)/.exec(text)?.[1]?.trim();
-  const isBey = !!typeM || /\[\[(Blade|Bit|Ratchet) - /.test(text);
+  const bitName = /\bBit - ([A-Z][^\]|}#\n]*?)\s*(?:\]\]|\||\}\}|\n|$)/.exec(text)?.[1]?.trim();
+  const isBey = !!typeM || /\b(Blade|Bit|Ratchet) - /.test(text);
   return { type, spin, bitName, isBey, ratchetIntegratedBit: /ratchet integrated bit/i.test(text) };
 }
 
@@ -117,8 +135,24 @@ export async function mergeCatalog(db, entries, fetchPage) {
   };
   let fetched = 0;
 
+  report.unresolved = [];
   for (const entry of entries) {
     if (baseCodes.has(entry.code)) continue; // von Hand gepflegt
+    if (!entry.beys.length) {
+      // Random Booster / Sets: Inhalt steht auf der verlinkten Produktseite.
+      const subPages = entry.links.filter((l) => PRODUCT_LINK.test(l) && !NOT_PRODUCT.test(l)).slice(0, 2);
+      for (const pg of subPages) {
+        if (fetched >= MAX_PAGES) break;
+        fetched++;
+        const wt = await fetchPage(pg);
+        if (wt) entry.beys.push(...beysOnPage(wt).filter((b) => !entry.beys.some((x) => x.title === b.title)));
+        entry.text += ' ' + pg;
+      }
+      if (!entry.beys.length) {
+        report.unresolved.push({ code: entry.code, links: entry.links.slice(0, 6) });
+        continue;
+      }
+    }
     const kind = kindOf(entry.text);
     const multi = entry.beys.length > 1;
     let n = 0;
@@ -202,6 +236,20 @@ export async function mergeCatalog(db, entries, fetchPage) {
       out.products.push(product);
       combos.add(combo);
       report.added.products.push(code);
+    }
+  }
+  // Importierte Bits, deren Name noch unbekannt ist: über einen Kreisel mit diesem Bit nachschlagen.
+  for (const bit of out.bits) {
+    if (!bit.imported || bit.name !== bit.id || fetched >= MAX_PAGES) continue;
+    const p = out.products.find((x) => x.bitId === bit.id && x.source);
+    const title = p ? decodeURIComponent(p.source.split('/wiki/')[1] ?? '').replace(/_/g, ' ') : '';
+    if (!title) continue;
+    fetched++;
+    const name = parseBeyPage((await fetchPage(title)) ?? '').bitName;
+    if (name) {
+      bit.name = name;
+      bit.wikiTitle = `Bit - ${name}`;
+      report.added.bits.push(`${bit.id} (Name: ${name})`);
     }
   }
   return { db: out, report, fetched };
