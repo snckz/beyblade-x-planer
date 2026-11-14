@@ -20,7 +20,7 @@ const SPIN_LABEL = { right: 'Rechts', left: 'Links', both: 'Beide' } as const;
 
 /** Wiki-artige Detailseite einer Blade mit Infobox, Produkten und Terminen. */
 export function DetailSheet({ db, events, bladeId, onClose, onUse }: Props) {
-  const { images } = useApp();
+  const { images, openCheck } = useApp();
   const closeRef = useRef<HTMLButtonElement>(null);
   const blade = db.blades.find((b) => b.id === bladeId);
 
@@ -101,6 +101,11 @@ export function DetailSheet({ db, events, bladeId, onClose, onUse }: Props) {
                   <li key={p.code}>
                     <span class="code">{p.code.startsWith('TBA') ? 'neu' : p.code}</span>
                     <span>{displayProductName(p, db)}</span>
+                    {p.kind !== 'stadium' && (
+                      <button type="button" class="buy-q" onClick={() => openCheck(p.code)} aria-label={`Soll ich ${p.name} kaufen?`}>
+                        Kaufen?
+                      </button>
+                    )}
                   </li>
                 ))}
               </ul>

@@ -19,7 +19,7 @@ export interface Rating {
   reasons: string[];
 }
 
-export const OVERALL_LABEL: Record<Overall, string> = { buy: 'Zuschlagen', maybe: 'Kann man machen', skip: 'Lieber nicht' };
+export const OVERALL_LABEL: Record<Overall, string> = { buy: 'Ja, kaufen!', maybe: 'Kann man machen', skip: 'Nein, lieber nicht' };
 
 /** Preis-Ampel auf eine Gewinn-Einschätzung anwenden (gleiche Regel für Einzelkauf und Random Booster). */
 export function judge(gain: number, pv: { verdict: Verdict } | null): Overall {
@@ -60,7 +60,7 @@ export function rateProduct(
   const base = deckValue(db, pool, opponents, cache).value;
   const res = deckValue(db, after, opponents, cache);
   const gain = Math.max(0, res.value - base);
-  const pv = price ? shopVerdict(price.amount, price.cur, p.priceJpy, rates) : null;
+  const pv = price ? shopVerdict(price.amount, price.cur, p, rates) : null;
   // „Hast du schon“ erst, wenn alles aus dem Kauf da ist
   const n = Math.min(...items.map((x) => owned[x.code] ?? 0));
 

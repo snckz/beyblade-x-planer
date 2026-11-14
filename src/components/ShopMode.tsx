@@ -3,7 +3,7 @@ import type { Database, MetaFeed, Product } from '../lib/types';
 import { PhotoCheck } from './PhotoCheck';
 import { prefetchOcr } from '../lib/photo';
 import type { ShopPrice, UserState } from '../lib/storage';
-import { convert, shopVerdict, sumPrices, VERDICT_LABEL, yen } from '../lib/price';
+import { convert, refPrice, shopVerdict, sumPrices, VERDICT_LABEL, yen } from '../lib/price';
 import { displayProductName } from '../lib/names';
 import { nb } from '../lib/analysis';
 import { useApp } from '../lib/context';
@@ -29,7 +29,7 @@ const fmt = (n: number) => new Intl.NumberFormat('de-DE', { maximumFractionDigit
  */
 export function ShopMode({ db, state, update, meta, onClose }: Props) {
   const ref = useRef<HTMLDivElement>(null);
-  const { rates } = useApp();
+  const { rates, openCheck } = useApp();
   const [cur, setCur] = useState<ShopPrice['cur']>(() => Object.values(state.shopPrices)[0]?.cur ?? 'THB');
   const [scan, setScan] = useState(false);
   const [photo, setPhoto] = useState(false);
@@ -38,9 +38,13 @@ export function ShopMode({ db, state, update, meta, onClose }: Props) {
 
   const items = state.wishlist.map((c) => db.products.find((p) => p.code === c)).filter((p): p is Product => !!p);
   const sym = cur === 'THB' ? '฿' : '€';
-  const japanIn = (p: Product) => {
-    const c = p.priceJpy ? convert(p.priceJpy, rates) : null;
-    return c ? (cur === 'THB' ? c.thb : c.eur) : null;
+  // Vergleichspreis: Japan-Preis (Takara) bzw. US-Preis (Hasbro), umgerechnet in die Ladenwährung
+  const refLabel = (p: Product) => {
+    const r = refPrice(p, rates);
+    if (r) return `${r.label} ≈ ${fmt(cur === 'THB' ? r.thb : r.eur)} ${sym}`;
+    if (p.priceJpy) return `Japan ${yen(p.priceJpy)}`;
+    if (p.priceUsd) return `USA $${p.priceUsd.toFixed(2).replace('.', ',')}`;
+    return 'Preis unbekannt';
   };
 
   const setPrice = (code: string, v: ShopPrice | null) =>
@@ -135,8 +139,7 @@ export function ShopMode({ db, state, update, meta, onClose }: Props) {
           <ul class="shop-list">
             {items.map((p) => {
               const price = state.shopPrices[p.code];
-              const v = price ? shopVerdict(price.amount, price.cur, p.priceJpy, rates) : null;
-              const jpRef = japanIn(p);
+              const v = price ? shopVerdict(price.amount, price.cur, p, rates) : null;
               const blade = p.bladeId ? db.blades.find((b) => b.id === p.bladeId) : undefined;
               const other = price && price.cur !== cur;
               return (
@@ -146,7 +149,7 @@ export function ShopMode({ db, state, update, meta, onClose }: Props) {
                     <div class="row-main">
                       <span class="row-title">{nb(displayProductName(p, db))}</span>
                       <span class="row-sub">
-                        {p.code} · Japan {p.priceJpy ? `${yen(p.priceJpy)}${jpRef ? ` ≈ ${fmt(jpRef)} ${sym}` : ''}` : 'Preis unbekannt'}
+                        {p.code} · {refLabel(p)}
                         {p.kind === 'set' && ' (ganzes Set)'}
                       </span>
                     </div>
@@ -170,6 +173,9 @@ export function ShopMode({ db, state, update, meta, onClose }: Props) {
                   <div class="btn-row">
                     <button type="button" class="btn btn-sm btn-primary" onClick={() => bought(p)}>
                       Gekauft ✓
+                    </button>
+                    <button type="button" class="btn btn-sm" onClick={() => openCheck(p.code)}>
+                      Kaufen?
                     </button>
                     <button type="button" class="btn btn-sm btn-ghost" onClick={() => update((s) => ({ ...s, wishlist: s.wishlist.filter((c) => c !== p.code) }))}>
                       Entfernen

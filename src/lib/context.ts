@@ -13,10 +13,12 @@ export interface AppCtx {
   openBlade: (bladeId: string) => void;
   /** Zeigt das Foto eines Teils groß an (Standard: Blade) */
   openImage: (id: string, kind?: ImageKind) => void;
+  /** „Kaufen?“ – öffnet den Kauf-Check direkt mit Bewertung für diese Packung */
+  openCheck: (code: string) => void;
 }
 
 export type ImageKind = 'blade' | 'bit' | 'ratchet';
 
-export const AppContext = createContext<AppCtx>({ images: { source: '', blades: {} }, rates: null, bladeName: (b) => b.name, hasbroNames: false, openBlade: () => {}, openImage: () => {} });
+export const AppContext = createContext<AppCtx>({ images: { source: '', blades: {} }, rates: null, bladeName: (b) => b.name, hasbroNames: false, openBlade: () => {}, openImage: () => {}, openCheck: () => {} });
 
 export const useApp = () => useContext(AppContext);

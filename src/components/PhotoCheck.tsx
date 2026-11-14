@@ -6,7 +6,7 @@ import { judge, rateProduct, OVERALL_LABEL, type Rating } from '../lib/rate';
 import { metaOpponents } from '../lib/battle';
 import type { ScoreCache } from '../lib/optimizer';
 import { purchaseCodes, searchProducts } from '../lib/data';
-import { convert, groupKey, VERDICT_LABEL, yen } from '../lib/price';
+import { groupKey, refPrice, VERDICT_LABEL, yen } from '../lib/price';
 import { PriceInput } from './PriceInput';
 import { displayProductName } from '../lib/names';
 import { nb } from '../lib/analysis';
@@ -19,6 +19,8 @@ interface Props {
   state: UserState;
   update: (fn: (s: UserState) => UserState) => void;
   meta?: MetaFeed | null;
+  /** direkt mit der Bewertung dieser Packung starten („Kaufen?“-Knopf) */
+  initialCode?: string;
   onClose: () => void;
 }
 
@@ -33,12 +35,17 @@ type Phase =
 const fmt = (n: number) => new Intl.NumberFormat('de-DE', { maximumFractionDigits: 0 }).format(n);
 
 /** Packung fotografieren → erkennen → bewerten (schon da? wie viel fürs Deck? Preis okay?). */
-export function PhotoCheck({ db, state, update, meta, onClose }: Props) {
+export function PhotoCheck({ db, state, update, meta, onClose, initialCode }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const camRef = useRef<HTMLInputElement>(null);
   const galRef = useRef<HTMLInputElement>(null);
   const { rates } = useApp();
-  const [phase, setPhase] = useState<Phase>({ k: 'idle' });
+  const [phase, setPhase] = useState<Phase>(() => {
+    const p = initialCode ? db.products.find((x) => x.code === initialCode) : undefined;
+    if (!p) return { k: 'idle' };
+    const first = db.products.find((x) => x.kind === p.kind && groupKey(x) === groupKey(p)) ?? p;
+    return { k: 'result', product: first };
+  });
   const [query, setQuery] = useState('');
   const [cur, setCur] = useState<ShopPrice['cur']>(() => Object.values(state.shopPrices)[0]?.cur ?? 'THB');
   const [msg, setMsg] = useState('');
@@ -270,7 +277,7 @@ function Result({ db, state, update, product, rate, cur, setCur, msg, setMsg }: 
   const overall = isRandom ? judge(avgGain, main.price) : main.overall;
   const blade = product.bladeId ? db.blades.find((b) => b.id === product.bladeId) : undefined;
   const sym = cur === 'THB' ? '฿' : '€';
-  const jp = product.priceJpy ? convert(product.priceJpy, rates) : null;
+  const ref = refPrice(product, rates);
 
   const setPrice = (v: ShopPrice | null) =>
     update((s) => {
@@ -326,7 +333,14 @@ function Result({ db, state, update, product, rate, cur, setCur, msg, setMsg }: 
           </div>
         </div>
         <p class="muted">
-          Japan-Preis: {product.priceJpy ? `${yen(product.priceJpy)}${jp ? ` ≈ ${fmt(cur === 'THB' ? jp.thb : jp.eur)} ${sym}` : ''}` : 'unbekannt'}
+          Vergleichspreis:{' '}
+          {ref
+            ? `${ref.label} ≈ ${fmt(cur === 'THB' ? ref.thb : ref.eur)} ${sym}`
+            : product.priceJpy
+              ? `Japan ${yen(product.priceJpy)}`
+              : product.priceUsd
+                ? `USA $${product.priceUsd.toFixed(2).replace('.', ',')}`
+                : 'unbekannt'}
           {product.kind === 'set' && ' (ganzes Set)'}
           {main.price && (
             <span class={`verdict-inline v-${main.price.verdict}`}>

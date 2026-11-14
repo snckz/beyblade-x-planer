@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { convert, priceHint, sumPrices } from '../src/lib/price';
+import { convert, priceHint, shopVerdict, sumPrices } from '../src/lib/price';
 // @ts-expect-error – JS-Modul ohne Typen
 import { needsUpdate, parseEcb } from '../scripts/update-rates.mjs';
 // @ts-expect-error – JS-Modul ohne Typen
@@ -35,6 +35,16 @@ describe('Preise', () => {
     expect(needsUpdate(prev, { date: '2026-11-14', JPY: 180.0, THB: 37.5 })).toBe(true);
     expect(needsUpdate(prev, { date: '2026-11-20', JPY: 176.8, THB: 37.5 })).toBe(true);
     expect(needsUpdate(null, { date: '2026-11-14', JPY: 1, THB: 1 })).toBe(true);
+    expect(parseEcb(xml)?.USD).toBe(1.08);
+    expect(needsUpdate(prev, { date: '2026-11-13', JPY: 176.8, THB: 37.5, USD: 1.1 })).toBe(true); // USD neu
+  });
+  it('Hasbro: US-Preis als Vergleich', () => {
+    const r = { source: '', date: '2026-11-13', base: 'EUR' as const, JPY: 170, THB: 37, USD: 1.1 };
+    const p = { priceJpy: null, priceUsd: 11, kind: 'booster' as const, code: 'G1670' };
+    expect(priceHint(p, r)).toBe('US-Preis $11,00 ≈ 10 € · 370 ฿');
+    expect(priceHint(p, null)).toBe('US-Preis $11,00');
+    expect(shopVerdict(12, 'EUR', p, r)?.verdict).toBe('good');
+    expect(shopVerdict(20, 'EUR', p, r)?.verdict).toBe('high');
   });
   it('liest den Japan-Preis aus dem Wiki-Text', () => {
     expect(parsePriceJpy("It was released as a Starter in Japan on July 13th, 2024 for 2,321円.")).toBe(2321);

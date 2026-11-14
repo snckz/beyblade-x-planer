@@ -17,7 +17,7 @@ interface Props {
 
 /** Sammelalbum: jedes Produkt als Karte mit Seltenheit; gesammelte Karten leuchten, fehlende sind gedimmt. */
 export function CardAlbum({ db, state, update }: Props) {
-  const { openBlade, rates } = useApp();
+  const { openBlade, openCheck, rates } = useApp();
   const [rarity, setRarity] = useState<Rarity | ''>('');
   const [query, setQuery] = useState('');
   const [onlyMissing, setOnlyMissing] = useState(false);
@@ -121,6 +121,9 @@ export function CardAlbum({ db, state, update }: Props) {
                   {nb(displayProductName(p, db).replace(/^(Starter|Booster|Set|Random Booster( Vol\.\d+)?)\s+/, ''))}
                 </button>
                 {price && <p class="bcard-price">{price}</p>}
+                <button type="button" class="buy-q" onClick={() => openCheck(p.code)} aria-label={`Soll ich ${p.name} kaufen?`}>
+                  Kaufen?
+                </button>
                 <div class="bcard-foot">
                   <TypeBadge type={blade.type} small />
                   <div class="stepper stepper-sm" aria-label={`Anzahl ${p.name}`}>

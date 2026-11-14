@@ -36,7 +36,7 @@ export function Collection({ db, state, update, goToParts, events = [], meta }: 
   const ownedProducts = db.products.filter((p) => (state.owned[p.code] ?? 0) > 0);
   const unknownCodes = Object.keys(state.owned).filter((c) => !db.products.some((p) => p.code === c));
   const total = ownedProducts.reduce((n, p) => n + (state.owned[p.code] ?? 0), 0);
-  const { rates } = useApp();
+  const { rates, openCheck } = useApp();
   const wishProducts = state.wishlist.map((c) => db.products.find((p) => p.code === c)).filter((p): p is (typeof db.products)[number] => !!p);
   const wishSum = sumPrices(wishProducts);
   const wishConv = convert(wishSum.jpy, rates);
@@ -56,6 +56,21 @@ export function Collection({ db, state, update, goToParts, events = [], meta }: 
       })),
       'beyblade-wunschliste.ics',
     );
+  // Anzahl ändern; bei 0 verschwindet der Eintrag (mit Rückfrage, damit nichts aus Versehen weg ist)
+  const changeOwned = (code: string, d: 1 | -1) => {
+    const n = state.owned[code] ?? 0;
+    if (d < 0 && n <= 1) {
+      const p = db.products.find((x) => x.code === code);
+      if (!window.confirm(`${p?.name ?? code} aus der Sammlung entfernen?`)) return;
+    }
+    update((s) => {
+      const owned = { ...s.owned };
+      const next = (owned[code] ?? 0) + d;
+      if (next > 0) owned[code] = next;
+      else delete owned[code];
+      return { ...s, owned };
+    });
+  };
   const unwish = (code: string) => update((s) => ({ ...s, wishlist: s.wishlist.filter((c) => c !== code) }));
   const gotIt = (code: string) => {
     const p = db.products.find((x) => x.code === code);
@@ -146,7 +161,15 @@ export function Collection({ db, state, update, goToParts, events = [], meta }: 
                       <span class="row-title">{nb(displayProductName(p, db))}</span>
                     </div>
                     {b && <TypeBadge type={b.type} small />}
-                    <span class="count">{state.owned[p.code]}×</span>
+                    <div class="stepper stepper-sm" aria-label={`Anzahl ${p.name}`}>
+                      <button type="button" onClick={() => changeOwned(p.code, -1)} aria-label={(state.owned[p.code] ?? 0) <= 1 ? `${p.name} aus der Sammlung entfernen` : 'Eins weniger'}>
+                        {(state.owned[p.code] ?? 0) <= 1 ? '×' : '−'}
+                      </button>
+                      <span aria-live="polite">{state.owned[p.code]}</span>
+                      <button type="button" onClick={() => changeOwned(p.code, 1)} aria-label="Eins mehr">
+                        +
+                      </button>
+                    </div>
                   </li>
                 );
               })}
@@ -200,6 +223,9 @@ export function Collection({ db, state, update, goToParts, events = [], meta }: 
                         </span>
                       )}
                     </div>
+                    <button type="button" class="buy-q" onClick={() => openCheck(p.code)} aria-label={`Soll ich ${p.name} kaufen?`}>
+                      Kaufen?
+                    </button>
                     <button type="button" class="btn btn-ghost btn-sm" onClick={() => gotIt(p.code)} aria-label={`${p.name} gekauft: in die Sammlung`}>
                       Gekauft
                     </button>
@@ -241,7 +267,16 @@ export function Collection({ db, state, update, goToParts, events = [], meta }: 
       {shop && <ShopMode db={db} state={state} update={update} meta={meta} onClose={() => setShop(false)} />}
 
       {unknownCodes.length > 0 && (
-        <p class="fineprint">Nicht mehr in der Datenbank: {unknownCodes.join(', ')}</p>
+        <p class="fineprint">
+          Nicht mehr in der Datenbank: {unknownCodes.join(', ')}{' '}
+          <button
+            type="button"
+            class="link-btn"
+            onClick={() => update((s) => ({ ...s, owned: Object.fromEntries(Object.entries(s.owned).filter(([c]) => !unknownCodes.includes(c))) }))}
+          >
+            entfernen
+          </button>
+        </p>
       )}
 
       <Section title="Sichern">

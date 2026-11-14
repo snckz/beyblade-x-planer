@@ -12,7 +12,22 @@ export function convert(jpy: number, rates: Rates | null): { eur: number; thb: n
   return { eur, thb: eur * rates.THB };
 }
 
-type Priced = Pick<Product, 'priceJpy'> & Partial<Pick<Product, 'code' | 'kind'>>;
+type Priced = Pick<Product, 'priceJpy'> & Partial<Pick<Product, 'code' | 'kind' | 'priceUsd'>>;
+
+const usd = (n: number) => `$${n.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+/** Vergleichspreis in € und ฿: Japan-Preis (Takara) oder – bei Hasbro – der US-Preis. */
+export function refPrice(p: Priced, rates: Rates | null): { eur: number; thb: number; label: string } | null {
+  if (p.priceJpy) {
+    const c = convert(p.priceJpy, rates);
+    return c ? { ...c, label: `Japan ${yen(p.priceJpy)}` } : null;
+  }
+  if (p.priceUsd && rates?.USD && rates.USD > 0 && rates.THB > 0) {
+    const eur = p.priceUsd / rates.USD;
+    return { eur, thb: eur * rates.THB, label: `USA ${usd(p.priceUsd)}` };
+  }
+  return null;
+}
 
 /**
  * Mehrere Kreisel aus demselben Set bzw. Random Booster (BX-46-01, BX-46-02 …) sind ein Kauf.
@@ -45,6 +60,10 @@ export function parsePrice(raw: string): number | null {
 
 /** Kurzer Preis-Hinweis: „¥2.321 ≈ 14 € · 500 ฿“ – oder null ohne bekannten Preis. Bei Sets mit „Set:“ davor. */
 export function priceHint(p: Priced, rates: Rates | null): string | null {
+  if (!p.priceJpy && p.priceUsd) {
+    const r = refPrice(p, rates);
+    return r ? `US-Preis ${usd(p.priceUsd)} ≈ ${nf().format(r.eur)} € · ${nf().format(r.thb)} ฿` : `US-Preis ${usd(p.priceUsd)}`;
+  }
   if (!p.priceJpy) return null;
   const c = convert(p.priceJpy, rates);
   const text = c ? `${yen(p.priceJpy)} ≈ ${nf().format(c.eur)} € · ${nf().format(c.thb)} ฿` : yen(p.priceJpy);
@@ -75,9 +94,9 @@ export type Verdict = 'good' | 'ok' | 'high';
  * Takara-Tomy-Ware kostet außerhalb Japans fast immer mehr (Import, Händler) – bis +30 % gilt als gut,
  * bis +60 % als okay, darüber als teuer. Ohne Japan-Preis oder Kurs: null.
  */
-export function shopVerdict(amount: number, cur: 'THB' | 'EUR', priceJpy: number | null | undefined, rates: Rates | null): { verdict: Verdict; ratio: number } | null {
-  if (!priceJpy || !(amount > 0)) return null;
-  const c = convert(priceJpy, rates);
+export function shopVerdict(amount: number, cur: 'THB' | 'EUR', p: Priced, rates: Rates | null): { verdict: Verdict; ratio: number } | null {
+  if (!(amount > 0)) return null;
+  const c = refPrice(p, rates);
   if (!c) return null;
   const ratio = amount / (cur === 'THB' ? c.thb : c.eur);
   return { verdict: ratio <= 1.3 ? 'good' : ratio <= 1.6 ? 'ok' : 'high', ratio };

@@ -4,8 +4,8 @@
 // Alles Importierte ist ungeprüft (verified: false, imported: true, region: 'hasbro'). Von Hand Gepflegtes bleibt.
 import { readFileSync, writeFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
-import { wikiUrl } from './update-data.mjs';
-import { LINK_RE, MAX_PAGES, norm, parseBeyPage, parseBeyTitle, wikitextOf } from './import-catalog.mjs';
+import { API, wikiUrl } from './update-data.mjs';
+import { LINK_RE, MAX_PAGES, norm, parseBeyPage, parseBeyTitle } from './import-catalog.mjs';
 import { validateDb } from './validate-data.mjs';
 
 export const LIST_TITLES = ['List of Beyblade X products (Hasbro)', 'List of Beyblade X Products (Hasbro)', 'Beyblade X (Hasbro)'];
@@ -36,6 +36,32 @@ export function hasbroLabel(label) {
   return /^[A-Z][A-Za-z'-]+(?: [A-Z][A-Za-z'-]+){1,3}$/.test(name) ? name : null;
 }
 
+const HASBRO_NOTE = 'Aus der Hasbro-Produktliste übernommen.';
+
+/**
+ * Kreisel-Titel wie im Hasbro-Teil des Wikis: „Sword Dran 3-60F“, „Arc Wizard R 4-55LO“ (CX mit Assist-Blade R),
+ * „Glory Valkerion LF“. Gibt Blade-Name (ohne Assist), Assist, Ratchet und Bit zurück.
+ */
+export function parseHasbroTitle(raw) {
+  const bey = parseBeyTitle(raw);
+  if (!bey) return null;
+  const parts = bey.blade.split(' ');
+  // letztes Wort aus 1–2 Großbuchstaben = Assist-Blade (CX), gehört nicht zum Namen
+  if (parts.length > 2 && /^[A-Z]{1,2}$/.test(parts[parts.length - 1])) {
+    const assist = parts.pop();
+    const blade = parts.join(' ');
+    return { ...bey, blade, bladeId: blade.replace(/[^A-Za-z0-9]/g, ''), assist: bey.assist ?? assist };
+  }
+  return bey;
+}
+
+/** US-Preis aus der Zeile („[[File:Flag of United States.png|20px]] $9.99“). */
+export function parseUsd(text) {
+  const m = /United States[^\]]*\]\]\s*(?:US)?\$\s*(\d{1,3}(?:\.\d{2})?)/.exec(String(text));
+  const n = m ? Number(m[1]) : NaN;
+  return n > 0 && n < 500 ? n : null;
+}
+
 /**
  * Wikitext der Reihe nach: Jede Artikelnummer gilt für die folgenden Kreisel-Links bis zur nächsten Nummer.
  * Je Link: Kreisel (aus dem Ziel) + Hasbro-Name (aus dem Linktext).
@@ -48,23 +74,40 @@ export function parseHasbroList(wikitext) {
     const { code, pos } = marks[i];
     const end = i + 1 < marks.length ? marks[i + 1].pos : text.length;
     const seg = text.slice(pos, end);
-    const entry = byCode.get(code) ?? { code, text: '', beys: [] };
-    entry.text += ' ' + seg.replace(LINK_RE, ' ').slice(0, 300);
+    const entry = byCode.get(code) ?? { code, text: '', beys: [], links: [], usd: null };
+    // Abschnitt-Überschriften („! colspan=4 | … Dual Pack …“) gehören zum Text, damit die Art stimmt
+    const before = text.slice(Math.max(0, pos - 400), pos);
+    const heading = [...before.matchAll(/!\s*colspan[^|\n]*\|([^\n]+)/g)].pop()?.[1] ?? '';
+    entry.text += ' ' + heading + ' ' + seg.replace(LINK_RE, (_, t) => ' ' + t + ' ').slice(0, 400);
+    entry.usd ??= parseUsd(seg);
     for (const l of seg.matchAll(/\[\[([^\]|#]+)(?:#[^\]|]*)?(?:\|([^\]]*))?\]\]/g)) {
       const target = l[1].trim();
       if (/^(file|image|category|template):/i.test(target)) continue;
-      const bey = parseBeyTitle(target);
-      if (!bey || entry.beys.some((b) => b.title === bey.title)) continue;
-      entry.beys.push({ ...bey, page: target, hasbro: hasbroLabel(l[2] ?? '') });
+      const bey = parseHasbroTitle(target);
+      if (!bey) {
+        if (!entry.links.includes(target)) entry.links.push(target);
+        continue;
+      }
+      if (entry.beys.some((b) => b.title === bey.title)) continue;
+      // Linktext ist der Hasbro-Name; ohne Linktext ist schon das Ziel Hasbro-benannt
+      entry.beys.push({ ...bey, page: target, hasbro: hasbroLabel(l[2] ?? '') ?? bey.blade });
     }
     byCode.set(code, entry);
   }
-  return [...byCode.values()].filter((e) => e.beys.length);
+  return [...byCode.values()].filter((e) => e.beys.length || e.links.length);
 }
 
+/**
+ * fetchPage(title) → { title, wikitext } (title = Ziel nach Weiterleitung) oder null.
+ * Der Import wird bei jedem Lauf neu aufgebaut: frühere Hasbro-Importe werden erst entfernt.
+ */
 export async function mergeHasbro(db, entries, fetchPage) {
   const out = structuredClone(db);
-  const report = { added: { blades: [], ratchets: [], bits: [], products: [] }, names: [], skipped: [] };
+  const report = { added: { blades: [], ratchets: [], bits: [], products: [] }, names: [], skipped: [], unresolved: [] };
+  // Neu aufbauen: importierte Hasbro-Produkte und nur dafür angelegte Blades entfernen
+  out.products = out.products.filter((p) => !(p.region === 'hasbro' && p.imported));
+  const used = new Set(out.products.map((p) => p.bladeId));
+  out.blades = out.blades.filter((b) => b.note !== HASBRO_NOTE || used.has(b.id));
   const byKey = new Map();
   const index = (b) => {
     for (const n of [b.id, b.name, b.hasbroName].filter(Boolean)) {
@@ -78,7 +121,32 @@ export async function mergeHasbro(db, entries, fetchPage) {
   const bitIds = new Set(out.bits.map((b) => b.id));
   let fetched = 0;
 
+  const pages = new Map();
+  const page = async (title) => {
+    if (pages.has(title)) return pages.get(title);
+    if (fetched >= MAX_PAGES) return undefined;
+    fetched++;
+    const r = await fetchPage(title).catch(() => null);
+    pages.set(title, r);
+    return r;
+  };
+
   for (const entry of entries) {
+    // Dual Packs/Sets: Inhalt steht auf der verlinkten Produktseite
+    if (!entry.beys.length) {
+      for (const l of entry.links.filter((x) => /pack|set|booster|collection|bundle/i.test(x)).slice(0, 2)) {
+        const pg = await page(l);
+        for (const m of String(pg?.wikitext ?? '').matchAll(/\[\[([^\]|#]+)(?:#[^\]|]*)?(?:\|([^\]]*))?\]\]/g)) {
+          const bey = parseHasbroTitle(m[1].trim());
+          if (bey && !entry.beys.some((b) => b.title === bey.title)) entry.beys.push({ ...bey, page: m[1].trim(), hasbro: hasbroLabel(m[2] ?? '') ?? bey.blade });
+        }
+        entry.text += ' ' + l;
+      }
+      if (!entry.beys.length) {
+        report.unresolved.push({ code: entry.code, links: entry.links.slice(0, 5) });
+        continue;
+      }
+    }
     const kind = kindOfHasbro(entry.text);
     const multi = entry.beys.length > 1;
     let n = 0;
@@ -88,17 +156,25 @@ export async function mergeHasbro(db, entries, fetchPage) {
       if (out.products.some((p) => p.code === code)) continue;
       let blade = findBlade(bey);
       let info = null;
+      let real = bey; // Kreisel laut Zielseite (nach Weiterleitung, meist der Takara-Name)
+      let realTitle = bey.page;
       if (!blade || !bitIds.has(bey.bit)) {
-        if (fetched >= MAX_PAGES) {
+        const pg = await page(bey.page);
+        if (pg === undefined) {
           report.skipped.push({ code, title: bey.title, reason: 'Seitenlimit erreicht' });
           continue;
         }
-        fetched++;
-        const wt = await fetchPage(bey.page);
-        info = wt ? parseBeyPage(wt) : null;
+        info = pg?.wikitext ? parseBeyPage(pg.wikitext) : null;
         if (!info?.isBey) {
-          report.skipped.push({ code, title: bey.title, reason: wt ? 'keine Kreisel-Seite' : 'Seite fehlt' });
+          report.skipped.push({ code, title: bey.title, reason: pg ? 'keine Kreisel-Seite' : 'Seite fehlt' });
           continue;
+        }
+        // „Steel Samurai 4-80T“ leitet auf die Takara-Seite weiter → dortigen Blade nehmen
+        const target = pg.title ? parseHasbroTitle(pg.title) : null;
+        if (target) {
+          realTitle = pg.title;
+          real = { ...bey, blade: target.blade, bladeId: target.bladeId };
+          blade ??= byKey.get(norm(target.bladeId)) ?? byKey.get(wkey(target.blade));
         }
       }
       if (!blade) {
@@ -106,23 +182,24 @@ export async function mergeHasbro(db, entries, fetchPage) {
           report.skipped.push({ code, title: bey.title, reason: 'Typ nicht erkennbar' });
           continue;
         }
+        const name = real.blade.includes(' ') ? real.blade : real.blade.replace(/([a-z])([A-Z])/g, '$1 $2');
         blade = {
-          id: bey.bladeId,
-          name: bey.blade.includes(' ') ? bey.blade : bey.blade.replace(/([a-z])([A-Z])/g, '$1 $2'),
-          ...(bey.hasbro ? { hasbroName: bey.hasbro, hasbroNameAuto: true } : {}),
-          line: 'BX',
+          id: real.bladeId,
+          name,
+          ...(bey.hasbro && wkey(bey.hasbro) !== wkey(name) ? { hasbroName: bey.hasbro, hasbroNameAuto: true } : {}),
+          line: bey.assist ? 'CX' : 'BX',
           type: info.type,
           spin: info.spin,
           verified: false,
           imported: true,
-          wikiTitle: bey.page,
-          note: 'Aus der Hasbro-Produktliste übernommen.',
+          wikiTitle: realTitle,
+          note: HASBRO_NOTE,
           ...(!bey.ratchet && !info.ratchetIntegratedBit ? { integratedRatchet: true } : {}),
         };
         out.blades.push(blade);
         index(blade);
         report.added.blades.push(blade.id);
-      } else if (bey.hasbro && (!blade.hasbroName || blade.hasbroNameAuto) && wkey(bey.hasbro) !== wkey(blade.name) && blade.hasbroName !== bey.hasbro) {
+      } else if (bey.hasbro && (!blade.hasbroName || blade.hasbroNameAuto) && wkey(bey.hasbro) !== wkey(blade.name) && wkey(blade.hasbroName ?? '') !== wkey(bey.hasbro)) {
         // Hasbro-Name aus dem Linktext ist verlässlicher als die Heuristik von update-hasbro
         blade.hasbroName = bey.hasbro;
         blade.hasbroNameAuto = true;
@@ -154,6 +231,7 @@ export async function mergeHasbro(db, entries, fetchPage) {
         ...(kind === 'starter' ? { includesLauncher: true } : {}),
         region: 'hasbro',
         priceJpy: null,
+        ...(entry.usd ? { priceUsd: entry.usd } : {}),
         verified: false,
         imported: true,
         source: wikiUrl(bey.page),
@@ -170,8 +248,15 @@ export async function run({ fetchFn = fetch, dataDir = new URL('../public/data/'
   const report = { ok: false, listTitle: null, codes: 0 };
   try {
     let wikitext = null;
+    const fetchPage = async (title) => {
+      const url = `${API}?${new URLSearchParams({ action: 'parse', page: title, prop: 'wikitext', redirects: '1', format: 'json', formatversion: '2' })}`;
+      const res = await fetchFn(url, { headers: { 'User-Agent': 'beyblade-x-planer-hasbro/1.0 (GitHub Actions)' } });
+      if (!res.ok) return null;
+      const d = await res.json();
+      return d?.parse?.wikitext ? { title: d.parse.title, wikitext: d.parse.wikitext } : null;
+    };
     for (const t of LIST_TITLES) {
-      wikitext = await wikitextOf(fetchFn, t).catch(() => null);
+      wikitext = (await fetchPage(t).catch(() => null))?.wikitext ?? null;
       if (wikitext) {
         report.listTitle = t;
         break;
@@ -184,8 +269,9 @@ export async function run({ fetchFn = fetch, dataDir = new URL('../public/data/'
     // Zum Nachjustieren des Parsers: Ausschnitte der Seite
     report.sample = wikitext.slice(0, 2500);
     report.sampleMid = wikitext.slice(Math.floor(wikitext.length / 2), Math.floor(wikitext.length / 2) + 1500);
-    report.firstEntries = entries.slice(0, 8).map((e) => ({ code: e.code, beys: e.beys.map((b) => `${b.title} | ${b.hasbro}`), text: e.text.slice(0, 120) }));
-    const res = await mergeHasbro(db, entries, (title) => wikitextOf(fetchFn, title));
+    report.firstEntries = entries.slice(0, 8).map((e) => ({ code: e.code, beys: e.beys.map((b) => `${b.title} | ${b.hasbro}`), usd: e.usd }));
+    report.linkOnly = entries.filter((e) => !e.beys.length).slice(0, 12).map((e) => ({ code: e.code, links: e.links.slice(0, 4), text: e.text.slice(0, 160) }));
+    const res = await mergeHasbro(db, entries, fetchPage);
     const errors = validateDb(res.db);
     if (errors.length) throw new Error('Import ergäbe ungültige Daten: ' + errors.slice(0, 5).join('; '));
     Object.assign(report, { ok: true, fetched: res.fetched, ...res.report });

@@ -42,14 +42,31 @@ function addPart(pool: PartPool, p: Product): PartPool {
  * Welche Käufe verbessern das beste Deck am meisten? Rechnet in Häppchen (onProgress), damit das Handy flüssig bleibt.
  * Teile, die man schon hat, bringen nichts – Packungen ohne neue Teile fallen raus.
  */
-export async function advise(db: Database, owned: Record<string, number>, opponents: Bey[], onProgress?: (done: number, total: number) => void): Promise<{ base: number; offers: Offer[] }> {
+export async function advise(
+  db: Database,
+  owned: Record<string, number>,
+  opponents: Bey[],
+  onProgress?: (done: number, total: number) => void,
+  preferHasbro = false,
+): Promise<{ base: number; offers: Offer[] }> {
   const op = ownedParts(db, owned);
   const pool: PartPool = { blades: [...op.blades.keys()], ratchets: [...op.ratchets.keys()], bits: [...op.bits.keys()] };
   const cache: ScoreCache = new Map();
   const base = deckValue(db, pool, opponents, cache).value;
 
   const groups = new Map<string, Product[]>();
+  // Gleicher Kreisel als Takara- und Hasbro-Packung: nur einmal anbieten (bevorzugt die passende Region).
+  const single = (p: Product) => p.kind === 'starter' || p.kind === 'booster';
+  const combo = (p: Product) => `${p.bladeId}|${p.ratchetId ?? ''}|${p.bitId ?? ''}`;
+  const preferred = new Map<string, Product>();
   for (const p of db.products) {
+    if (!single(p) || !p.bladeId) continue;
+    const cur = preferred.get(combo(p));
+    const want = (x: Product) => (x.region === 'hasbro') === preferHasbro;
+    if (!cur || (!want(cur) && want(p))) preferred.set(combo(p), p);
+  }
+  for (const p of db.products) {
+    if (single(p) && p.bladeId && preferred.get(combo(p)) !== p) continue;
     // Besitz hier nicht filtern: schon gezogene Random-Booster-Varianten zählen im Mittel mit 0 Gewinn.
     if (!BUYABLE.includes(p.kind) || !p.bladeId) continue;
     const k = groupKey(p);

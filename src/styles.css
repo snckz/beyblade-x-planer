@@ -920,3 +920,10 @@ input[type='text'], input[type='search'], select { border-radius: 16px; backgrou
 .tour-add .shop-input { min-width: 0; }
 .tour-add .shop-input input { width: 100%; }
 .tour-add .btn { flex: none; }
+
+/* „Kaufen?“ – fragt den Kauf-Check */
+.buy-q { flex: none; padding: 6px 12px; border-radius: 999px; border: 1px solid rgba(255, 59, 48, .45); background: rgba(255, 59, 48, .14); color: #ff8a80; font: 650 13px/1.2 var(--font); cursor: pointer; white-space: nowrap; }
+.buy-q:hover { background: rgba(255, 59, 48, .24); }
+.bcard .buy-q { justify-self: start; margin: 2px 0 4px; }
+.mini-list li { align-items: center; }
+.mini-list .buy-q { margin-left: auto; }

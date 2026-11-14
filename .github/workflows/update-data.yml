@@ -41,10 +41,11 @@ jobs:
         run: node scripts/verify-catalog.mjs
       - name: Blade-Gewichte aus dem Wiki
         run: node scripts/update-weights.mjs
-      - name: Hasbro-Produkte aus dem Wiki (Artikelnummern, Dual Packs, Hasbro-Kreisel)
-        run: node scripts/import-hasbro.mjs
       - name: Hasbro-Namen aus dem Wiki
         run: node scripts/update-hasbro.mjs
+      # danach: die Produktliste ist verlässlicher und überschreibt automatisch geratene Namen
+      - name: Hasbro-Produkte aus dem Wiki (Artikelnummern, Dual Packs, Hasbro-Kreisel)
+        run: node scripts/import-hasbro.mjs
       - name: Turnier-Meta (wöchentlich)
         run: node scripts/update-meta.mjs
       - name: Wechselkurse (EZB) für Preis-Hinweise

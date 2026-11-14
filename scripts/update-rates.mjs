@@ -14,13 +14,15 @@ export function parseEcb(xml) {
   };
   const JPY = rate('JPY');
   const THB = rate('THB');
+  const USD = rate('USD'); // für Hasbro-Preise (US-Verkaufspreis)
   if (!date || !(JPY > 0) || !(THB > 0)) return null;
-  return { source: 'EZB-Referenzkurse', date, base: 'EUR', JPY, THB };
+  return { source: 'EZB-Referenzkurse', date, base: 'EUR', JPY, THB, ...(USD > 0 ? { USD } : {}) };
 }
 
 /** Für Preis-Richtwerte reicht ein Update bei > 1 % Kursänderung oder wenn der Stand älter als 7 Tage ist. */
 export function needsUpdate(prev, next) {
   if (!prev?.date || !(prev.JPY > 0) || !(prev.THB > 0)) return true;
+  if (next.USD && !prev.USD) return true; // USD neu dazugekommen
   if (prev.date === next.date) return false;
   const moved = (a, b) => Math.abs(b / a - 1) > 0.01;
   const ageDays = (Date.parse(next.date) - Date.parse(prev.date)) / 86400000;

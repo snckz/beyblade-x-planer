@@ -65,6 +65,8 @@ export interface Product {
   kind: ProductKind;
   /** 'hasbro' = Hasbro-Packung (Artikelnummer wie G1670), sonst Takara Tomy */
   region?: 'hasbro';
+  /** US-Verkaufspreis (Hasbro) in Dollar laut Wiki */
+  priceUsd?: number;
   bladeId?: string;
   ratchetId?: string;
   bitId?: string;
@@ -90,6 +92,8 @@ export interface Rates {
   base: 'EUR';
   JPY: number;
   THB: number;
+  /** 1 € = x US-Dollar (für Hasbro-Preise) */
+  USD?: number;
 }
 
 export interface Database {

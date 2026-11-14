@@ -6,36 +6,66 @@ import { hasbroLabel, kindOfHasbro, mergeHasbro, parseHasbroList } from '../scri
 
 const db = JSON.parse(readFileSync(new URL('../public/data/db.json', import.meta.url), 'utf8'));
 
-const WT = `{| class="wikitable"
+// Format wie im Wiki (Stand Nov. 2026): Hasbro-benannte Seiten, US-Preis mit Flagge, Abschnitts-Überschriften
+const WT = `{| class="wikitable sortable"
 |-
-| G1670 || Booster || [[DranDagger 4-70Q|Dagger Dran 4-70Q]]
+! colspan="4" |Beyblade X Basic/Unique Line Starter Packs
 |-
-| G1686 || Dual Pack || [[TigerWeiss 3-60U|Pearl Tiger 3-60U]] & [[SharkGill 4-80LF|Gill Shark 4-80LF]]
+|F9580
+|[[Sword Dran 3-60F]]
+|[[File:Flag of Canada.png|20px]] May 30th, 2024<br>[[File:Flag of United States.png|20px]] June 1st, 2024
+|[[File:Flag of Canada.png|20px]] $16.99<br>[[File:Flag of United States.png|20px]] $9.99
 |-
-| G9999 || Booster || [[KongYell 3-60GB|Yell Kong 3-60GB]]
+|G1679
+|[[Arc Wizard R 4-55LO]]
+|
+|[[File:Flag of United States.png|20px]] $12.99
+|-
+|G2738
+|[[Stun Medusa 9-60GB]]
+|
+|[[File:Flag of United States.png|20px]] $9.99
+|-
+! colspan="4" |Dual Packs
+|-
+|G1686
+|[[Pearl Tiger & Gill Shark Dual Pack]]
+|
+|[[File:Flag of United States.png|20px]] $19.99
 |}`;
 
 describe('Hasbro-Katalog', () => {
-  it('liest Artikelnummern, Art und Hasbro-Namen aus den Links', () => {
+  it('liest Artikelnummern, Art, US-Preis und Hasbro-Namen', () => {
     const e = parseHasbroList(WT);
-    expect(e.map((x: { code: string }) => x.code)).toEqual(['G1670', 'G1686', 'G9999']);
-    expect(e[0].beys[0]).toMatchObject({ bladeId: 'DranDagger', ratchet: '4-70', bit: 'Q', hasbro: 'Dagger Dran' });
-    expect(e[1].beys).toHaveLength(2);
-    expect(kindOfHasbro(e[1].text)).toBe('set');
-    expect(hasbroLabel('Sword Dran 3-60F')).toBe('Sword Dran');
+    expect(e.map((x: { code: string }) => x.code)).toEqual(['F9580', 'G1679', 'G2738', 'G1686']);
+    expect(e[0].beys[0]).toMatchObject({ ratchet: '3-60', bit: 'F', hasbro: 'Sword Dran' });
+    expect(e[0].usd).toBe(9.99);
+    expect(e[1].beys[0]).toMatchObject({ blade: 'Arc Wizard', assist: 'R', ratchet: '4-55', bit: 'LO', hasbro: 'Arc Wizard' });
+    expect(e[3].beys).toHaveLength(0);
+    expect(kindOfHasbro(e[3].text)).toBe('set');
+    expect(kindOfHasbro(e[0].text)).toBe('starter');
     expect(hasbroLabel('Glory Valkerion LF')).toBe('Glory Valkerion');
   });
-  it('verknüpft vorhandene Blades und legt Hasbro-Kreisel neu an', async () => {
-    const page = (t: string) => Promise.resolve(t.startsWith('KongYell') ? `'''Kong Yell''' is a Balance-Type Beyblade. [[Bit - Gear Ball]]` : null);
+  it('löst Hasbro-Seiten per Weiterleitung auf, legt nur echte Hasbro-Kreisel neu an und ist wiederholbar', async () => {
+    const pages: Record<string, { title: string; wikitext: string }> = {
+      'Stun Medusa 9-60GB': { title: 'Stun Medusa 9-60GB', wikitext: `'''Stun Medusa''' is a Balance-Type Beyblade. [[Bit - Gear Ball]]` },
+      'Pearl Tiger & Gill Shark Dual Pack': { title: 'Pearl Tiger & Gill Shark Dual Pack', wikitext: '[[Pearl Tiger 3-60U]] and [[Gill Shark 4-70O]]' },
+      'Pearl Tiger 3-60U': { title: 'TigerWeiss 3-60U', wikitext: `'''Weiss Tiger''' is a Balance-Type Beyblade.` },
+      'Gill Shark 4-70O': { title: 'SharkGill 4-70O', wikitext: `'''Shark Gill''' is an Attack-Type Beyblade.` },
+    };
+    const page = (t: string) => Promise.resolve(pages[t] ?? null);
     const { db: out, report } = await mergeHasbro(db, parseHasbroList(WT), page);
-    const g = out.products.find((p: { code: string }) => p.code === 'G1670');
-    expect(g).toMatchObject({ bladeId: 'DranDagger', region: 'hasbro', kind: 'booster' });
-    const kong = out.blades.find((b: { id: string }) => b.id === 'KongYell');
-    expect(kong).toMatchObject({ hasbroName: 'Yell Kong', type: 'balance' });
-    expect(out.products.some((p: { code: string }) => p.code === 'G9999')).toBe(true);
-    // ein zweiter Lauf ändert nichts
+    const byCode = (c: string) => out.products.find((p: { code: string }) => p.code === c);
+    expect(byCode('F9580')).toMatchObject({ bladeId: 'DranSword', region: 'hasbro', kind: 'starter', priceUsd: 9.99 });
+    expect(byCode('G1679')?.bladeId).toBe('WizardArc'); // kein Duplikat „ArcWizardR“
+    expect(out.blades.find((b: { id: string }) => b.id === 'StunMedusa')).toMatchObject({ type: 'balance' });
+    // Dual Pack über die Produktseite, Hasbro-Namen per Weiterleitung den Takara-Blades zugeordnet
+    expect(byCode('G1686-01')?.kind).toBe('set');
+    const weiss = out.blades.find((b: { name: string }) => b.name === 'Weiss Tiger');
+    if (weiss) expect(weiss.hasbroName).toBe('Pearl Tiger');
+    expect(report.added.blades).not.toContain('ArcWizardR');
+    // zweiter Lauf: gleiches Ergebnis, nichts doppelt
     const again = await mergeHasbro(out, parseHasbroList(WT), page);
-    expect(again.report.added.products).toEqual([]);
-    expect(report.added.products.length).toBeGreaterThan(0);
+    expect(JSON.stringify(again.db)).toBe(JSON.stringify(out));
   });
 });

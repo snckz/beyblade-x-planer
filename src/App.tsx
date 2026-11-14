@@ -14,6 +14,7 @@ import { Collection } from './components/Collection';
 import { Battle } from './components/Battle';
 import { Events } from './components/Events';
 import { DetailSheet } from './components/DetailSheet';
+import { PhotoCheck } from './components/PhotoCheck';
 
 type Tab = 'builder' | 'parts' | 'battle' | 'events' | 'collection';
 
@@ -165,6 +166,12 @@ export function App() {
   const closeDetail = useCallback(() => setDetail(null), []);
   const openImage = useCallback((id: string, kind: ImageKind = 'blade') => setZoom({ id, kind }), []);
   const closeZoom = useCallback(() => setZoom(null), []);
+  const [check, setCheck] = useState<string | null>(null);
+  const openCheck = useCallback((code: string) => {
+    setDetail(null); // Detailseite schließen, sonst liegen zwei Fenster übereinander
+    setCheck(code);
+  }, []);
+  const closeCheck = useCallback(() => setCheck(null), []);
   const useInBuilder = useCallback(
     (bladeId: string) => {
       setDetail(null);
@@ -184,7 +191,7 @@ export function App() {
   const hasbroNames = state.prefs.hasbroNames;
   setHasbroNames(hasbroNames);
   const bladeName = useCallback((b: { name: string; hasbroName?: string }) => (hasbroNames && b.hasbroName ? b.hasbroName : b.name), [hasbroNames]);
-  const ctx = useMemo(() => ({ images, rates, openBlade, openImage, bladeName, hasbroNames }), [images, rates, openBlade, openImage, bladeName, hasbroNames]);
+  const ctx = useMemo(() => ({ images, rates, openBlade, openImage, openCheck, bladeName, hasbroNames }), [images, rates, openBlade, openImage, openCheck, bladeName, hasbroNames]);
   const toggleNames = () => setState((s) => ({ ...s, prefs: { ...s.prefs, hasbroNames: !s.prefs.hasbroNames } }));
 
   const unread = news.items.filter((n) => !state.seenNews.includes(n.id)).length;
@@ -286,6 +293,7 @@ export function App() {
 
         {db && detail && <DetailSheet db={db} events={events.events} bladeId={detail} onClose={closeDetail} onUse={useInBuilder} />}
         {db && zoom && <Lightbox db={db} id={zoom.id} kind={zoom.kind} onClose={closeZoom} />}
+        {db && check && <PhotoCheck key={check} db={db} state={state} update={update} meta={meta} initialCode={check} onClose={closeCheck} />}
       </div>
     </AppContext.Provider>
   );
