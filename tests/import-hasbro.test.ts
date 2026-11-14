@@ -2,7 +2,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 // @ts-expect-error – JS-Modul ohne Typen
-import { hasbroLabel, kindOfHasbro, mergeHasbro, parseHasbroList, parseHasbroTitle } from '../scripts/import-hasbro.mjs';
+import { beysInLinkName, hasbroLabel, kindOfHasbro, mergeHasbro, namesInLinkName, parseHasbroList, parseHasbroTitle } from '../scripts/import-hasbro.mjs';
 
 const db = JSON.parse(readFileSync(new URL('../public/data/db.json', import.meta.url), 'utf8'));
 
@@ -47,6 +47,10 @@ describe('Hasbro-Katalog', () => {
     expect(hasbroLabel('Glory Valkerion LF')).toBe('Glory Valkerion');
     expect(parseHasbroTitle('Glory Valkerion LF')).toMatchObject({ blade: 'Glory Valkerion', bit: 'LF', ratchet: undefined });
     expect(parseHasbroTitle('Xtreme Stadium')).toBeNull();
+    // Produktseiten mit Kreisel im Namen
+    expect(beysInLinkName('Cobalt Dragoon 2-60C Deluxe Left-Spin String Launcher Set')[0]).toMatchObject({ blade: 'Cobalt Dragoon', ratchet: '2-60', bit: 'C' });
+    expect(beysInLinkName('Saber Samurai 2-70L Victory Grip Launcher Set')[0]).toMatchObject({ blade: 'Saber Samurai', ratchet: '2-70', bit: 'L' });
+    expect(namesInLinkName('Gale Wyvern and Sword Dran Dual Pack')).toEqual(['Gale Wyvern', 'Sword Dran']);
     expect(parseHasbroTitle('Wide Beystadium')).toBeNull();
   });
   it('löst Hasbro-Seiten per Weiterleitung auf, legt nur echte Hasbro-Kreisel neu an und ist wiederholbar', async () => {

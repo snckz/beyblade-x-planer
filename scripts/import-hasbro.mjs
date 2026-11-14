@@ -60,6 +60,25 @@ export function parseHasbroTitle(raw) {
   return bey;
 }
 
+/** Kreisel direkt im Namen einer Produktseite: „Cobalt Dragoon 2-60C Deluxe … Launcher Set“ → Cobalt Dragoon 2-60C. */
+export function beysInLinkName(link) {
+  const out = [];
+  for (const m of String(link).matchAll(/([A-Z][a-z']+(?: [A-Z][a-z']+){1,2}(?: [A-Z]{1,2})?) ((?:\d|M)-\d{2}[A-Z]{1,3}[a-z]?)\b/g)) {
+    const bey = parseHasbroTitle(`${m[1]} ${m[2]}`);
+    if (bey && !/^(Deluxe|Launcher|Set|Pack|Battle)\b/.test(bey.blade)) out.push({ ...bey, page: `${m[1]} ${m[2]}`, hasbro: bey.blade });
+  }
+  return out;
+}
+
+/** Kreisel-Namen ohne Teile in einem Produktnamen: „Gale Wyvern and Sword Dran Dual Pack“ → [Gale Wyvern, Sword Dran]. */
+export function namesInLinkName(link) {
+  return String(link)
+    .replace(/\b(Dual Pack|Multi ?Pack|Battle Set|Launcher Set|Starter Set|Deck Set|Set|Pack)\b.*$/i, '')
+    .split(/\s+(?:and|&|\+)\s+/i)
+    .map((s) => s.trim())
+    .filter((s) => /^[A-Z][a-z']+(?: [A-Z][a-z']+){1,2}$/.test(s));
+}
+
 /** US-Preis aus der Zeile („[[File:Flag of United States.png|20px]] $9.99“). */
 export function parseUsd(text) {
   const m = /United States[^\]]*\]\]\s*(?:US)?\$\s*(\d{1,3}(?:\.\d{2})?)/.exec(String(text));
@@ -143,12 +162,24 @@ export async function mergeHasbro(db, entries, fetchPage) {
     // Dual Packs/Sets: Inhalt steht auf der verlinkten Produktseite
     if (!entry.beys.length) {
       for (const l of entry.links.filter((x) => /pack|set|booster|collection|bundle/i.test(x)).slice(0, 2)) {
+        entry.text += ' ' + l;
+        // 1. Kreisel steht schon im Namen der Produktseite → direkt übernehmen (Seite listet oft auch fremde Kreisel)
+        const direct = beysInLinkName(l);
+        if (direct.length) {
+          for (const b of direct) if (!entry.beys.some((x) => x.title === b.title)) entry.beys.push(b);
+          continue;
+        }
+        // 2. Dual Packs: nur Kreisel von der Produktseite, deren Name im Produktnamen vorkommt
+        const names = namesInLinkName(l).map(wkey);
+        if (!names.length) continue;
         const pg = await page(l);
         for (const m of String(pg?.wikitext ?? '').matchAll(/\[\[([^\]|#]+)(?:#[^\]|]*)?(?:\|([^\]]*))?\]\]/g)) {
           const bey = parseHasbroTitle(m[1].trim());
-          if (bey && !entry.beys.some((b) => b.title === bey.title)) entry.beys.push({ ...bey, page: m[1].trim(), hasbro: hasbroLabel(m[2] ?? '') ?? bey.blade });
+          if (!bey || entry.beys.some((b) => b.title === bey.title)) continue;
+          const label = hasbroLabel(m[2] ?? '') ?? bey.blade;
+          if (!names.includes(wkey(label)) && !names.includes(wkey(bey.blade))) continue;
+          entry.beys.push({ ...bey, page: m[1].trim(), hasbro: label });
         }
-        entry.text += ' ' + l;
       }
       if (!entry.beys.length) {
         report.unresolved.push({ code: entry.code, links: entry.links.slice(0, 5) });
