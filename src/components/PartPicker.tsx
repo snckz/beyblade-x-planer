@@ -154,7 +154,7 @@ function PickerSheet({ kind, label, blades = [], ratchets = [], bits = [], value
                 <button key={b.id} type="button" class={`tile type-edge-${b.type}${b.id === value ? ' selected' : ''}`} onClick={() => onPick(b.id)} aria-pressed={b.id === value}>
                   <BeyImage bladeId={b.id} type={b.type} size="md" alt="" zoomable={false} />
                   <span class="tile-name">{displayName(b)}</span>
-                  {otherName(b) && <span class="tile-alt">{b.hasbroName}</span>}
+                  {otherName(b) && <span class="tile-alt">{b.name}</span>}
                   <span class="tile-meta">
                     <span class={`type-dot dot-${b.type}`} />
                     {TYPE_LABEL[b.type]}

@@ -1,3 +1,4 @@
+import { displayName } from './lib/names';
 import { useCallback, useEffect, useMemo, useState } from 'preact/hooks';
 import type { Database, EventFeed, ImageIndex, MetaFeed, NewsFeed, Rates } from './lib/types';
 import { daysUntil, loadDatabase, loadEvents, loadImages, loadMeta, loadNews, loadRates } from './lib/data';
@@ -214,8 +215,8 @@ export function App() {
     },
     [go],
   );
-  const hasbroNames = false; // beide Namen werden überall gezeigt – keine Umschaltung mehr
-  const bladeName = useCallback((b: { name: string; hasbroName?: string }) => (hasbroNames && b.hasbroName ? b.hasbroName : b.name), [hasbroNames]);
+  const hasbroNames = true; // englische (Hasbro-)Namen überall, Takara-Name daneben
+  const bladeName = useCallback((b: { name: string; hasbroName?: string }) => displayName(b), []);
   const owned = state.owned;
   const ownedCount = useCallback((code: string) => owned[code] ?? 0, [owned]);
   const ctx = useMemo(

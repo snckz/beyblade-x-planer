@@ -8,7 +8,7 @@ import type { ScoreCache } from '../lib/optimizer';
 import { purchaseCodes, searchProducts } from '../lib/data';
 import { groupKey, refPrice, VERDICT_LABEL, yen } from '../lib/price';
 import { PriceInput } from './PriceInput';
-import { displayProductName, regionLabel } from '../lib/names';
+import { displayName, displayProductName, regionLabel } from '../lib/names';
 import { nb } from '../lib/analysis';
 import { useApp } from '../lib/context';
 import { useModal } from '../lib/useModal';
@@ -243,7 +243,7 @@ function ProductList({ db, list, onPick }: { db: Database; list: Product[]; onPi
     if (members.length < 2) return nb(displayProductName(p, db));
     const names = members.map((x) => {
       const b = db.blades.find((bl) => bl.id === x.bladeId);
-      return b ? (b.hasbroName && p.region === 'hasbro' ? b.hasbroName : b.name) : x.name;
+      return b ? displayName(b) : x.name;
     });
     return `${groupKey(p)} Set: ${names.join(' + ')}`;
   };

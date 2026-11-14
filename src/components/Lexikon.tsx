@@ -89,7 +89,7 @@ export function Lexikon({ db, state, update }: Props) {
                   </button>
                   <span class="row-sub">
                     {otherName(b) ?? ''}
-                    {b.integratedRatchet ? `${b.hasbroName ? ' · ' : ''}Ratchet integriert` : ''}
+                    {b.integratedRatchet ? `${otherName(b) ? ' · ' : ''}Ratchet integriert` : ''}
                   </span>
                   {b.note && <span class="row-note">{b.note}</span>}
                 </div>

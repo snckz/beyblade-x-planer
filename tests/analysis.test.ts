@@ -19,7 +19,7 @@ describe('analyze', () => {
     const a = analyze(r('DranSword', '3-60', 'F'));
     expect(a.valid).toBe(true);
     expect(a.type).toBe('attack');
-    expect(a.label).toBe('DranSword 3-60F');
+    expect(a.label).toBe('SwordDran 3-60F');
     expect(a.heightMm).toBe(6);
   });
   it('lehnt Ratchet bei integrierter Blade ab', () => {
@@ -30,7 +30,7 @@ describe('analyze', () => {
   it('akzeptiert integrierte Blade ohne Ratchet', () => {
     const a = analyze(r('GloryValkyrie', undefined, 'LF'));
     expect(a.valid).toBe(true);
-    expect(a.label).toBe('GloryValkyrie LF');
+    expect(a.label).toBe('GloryValkerion LF');
   });
   it('verlangt Ratchet bei normaler Blade', () => {
     expect(analyze(r('DranSword', undefined, 'F')).valid).toBe(false);

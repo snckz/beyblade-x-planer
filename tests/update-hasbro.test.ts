@@ -40,14 +40,15 @@ describe('Hasbro-Namen', () => {
 });
 
 describe('Namens-Anzeige', () => {
-  it('zeigt Takara-Namen mit Hasbro-Namen daneben und den Hersteller der Packung', async () => {
+  it('zeigt englischen Hasbro-Namen mit Takara-Namen daneben und den Hersteller der Packung', async () => {
     const { displayName, bothNames, otherName, regionLabel } = await import('../src/lib/names');
     const wizard = { name: 'Wizard Rod', hasbroName: 'Wand Wizard' };
-    expect(displayName(wizard)).toBe('Wizard Rod');
-    expect(bothNames(wizard)).toBe('Wizard Rod · Wand Wizard');
-    expect(otherName(wizard)).toBe('Hasbro: Wand Wizard');
+    expect(displayName(wizard)).toBe('Wand Wizard');
+    expect(displayName({ name: 'Wyvern Gale' })).toBe('Wyvern Gale');
+    expect(bothNames(wizard)).toBe('Wand Wizard · Wizard Rod');
+    expect(otherName(wizard)).toBe('Japan: Wizard Rod');
     // nur umgedreht → kein doppelter Name in einer Zeile
-    expect(bothNames({ name: 'Dran Sword', hasbroName: 'Sword Dran' })).toBe('Dran Sword');
+    expect(bothNames({ name: 'Dran Sword', hasbroName: 'Sword Dran' })).toBe('Sword Dran');
     expect(otherName({ name: 'Dran Sword' })).toBeNull();
     expect(regionLabel({ region: 'hasbro' })).toBe('Hasbro');
     expect(regionLabel({})).toBe('Takara Tomy');

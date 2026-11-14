@@ -81,7 +81,7 @@ export function analyze(r: Resolved): Analysis {
   let valid = true;
 
   if (r.blade.integratedRatchet && r.ratchet) {
-    warnings.push(`${r.blade.name} hat einen integrierten Ratchet – ein zusätzlicher Ratchet passt nicht.`);
+    warnings.push(`${displayName(r.blade)} hat einen integrierten Ratchet – ein zusätzlicher Ratchet passt nicht.`);
     valid = false;
   }
   if (!r.blade.integratedRatchet && !r.ratchet) {
@@ -138,7 +138,7 @@ export function analyze(r: Resolved): Analysis {
     warnings.push('Stamina-Blade mit Attack-Bit: wird schnell müde, eher als Überraschungs-Kombo geeignet.');
   }
   if (r.bit.uncertain) warnings.push(`Typ von Bit „${r.bit.id}“ ist noch nicht bestätigt.`);
-  if (!r.blade.verified) warnings.push(`Daten zu ${r.blade.name} sind noch nicht geprüft.`);
+  if (!r.blade.verified) warnings.push(`Daten zu ${displayName(r.blade)} sind noch nicht geprüft.`);
 
   return {
     label: comboLabel(r),
