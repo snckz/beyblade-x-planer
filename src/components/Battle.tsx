@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'preact/hooks';
-import type { Combo, Database } from '../lib/types';
+import type { Combo, Database, MetaFeed } from '../lib/types';
 import type { UserState } from '../lib/storage';
 import { newId } from '../lib/storage';
 import { nb } from '../lib/analysis';
@@ -19,6 +19,7 @@ import { ARCHETYPES, deckDuel, suggestImprovements, toBey, type Bey, type Matchu
 import { ownedParts } from '../lib/data';
 import { BeyImage } from './BeyImage';
 import { Deck } from './Deck';
+import { Meta } from './Meta';
 import { PartField } from './PartPicker';
 import { Section, TypeBadge } from './ui';
 
@@ -27,6 +28,8 @@ interface Props {
   state: UserState;
   update: (fn: (s: UserState) => UserState) => void;
   goToBuilder: () => void;
+  meta?: MetaFeed | null;
+  onBuild?: (bladeId: string, ratchetId: string | undefined, bitId: string) => void;
 }
 
 function ComboPicker({ db, value, onChange, label }: { db: Database; value: Combo; onChange: (c: Combo) => void; label: string }) {
@@ -100,6 +103,7 @@ export function Battle(props: Props) {
     <div class="stack">
       <Deck {...props} />
 
+      <span id="gegner" class="anchor" aria-hidden="true" />
       <Section
         title={`Gegner-Deck (${state.opponent.length}/3)`}
         aside={
@@ -233,6 +237,7 @@ export function Battle(props: Props) {
           </div>
         </Section>
       )}
+      {props.meta && props.onBuild && <Meta db={db} meta={props.meta} update={update} onBuild={props.onBuild} />}
     </div>
   );
 }

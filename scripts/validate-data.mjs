@@ -83,6 +83,27 @@ export function validateEvents(feed, bladeIds = new Set()) {
   return errors;
 }
 
+/** Meta-Liste: alle Teile müssen in der Datenbank stehen, Quellen sind Pflicht. */
+export function validateMeta(meta, db) {
+  const errors = [];
+  if (!meta || !Array.isArray(meta.combos) || !Array.isArray(meta.decks)) return ['meta.json: combos/decks fehlen'];
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(meta.updatedAt ?? '')) errors.push('meta.json: updatedAt fehlt');
+  if (!meta.sources?.length || meta.sources.some((s) => !/^https:\/\//.test(s.url))) errors.push('meta.json: Quellen fehlen');
+  const blades = new Map(db.blades.map((b) => [b.id, b]));
+  const ratchets = new Set(db.ratchets.map((r) => r.id));
+  const bits = new Set(db.bits.map((b) => b.id));
+  const check = (where, bladeId, ratchetId, bitId) => {
+    const b = blades.get(bladeId);
+    if (!b) errors.push(`${where}: Blade ${bladeId} unbekannt`);
+    if (ratchetId && !ratchets.has(ratchetId)) errors.push(`${where}: Ratchet ${ratchetId} unbekannt`);
+    if (!ratchetId && b && !b.integratedRatchet) errors.push(`${where}: ${bladeId} braucht einen Ratchet`);
+    if (!bits.has(bitId)) errors.push(`${where}: Bit ${bitId} unbekannt`);
+  };
+  meta.combos.forEach((c, i) => check(`meta.combos[${i}]`, c.bladeId, c.ratchetId, c.bitId));
+  meta.decks.forEach((d, i) => d.combos.forEach(([bl, r, bi], j) => check(`meta.decks[${i}][${j}]`, bl, r, bi)));
+  return errors;
+}
+
 export function validateImages(index) {
   const errors = [];
   if (!index || typeof index.blades !== 'object') return ['images.json: blades fehlt'];
@@ -102,6 +123,7 @@ if (isMain) {
     ...validateNews(read('news.json')),
     ...validateEvents(read('events.json'), new Set(db.blades.map((b) => b.id))),
     ...validateImages(read('images.json')),
+    ...validateMeta(read('meta.json'), db),
   ];
   if (errors.length) {
     console.error(`❌ ${errors.length} Fehler:\n- ` + errors.join('\n- '));

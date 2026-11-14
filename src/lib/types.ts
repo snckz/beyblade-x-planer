@@ -150,3 +150,15 @@ export interface EventFeed {
   updatedAt: string;
   events: BeyEvent[];
 }
+
+export type MetaTrend = 'top' | 'up' | 'down' | 'steady';
+
+/** Turnier-Meta: Momentaufnahme gewinnender Kombos (public/data/meta.json) */
+export interface MetaFeed {
+  updatedAt: string;
+  note: string;
+  sources: { name: string; url: string }[];
+  combos: { bladeId: string; ratchetId: string | null; bitId: string; note: string; trend: MetaTrend }[];
+  /** Siegerdecks: je Kombo [Blade, Ratchet (null = integriert), Bit] */
+  decks: { event: string; date: string; combos: [string, string | null, string][] }[];
+}

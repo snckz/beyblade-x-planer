@@ -1,4 +1,4 @@
-import type { Database, EventFeed, ImageIndex, NewsFeed, Product, Rates } from './types';
+import type { Database, EventFeed, ImageIndex, MetaFeed, NewsFeed, Product, Rates } from './types';
 
 const base = import.meta.env.BASE_URL;
 
@@ -34,6 +34,14 @@ export async function loadEvents(): Promise<EventFeed> {
     return await getJson<EventFeed>('events.json');
   } catch {
     return { updatedAt: '', events: [] };
+  }
+}
+
+export async function loadMeta(): Promise<MetaFeed | null> {
+  try {
+    return await getJson<MetaFeed>('meta.json');
+  } catch {
+    return null;
   }
 }
 

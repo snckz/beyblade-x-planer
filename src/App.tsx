@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'preact/hooks';
-import type { Database, EventFeed, ImageIndex, NewsFeed, Rates } from './lib/types';
-import { daysUntil, loadDatabase, loadEvents, loadImages, loadNews, loadRates } from './lib/data';
+import type { Database, EventFeed, ImageIndex, MetaFeed, NewsFeed, Rates } from './lib/types';
+import { daysUntil, loadDatabase, loadEvents, loadImages, loadMeta, loadNews, loadRates } from './lib/data';
 import { loadState, saveState, type UserState } from './lib/storage';
 import { AppContext, type ImageKind } from './lib/context';
 import { preloadImages } from './lib/images';
@@ -37,13 +37,14 @@ export function App() {
   const [images, setImages] = useState<ImageIndex>({ source: '', blades: {} });
   const [events, setEvents] = useState<EventFeed>({ updatedAt: '', events: [] });
   const [rates, setRates] = useState<Rates | null>(null);
+  const [meta, setMeta] = useState<MetaFeed | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [state, setState] = useState<UserState>(loadState);
   const [tab, setTab] = useState<Tab>(readTab);
   const [storageOk, setStorageOk] = useState(true);
   const [detail, setDetail] = useState<string | null>(null);
   const [zoom, setZoom] = useState<{ id: string; kind: ImageKind } | null>(null);
-  const [preset, setPreset] = useState<{ bladeId: string; key: number } | null>(null);
+  const [preset, setPreset] = useState<{ bladeId: string; ratchetId?: string; bitId?: string; key: number } | null>(null);
 
   const load = useCallback(() => {
     setError(null);
@@ -54,6 +55,7 @@ export function App() {
     void loadImages().then(setImages);
     void loadEvents().then(setEvents);
     void loadRates().then(setRates);
+    void loadMeta().then(setMeta);
   }, []);
 
   useEffect(load, [load]);
@@ -81,6 +83,14 @@ export function App() {
       setDetail(null);
       setPreset({ bladeId, key: Date.now() });
       go('builder');
+    },
+    [go],
+  );
+  const buildCombo = useCallback(
+    (bladeId: string, ratchetId: string | undefined, bitId: string) => {
+      setPreset({ bladeId, ratchetId, bitId, key: Date.now() });
+      go('builder');
+      window.scrollTo({ top: 0 });
     },
     [go],
   );
@@ -151,9 +161,9 @@ export function App() {
             </div>
           ) : (
             <>
-              {tab === 'builder' && <ComboBuilder key={preset?.key ?? 0} db={db} state={state} update={update} presetBladeId={preset?.bladeId} />}
+              {tab === 'builder' && <ComboBuilder key={preset?.key ?? 0} db={db} state={state} update={update} presetBladeId={preset?.bladeId} presetRatchetId={preset?.ratchetId} presetBitId={preset?.bitId} />}
               {tab === 'parts' && <Lexikon db={db} state={state} update={update} />}
-              {tab === 'battle' && <Battle db={db} state={state} update={update} goToBuilder={() => go('builder')} />}
+              {tab === 'battle' && <Battle db={db} state={state} update={update} goToBuilder={() => go('builder')} meta={meta} onBuild={buildCombo} />}
               {tab === 'events' && <Events db={db} events={events.events} news={news} state={state} update={update} />}
               {tab === 'collection' && <Collection db={db} state={state} update={update} goToParts={() => go('parts')} />}
             </>

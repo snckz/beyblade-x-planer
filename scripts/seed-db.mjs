@@ -44,7 +44,7 @@ const blades = [
   B('KnightFortress', 'CX', 'defense', 'right', false, { note: 'CX: Assist-Blade-Kürzel „GV“ laut Händlerangabe.' }),
 ];
 
-const ratchetIds = ['0-70','0-80','1-60','1-80','2-60','2-70','2-80','3-60','3-70','3-80','3-85','4-50','4-55','4-60','4-70','4-80','5-60','5-70','5-80','6-60','6-70','6-80','7-60','7-70','7-80','8-70','9-60','9-65','9-70','9-80'];
+const ratchetIds = ['0-70','0-80','1-60','1-70','1-80','2-60','2-70','2-80','3-60','3-70','3-80','3-85','4-50','4-55','4-60','4-70','4-80','5-60','5-70','5-80','6-60','6-70','6-80','7-60','7-70','7-80','8-70','9-60','9-65','9-70','9-80'];
 const ratchets = ratchetIds.map((id) => {
   const [c, h] = id.split('-').map(Number);
   return { id, contacts: c === 0 ? null : c, heightMm: h / 10, ...(c === 0 ? { note: 'Sonderform ohne klassische Zacken.' } : {}) };

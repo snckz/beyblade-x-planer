@@ -17,6 +17,14 @@ describe('Preise', () => {
   });
   it('summiert und zählt fehlende Preise', () => {
     expect(sumPrices([{ priceJpy: 1000 }, { priceJpy: null }, {}, { priceJpy: 320 }])).toEqual({ jpy: 1320, missing: 2 });
+    // Zwei Kreisel aus demselben Set: Set-Preis nur einmal
+    const set = [
+      { code: 'BX-46-01', kind: 'set' as const, priceJpy: 7500 },
+      { code: 'BX-46-02', kind: 'set' as const, priceJpy: 7500 },
+      { code: 'BX-05', kind: 'booster' as const, priceJpy: 1500 },
+    ];
+    expect(sumPrices(set)).toEqual({ jpy: 9000, missing: 0 });
+    expect(priceHint(set[0], null)).toBe('Set: ¥7.500');
   });
   it('liest EZB-Kurse', () => {
     const xml = `<Cube><Cube time='2026-11-13'><Cube currency='USD' rate='1.08'/><Cube currency='JPY' rate='162.35'/><Cube currency='THB' rate='37.9'/></Cube></Cube>`;

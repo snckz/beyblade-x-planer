@@ -14,16 +14,18 @@ interface Props {
   state: UserState;
   update: (fn: (s: UserState) => UserState) => void;
   presetBladeId?: string;
+  presetRatchetId?: string;
+  presetBitId?: string;
 }
 
-export function ComboBuilder({ db, state, update, presetBladeId }: Props) {
+export function ComboBuilder({ db, state, update, presetBladeId, presetRatchetId, presetBitId }: Props) {
   const { openBlade } = useApp();
   const parts = useMemo(() => ownedParts(db, state.owned), [db, state.owned]);
   const hasCollection = parts.blades.size > 0;
   const [onlyOwned, setOnlyOwned] = useState(false);
   const [bladeId, setBladeId] = useState(presetBladeId ?? '');
-  const [ratchetId, setRatchetId] = useState('');
-  const [bitId, setBitId] = useState('');
+  const [ratchetId, setRatchetId] = useState(presetRatchetId ?? '');
+  const [bitId, setBitId] = useState(presetBitId ?? '');
   const [name, setName] = useState('');
   const [saved, setSaved] = useState(false);
 

@@ -1,0 +1,26 @@
+{
+  "updatedAt": "2026-11-09",
+  "note": "Aus gemeldeten WBO-Turnierergebnissen (Top-Platzierungen). Momentaufnahme – das Meta ändert sich laufend.",
+  "sources": [
+    { "name": "BEYWATCH.GG – November 2026 Meta Report", "url": "https://beywatch.gg/meta/november-2026" },
+    { "name": "BBXHub – Weekly Meta Digest", "url": "https://bbxhub.net/" },
+    { "name": "Beyblade X Combo Finder (WBO-Siege)", "url": "https://beybladexcombos.com/" }
+  ],
+  "combos": [
+    { "bladeId": "WizardRod", "ratchetId": "1-60", "bitId": "H", "note": "Meistgewinnende Kombo überhaupt – extrem stabile Ausdauer.", "trend": "top" },
+    { "bladeId": "SharkScale", "ratchetId": "1-70", "bitId": "LR", "note": "Stärkste Angriffs-Kombo; Shark Scale steckt in rund zwei Dritteln der Top-Decks.", "trend": "top" },
+    { "bladeId": "WyvernHover", "ratchetId": "7-70", "bitId": "K", "note": "Gefürchteter Konter gegen Angreifer, diese Woche stark im Kommen.", "trend": "up" },
+    { "bladeId": "SilverWolf", "ratchetId": "9-70", "bitId": "FB", "note": "Ausdauer-Alternative zu Wizard Rod, zuletzt etwas seltener.", "trend": "down" },
+    { "bladeId": "SiegSuperion", "ratchetId": "1-60", "bitId": "K", "note": "Größter Aufsteiger im November.", "trend": "up" },
+    { "bladeId": "CobaltDragoon", "ratchetId": "5-60", "bitId": "E", "note": "Einzige Links-Dreher-Option im Meta – gewinnt per Spin Finish gegen Ausdauer.", "trend": "steady" },
+    { "bladeId": "MeteorDragoon", "ratchetId": "7-60", "bitId": "L", "note": "Solide Wahl mit vielen Top-Platzierungen.", "trend": "steady" },
+    { "bladeId": "WizardRod", "ratchetId": "1-60", "bitId": "FB", "note": "Variante mit Free Ball – noch mehr Ausdauer, weniger Kontrolle.", "trend": "steady" }
+  ],
+  "decks": [
+    { "event": "InBEYsion Weekly", "date": "2026-11-02", "combos": [["SiegSuperion", "1-60", "K"], ["SharkScale", "9-60", "FB"], ["StormPegasus", "1-50", "R"]] },
+    { "event": "The BeyIsland Tour 2", "date": "2026-10-25", "combos": [["HellsNether", null, "WB"], ["SharkScale", "9-60", "LO"], ["WizardRod", "1-60", "H"]] },
+    { "event": "Waffles and Enthusiasm LGS", "date": "2026-10-25", "combos": [["GloryValkyrie", null, "K"], ["WizardRod", "1-60", "FB"], ["DranStrike", "3-70", "J"]] },
+    { "event": "InBEYsion Weekly", "date": "2026-10-19", "combos": [["CobaltDragoon", "9-60", "E"], ["WizardRod", "1-60", "H"], ["SharkScale", "3-60", "LR"]] },
+    { "event": "Dark Depths Games", "date": "2026-10-09", "combos": [["WizardRod", "1-60", "Nr"], ["SharkScale", "1-60", "FB"], ["AeroPegasus", "7-60", "K"]] }
+  ]
+}
