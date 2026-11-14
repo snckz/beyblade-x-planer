@@ -539,6 +539,9 @@ button.bey-img:active { transform: scale(.95); }
 .result-title { display: grid; gap: 6px; }
 
 /* ===== Bit-Fotos ===== */
+button.bit-img { padding: 0; cursor: zoom-in; transition: transform .15s; }
+button.bit-img:active { transform: scale(.95); }
+.lightbox img.lightbox-part { background: #fff; border-radius: 22px; padding: 18px; object-fit: contain; }
 /* Teile-Fotos (Bits, Ratchets): Bild absolut im Rahmen, damit Hoch- und Querformate nie abgeschnitten werden. */
 .bit-img { position: relative; flex: none; display: grid; place-items: center; overflow: hidden; border-radius: 12px; background: #fff; border: 1px solid var(--glass-line); }
 .bit-img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; padding: 5px; }

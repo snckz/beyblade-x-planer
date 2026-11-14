@@ -1,31 +1,54 @@
 import type { ComponentChildren } from 'preact';
 import { useState } from 'preact/hooks';
 import type { Bit, Ratchet } from '../lib/types';
-import { useApp } from '../lib/context';
+import { useApp, type ImageKind } from '../lib/context';
 
 type Size = 'sm' | 'md';
 
 /** Foto eines Teils vom Beyblade Wiki (verlinkt); bei Ladefehler greift der Fallback. */
-function PartPhoto({ src, alt, size, fallback }: { src?: string; alt: string; size: Size; fallback: ComponentChildren }) {
+interface PhotoProps {
+  src?: string;
+  alt: string;
+  size: Size;
+  fallback: ComponentChildren;
+  /** Wenn gesetzt: Antippen öffnet das Foto groß */
+  zoom?: { id: string; kind: ImageKind };
+}
+
+function PartPhoto({ src, alt, size, fallback, zoom }: PhotoProps) {
+  const { openImage } = useApp();
   const [failed, setFailed] = useState(false);
   if (src && !failed) {
+    const pic = <img src={src} alt={zoom ? '' : alt} loading="lazy" decoding="async" referrerpolicy="no-referrer" onError={() => setFailed(true)} />;
+    if (!zoom) return <span class={`bit-img bit-img-${size}`}>{pic}</span>;
     return (
-      <span class={`bit-img bit-img-${size}`}>
-        <img src={src} alt={alt} loading="lazy" decoding="async" referrerpolicy="no-referrer" onError={() => setFailed(true)} />
-      </span>
+      <button
+        type="button"
+        class={`bit-img bit-img-${size} zoom`}
+        aria-label={`${alt}: Bild vergrößern`}
+        onClick={(e) => {
+          // Liegt das Bild in einem <summary>, soll Antippen nur vergrößern, nicht auf-/zuklappen.
+          e.preventDefault();
+          e.stopPropagation();
+          openImage(zoom.id, zoom.kind);
+        }}
+      >
+        {pic}
+      </button>
     );
   }
   return <>{fallback}</>;
 }
 
 /** Foto eines Bits; ohne Foto das Kürzel als Plakette. */
-export function BitImage({ bit, size = 'sm' }: { bit: Bit; size?: Size }) {
+export function BitImage({ bit, size = 'sm', zoomable = false }: { bit: Bit; size?: Size; zoomable?: boolean }) {
   const { images } = useApp();
   return (
     <PartPhoto
       src={images.bits?.[bit.id]?.thumb}
       alt={bit.name}
       size={size}
+      zoom={zoomable ? { id: bit.id, kind: 'bit' } : undefined}
       fallback={<span class={`bit-img bit-img-${size} bit-fallback type-fg-${bit.type}`}>{bit.id}</span>}
     />
   );
@@ -46,13 +69,14 @@ function RatchetEmblem({ contacts }: { contacts: number }) {
 }
 
 /** Foto eines Ratchets; ohne Foto ein gezeichnetes Emblem. */
-export function RatchetImage({ ratchet, size = 'sm' }: { ratchet: Ratchet; size?: Size }) {
+export function RatchetImage({ ratchet, size = 'sm', zoomable = false }: { ratchet: Ratchet; size?: Size; zoomable?: boolean }) {
   const { images } = useApp();
   return (
     <PartPhoto
       src={images.ratchets?.[ratchet.id]?.thumb}
       alt={`Ratchet ${ratchet.id}`}
       size={size}
+      zoom={zoomable ? { id: ratchet.id, kind: 'ratchet' } : undefined}
       fallback={
         <span class={`bit-img bit-img-${size} ratchet-fallback`}>
           <RatchetEmblem contacts={ratchet.contacts ?? 0} />

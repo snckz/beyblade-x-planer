@@ -1,13 +1,24 @@
 import { useEffect, useRef } from 'preact/hooks';
 import type { Database } from '../lib/types';
-import { useApp } from '../lib/context';
+import { useApp, type ImageKind } from '../lib/context';
 
-/** Großansicht eines Blade-Fotos. Antippen irgendwo oder Escape schließt. */
-export function Lightbox({ db, bladeId, onClose }: { db: Database; bladeId: string; onClose: () => void }) {
+/** Anzeigename eines Teils für die Bildunterschrift. */
+function partName(db: Database, id: string, kind: ImageKind): string {
+  if (kind === 'bit') {
+    const bit = db.bits.find((b) => b.id === id);
+    return bit ? `${bit.id} · ${bit.name}` : id;
+  }
+  if (kind === 'ratchet') return `Ratchet ${id}`;
+  return db.blades.find((b) => b.id === id)?.name ?? id;
+}
+
+/** Großansicht eines Teile-Fotos (Blade, Bit, Ratchet). Antippen irgendwo oder Escape schließt. */
+export function Lightbox({ db, id, kind = 'blade', onClose }: { db: Database; id: string; kind?: ImageKind; onClose: () => void }) {
   const { images } = useApp();
   const ref = useRef<HTMLDivElement>(null);
-  const img = images.blades[bladeId];
-  const blade = db.blades.find((b) => b.id === bladeId);
+  const store = kind === 'bit' ? images.bits : kind === 'ratchet' ? images.ratchets : images.blades;
+  const img = store?.[id];
+  const name = partName(db, id, kind);
 
   useEffect(() => {
     const prev = document.activeElement as HTMLElement | null;
@@ -29,10 +40,10 @@ export function Lightbox({ db, bladeId, onClose }: { db: Database; bladeId: stri
   // Größere Variante vom Wiki anfordern (Thumbnail-Breite in der URL anpassen, falls vorhanden).
   const large = img.thumb.replace(/scale-to-width-down\/\d+/, 'scale-to-width-down/900');
   return (
-    <div ref={ref} class="lightbox" role="dialog" aria-modal="true" aria-label={blade?.name ?? 'Bild'} tabIndex={-1} onClick={onClose}>
-      <img src={large} alt={blade?.name ?? ''} referrerpolicy="no-referrer" />
+    <div ref={ref} class="lightbox" role="dialog" aria-modal="true" aria-label={name} tabIndex={-1} onClick={onClose}>
+      <img src={large} alt={name} referrerpolicy="no-referrer" class={kind === 'blade' ? undefined : 'lightbox-part'} />
       <p class="lightbox-cap">
-        <strong>{blade?.name}</strong>
+        <strong>{name}</strong>
         <a href={img.page} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
           Bild: Beyblade Wiki ↗
         </a>

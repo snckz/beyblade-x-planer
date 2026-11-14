@@ -110,7 +110,7 @@ export function Lexikon({ db, state, update }: Props) {
               <li key={b.id}>
                 <details class="row lex">
                   <summary>
-                    <BitImage bit={b} />
+                    <BitImage bit={b} zoomable />
                     <span class="row-main">
                       <span class="code code-inline">{b.id}</span>
                       <span class="row-title">
@@ -138,7 +138,7 @@ export function Lexikon({ db, state, update }: Props) {
           <ul class="list">
             {ratchets.map((r) => (
               <li key={r.id} class="row">
-                <RatchetImage ratchet={r} />
+                <RatchetImage ratchet={r} zoomable />
                 <div class="row-main">
                   <span class="row-title">{r.id}</span>
                   <span class="row-sub">{ratchetText(r)}</span>

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'preact/hooks';
 import type { Database, EventFeed, ImageIndex, NewsFeed } from './lib/types';
 import { daysUntil, loadDatabase, loadEvents, loadImages, loadNews } from './lib/data';
 import { loadState, saveState, type UserState } from './lib/storage';
-import { AppContext } from './lib/context';
+import { AppContext, type ImageKind } from './lib/context';
 import { ComboBuilder } from './components/ComboBuilder';
 import { Lexikon } from './components/Lexikon';
 import { Lightbox } from './components/Lightbox';
@@ -40,7 +40,7 @@ export function App() {
   const [tab, setTab] = useState<Tab>(readTab);
   const [storageOk, setStorageOk] = useState(true);
   const [detail, setDetail] = useState<string | null>(null);
-  const [zoom, setZoom] = useState<string | null>(null);
+  const [zoom, setZoom] = useState<{ id: string; kind: ImageKind } | null>(null);
   const [preset, setPreset] = useState<{ bladeId: string; key: number } | null>(null);
 
   const load = useCallback(() => {
@@ -69,7 +69,7 @@ export function App() {
   }, []);
   const openBlade = useCallback((id: string) => setDetail(id), []);
   const closeDetail = useCallback(() => setDetail(null), []);
-  const openImage = useCallback((id: string) => setZoom(id), []);
+  const openImage = useCallback((id: string, kind: ImageKind = 'blade') => setZoom({ id, kind }), []);
   const closeZoom = useCallback(() => setZoom(null), []);
   const useInBuilder = useCallback(
     (bladeId: string) => {
@@ -165,7 +165,7 @@ export function App() {
         </nav>
 
         {db && detail && <DetailSheet db={db} events={events.events} bladeId={detail} onClose={closeDetail} onUse={useInBuilder} />}
-        {db && zoom && <Lightbox db={db} bladeId={zoom} onClose={closeZoom} />}
+        {db && zoom && <Lightbox db={db} id={zoom.id} kind={zoom.kind} onClose={closeZoom} />}
       </div>
     </AppContext.Provider>
   );
