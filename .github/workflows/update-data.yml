@@ -9,6 +9,7 @@ on:
     branches: [main]
     paths:
       - 'scripts/update-images.mjs'
+      - 'scripts/import-catalog.mjs'
       - 'scripts/seed-db.mjs'
 
 permissions:
@@ -28,6 +29,8 @@ jobs:
           node-version: 22
       - name: Wiki nach neuen Produkten durchsuchen
         run: node scripts/update-data.mjs
+      - name: Katalog aus dem Wiki ergänzen (neue Kreisel, ungeprüft)
+        run: node scripts/import-catalog.mjs
       - name: Wiki-Bilder verknüpfen (neue Blades; sonntags alle neu prüfen)
         run: |
           if [ "$(date -u +%u)" = "7" ]; then node scripts/update-images.mjs --all; else node scripts/update-images.mjs; fi

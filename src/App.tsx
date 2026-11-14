@@ -117,10 +117,7 @@ export function App() {
     <AppContext.Provider value={ctx}>
       <div class="app">
         <div class="bg" aria-hidden="true">
-          <span class="blob b1" />
-          <span class="blob b2" />
-          <span class="blob b3" />
-          <span class="rings" />
+          <span class="bg-photo" />
         </div>
         <header class="top glass-bar">
           <div class="brand">

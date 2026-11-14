@@ -3,7 +3,7 @@
 // - Seiten und Daten: Netzwerk zuerst (neue Versionen sofort), offline die letzte Version.
 // - Gehashte Assets: Cache zuerst; veraltete Assets werden beim Aktivieren aufgeräumt.
 const CACHE = 'xplaner-v7';
-const STATIC = ['./', 'manifest.webmanifest', 'icons/icon.svg', 'icons/icon-192.png', 'data/db.json', 'data/news.json', 'data/images.json', 'data/events.json'];
+const STATIC = ['./', 'manifest.webmanifest', 'icons/icon.svg', 'icons/icon-192.png', 'data/db.json', 'data/news.json', 'data/images.json', 'data/events.json', 'bg.webp'];
 
 function assetsFromHtml(html) {
   return [...html.matchAll(/(?:src|href)="(?:\.\/|[^"]*\/)?(assets\/[^"]+)"/g)].map((m) => m[1]);

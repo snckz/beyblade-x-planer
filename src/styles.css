@@ -291,15 +291,12 @@ input::placeholder { color: var(--faint); }
 
 /* ===== Beyblade X Klassik + Liquid Glass ===== */
 .bg { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
-.blob { position: absolute; border-radius: 50%; opacity: .5; }
-.b1 { width: 420px; height: 420px; left: -120px; top: -80px; background: radial-gradient(circle, #ff3b30, transparent 65%); }
-.b2 { width: 520px; height: 520px; right: -200px; top: 30%; background: radial-gradient(circle, #2d6bff, transparent 65%); opacity: .4; }
-.b3 { width: 380px; height: 380px; left: 20%; bottom: -160px; background: radial-gradient(circle, #f5c542, transparent 65%); opacity: .22; }
-.rings {
-  position: absolute; left: 50%; top: 52%; width: 900px; height: 900px; transform: translate(-50%, -50%);
-  border-radius: 50%;
-  background: repeating-radial-gradient(circle, transparent 0 58px, rgba(255, 255, 255, .035) 58px 60px);
-  mask-image: radial-gradient(circle, #000 30%, transparent 70%); -webkit-mask-image: radial-gradient(circle, #000 30%, transparent 70%);
+/* Hintergrundbild (public/bg.webp), abgedunkelt, damit Text und Karten lesbar bleiben. */
+.bg-photo {
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(180deg, rgba(7, 9, 15, .8) 0%, rgba(7, 9, 15, .58) 30%, rgba(7, 9, 15, .7) 60%, rgba(7, 9, 15, .88) 100%),
+    url('/bg.webp') center 30% / cover no-repeat;
 }
 
 /* Glas-Look für Karten OHNE backdrop-filter: viele geblurte Listen-Elemente

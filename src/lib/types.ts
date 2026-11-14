@@ -24,6 +24,8 @@ export interface Blade {
   verified: boolean;
   /** erzwingt eine bestimmte Beyblade-Wiki-Seite für das Bild */
   wikiTitle?: string;
+  /** automatisch aus dem Beyblade Wiki übernommen (scripts/import-catalog.mjs) */
+  imported?: boolean;
 }
 
 export interface Ratchet {
@@ -34,6 +36,7 @@ export interface Ratchet {
   /** Höhe in mm */
   heightMm: number | null;
   note?: string;
+  imported?: boolean;
 }
 
 export interface Bit {
@@ -46,6 +49,7 @@ export interface Bit {
   note?: string;
   /** erzwingt eine bestimmte Beyblade-Wiki-Seite für das Bild */
   wikiTitle?: string;
+  imported?: boolean;
 }
 
 export type Rarity = 'standard' | 'random' | 'limited' | 'ultra';
@@ -66,6 +70,7 @@ export interface Product {
   source?: string;
   /** überschreibt die automatisch abgeleitete Seltenheit */
   rarity?: Rarity;
+  imported?: boolean;
 }
 
 export interface Database {

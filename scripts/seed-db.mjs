@@ -1,6 +1,6 @@
 // Erzeugt public/data/db.json aus einer gut lesbaren Kurzform.
 // Nur einmal bzw. bei manueller Pflege ausführen: node scripts/seed-db.mjs
-import { existsSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 
 const B = (id, line, type, spin, verified, extra = {}) => ({ id, name: id.replace(/([a-z])([A-Z])/g, '$1 $2'), line, type, spin, verified, ...extra });
 
@@ -99,8 +99,23 @@ const products = [
   P('HAS-XBS', 'Hasbro Xtreme Battle Set (Dagger Dran 4-60R + Tusk Mammoth 3-60T)', 'set', true, { includesLauncher: true, note: 'Mit Stadium und zwei Launchern.' }),
 ];
 
+// Vom Katalog-Import (scripts/import-catalog.mjs) ergänzte Einträge bleiben erhalten,
+// solange sie hier nicht von Hand gepflegt werden.
+const dbUrl = new URL('../public/data/db.json', import.meta.url);
+if (existsSync(dbUrl)) {
+  const old = JSON.parse(readFileSync(dbUrl, 'utf8'));
+  const keep = (list, mine, key) => {
+    const have = new Set(mine.map((x) => x[key]));
+    for (const x of list ?? []) if (x.imported && !have.has(x[key])) mine.push(x);
+  };
+  keep(old.blades, blades, 'id');
+  keep(old.ratchets, ratchets, 'id');
+  keep(old.bits, bits, 'id');
+  keep(old.products, products, 'code');
+}
+
 const db = { version: 1, updatedAt: new Date().toISOString().slice(0, 10), blades, ratchets, bits, products };
-writeFileSync(new URL('../public/data/db.json', import.meta.url), JSON.stringify(db, null, 2) + '\n');
+writeFileSync(dbUrl, JSON.stringify(db, null, 2) + '\n');
 const newsUrl = new URL('../public/data/news.json', import.meta.url);
 if (!existsSync(newsUrl)) writeFileSync(newsUrl, JSON.stringify({ updatedAt: null, lastRunOk: true, items: [] }, null, 2) + '\n');
 console.log(`db.json: ${blades.length} Blades, ${ratchets.length} Ratchets, ${bits.length} Bits, ${products.length} Produkte`);
