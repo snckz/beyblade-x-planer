@@ -2,8 +2,10 @@
 // - Beim Installieren werden index.html, die gehashten Build-Dateien und die Daten vorab gecacht.
 // - Seiten und Daten: Netzwerk zuerst (neue Versionen sofort), offline die letzte Version.
 // - Gehashte Assets: Cache zuerst; veraltete Assets werden beim Aktivieren aufgeräumt.
-const CACHE = 'xplaner-v11';
-const STATIC = ['./', 'manifest.webmanifest', 'icons/icon.svg', 'icons/icon-192.png', 'data/db.json', 'data/news.json', 'data/images.json', 'data/events.json', 'data/meta.json', 'bg.webp', 'logo.webp'];
+const CACHE = 'xplaner-v12';
+// Texterkennung (ca. 7 MB) in eigenem Cache: überlebt App-Updates, nur alte OCR-Versionen werden entfernt.
+const OCR_CACHE = 'xplaner-ocr';
+const STATIC = ['./', 'manifest.webmanifest', 'icons/icon.svg', 'icons/icon-192.png', 'data/db.json', 'data/news.json', 'data/images.json', 'data/events.json', 'data/meta.json', 'data/rates.json', 'bg.webp', 'logo.webp'];
 
 function assetsFromHtml(html) {
   return [...html.matchAll(/(?:src|href)="(?:\.\/|[^"]*\/)?(assets\/[^"]+)"/g)].map((m) => m[1]);
@@ -36,7 +38,7 @@ async function precache() {
 
 async function cleanup() {
   const keys = await caches.keys();
-  await Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)));
+  await Promise.all(keys.filter((k) => k !== CACHE && k !== OCR_CACHE).map((k) => caches.delete(k)));
   const cache = await caches.open(CACHE);
   const index = await cache.match('./');
   if (!index) return;
@@ -74,6 +76,23 @@ self.addEventListener('fetch', (event) => {
       fetch(req)
         .then((res) => putInCache('./', res))
         .catch(() => caches.match('./', { ignoreVary: true })),
+    );
+    return;
+  }
+  if (req.url.includes('/ocr/')) {
+    event.respondWith(
+      caches.open(OCR_CACHE).then(async (cache) => {
+        const hit = await cache.match(req, { ignoreVary: true });
+        if (hit) return hit;
+        const res = await fetch(req);
+        if (res.ok) {
+          await cache.put(req, res.clone());
+          // andere OCR-Versionen (Ordner ocr/<version>/) aufräumen
+          const dir = new URL('.', req.url).href;
+          for (const k of await cache.keys()) if (!k.url.startsWith(dir)) await cache.delete(k);
+        }
+        return res;
+      }),
     );
     return;
   }

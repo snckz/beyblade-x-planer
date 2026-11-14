@@ -28,14 +28,19 @@ const avgScore = (bey: Bey, opponents: Bey[]) => opponents.reduce((s, o) => s + 
  * Beste Kombos je Blade: erst alle Bits mit einem Standard-Ratchet testen,
  * dann für die besten Bits alle Ratchets. So bleibt es auch mit vielen Teilen schnell.
  */
-export function bestCombos(db: Database, pool: PartPool, opponents: Bey[], perBlade = 6): { list: Candidate[]; checked: number } {
+export type ScoreCache = Map<string, Candidate | null>;
+
+export function bestCombos(db: Database, pool: PartPool, opponents: Bey[], perBlade = 6, cache?: ScoreCache): { list: Candidate[]; checked: number } {
   const list: Candidate[] = [];
   let checked = 0;
   const rate = (combo: Candidate['combo']): Candidate | null => {
     checked++;
+    const k = `${combo.bladeId}|${combo.ratchetId ?? ''}|${combo.bitId}`;
+    if (cache?.has(k)) return cache.get(k)!;
     const bey = toBey(db, { id: '', ...combo });
-    if (!bey || !bey.analysis.valid) return null;
-    return { combo, bey, score: avgScore(bey, opponents) };
+    const c = bey && bey.analysis.valid ? { combo, bey, score: avgScore(bey, opponents) } : null;
+    cache?.set(k, c);
+    return c;
   };
   for (const bladeId of pool.blades) {
     const blade = db.blades.find((b) => b.id === bladeId);
@@ -89,6 +94,23 @@ export function optimizeDeck(db: Database, pool: PartPool, opponents: Bey[]): Op
   const best = pickTriple(list.slice(0, 60)) ?? pickTriple(list.slice(0, 150));
   if (!best) return null;
   return { picks: best.picks, score: Math.round(best.picks.reduce((s, p) => s + p.score, 0) / 3), checked };
+}
+
+/** Strafwert für einen leeren Deck-Platz (eine Runde, die man praktisch verschenkt). */
+export const EMPTY_SLOT = -60;
+
+/**
+ * Stärke eines Teile-Pools als eine Zahl: Score des besten Decks. Reichen die Teile noch nicht für
+ * drei regelkonforme Kreisel, zählen fehlende Plätze mit EMPTY_SLOT – so bringt auch der erste
+ * Kreisel einer leeren Sammlung messbar etwas.
+ */
+export function deckValue(db: Database, pool: PartPool, opponents: Bey[], cache?: ScoreCache): { value: number; picks: Candidate[] } {
+  const { list } = bestCombos(db, pool, opponents, 6, cache);
+  const best = pickTriple(list.slice(0, 60)) ?? pickTriple(list.slice(0, 150));
+  if (best) return { value: best.picks.reduce((s, p) => s + p.score, 0) / 3, picks: best.picks };
+  const picks: Candidate[] = [];
+  for (const c of list) if (picks.length < 3 && picks.every((p) => compatible(p.combo, c.combo))) picks.push(c);
+  return { value: (picks.reduce((s, p) => s + p.score, 0) + (3 - picks.length) * EMPTY_SLOT) / 3, picks };
 }
 
 function pickTriple(top: Candidate[]): { picks: Candidate[]; value: number } | null {

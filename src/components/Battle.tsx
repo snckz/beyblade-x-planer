@@ -24,6 +24,7 @@ import { ComboPicker } from './ComboPicker';
 import { BattleLog } from './BattleLog';
 import { DeckOptimizer } from './DeckOptimizer';
 import { LiveMatch } from './LiveMatch';
+import { Tournament } from './Tournament';
 import { Section, TypeBadge } from './ui';
 
 interface Props {
@@ -221,6 +222,7 @@ export function Battle(props: Props) {
         </Section>
       )}
       <BattleLog db={db} state={state} update={update} />
+      <Tournament />
       {props.meta && props.onBuild && <Meta db={db} meta={props.meta} update={update} onBuild={props.onBuild} />}
     </div>
   );

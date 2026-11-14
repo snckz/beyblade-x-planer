@@ -1,3 +1,4 @@
+import { groupKey } from './price';
 import type { Blade, Database, EventFeed, ImageIndex, MetaFeed, NewsFeed, Product, Rates } from './types';
 
 const base = import.meta.env.BASE_URL;
@@ -88,4 +89,12 @@ export function searchProducts(products: Product[], query: string, blades: Blade
   return products.filter((p) =>
     [p.code, p.name, p.hasbroName ?? '', p.bladeId ?? '', hasbro.get(p.bladeId ?? '') ?? ''].some((s) => s.toLowerCase().replace(/\s+/g, '').includes(q)),
   );
+}
+
+/** Was man mit einem Kauf bekommt: bei Sets alle Kreisel des Sets, sonst nur das eine Produkt. */
+export function purchaseCodes(products: Product[], p: Product): string[] {
+  if (p.kind !== 'set') return [p.code];
+  const k = groupKey(p);
+  const list = products.filter((x) => x.kind === 'set' && groupKey(x) === k).map((x) => x.code);
+  return list.length ? list : [p.code];
 }

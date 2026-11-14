@@ -842,3 +842,81 @@ input[type='text'], input[type='search'], select { border-radius: 16px; backgrou
 .cmp-bar { height: 10px; border-radius: 999px; background: rgba(76, 141, 255, .45); overflow: hidden; }
 .cmp-bar span { display: block; height: 100%; background: var(--pill-red); border-radius: 999px; }
 .cmp-reasons { margin: 0; padding-left: 18px; color: var(--muted); font-size: 14px; }
+
+.segmented.seg-2 { grid-template-columns: 1fr 1fr; }
+.progress { height: 6px; border-radius: 999px; background: rgba(255, 255, 255, .08); overflow: hidden; }
+.progress span { display: block; height: 100%; background: var(--pill-red); transition: width .2s; }
+
+/* Kaufberater */
+.advice-row { align-items: flex-start; }
+.advice-gain { font-size: 14px; }
+.advice-gain strong { color: var(--stamina); }
+
+/* Einkaufsmodus */
+.shop-body { max-width: 640px; width: 100%; margin: 0 auto; }
+.shop-head { display: grid; gap: 6px; }
+.shop-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.shop-item { display: grid; gap: 10px; border-left: 4px solid var(--card-line); }
+.shop-item.v-good { border-left-color: var(--stamina); }
+.shop-item.v-ok { border-left-color: #f5b83d; }
+.shop-item.v-high { border-left-color: var(--attack); }
+.shop-top { display: flex; gap: 12px; align-items: center; min-width: 0; }
+.shop-price { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.shop-input { flex: 1 1 160px; display: flex; align-items: center; gap: 6px; padding: 0 12px; min-height: 48px; border-radius: 14px; background: rgba(255, 255, 255, .06); border: 1px solid var(--card-line); }
+.shop-input input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--text); font: 600 18px/1 var(--font); outline: none; }
+.shop-input:focus-within { border-color: rgba(255, 255, 255, .35); }
+.verdict { display: grid; padding: 6px 12px; border-radius: 12px; font-weight: 650; background: rgba(255, 255, 255, .08); }
+.verdict small { font-weight: 500; font-size: 12px; opacity: .85; }
+.verdict.v-good { background: rgba(52, 199, 89, .18); color: #6ee28f; }
+.verdict.v-ok { background: rgba(245, 184, 61, .18); color: #f5c76a; }
+.verdict.v-high { background: rgba(255, 59, 48, .2); color: #ff7b72; }
+.scan-status { margin: 4px 0 0; font-weight: 600; font-size: 14px; }
+.scan-status.have { color: #6ee28f; }
+.scan-status.wish { color: #ff8a80; }
+.scan-status.new { color: #8ab4ff; }
+
+/* Mini-Turnier */
+.tour-add { display: flex; gap: 8px; }
+.tour-add .shop-input { flex: 1; }
+.chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.tour-match { flex-wrap: wrap; }
+.tour-edit { display: flex; gap: 8px; align-items: flex-end; width: 100%; }
+.tour-edit label { flex: 1; display: grid; gap: 4px; font-size: 13px; color: var(--muted); min-width: 0; }
+.tour-edit label span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tour-edit input { width: 100%; min-height: 44px; border-radius: 12px; border: 1px solid var(--card-line); background: rgba(255, 255, 255, .06); color: var(--text); font: 600 18px var(--font); text-align: center; }
+.tour-table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.tour-table th, .tour-table td { padding: 8px 6px; text-align: center; border-bottom: 1px solid var(--card-line); }
+.tour-table thead th { color: var(--muted); font-size: 12px; font-weight: 600; }
+.tour-table .left { text-align: left; font-weight: 600; }
+.tour-table tr.lead th, .tour-table tr.lead td { color: #f5c76a; }
+.tour-winner { margin: 0; font-size: 20px; font-weight: 650; letter-spacing: -.02em; }
+
+/* Foto-Check */
+.photo-start { justify-items: center; text-align: center; }
+.photo-start p { margin: 0; }
+.photo-start .btn { width: 100%; }
+.photo-icon { font-size: 42px; }
+.photo-result { display: grid; gap: 10px; border-left: 4px solid var(--card-line); }
+.photo-result.o-buy { border-left-color: var(--stamina); }
+.photo-result.o-maybe { border-left-color: #f5b83d; }
+.photo-result.o-skip { border-left-color: var(--attack); }
+.photo-verdict { margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -.03em; }
+.photo-verdict.o-buy { color: #6ee28f; }
+.photo-verdict.o-maybe { color: #f5c76a; }
+.photo-verdict.o-skip { color: #ff7b72; }
+.photo-reasons { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+.cur-switch { flex: 0 0 110px; }
+.verdict-inline.v-good { color: #6ee28f; }
+.verdict-inline.v-ok { color: #f5c76a; }
+.verdict-inline.v-high { color: #ff7b72; }
+.link-btn { padding: 0; border: 0; background: none; color: var(--text); text-decoration: underline; font: inherit; cursor: pointer; text-align: left; }
+
+.deck-share img { width: 100%; height: auto; border-radius: 18px; display: block; }
+.price-input { flex: 1 1 160px; display: grid; gap: 4px; }
+.price-input .shop-input { flex: none; }
+.shop-input.bad { border-color: var(--attack); }
+.price-bad { color: #ff7b72; font-size: 13px; }
+.tour-past summary, details.card summary { cursor: pointer; font-weight: 600; padding: 4px 0; }
+.tour-add .shop-input { min-width: 0; }
+.tour-add .shop-input input { width: 100%; }
+.tour-add .btn { flex: none; }

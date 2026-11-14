@@ -275,7 +275,7 @@ export function App() {
               {tab === 'parts' && <Lexikon db={db} state={state} update={update} />}
               {tab === 'battle' && <Battle db={db} state={state} update={update} goToBuilder={() => go('builder')} meta={meta} onBuild={buildCombo} />}
               {tab === 'events' && <Events db={db} events={events.events} news={news} state={state} update={update} />}
-              {tab === 'collection' && <Collection events={events.events} db={db} state={state} update={update} goToParts={() => go('parts')} />}
+              {tab === 'collection' && <Collection events={events.events} db={db} state={state} update={update} goToParts={() => go('parts')} meta={meta} />}
             </>
           )}
         </main>

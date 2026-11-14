@@ -3,7 +3,7 @@ import type { Database, MetaFeed } from '../lib/types';
 import type { UserState } from '../lib/storage';
 import { newId } from '../lib/storage';
 import { ownedParts } from '../lib/data';
-import { ARCHETYPES, toBey, type Bey } from '../lib/battle';
+import { metaOpponents } from '../lib/battle';
 import { optimizeDeck, type OptimizedDeck } from '../lib/optimizer';
 import { nb } from '../lib/analysis';
 import { BeyImage } from './BeyImage';
@@ -27,12 +27,7 @@ export function DeckOptimizer({ db, state, update, meta }: Props) {
   const [result, setResult] = useState<OptimizedDeck | null | undefined>(undefined);
   const [msg, setMsg] = useState('');
 
-  const { opponents, vsMeta } = useMemo(() => {
-    const fromMeta = (meta?.combos ?? []).map((c) => toBey(db, { id: '', bladeId: c.bladeId, ratchetId: c.ratchetId ?? undefined, bitId: c.bitId }));
-    const list = fromMeta.filter((b): b is Bey => !!b && b.analysis.valid);
-    if (list.length >= 3) return { opponents: list, vsMeta: true };
-    return { opponents: ARCHETYPES.map((c) => toBey(db, c)).filter((b): b is Bey => !!b), vsMeta: false };
-  }, [db, meta]);
+  const { opponents, vsMeta } = useMemo(() => metaOpponents(db, meta), [db, meta]);
   // Altes Ergebnis verwerfen, sobald sich Teile oder Gegner ändern – sonst ließe sich ein veraltetes Deck übernehmen.
   useEffect(() => setResult(undefined), [parts, opponents, onlyOwned]);
 

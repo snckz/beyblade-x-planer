@@ -62,8 +62,6 @@ export interface Product {
   code: string;
   name: string;
   hasbroName?: string;
-  /** true = vom Daten-Update automatisch zugeordnet (darf neu berechnet werden) */
-  hasbroNameAuto?: boolean;
   kind: ProductKind;
   bladeId?: string;
   ratchetId?: string;

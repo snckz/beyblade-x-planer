@@ -1,9 +1,10 @@
+import { lockScroll } from '../lib/scrollLock';
 import { displayProductName } from '../lib/names';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import type { Database, Product } from '../lib/types';
 import type { UserState } from '../lib/storage';
 import { createDetector, normalizeGtin, validGtin } from '../lib/barcode';
-import { searchProducts } from '../lib/data';
+import { ownedParts, searchProducts } from '../lib/data';
 import { useApp } from '../lib/context';
 import { priceHint } from '../lib/price';
 import { BeyImage } from './BeyImage';
@@ -43,10 +44,10 @@ export function Scanner({ db, state, update, onClose }: Props) {
     ref.current?.focus();
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && closeRef.current();
     document.addEventListener('keydown', onKey);
-    document.body.style.overflow = 'hidden';
+    const unlock = lockScroll();
     return () => {
       document.removeEventListener('keydown', onKey);
-      document.body.style.overflow = '';
+      unlock();
       prev?.focus?.();
     };
   }, []);
@@ -215,7 +216,7 @@ export function Scanner({ db, state, update, onClose }: Props) {
                 <p class="eyebrow">{product.code}</p>
                 <p class="row-title">{displayProductName(product, db)}</p>
                 {priceHint(product, rates) && <p class="muted">{priceHint(product, rates)}</p>}
-                {(state.owned[product.code] ?? 0) > 0 && <p class="muted">Hast du schon {state.owned[product.code]}×.</p>}
+                <OwnStatus db={db} state={state} product={product} />
               </div>
               <div class="btn-row">
                 <button type="button" class="btn btn-primary" onClick={() => addOwned(product)}>
@@ -249,5 +250,23 @@ export function Scanner({ db, state, update, onClose }: Props) {
         </div>
       </div>
     </div>
+  );
+}
+
+/** Im Laden das Wichtigste auf einen Blick: schon da? auf der Wunschliste? bringt es neue Teile? */
+function OwnStatus({ db, state, product }: { db: Database; state: UserState; product: Product }) {
+  const n = state.owned[product.code] ?? 0;
+  if (n > 0) return <p class="scan-status have">✓ Hast du schon ({n}×)</p>;
+  const parts = ownedParts(db, state.owned);
+  const fresh = [
+    product.bladeId && !parts.blades.has(product.bladeId),
+    product.ratchetId && !parts.ratchets.has(product.ratchetId),
+    product.bitId && !parts.bits.has(product.bitId),
+  ].filter(Boolean).length;
+  return (
+    <>
+      {state.wishlist.includes(product.code) && <p class="scan-status wish">♥ Steht auf deiner Wunschliste</p>}
+      {product.bladeId && (fresh ? <p class="scan-status new">{fresh === 1 ? '1 neues Teil' : `${fresh} neue Teile`} für deine Sammlung</p> : <p class="scan-status have">Alle Teile hast du schon aus anderen Packungen</p>)}
+    </>
   );
 }

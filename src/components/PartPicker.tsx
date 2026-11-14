@@ -1,3 +1,4 @@
+import { lockScroll } from '../lib/scrollLock';
 import { displayName } from '../lib/names';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import type { BeyType, Blade, Bit, Ratchet } from '../lib/types';
@@ -105,12 +106,10 @@ function PickerSheet({ kind, label, blades = [], ratchets = [], bits = [], value
     ref.current?.focus();
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && closeRef.current();
     document.addEventListener('keydown', onKey);
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
+    const unlock = lockScroll();
     return () => {
       document.removeEventListener('keydown', onKey);
-      // vorherigen Wert zurück – liegt z. B. noch das Live-Match darunter, bleibt der Hintergrund gesperrt
-      document.body.style.overflow = prevOverflow;
+      unlock();
       prev?.focus?.();
     };
   }, []);

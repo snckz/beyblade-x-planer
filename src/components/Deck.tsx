@@ -3,6 +3,9 @@ import type { UserState } from '../lib/storage';
 import { analyze, checkDeck, nb, resolveCombo, TYPE_LABEL } from '../lib/analysis';
 import { Empty, Section, SpinBadge, TypeBadge } from './ui';
 import { BeyImage } from './BeyImage';
+import { useEffect, useState } from 'preact/hooks';
+import { useApp } from '../lib/context';
+import { canShareFile, deckFile, renderDeckImage } from '../lib/deckImage';
 
 interface Props {
   db: Database;
@@ -15,6 +18,33 @@ export function Deck({ db, state, update, goToBuilder }: Props) {
   const combos = state.deck.map((id) => state.combos.find((c) => c.id === id)).filter((c) => c !== undefined);
   const check = checkDeck(db, combos);
   const missingTypes = (['attack', 'defense', 'stamina'] as const).filter((t) => !check.types.includes(t));
+  const { images } = useApp();
+  const [sharing, setSharing] = useState(false);
+  const [shareMsg, setShareMsg] = useState('');
+  const [img, setImg] = useState<{ file: File; url: string } | null>(null);
+  useEffect(() => () => img && URL.revokeObjectURL(img.url), [img]);
+  // Deck geändert → altes Bild nicht mehr teilen
+  const deckKey = combos.map((c) => `${c.bladeId}|${c.ratchetId ?? ''}|${c.bitId}`).join(',');
+  useEffect(() => setImg(null), [deckKey]);
+  // Schritt 1: Bild erzeugen (dauert kurz). Schritt 2: „Teilen“ ruft share() direkt im Tipp auf – sonst blockt iOS.
+  const create = async () => {
+    setSharing(true);
+    setShareMsg('');
+    try {
+      const file = deckFile(await renderDeckImage(db, combos, images));
+      setImg({ file, url: URL.createObjectURL(file) });
+    } catch {
+      setShareMsg('Das Bild konnte nicht erstellt werden.');
+    } finally {
+      setSharing(false);
+    }
+  };
+  const share = () => {
+    if (!img) return;
+    navigator.share({ files: [img.file], title: 'Mein Beyblade-X-Deck' }).catch((e: Error) => {
+      if (e.name !== 'AbortError') setShareMsg('Teilen ging nicht – halte das Bild gedrückt, um es zu sichern.');
+    });
+  };
 
   const move = (i: number, dir: -1 | 1) =>
     update((s) => {
@@ -95,6 +125,34 @@ export function Deck({ db, state, update, goToBuilder }: Props) {
         )}
         <p class="fineprint">Regeln können je nach Veranstalter abweichen – vor dem Turnier kurz nachfragen.</p>
       </div>
+      {img ? (
+        <div class="card deck-share stack-sm">
+          <img src={img.url} alt="Dein Deck als Bild" width={1080} height={1350} />
+          <div class="btn-row">
+            {canShareFile(img.file) && (
+              <button type="button" class="btn btn-primary" onClick={share}>
+                📤 Teilen
+              </button>
+            )}
+            <a class="btn" href={img.url} download="beyblade-deck.png">
+              Speichern
+            </a>
+            <button type="button" class="btn btn-ghost" onClick={() => setImg(null)}>
+              Schließen
+            </button>
+          </div>
+          <p class="fineprint">Auf dem iPhone: Bild gedrückt halten → „Zu Fotos hinzufügen“.</p>
+        </div>
+      ) : (
+        <button type="button" class="btn" onClick={create} disabled={sharing}>
+          {sharing ? 'Bild wird erstellt …' : '📤 Deck als Bild teilen'}
+        </button>
+      )}
+      {shareMsg && (
+        <p class="muted" role="status">
+          {shareMsg}
+        </p>
+      )}
     </div>
   );
 }

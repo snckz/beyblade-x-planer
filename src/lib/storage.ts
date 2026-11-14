@@ -21,6 +21,13 @@ export interface UserState {
   matches: Match[];
   /** Anzeige-Einstellungen */
   prefs: Prefs;
+  /** im Laden gesehene Preise (Einkaufsmodus): Produktcode → Betrag + Währung */
+  shopPrices: Record<string, ShopPrice>;
+}
+
+export interface ShopPrice {
+  amount: number;
+  cur: 'THB' | 'EUR';
 }
 
 export interface Prefs {
@@ -28,7 +35,7 @@ export interface Prefs {
   hasbroNames: boolean;
 }
 
-export const EMPTY_STATE: UserState = { owned: {}, combos: [], deck: [], seenNews: [], opponent: [], wishlist: [], barcodes: {}, matches: [], prefs: { hasbroNames: false } };
+export const EMPTY_STATE: UserState = { owned: {}, combos: [], deck: [], seenNews: [], opponent: [], wishlist: [], barcodes: {}, matches: [], prefs: { hasbroNames: false }, shopPrices: {} };
 
 function isRecordOfNumbers(v: unknown): v is Record<string, number> {
   return !!v && typeof v === 'object' && Object.values(v).every((n) => typeof n === 'number' && Number.isFinite(n) && n >= 0);
@@ -57,6 +64,14 @@ export function sanitize(raw: unknown): UserState {
         : {},
     matches: sanitizeMatches(r.matches),
     prefs: { hasbroNames: !!(r.prefs && typeof r.prefs === 'object' && (r.prefs as Prefs).hasbroNames === true) },
+    shopPrices:
+      r.shopPrices && typeof r.shopPrices === 'object'
+        ? Object.fromEntries(
+            Object.entries(r.shopPrices as Record<string, ShopPrice>)
+              .filter(([, v]) => !!v && typeof v === 'object' && Number.isFinite(v.amount) && v.amount > 0 && v.amount < 1e6 && (v.cur === 'THB' || v.cur === 'EUR'))
+              .map(([k, v]) => [k, { amount: v.amount, cur: v.cur }]),
+          )
+        : {},
   };
 }
 

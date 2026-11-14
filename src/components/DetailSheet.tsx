@@ -1,3 +1,4 @@
+import { lockScroll } from '../lib/scrollLock';
 import { displayName, displayProductName } from '../lib/names';
 import { useEffect, useRef } from 'preact/hooks';
 import type { BeyEvent, Database } from '../lib/types';
@@ -28,10 +29,10 @@ export function DetailSheet({ db, events, bladeId, onClose, onUse }: Props) {
     closeRef.current?.focus();
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
     document.addEventListener('keydown', onKey);
-    document.body.style.overflow = 'hidden';
+    const unlock = lockScroll();
     return () => {
       document.removeEventListener('keydown', onKey);
-      document.body.style.overflow = '';
+      unlock();
       prevFocus?.focus?.();
     };
   }, [onClose]);

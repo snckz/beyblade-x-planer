@@ -89,6 +89,7 @@ export function mergeState(local: UserState, incoming: UserState): UserState {
     opponent: local.opponent.length ? local.opponent : incoming.opponent,
     wishlist: [...new Set([...local.wishlist, ...incoming.wishlist])],
     barcodes: { ...incoming.barcodes, ...local.barcodes },
+    shopPrices: { ...incoming.shopPrices, ...local.shopPrices },
     matches: byId(local.matches, incoming.matches).sort((a, b) => a.date.localeCompare(b.date)).slice(-500),
   };
 }

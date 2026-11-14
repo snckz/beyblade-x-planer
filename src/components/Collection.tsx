@@ -1,15 +1,18 @@
 import { displayProductName } from '../lib/names';
 import { useMemo, useRef, useState } from 'preact/hooks';
-import type { BeyEvent, Database } from '../lib/types';
+import type { BeyEvent, Database, MetaFeed } from '../lib/types';
 import { wishReleases } from '../lib/reminders';
 import { downloadIcs } from '../lib/ics';
 import type { UserState } from '../lib/storage';
 import { exportState, importState } from '../lib/storage';
-import { ownedParts } from '../lib/data';
+import { ownedParts, purchaseCodes } from '../lib/data';
 import { Empty, Section, TypeBadge } from './ui';
 import { useApp } from '../lib/context';
 import { Scanner } from './Scanner';
 import { Transfer } from './Transfer';
+import { Advisor } from './Advisor';
+import { ShopMode } from './ShopMode';
+import { PhotoCheck } from './PhotoCheck';
 import { nb } from '../lib/analysis';
 import { convert, priceHint, sumPrices, yen } from '../lib/price';
 
@@ -19,14 +22,17 @@ interface Props {
   state: UserState;
   update: (fn: (s: UserState) => UserState) => void;
   goToParts: () => void;
+  meta?: MetaFeed | null;
 }
 
-export function Collection({ db, state, update, goToParts, events = [] }: Props) {
+export function Collection({ db, state, update, goToParts, events = [], meta }: Props) {
   const parts = useMemo(() => ownedParts(db, state.owned), [db, state.owned]);
   const fileRef = useRef<HTMLInputElement>(null);
   const [msg, setMsg] = useState('');
   const [scan, setScan] = useState(false);
   const [transfer, setTransfer] = useState(false);
+  const [shop, setShop] = useState(false);
+  const [photo, setPhoto] = useState(false);
   const ownedProducts = db.products.filter((p) => (state.owned[p.code] ?? 0) > 0);
   const unknownCodes = Object.keys(state.owned).filter((c) => !db.products.some((p) => p.code === c));
   const total = ownedProducts.reduce((n, p) => n + (state.owned[p.code] ?? 0), 0);
@@ -51,8 +57,15 @@ export function Collection({ db, state, update, goToParts, events = [] }: Props)
       'beyblade-wunschliste.ics',
     );
   const unwish = (code: string) => update((s) => ({ ...s, wishlist: s.wishlist.filter((c) => c !== code) }));
-  const gotIt = (code: string) =>
-    update((s) => ({ ...s, wishlist: s.wishlist.filter((c) => c !== code), owned: { ...s.owned, [code]: (s.owned[code] ?? 0) + 1 } }));
+  const gotIt = (code: string) => {
+    const p = db.products.find((x) => x.code === code);
+    const codes = p ? purchaseCodes(db.products, p) : [code];
+    update((s) => ({
+      ...s,
+      wishlist: s.wishlist.filter((c) => !codes.includes(c)),
+      owned: { ...s.owned, ...Object.fromEntries(codes.map((c) => [c, (s.owned[c] ?? 0) + 1])) },
+    }));
+  };
 
   const doExport = () => {
     const blob = new Blob([exportState(state)], { type: 'application/json' });
@@ -90,7 +103,18 @@ export function Collection({ db, state, update, goToParts, events = [] }: Props)
           <small>Barcode fotografieren – Kreisel landet in der Sammlung</small>
         </span>
       </button>
+      <button type="button" class="card glass scan-cta" onClick={() => setPhoto(true)}>
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z" />
+          <circle cx="12" cy="13" r="3.5" />
+        </svg>
+        <span>
+          <strong>Foto-Check</strong>
+          <small>Packung fotografieren – erkennen und bewerten lassen</small>
+        </span>
+      </button>
       {scan && <Scanner db={db} state={state} update={update} onClose={() => setScan(false)} />}
+      {photo && <PhotoCheck db={db} state={state} update={update} meta={meta} onClose={() => setPhoto(false)} />}
       {ownedProducts.length ? (
         <>
           <div class="kpis">
@@ -149,7 +173,14 @@ export function Collection({ db, state, update, goToParts, events = [] }: Props)
           </button>
         </Empty>
       )}
-      <Section title="Wunschliste" aside={wishProducts.length ? <span class="muted">{wishProducts.length}</span> : undefined}>
+      <Section
+        title={`Wunschliste${wishProducts.length ? ` (${wishProducts.length})` : ''}`}
+        aside={
+          <button type="button" class="btn btn-sm" onClick={() => setShop(true)}>
+            🛒 Einkaufsmodus
+          </button>
+        }
+      >
         {wishProducts.length ? (
           <div class="card wish-card">
             <ul class="list">
@@ -205,6 +236,9 @@ export function Collection({ db, state, update, goToParts, events = [] }: Props)
           <p class="muted">Tippe im Lexikon unter „Karten“ auf den Stern, um Kreisel vorzumerken. Hier siehst du dann, was sie ungefähr kosten.</p>
         )}
       </Section>
+
+      <Advisor db={db} state={state} update={update} meta={meta} />
+      {shop && <ShopMode db={db} state={state} update={update} meta={meta} onClose={() => setShop(false)} />}
 
       {unknownCodes.length > 0 && (
         <p class="fineprint">Nicht mehr in der Datenbank: {unknownCodes.join(', ')}</p>

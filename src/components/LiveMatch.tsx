@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
+import { useModal } from '../lib/useModal';
 import type { Combo, Database } from '../lib/types';
 import type { UserState } from '../lib/storage';
 import { newId } from '../lib/storage';
@@ -54,12 +55,10 @@ export function LiveMatch({ db, state, update, onClose }: Props) {
     if (running && !window.confirm('Match beenden? Die bisherigen Runden bleiben im Tagebuch.')) return;
     onClose();
   };
-  // Per Ref, damit der Effekt nur beim Öffnen/Schließen läuft und nicht bei jeder Runde (Fokus, Wake-Lock).
-  const closeRef = useRef(close);
-  closeRef.current = close;
+  useModal(ref, close);
 
+  // Bildschirm während des Matches anlassen (wo unterstützt).
   useEffect(() => {
-    // Bildschirm während des Matches anlassen (wo unterstützt).
     let lock: { release: () => Promise<void> } | null = null;
     let disposed = false;
     const nav = navigator as Navigator & { wakeLock?: { request: (t: 'screen') => Promise<{ release: () => Promise<void> }> } };
@@ -67,39 +66,9 @@ export function LiveMatch({ db, state, update, onClose }: Props) {
       ?.request('screen')
       .then((l) => (disposed ? void l.release().catch(() => undefined) : (lock = l)))
       .catch(() => undefined);
-    const prev = document.activeElement as HTMLElement | null;
-    const prevOverflow = document.body.style.overflow;
-    ref.current?.focus();
-    document.body.style.overflow = 'hidden';
-    const onKey = (e: KeyboardEvent) => {
-      const root = ref.current;
-      if (!root) return;
-      // Ein offenes Unter-Fenster (Teile-Auswahl, Großansicht) behandelt seine Tasten selbst.
-      const nested = [...document.querySelectorAll('[aria-modal="true"]')].some((d) => d !== root);
-      if (nested) return;
-      if (e.key === 'Escape') closeRef.current();
-      if (e.key === 'Tab') {
-        // Fokus im Dialog halten
-        const f = [...root.querySelectorAll<HTMLElement>('button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])')];
-        if (!f.length) return;
-        const first = f[0]!;
-        const last = f[f.length - 1]!;
-        if (e.shiftKey && (document.activeElement === first || document.activeElement === root)) {
-          e.preventDefault();
-          last.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault();
-          first.focus();
-        }
-      }
-    };
-    document.addEventListener('keydown', onKey);
     return () => {
       disposed = true;
       void lock?.release().catch(() => undefined);
-      document.body.style.overflow = prevOverflow;
-      document.removeEventListener('keydown', onKey);
-      prev?.focus?.();
     };
   }, []);
 

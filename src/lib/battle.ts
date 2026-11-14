@@ -1,4 +1,4 @@
-import type { BeyType, Combo, Database } from './types';
+import type { BeyType, Combo, Database, MetaFeed } from './types';
 import { analyze, resolveCombo, type Analysis, type Resolved } from './analysis';
 
 /**
@@ -183,4 +183,13 @@ export function suggestImprovements(db: Database, deck: Combo[], opponents: Bey[
     if (best.v) out.push(best.v);
   });
   return out.sort((a, b) => b.gain - a.gain).slice(0, limit);
+}
+
+/** Gegner für Optimierer und Kaufberater: aktuelle Turnier-Kombos (mind. 3 gültige), sonst typische Archetypen. */
+export function metaOpponents(db: Database, meta?: MetaFeed | null): { opponents: Bey[]; vsMeta: boolean } {
+  const list = (meta?.combos ?? [])
+    .map((c) => toBey(db, { id: '', bladeId: c.bladeId, ratchetId: c.ratchetId ?? undefined, bitId: c.bitId }))
+    .filter((b): b is Bey => !!b && b.analysis.valid);
+  if (list.length >= 3) return { opponents: list, vsMeta: true };
+  return { opponents: ARCHETYPES.map((c) => toBey(db, c)).filter((b): b is Bey => !!b), vsMeta: false };
 }
