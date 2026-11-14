@@ -648,3 +648,113 @@ button.bit-img:active { transform: scale(.95); }
 .meta-deck .row-sub { line-height: 1.5; }
 .meta-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 2px 0; }
 .meta-tags .trend { margin-left: 0; }
+
+/* =========================================================================
+   Redesign „Studio“: moderne Grotesk-Typo, Pill-Navigation, dunkle Glas-Karten.
+   Hintergrund und Farben bleiben, die Optik orientiert sich an Agentur-Landingpages.
+   ========================================================================= */
+:root {
+  --font: 'Inter Tight Variable', ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+  --radius: 22px;
+  --radius-sm: 14px;
+  --card-bg: linear-gradient(180deg, rgba(255, 255, 255, .055), rgba(255, 255, 255, .015) 40%), rgba(14, 15, 21, .9);
+  --card-line: rgba(255, 255, 255, .09);
+  --pill-red: linear-gradient(180deg, #ff5b4f, #e3271d);
+  --glow-red: 0 0 0 1px rgba(255, 90, 79, .35), 0 8px 24px rgba(255, 59, 48, .35);
+}
+body { font-size: 15.5px; letter-spacing: -.005em; font-feature-settings: 'ss01', 'cv11'; }
+
+/* Kopfzeile */
+.top { padding-top: calc(env(safe-area-inset-top, 0px) + 14px); padding-bottom: 14px; border-bottom-color: rgba(255, 255, 255, .06); }
+.brand-logo { height: 30px; }
+
+/* Seitenkopf: kleines Label + große, eng gesetzte Überschrift mit rotem Akzent */
+.kicker {
+  display: inline-flex; align-items: center; gap: 8px; margin: 6px 0 14px; padding: 6px 12px 6px 10px;
+  border-radius: 999px; background: rgba(255, 255, 255, .05); border: 1px solid var(--card-line);
+  font-size: 12.5px; font-weight: 500; color: var(--muted); letter-spacing: 0;
+}
+.kicker-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 10px var(--accent); }
+.page-title {
+  display: block; margin: 0 0 26px; font-style: normal; text-transform: none;
+  font-size: clamp(40px, 11vw, 60px); line-height: .95; font-weight: 500; letter-spacing: -.055em;
+}
+.page-title::after { content: none; }
+.page-title .accent { color: var(--accent); }
+
+/* Abschnitts-Überschriften als Pill-Label mit rotem Punkt */
+.section-head h2 {
+  display: inline-flex; align-items: center; gap: 8px; padding: 5px 12px 5px 10px; border-radius: 999px;
+  background: rgba(255, 255, 255, .05); border: 1px solid var(--card-line);
+  font-style: normal; text-transform: none; letter-spacing: 0; font-size: 12.5px; font-weight: 550; color: var(--text);
+}
+.section-head h2::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+.eyebrow { letter-spacing: .06em; font-weight: 600; }
+
+/* Karten: dunkler, größere Radien, feine Lichtkante */
+.glass, .card, .row, .kpi {
+  background: var(--card-bg);
+  border: 1px solid var(--card-line);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), 0 18px 40px rgba(0, 0, 0, .35);
+}
+.card { border-radius: var(--radius); }
+.row { border-radius: 18px; }
+.kpi { border-radius: 18px; padding: 16px 8px 14px; }
+.kpi-val { font: 500 32px/1 var(--font); letter-spacing: -.05em; }
+.kpi-label { font-weight: 500; }
+
+/* Typo in Karten und Sheets: modern statt kursiv/versal */
+.combo-name, .sheet-title { font-style: normal; text-transform: none; font-weight: 600; letter-spacing: -.035em; }
+.sheet-title { font-size: 26px; }
+.row-title { letter-spacing: -.015em; }
+
+/* Buttons als Pills */
+.btn { border-radius: 999px; font-weight: 550; letter-spacing: -.005em; background-color: rgba(255, 255, 255, .06); border-color: var(--card-line); }
+.btn-primary {
+  background: var(--pill-red); border-color: transparent; color: #fff; font-style: normal; text-transform: none;
+  letter-spacing: -.01em; font-weight: 600; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .3), var(--glow-red);
+}
+.btn-ghost { background: transparent; }
+input[type='text'], input[type='search'], select { border-radius: 16px; background-color: rgba(8, 9, 13, .6); border-color: var(--card-line); }
+
+/* Segment-Umschalter (z. B. Lexikon-Tabs) als Pill mit roter Auswahl */
+.segmented { border-radius: 999px; padding: 4px; background: rgba(10, 11, 16, .7); border-color: var(--card-line); }
+.segmented button { border-radius: 999px; font-weight: 550; color: var(--muted); transition: background .2s, color .2s, box-shadow .2s; }
+.segmented button.on { background: var(--pill-red); color: #fff; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .3), 0 4px 14px rgba(255, 59, 48, .35); }
+.chip { border-radius: 999px; }
+
+/* Tab-Leiste: schwebende Pill, aktiver Tab als roter Pill mit Icon + Text */
+.tabbar {
+  left: 50%; right: auto; transform: translateX(-50%); width: min(440px, calc(100% - 24px));
+  height: 64px; padding: 7px; border-radius: 999px;
+  display: flex; gap: 4px; align-items: stretch;
+  background: rgba(12, 13, 18, .82) !important; border: 1px solid rgba(255, 255, 255, .1);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), 0 20px 50px rgba(0, 0, 0, .55);
+}
+.tabbar a {
+  flex: 1 1 0; min-width: 0; flex-direction: row; gap: 7px; border-radius: 999px; color: var(--muted);
+  transition: flex-grow .3s cubic-bezier(.2, .8, .2, 1), background .25s, color .2s;
+}
+.tabbar a .tab-label { font-size: 13px; font-weight: 600; letter-spacing: -.01em; white-space: nowrap; max-width: 0; opacity: 0; overflow: hidden; transition: max-width .3s, opacity .2s; }
+.tabbar a.on { flex-grow: 2.4; color: #fff; background: var(--pill-red); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .3), var(--glow-red); }
+.tabbar a.on .tab-label { max-width: 90px; opacity: 1; }
+.tabbar a.on svg { stroke: #fff; }
+.tabbar a .tab-icon, .tabbar a.on .tab-icon { width: auto; height: auto; background: none; box-shadow: none; }
+.tabbar a:not(.on):active { background: rgba(255, 255, 255, .06); }
+.tab-icon .dot-count { top: -7px; right: -9px; }
+@media (prefers-reduced-motion: reduce) { .tabbar a, .tabbar a .tab-label { transition: none; } }
+
+/* Desktop: Navigation oben als Pill-Gruppe */
+.tabs-top { padding: 4px; border-radius: 999px; background: rgba(10, 11, 16, .7); border: 1px solid var(--card-line); }
+.tabs-top a { font-weight: 550; }
+.tabs-top a.on { color: #fff; background: var(--pill-red); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .3), var(--glow-red); }
+
+/* Restliche Beyblade-Kursivschrift auf den neuen Stil bringen */
+.infobox caption { font-style: normal; letter-spacing: .06em; font-weight: 650; }
+.sheet-h { font-style: normal; text-transform: none; letter-spacing: -.01em; font-size: 15px; font-weight: 600; color: var(--text); }
+.verdict-score { font: 500 28px var(--font); letter-spacing: -.05em; }
+.event-day { font: 500 26px/1 var(--font); letter-spacing: -.05em; }
+.tile-big { font: 600 20px var(--font); letter-spacing: -.04em; }
+.album-count { font: 500 44px/1 var(--font); letter-spacing: -.06em; }
+.meta-rank { font-style: normal; font-weight: 500; font-size: 18px; letter-spacing: -.04em; }
+@media (min-width: 860px) { .tabbar { display: none; } }

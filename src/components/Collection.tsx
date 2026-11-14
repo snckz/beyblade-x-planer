@@ -98,7 +98,7 @@ export function Collection({ db, state, update, goToParts }: Props) {
                   <li key={p.code} class="row">
                     <span class="code">{p.code.startsWith('TBA') ? 'neu' : p.code}</span>
                     <div class="row-main">
-                      <span class="row-title">{p.name}</span>
+                      <span class="row-title">{nb(p.name)}</span>
                     </div>
                     {b && <TypeBadge type={b.type} small />}
                     <span class="count">{state.owned[p.code]}×</span>

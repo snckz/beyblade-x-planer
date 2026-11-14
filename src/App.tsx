@@ -14,12 +14,12 @@ import { DetailSheet } from './components/DetailSheet';
 
 type Tab = 'builder' | 'parts' | 'battle' | 'events' | 'collection';
 
-const TABS: { id: Tab; label: string; title: string; icon: string }[] = [
-  { id: 'builder', label: 'Kombo', title: 'Kombo-Planer', icon: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Zm0 5a4 4 0 1 1 0 8 4 4 0 0 1 0-8Z' },
-  { id: 'parts', label: 'Lexikon', title: 'Lexikon', icon: 'M5 4h10a4 4 0 0 1 4 4v12H9a4 4 0 0 1-4-4zM5 16a4 4 0 0 1 4-4h10' },
-  { id: 'battle', label: 'Battle', title: 'Battle', icon: 'M5 19 19 5M14 5h5v5M5 5l5 5M14 14l5 5M19 14v5h-5' },
-  { id: 'events', label: 'Termine', title: 'Termine & News', icon: 'M5 6h14v14H5zM5 10h14M9 3v4M15 3v4' },
-  { id: 'collection', label: 'Sammlung', title: 'Sammlung', icon: 'M4 7l8-4 8 4-8 4-8-4Zm0 5l8 4 8-4M4 17l8 4 8-4' },
+const TABS: { id: Tab; label: string; title: string; lead: string; accent: string; kicker: string; icon: string }[] = [
+  { id: 'builder', label: 'Kombo', title: 'Kombo-Planer', lead: 'Kombo-', accent: 'Planer', kicker: 'Bauen & bewerten', icon: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Zm0 5a4 4 0 1 1 0 8 4 4 0 0 1 0-8Z' },
+  { id: 'parts', label: 'Lexikon', title: 'Lexikon', lead: 'Lexikon', accent: '.', kicker: 'Karten & Teile', icon: 'M5 4h10a4 4 0 0 1 4 4v12H9a4 4 0 0 1-4-4zM5 16a4 4 0 0 1 4-4h10' },
+  { id: 'battle', label: 'Battle', title: 'Battle', lead: 'Battle', accent: '.', kicker: 'Deck, Gegner & Meta', icon: 'M5 19 19 5M14 5h5v5M5 5l5 5M14 14l5 5M19 14v5h-5' },
+  { id: 'events', label: 'Termine', title: 'Termine & News', lead: 'Termine & ', accent: 'News', kicker: 'Releases & Turniere', icon: 'M5 6h14v14H5zM5 10h14M9 3v4M15 3v4' },
+  { id: 'collection', label: 'Sammlung', title: 'Sammlung', lead: 'Sammlung', accent: '.', kicker: 'Deine Beys', icon: 'M4 7l8-4 8 4-8 4-8-4Zm0 5l8 4 8-4M4 17l8 4 8-4' },
 ];
 
 // Alte Links (#deck, #news) auf die neuen Tabs umleiten.
@@ -123,7 +123,7 @@ export function App() {
           {badge(t.id) > 0 && <span class="dot-count">{badge(t.id)}</span>}
         </span>
       ) : null}
-      <span>{t.label}</span>
+      <span class="tab-label">{t.label}</span>
       {!withIcon && badge(t.id) > 0 && <span class="dot-count">{badge(t.id)}</span>}
     </a>
   );
@@ -144,8 +144,13 @@ export function App() {
         </header>
 
         <main class="main" id="main">
+          <p class="kicker">
+            <span class="kicker-dot" aria-hidden="true" />
+            {current.kicker}
+          </p>
           <h1 class="page-title">
-            <span>{current.title}</span>
+            {current.lead}
+            <span class="accent">{current.accent}</span>
           </h1>
           {!storageOk && <p class="banner">Speichern auf diesem Gerät ist blockiert (z. B. privater Modus). Änderungen gehen beim Schließen verloren.</p>}
           {error ? (
