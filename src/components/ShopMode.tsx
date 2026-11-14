@@ -215,7 +215,7 @@ export function ShopMode({ db, state, update, meta, onClose }: Props) {
               </strong>
             </div>
             <p class="fineprint">
-              Ampel: bis +30 % zum Japan-Preis gut, bis +60 % okay, darüber teuer. Takara-Tomy-Ware kostet außerhalb Japans fast immer mehr. Achte im Laden auf das Takara-Tomy-Logo – günstige
+              Ampel: Takara bis +30 % zum Japan-Preis gut, bis +60 % okay. Hasbro: Vergleich mit dem US-Preis (ohne Steuer) – bis +70 % gut, bis +120 % okay. Takara-Tomy-Ware kostet außerhalb Japans fast immer mehr. Achte im Laden auf das Takara-Tomy-Logo – günstige
               Kreisel ohne Logo sind oft Fälschungen.
             </p>
           </div>

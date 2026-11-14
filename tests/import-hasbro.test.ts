@@ -2,7 +2,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 // @ts-expect-error – JS-Modul ohne Typen
-import { hasbroLabel, kindOfHasbro, mergeHasbro, parseHasbroList } from '../scripts/import-hasbro.mjs';
+import { hasbroLabel, kindOfHasbro, mergeHasbro, parseHasbroList, parseHasbroTitle } from '../scripts/import-hasbro.mjs';
 
 const db = JSON.parse(readFileSync(new URL('../public/data/db.json', import.meta.url), 'utf8'));
 
@@ -45,6 +45,9 @@ describe('Hasbro-Katalog', () => {
     expect(kindOfHasbro(e[3].text)).toBe('set');
     expect(kindOfHasbro(e[0].text)).toBe('starter');
     expect(hasbroLabel('Glory Valkerion LF')).toBe('Glory Valkerion');
+    expect(parseHasbroTitle('Glory Valkerion LF')).toMatchObject({ blade: 'Glory Valkerion', bit: 'LF', ratchet: undefined });
+    expect(parseHasbroTitle('Xtreme Stadium')).toBeNull();
+    expect(parseHasbroTitle('Wide Beystadium')).toBeNull();
   });
   it('löst Hasbro-Seiten per Weiterleitung auf, legt nur echte Hasbro-Kreisel neu an und ist wiederholbar', async () => {
     const pages: Record<string, { title: string; wikitext: string }> = {

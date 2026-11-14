@@ -43,8 +43,13 @@ const HASBRO_NOTE = 'Aus der Hasbro-Produktliste übernommen.';
  * „Glory Valkerion LF“. Gibt Blade-Name (ohne Assist), Assist, Ratchet und Bit zurück.
  */
 export function parseHasbroTitle(raw) {
-  const bey = parseBeyTitle(raw);
-  if (!bey) return null;
+  let bey = parseBeyTitle(raw);
+  if (!bey) {
+    // Integrierter Ratchet ohne Zahl im Namen: „Glory Valkerion LF“, „Rocket Griffon H“
+    const m = /^([A-Z][a-z']+(?: [A-Z][a-z']+){1,2}) ([A-Z]{1,3}[a-z]?)$/.exec(String(raw).replace(/\s*\([^)]*\)\s*$/, '').trim());
+    if (!m || /stadium|launcher|pack|set|booster/i.test(m[1])) return null;
+    bey = { title: m[0], blade: m[1], bladeId: m[1].replace(/[^A-Za-z0-9]/g, ''), assist: undefined, ratchet: undefined, bit: m[2] };
+  }
   const parts = bey.blade.split(' ');
   // letztes Wort aus 1–2 Großbuchstaben = Assist-Blade (CX), gehört nicht zum Namen
   if (parts.length > 2 && /^[A-Z]{1,2}$/.test(parts[parts.length - 1])) {
@@ -116,7 +121,10 @@ export async function mergeHasbro(db, entries, fetchPage) {
     }
   };
   out.blades.forEach(index);
-  const findBlade = (bey) => byKey.get(norm(bey.bladeId)) ?? byKey.get(wkey(bey.blade)) ?? (bey.hasbro ? byKey.get(wkey(bey.hasbro)) : undefined);
+  // Schreibvarianten im Wiki für schon gepflegte Blades
+  const ALIASES = { StormPegasis: 'StormPegasus' };
+  const findBlade = (bey) =>
+    (ALIASES[bey.bladeId] ? byKey.get(norm(ALIASES[bey.bladeId])) : undefined) ?? byKey.get(norm(bey.bladeId)) ?? byKey.get(wkey(bey.blade)) ?? (bey.hasbro ? byKey.get(wkey(bey.hasbro)) : undefined);
   const ratchetIds = new Set(out.ratchets.map((r) => r.id));
   const bitIds = new Set(out.bits.map((b) => b.id));
   let fetched = 0;
@@ -174,7 +182,7 @@ export async function mergeHasbro(db, entries, fetchPage) {
         if (target) {
           realTitle = pg.title;
           real = { ...bey, blade: target.blade, bladeId: target.bladeId };
-          blade ??= byKey.get(norm(target.bladeId)) ?? byKey.get(wkey(target.blade));
+          blade ??= byKey.get(norm(ALIASES[target.bladeId] ?? target.bladeId)) ?? byKey.get(wkey(target.blade));
         }
       }
       if (!blade) {

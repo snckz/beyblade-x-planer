@@ -1293,17 +1293,6 @@
       "note": "Aus der Hasbro-Produktliste übernommen."
     },
     {
-      "id": "StormPegasis",
-      "name": "Storm Pegasis",
-      "line": "BX",
-      "type": "attack",
-      "spin": "right",
-      "verified": false,
-      "imported": true,
-      "wikiTitle": "StormPegasis 3-70RA",
-      "note": "Aus der Hasbro-Produktliste übernommen."
-    },
-    {
       "id": "VictoryValkyrie",
       "name": "Victory Valkyrie",
       "line": "BX",
@@ -5930,7 +5919,7 @@
       "name": "Set StormPegasis 3-70RA",
       "hasbroName": "Set StormPegasis 3-70RA",
       "kind": "set",
-      "bladeId": "StormPegasis",
+      "bladeId": "StormPegasus",
       "ratchetId": "3-70",
       "bitId": "RA",
       "region": "hasbro",

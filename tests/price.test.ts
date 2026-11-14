@@ -43,8 +43,9 @@ describe('Preise', () => {
     const p = { priceJpy: null, priceUsd: 11, kind: 'booster' as const, code: 'G1670' };
     expect(priceHint(p, r)).toBe('US-Preis $11,00 ≈ 10 € · 370 ฿');
     expect(priceHint(p, null)).toBe('US-Preis $11,00');
-    expect(shopVerdict(12, 'EUR', p, r)?.verdict).toBe('good');
-    expect(shopVerdict(20, 'EUR', p, r)?.verdict).toBe('high');
+    expect(shopVerdict(14.99, 'EUR', p, r)?.verdict).toBe('good'); // EU-Ladenpreis für einen Hasbro-Booster
+    expect(shopVerdict(21, 'EUR', p, r)?.verdict).toBe('ok');
+    expect(shopVerdict(30, 'EUR', p, r)?.verdict).toBe('high');
   });
   it('liest den Japan-Preis aus dem Wiki-Text', () => {
     expect(parsePriceJpy("It was released as a Starter in Japan on July 13th, 2024 for 2,321円.")).toBe(2321);

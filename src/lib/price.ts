@@ -17,14 +17,14 @@ type Priced = Pick<Product, 'priceJpy'> & Partial<Pick<Product, 'code' | 'kind' 
 const usd = (n: number) => `$${n.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 /** Vergleichspreis in € und ฿: Japan-Preis (Takara) oder – bei Hasbro – der US-Preis. */
-export function refPrice(p: Priced, rates: Rates | null): { eur: number; thb: number; label: string } | null {
+export function refPrice(p: Priced, rates: Rates | null): { eur: number; thb: number; label: string; from: 'jp' | 'us' } | null {
   if (p.priceJpy) {
     const c = convert(p.priceJpy, rates);
-    return c ? { ...c, label: `Japan ${yen(p.priceJpy)}` } : null;
+    return c ? { ...c, label: `Japan ${yen(p.priceJpy)}`, from: 'jp' } : null;
   }
   if (p.priceUsd && rates?.USD && rates.USD > 0 && rates.THB > 0) {
     const eur = p.priceUsd / rates.USD;
-    return { eur, thb: eur * rates.THB, label: `USA ${usd(p.priceUsd)}` };
+    return { eur, thb: eur * rates.THB, label: `USA ${usd(p.priceUsd)}`, from: 'us' };
   }
   return null;
 }
@@ -92,14 +92,17 @@ export type Verdict = 'good' | 'ok' | 'high';
 /**
  * Preis-Ampel für den Laden: Ladenpreis im Verhältnis zum umgerechneten Japan-Preis.
  * Takara-Tomy-Ware kostet außerhalb Japans fast immer mehr (Import, Händler) – bis +30 % gilt als gut,
- * bis +60 % als okay, darüber als teuer. Ohne Japan-Preis oder Kurs: null.
+ * bis +60 % als okay, darüber als teuer. Hasbro (US-Preis ohne Steuer): bis +70 % gut, bis +120 % okay.
+ * Ohne Vergleichspreis oder Kurs: null.
  */
 export function shopVerdict(amount: number, cur: 'THB' | 'EUR', p: Priced, rates: Rates | null): { verdict: Verdict; ratio: number } | null {
   if (!(amount > 0)) return null;
   const c = refPrice(p, rates);
   if (!c) return null;
   const ratio = amount / (cur === 'THB' ? c.thb : c.eur);
-  return { verdict: ratio <= 1.3 ? 'good' : ratio <= 1.6 ? 'ok' : 'high', ratio };
+  // US-Preise sind ohne Umsatzsteuer und oft Aktionspreise – in Europa sind +50–70 % normal.
+  const [good, ok] = c.from === 'us' ? [1.7, 2.2] : [1.3, 1.6];
+  return { verdict: ratio <= good ? 'good' : ratio <= ok ? 'ok' : 'high', ratio };
 }
 
 export const VERDICT_LABEL: Record<Verdict, string> = { good: 'Guter Preis', ok: 'Geht so', high: 'Teuer' };
