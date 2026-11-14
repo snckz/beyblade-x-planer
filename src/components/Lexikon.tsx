@@ -172,7 +172,7 @@ export function Lexikon({ db, state, update }: Props) {
           <Empty title="Kein Begriff gefunden" />
         ))}
       <p class="fineprint">
-        Datenstand {db.updatedAt}. „ungeprüft“ heißt: aus Händler- oder Fanangaben, noch nicht gegen eine offizielle Quelle bestätigt.
+        Datenstand {db.updatedAt}. „ungeprüft“ heißt: Typ oder Drehrichtung sind noch nicht durch die Produktseite im Beyblade Wiki bestätigt, oder der Kreisel ist in Japan noch nicht erschienen.
       </p>
     </div>
   );

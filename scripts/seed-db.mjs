@@ -50,7 +50,7 @@ const ratchets = ratchetIds.map((id) => {
   return { id, contacts: c === 0 ? null : c, heightMm: h / 10, ...(c === 0 ? { note: 'Sonderform ohne klassische Zacken.' } : {}) };
 });
 
-const T = (id, name, type, uncertain = false, note) => ({ id, name, type, ...(uncertain ? { uncertain } : {}), ...(note ? { note } : {}) });
+const T = (id, name, type, uncertain = false, note, extra = {}) => ({ id, name, type, ...(uncertain ? { uncertain } : {}), ...(note ? { note } : {}), ...extra });
 const bits = [
   T('F', 'Flat', 'attack'), T('LF', 'Low Flat', 'attack'), T('GF', 'Gear Flat', 'attack'), T('FF', 'Free Flat', 'attack'),
   T('UF', 'Under Flat', 'attack', true), T('R', 'Rush', 'attack'), T('LR', 'Low Rush', 'attack'), T('RA', 'Rubber Accel', 'attack'),
@@ -60,7 +60,7 @@ const bits = [
   T('B', 'Ball', 'stamina'), T('O', 'Orb', 'stamina'), T('LO', 'Low Orb', 'stamina'), T('GB', 'Gear Ball', 'stamina'), T('DB', 'Disk Ball', 'stamina'), T('FB', 'Free Ball', 'stamina'),
   T('N', 'Needle', 'defense'), T('HN', 'High Needle', 'defense'), T('GN', 'Gear Needle', 'defense'), T('UN', 'Under Needle', 'defense'),
   T('S', 'Spike', 'defense'), T('D', 'Dot', 'defense'), T('BS', 'Bound Spike', 'defense'), T('W', 'Wedge', 'defense', true), T('WW', 'Wall Wedge', 'defense', false, 'Gehört zu Vanish Lucifer.'),
-  T('LC', 'LC', 'balance', true, 'Neues Bit (BX-52) – Name und Typ noch nicht bestätigt.'),
+  T('LC', 'Low Cyclone', 'attack', false, 'Neues Bit von Luster Dragoon (BX-52), Release 10.10.2026.', { wikiTitle: 'Bit - Low Cyclone' }),
 ];
 
 const P = (code, name, kind, verified, extra = {}) => ({ code, name, kind, verified, ...extra });
@@ -118,6 +118,16 @@ if (existsSync(dbUrl)) {
   keep(old.ratchets, ratchets, 'id');
   keep(old.bits, bits, 'id');
   keep(old.products, products, 'code');
+  // Von scripts/verify-catalog.mjs bestätigte Einträge bleiben bestätigt.
+  for (const b of blades) if (!b.verified && old.blades?.find((x) => x.id === b.id)?.verified) b.verified = true;
+  for (const b of bits) {
+    const o = old.bits?.find((x) => x.id === b.id);
+    if (b.uncertain && o && !o.uncertain) {
+      delete b.uncertain;
+      b.type = o.type;
+    }
+  }
+  for (const p of products) if (!p.verified && old.products?.find((x) => x.code === p.code)?.verified) p.verified = true;
   // Vom Import ermittelte Japan-Preise auch bei gepflegten Produkten behalten.
   for (const p of products) {
     const o = old.products?.find((x) => x.code === p.code);
