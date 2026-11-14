@@ -71,15 +71,42 @@ export async function findBitImage(fetchFn, bit) {
   return page ? { thumb: page.thumbnail.source, page: wikiUrl(page.title), title: page.title } : null;
 }
 
+/** Ratchet-Seite wählen: nur Titel, die genau die Bezeichnung tragen („Ratchet - 3-60“ oder „3-60“). */
+export function pickRatchetPage(ratchet, pages) {
+  const want = String(ratchet.id).trim();
+  const ok = (pages ?? []).filter((p) => p?.thumbnail?.source && ALLOWED_HOST.test(p.thumbnail.source));
+  const strip = (t) => String(t).replace(/^ratchet\s*-\s*/i, '').replace(/\s*\(ratchet\)\s*$/i, '').trim();
+  const exact = ok.filter((p) => strip(p.title) === want);
+  if (!exact.length) return null;
+  const pref = (p) => (/^ratchet\s*-|\(ratchet\)/i.test(p.title) ? 0 : 1);
+  return exact.sort((a, b) => pref(a) - pref(b) || (a.index ?? 0) - (b.index ?? 0))[0];
+}
+
+export async function findRatchetImage(fetchFn, ratchet) {
+  const common = { prop: 'pageimages', piprop: 'thumbnail', pithumbsize: '400', redirects: '1' };
+  const titles = ratchet.wikiTitle ?? [`Ratchet - ${ratchet.id}`, `${ratchet.id} (Ratchet)`].join('|');
+  const direct = await query(fetchFn, { ...common, titles });
+  let page = ratchet.wikiTitle
+    ? (direct?.query?.pages ?? []).find((x) => x?.thumbnail?.source && ALLOWED_HOST.test(x.thumbnail.source))
+    : pickRatchetPage(ratchet, direct?.query?.pages);
+  if (!page && !ratchet.wikiTitle) {
+    const d = await query(fetchFn, { ...common, generator: 'search', gsrsearch: `Ratchet ${ratchet.id}`, gsrnamespace: '0', gsrlimit: '10' });
+    page = pickRatchetPage(ratchet, d?.query?.pages);
+  }
+  return page ? { thumb: page.thumbnail.source, page: wikiUrl(page.title), title: page.title } : null;
+}
+
 export async function run({ fetchFn = fetch, dataDir = new URL('../public/data/', import.meta.url), refreshAll = false } = {}) {
   const db = JSON.parse(readFileSync(new URL('db.json', dataDir), 'utf8'));
   const path = new URL('images.json', dataDir);
   let blades = {};
   let bits = {};
+  let ratchets = {};
   try {
     const old = JSON.parse(readFileSync(path, 'utf8'));
     blades = old.blades ?? {};
     bits = old.bits ?? {};
+    ratchets = old.ratchets ?? {};
   } catch {
     /* noch keine Datei */
   }
@@ -88,6 +115,7 @@ export async function run({ fetchFn = fetch, dataDir = new URL('../public/data/'
   const jobs = [
     ...db.blades.map((x) => ({ x, store: blades, find: findImage })),
     ...(db.bits ?? []).map((x) => ({ x, store: bits, find: findBitImage })),
+    ...(db.ratchets ?? []).map((x) => ({ x, store: ratchets, find: findRatchetImage })),
   ];
   for (const { x, store, find } of jobs) {
     if (!refreshAll && store[x.id]) continue;
@@ -107,12 +135,13 @@ export async function run({ fetchFn = fetch, dataDir = new URL('../public/data/'
     }
   }
   if (changed) {
-    writeFileSync(path, JSON.stringify({ source: 'Beyblade Wiki (beyblade.fandom.com)', blades, bits }, null, 2) + '\n');
+    writeFileSync(path, JSON.stringify({ source: 'Beyblade Wiki (beyblade.fandom.com)', blades, bits, ratchets }, null, 2) + '\n');
   }
   const count = Object.keys(blades).length;
-  console.log(`Bilder: ${count}/${db.blades.length} Blades, ${Object.keys(bits).length}/${(db.bits ?? []).length} Bits verknüpft${changed ? ' (aktualisiert)' : ''}.`);
+  console.log(`Bilder: ${count}/${db.blades.length} Blades, ${Object.keys(bits).length}/${(db.bits ?? []).length} Bits, ${Object.keys(ratchets).length}/${(db.ratchets ?? []).length} Ratchets verknüpft${changed ? ' (aktualisiert)' : ''}.`);
   for (const [id, img] of Object.entries(bits)) console.log(`  Bit ${id} → ${img.title}`);
-  return { changed, count, bits: Object.keys(bits).length };
+  for (const [id, img] of Object.entries(ratchets)) console.log(`  Ratchet ${id} → ${img.title}`);
+  return { changed, count, bits: Object.keys(bits).length, ratchets: Object.keys(ratchets).length };
 }
 
 const isMain = !!process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;

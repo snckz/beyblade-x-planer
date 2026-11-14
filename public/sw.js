@@ -2,7 +2,7 @@
 // - Beim Installieren werden index.html, die gehashten Build-Dateien und die Daten vorab gecacht.
 // - Seiten und Daten: Netzwerk zuerst (neue Versionen sofort), offline die letzte Version.
 // - Gehashte Assets: Cache zuerst; veraltete Assets werden beim Aktivieren aufgeräumt.
-const CACHE = 'xplaner-v6';
+const CACHE = 'xplaner-v7';
 const STATIC = ['./', 'manifest.webmanifest', 'icons/icon.svg', 'icons/icon-192.png', 'data/db.json', 'data/news.json', 'data/images.json', 'data/events.json'];
 
 function assetsFromHtml(html) {

@@ -124,16 +124,9 @@ export function App() {
         </div>
         <header class="top glass-bar">
           <div class="brand">
-            <span class="logo" aria-hidden="true">
-              <svg viewBox="0 0 40 40">
-                <path d="M9 8h7l4 7 4-7h7l-7.5 12L31 32h-7l-4-7-4 7H9l7.5-12z" class="logo-x" />
-              </svg>
-            </span>
-            <div>
-              <p class="brand-name">
-                Beyblade<span> X</span>
-              </p>
-            </div>
+            <p class="brand-name">
+              Beyblade<span> X</span>
+            </p>
           </div>
           <nav class="tabs-top" aria-label="Hauptnavigation">
             {TABS.map((t) => navLink(t, false))}

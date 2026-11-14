@@ -110,6 +110,7 @@ export interface ImageIndex {
   source: string;
   blades: Record<string, WikiImage>;
   bits?: Record<string, WikiImage>;
+  ratchets?: Record<string, WikiImage>;
 }
 
 export type EventKind = 'release' | 'tournament' | 'event';

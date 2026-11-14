@@ -86,7 +86,7 @@ export function validateEvents(feed, bladeIds = new Set()) {
 export function validateImages(index) {
   const errors = [];
   if (!index || typeof index.blades !== 'object') return ['images.json: blades fehlt'];
-  for (const [id, img] of [...Object.entries(index.blades), ...Object.entries(index.bits ?? {})]) {
+  for (const [id, img] of [...Object.entries(index.blades), ...Object.entries(index.bits ?? {}), ...Object.entries(index.ratchets ?? {})]) {
     if (!/^https:\/\/static\.wikia\.nocookie\.net\//.test(img.thumb ?? '')) errors.push(`Bild ${id}: unerlaubte Bild-Adresse`);
     if (!/^https:\/\/beyblade\.fandom\.com\/wiki\//.test(img.page ?? '')) errors.push(`Bild ${id}: Wiki-Link fehlt`);
   }

@@ -50,10 +50,7 @@ a { color: inherit; }
   border-bottom: 1px solid var(--line);
 }
 .brand { display: flex; align-items: center; gap: 10px; }
-.logo { width: 34px; height: 34px; }
-.logo-ring { fill: none; stroke: var(--line-2); stroke-width: 3; }
-.logo-star { fill: var(--accent); transform-origin: 20px 20px; animation: spin 6s linear infinite; }
-@media (prefers-reduced-motion: reduce) { .logo-star, .radar-dot::after, .spinner { animation: none !important; } }
+@media (prefers-reduced-motion: reduce) { .radar-dot::after, .spinner { animation: none !important; } }
 .brand-name { margin: 0; font-weight: 800; letter-spacing: -0.02em; font-size: 17px; line-height: 1.1; }
 .brand-sub { margin: 0; color: var(--faint); font-size: 12px; }
 .tabs-top { display: none; gap: 4px; }
@@ -332,14 +329,8 @@ input::placeholder { color: var(--faint); }
 @media (min-width: 860px) { .main { padding-bottom: 48px; } }
 
 /* Klassische Beyblade-Typo: fett, kursiv, Großbuchstaben, X-Akzent */
-.logo {
-  width: 38px; height: 38px; display: grid; place-items: center; border-radius: 11px; transform: skewX(-10deg);
-  background: linear-gradient(145deg, #ff5a4f, #c4160d); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .4), 0 4px 14px rgba(255, 59, 48, .4);
-}
-.logo svg { width: 26px; height: 26px; transform: skewX(10deg); }
-.logo-x { fill: #fff; }
-.brand-name { font-style: italic; font-weight: 900; text-transform: uppercase; letter-spacing: .02em; font-size: 19px; }
-.brand-name span { color: var(--muted); font-weight: 800; }
+.brand-name { font-style: italic; font-weight: 900; text-transform: uppercase; letter-spacing: .02em; font-size: 22px; line-height: 1; }
+.brand-name span { color: var(--accent); font-weight: 900; }
 .page-title { font-style: italic; font-weight: 900; text-transform: uppercase; letter-spacing: -.01em; font-size: 30px; position: relative; display: inline-block; }
 .page-title::after {
   content: ''; display: block; height: 4px; width: 64px; margin-top: 6px; border-radius: 2px;
@@ -548,10 +539,17 @@ button.bey-img:active { transform: scale(.95); }
 .result-title { display: grid; gap: 6px; }
 
 /* ===== Bit-Fotos ===== */
-.bit-img { flex: none; display: grid; place-items: center; overflow: hidden; border-radius: 12px; background: #fff; border: 1px solid var(--glass-line); }
-.bit-img img { width: 100%; height: 100%; object-fit: contain; padding: 4px; }
+/* Teile-Fotos (Bits, Ratchets): Bild absolut im Rahmen, damit Hoch- und Querformate nie abgeschnitten werden. */
+.bit-img { position: relative; flex: none; display: grid; place-items: center; overflow: hidden; border-radius: 12px; background: #fff; border: 1px solid var(--glass-line); }
+.bit-img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; padding: 5px; }
 .bit-img-sm { width: 44px; height: 44px; }
-.bit-img-md { width: 64px; height: 64px; }
+.bit-img-md { width: 72px; height: 72px; }
+.bit-img-md img { padding: 6px; }
+.ratchet-fallback { background: rgba(255, 255, 255, .06); }
+.ratchet-fallback svg { width: 80%; height: 80%; }
+.ratchet-ring { fill: none; stroke: var(--muted); stroke-width: 4; }
+.ratchet-tooth { fill: var(--balance); }
+.ratchet-hub { fill: var(--muted); opacity: .5; }
 .bit-fallback { background: rgba(255, 255, 255, .06); font: 800 13px var(--mono); }
 .part-field.compact .bit-img-sm { width: 36px; height: 36px; }
 

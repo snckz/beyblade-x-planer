@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 // @ts-expect-error – JS-Modul ohne Typen
-import { pickBitPage, pickPage, run } from '../scripts/update-images.mjs';
+import { pickBitPage, pickPage, pickRatchetPage, run } from '../scripts/update-images.mjs';
 // @ts-expect-error – JS-Modul ohne Typen
 import { validateImages } from '../scripts/validate-data.mjs';
 
@@ -33,7 +33,7 @@ describe('update-images', () => {
       return { ok: true, status: 200, json: async () => ({ query: { pages } }) };
     };
     const res = await run({ fetchFn, dataDir: pathToFileURL(dir + '/') });
-    expect(res).toEqual({ changed: true, count: 1, bits: 0 });
+    expect(res).toEqual({ changed: true, count: 1, bits: 0, ratchets: 0 });
     const out = JSON.parse(readFileSync(join(dir, 'images.json'), 'utf8'));
     expect(out.blades.GloryValkyrie.page).toBe('https://beyblade.fandom.com/wiki/Glory_Valkyrie_LF');
     expect(validateImages(out)).toEqual([]);
@@ -54,5 +54,33 @@ describe('pickBitPage', () => {
     expect(pickBitPage(bit, pages)?.title).toBe('Bit - Flat');
     expect(pickBitPage(bit, [{ title: 'Gear Flat', thumbnail: T(IMG) }])).toBeNull();
     expect(pickBitPage({ id: 'B', name: 'Ball' }, [{ title: 'Ball (Bit)', thumbnail: T(IMG) }])?.title).toBe('Ball (Bit)');
+  });
+});
+
+describe('pickRatchetPage', () => {
+  it('nimmt nur die exakte Ratchet-Bezeichnung', () => {
+    const r = { id: '3-60' };
+    const pages = [
+      { title: 'Ratchet - 3-70', thumbnail: T(IMG) },
+      { title: 'KnightLance 3-60LF', thumbnail: T(IMG) },
+      { title: 'Ratchet - 3-60', thumbnail: T(IMG) },
+      { title: 'Ratchet - 3-60', thumbnail: T('https://evil.example/x.png') },
+    ];
+    expect(pickRatchetPage(r, pages)?.title).toBe('Ratchet - 3-60');
+    expect(pickRatchetPage({ id: '9-65' }, pages)).toBeNull();
+  });
+  it('verknüpft Ratchet-Bilder im Lauf', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'img-'));
+    writeFileSync(join(dir, 'db.json'), JSON.stringify({ blades: [], ratchets: [{ id: '3-60' }, { id: '9-65' }] }));
+    const fetchFn = async (url: string) => {
+      const titles = new URL(url).searchParams.get('titles') ?? '';
+      const pages = titles.includes('Ratchet - 3-60') ? [{ title: 'Ratchet - 3-60', thumbnail: T(IMG) }] : [];
+      return { ok: true, status: 200, json: async () => ({ query: { pages } }) };
+    };
+    const res = await run({ fetchFn, dataDir: pathToFileURL(dir + '/') });
+    expect(res.ratchets).toBe(1);
+    const out = JSON.parse(readFileSync(join(dir, 'images.json'), 'utf8'));
+    expect(out.ratchets['3-60'].page).toBe('https://beyblade.fandom.com/wiki/Ratchet_-_3-60');
+    expect(validateImages(out)).toEqual([]);
   });
 });

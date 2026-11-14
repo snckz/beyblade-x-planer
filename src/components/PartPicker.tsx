@@ -3,7 +3,7 @@ import type { BeyType, Blade, Bit, Ratchet } from '../lib/types';
 import { TYPE_LABEL } from '../lib/analysis';
 import { BeyImage } from './BeyImage';
 import { TypeBadge } from './ui';
-import { BitImage } from './BitImage';
+import { BitImage, RatchetImage } from './BitImage';
 
 type Kind = 'blade' | 'ratchet' | 'bit';
 
@@ -64,6 +64,8 @@ export function PartField(props: FieldProps) {
           <BeyImage bladeId={blade.id} type={blade.type} size="sm" alt="" zoomable={false} />
         ) : bit ? (
           <BitImage bit={bit} />
+        ) : ratchet && !disabled ? (
+          <RatchetImage ratchet={ratchet} />
         ) : (
           <span class={`part-glyph ${DOT[kind]}`}>{kind === 'ratchet' ? (ratchet?.id ?? 'R') : (kind === 'bit' ? 'B' : '◎')}</span>
         )}
@@ -165,6 +167,7 @@ function PickerSheet({ kind, label, blades = [], ratchets = [], bits = [], value
             <div class="grid grid-ratchets">
               {ratchetList.map((r) => (
                 <button key={r.id} type="button" class={`tile tile-ratchet${r.id === value ? ' selected' : ''}`} onClick={() => onPick(r.id)} aria-pressed={r.id === value}>
+                  <RatchetImage ratchet={r} size="md" />
                   <span class="tile-big">{r.id}</span>
                   <span class="teeth" aria-hidden="true">
                     {Array.from({ length: r.contacts ?? 0 }, (_, i) => (

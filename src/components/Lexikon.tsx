@@ -7,7 +7,7 @@ import { BeyImage } from './BeyImage';
 import { useApp } from '../lib/context';
 import { bitText, ratchetText, TERMS } from '../lib/lexicon';
 import { CardAlbum } from './CardAlbum';
-import { BitImage } from './BitImage';
+import { BitImage, RatchetImage } from './BitImage';
 
 interface Props {
   db: Database;
@@ -138,8 +138,9 @@ export function Lexikon({ db, state, update }: Props) {
           <ul class="list">
             {ratchets.map((r) => (
               <li key={r.id} class="row">
-                <span class="code code-bit">{r.id}</span>
+                <RatchetImage ratchet={r} />
                 <div class="row-main">
+                  <span class="row-title">{r.id}</span>
                   <span class="row-sub">{ratchetText(r)}</span>
                   <span class="height-bar" aria-hidden="true">
                     <span style={{ width: `${Math.min(100, ((r.heightMm ?? 0) / 9) * 100)}%` }} />
