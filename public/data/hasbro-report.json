@@ -149,7 +149,7 @@
       "text": "  G1688\n| Tackle Goat and Sword Dran Dual Pack \n| File:Flag of United States.png  July 2025\n| File:Flag of Canada.png  $22.99<br> File:Flag of United States.png"
     }
   ],
-  "fetched": 74,
+  "fetched": 92,
   "added": {
     "blades": [
       "StunMedusa",
@@ -320,13 +320,21 @@
       "F9585",
       "G1842",
       "G1843",
-      "G2218"
+      "G2218",
+      "F9324",
+      "G1491",
+      "G1862-01",
+      "G1862-02",
+      "G1862-03",
+      "G3083",
+      "G3491"
     ]
   },
   "names": [
     "Hells Chain → Chain Incendio",
     "Weiss Tiger → Pearl Tiger",
-    "Tricera Press → Brace Triceratops"
+    "Tricera Press → Brace Triceratops",
+    "Meteor Dragoon → Meteoroid Dragoon"
   ],
   "skipped": [],
   "unresolved": [
@@ -475,27 +483,9 @@
       ]
     },
     {
-      "code": "F9324",
-      "links": [
-        "Soar Phoenix Deluxe String Launcher Set"
-      ]
-    },
-    {
       "code": "G0440",
       "links": [
         "Winder Launcher"
-      ]
-    },
-    {
-      "code": "G1491",
-      "links": [
-        "Cobalt Dragoon Deluxe Left-Spin String Launcher Set"
-      ]
-    },
-    {
-      "code": "G1862",
-      "links": [
-        "Victory Grip Launcher Set"
       ]
     },
     {
@@ -508,18 +498,6 @@
       "code": "G2951",
       "links": [
         "Deluxe String Launcher 2-Pack"
-      ]
-    },
-    {
-      "code": "G3083",
-      "links": [
-        "Bite Croc Deluxe String Launcher & Custom Grip Set"
-      ]
-    },
-    {
-      "code": "G3491",
-      "links": [
-        "Meteoroid Dragoon Deluxe Left-Spin String Launcher Set"
       ]
     }
   ]
