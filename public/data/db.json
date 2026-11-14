@@ -8,7 +8,8 @@
       "line": "BX",
       "type": "attack",
       "spin": "right",
-      "verified": true
+      "verified": true,
+      "weightG": 34.6
     },
     {
       "id": "HellsScythe",
@@ -16,7 +17,8 @@
       "line": "BX",
       "type": "balance",
       "spin": "right",
-      "verified": true
+      "verified": true,
+      "weightG": 32.7
     },
     {
       "id": "WizardArrow",
@@ -24,7 +26,8 @@
       "line": "BX",
       "type": "stamina",
       "spin": "right",
-      "verified": true
+      "verified": true,
+      "weightG": 31.8
     },
     {
       "id": "KnightShield",
@@ -32,7 +35,8 @@
       "line": "BX",
       "type": "defense",
       "spin": "right",
-      "verified": true
+      "verified": true,
+      "weightG": 32.4
     },
     {
       "id": "KnightLance",
@@ -40,7 +44,8 @@
       "line": "BX",
       "type": "defense",
       "spin": "right",
-      "verified": true
+      "verified": true,
+      "weightG": 32.9
     },
     {
       "id": "SharkEdge",
@@ -48,7 +53,8 @@
       "line": "BX",
       "type": "attack",
       "spin": "right",
-      "verified": true
+      "verified": true,
+      "weightG": 34.5
     },
     {
       "id": "LeonClaw",
@@ -56,7 +62,8 @@
       "line": "BX",
       "type": "balance",
       "spin": "right",
-      "verified": true
+      "verified": true,
+      "weightG": 31.4
     },
     {
       "id": "ViperTail",
@@ -64,7 +71,8 @@
       "line": "BX",
       "type": "stamina",
       "spin": "right",
-      "verified": true
+      "verified": true,
+      "weightG": 34.7
     },
     {
       "id": "RhinoHorn",
@@ -72,7 +80,8 @@
       "line": "BX",
       "type": "defense",
       "spin": "right",
-      "verified": true
+      "verified": true,
+      "weightG": 32.7
     },
     {
       "id": "DranDagger",
@@ -81,7 +90,8 @@
       "type": "attack",
       "spin": "right",
       "verified": true,
-      "hasbroName": "Dagger Dran"
+      "hasbroName": "Dagger Dran",
+      "weightG": 34.8
     },
     {
       "id": "HellsChain",
@@ -89,7 +99,8 @@
       "line": "BX",
       "type": "balance",
       "spin": "right",
-      "verified": true
+      "verified": true,
+      "weightG": 33.2
     },
     {
       "id": "PhoenixWing",
@@ -97,7 +108,8 @@
       "line": "BX",
       "type": "attack",
       "spin": "right",
-      "verified": true
+      "verified": true,
+      "weightG": 38
     },
     {
       "id": "WyvernGale",
@@ -105,7 +117,8 @@
       "line": "BX",
       "type": "stamina",
       "spin": "right",
-      "verified": true
+      "verified": true,
+      "weightG": 31.9
     },
     {
       "id": "UnicornSting",
@@ -114,7 +127,8 @@
       "type": "balance",
       "spin": "right",
       "verified": true,
-      "hasbroName": "Sting Unicorn"
+      "hasbroName": "Sting Unicorn",
+      "weightG": 33.4
     },
     {
       "id": "SphinxCowl",
@@ -123,7 +137,8 @@
       "type": "defense",
       "spin": "right",
       "verified": true,
-      "hasbroName": "Cowl Sphinx"
+      "hasbroName": "Cowl Sphinx",
+      "weightG": 32.7
     },
     {
       "id": "TyrannoBeat",
@@ -131,7 +146,8 @@
       "line": "BX",
       "type": "attack",
       "spin": "right",
-      "verified": true
+      "verified": true,
+      "weightG": 37
     },
     {
       "id": "CobaltDragoon",
@@ -139,7 +155,8 @@
       "line": "BX",
       "type": "attack",
       "spin": "left",
-      "verified": true
+      "verified": true,
+      "weightG": 37.8
     },
     {
       "id": "CrimsonGaruda",
@@ -147,7 +164,8 @@
       "line": "BX",
       "type": "balance",
       "spin": "right",
-      "verified": true
+      "verified": true,
+      "weightG": 35
     },
     {
       "id": "DranStrike",
@@ -155,7 +173,8 @@
       "line": "BX",
       "type": "attack",
       "spin": "right",
-      "verified": true
+      "verified": true,
+      "weightG": 41.4
     },
     {
       "id": "LusterDragoon",
@@ -164,7 +183,8 @@
       "type": "attack",
       "spin": "left",
       "verified": true,
-      "note": "Neuheit – Typ und Drehrichtung noch nicht bestätigt."
+      "note": "Neuheit – Typ und Drehrichtung noch nicht bestätigt.",
+      "weightG": 43
     },
     {
       "id": "AeroPegasus",
@@ -172,7 +192,8 @@
       "line": "BX",
       "type": "attack",
       "spin": "right",
-      "verified": true
+      "verified": true,
+      "weightG": 38.2
     },
     {
       "id": "StormPegasus",
@@ -182,7 +203,8 @@
       "spin": "right",
       "verified": true,
       "note": "Limitierte Neuauflage des Metal-Fight-Klassikers für Beyblade X.",
-      "wikiTitle": "StormPegasis 3-70RA"
+      "wikiTitle": "StormPegasis 3-70RA",
+      "weightG": null
     },
     {
       "id": "DranBuster",
@@ -190,7 +212,8 @@
       "line": "UX",
       "type": "attack",
       "spin": "right",
-      "verified": true
+      "verified": true,
+      "weightG": 36.5
     },
     {
       "id": "HellsHammer",
@@ -198,7 +221,8 @@
       "line": "UX",
       "type": "balance",
       "spin": "right",
-      "verified": true
+      "verified": true,
+      "weightG": 33
     },
     {
       "id": "WizardRod",
@@ -206,7 +230,8 @@
       "line": "UX",
       "type": "stamina",
       "spin": "right",
-      "verified": true
+      "verified": true,
+      "weightG": 35.3
     },
     {
       "id": "LeonCrest",
@@ -214,7 +239,8 @@
       "line": "UX",
       "type": "balance",
       "spin": "right",
-      "verified": true
+      "verified": true,
+      "weightG": 35
     },
     {
       "id": "SamuraiSaber",
@@ -223,7 +249,8 @@
       "type": "attack",
       "spin": "right",
       "verified": true,
-      "note": "Klingen-Vorsprünge fahren im Spin ein und aus."
+      "note": "Klingen-Vorsprünge fahren im Spin ein und aus.",
+      "weightG": 36.5
     },
     {
       "id": "SharkScale",
@@ -231,7 +258,8 @@
       "line": "UX",
       "type": "attack",
       "spin": "right",
-      "verified": true
+      "verified": true,
+      "weightG": 37.6
     },
     {
       "id": "ClockMirage",
@@ -239,7 +267,8 @@
       "line": "UX",
       "type": "stamina",
       "spin": "right",
-      "verified": false
+      "verified": false,
+      "weightG": 37.7
     },
     {
       "id": "BulletGriffon",
@@ -249,7 +278,8 @@
       "spin": "right",
       "verified": true,
       "integratedRatchet": true,
-      "note": "Spaltet sich im Kampf in Hauptkörper und „Bullet“."
+      "note": "Spaltet sich im Kampf in Hauptkörper und „Bullet“.",
+      "weightG": null
     },
     {
       "id": "GloryValkyrie",
@@ -260,7 +290,8 @@
       "verified": true,
       "integratedRatchet": true,
       "hasbroName": "Glory Valkerion",
-      "note": "Nachfolger von ValkyrieVolt, Ratchet in die Blade integriert."
+      "note": "Nachfolger von ValkyrieVolt, Ratchet in die Blade integriert.",
+      "weightG": null
     },
     {
       "id": "VanishLucifer",
@@ -270,7 +301,8 @@
       "spin": "right",
       "verified": false,
       "integratedRatchet": true,
-      "note": "Erscheint in Japan am 26.12.2026, ausfahrbare Verteidigungsschicht (Barrier-Gimmick)."
+      "note": "Erscheint in Japan am 26.12.2026, ausfahrbare Verteidigungsschicht (Barrier-Gimmick).",
+      "weightG": null
     },
     {
       "id": "DranBrave",
@@ -279,7 +311,8 @@
       "type": "attack",
       "spin": "right",
       "verified": true,
-      "note": "CX: Lock Chip + Main Blade + Assist Blade (S)."
+      "note": "CX: Lock Chip + Main Blade + Assist Blade (S).",
+      "weightG": null
     },
     {
       "id": "WizardArc",
@@ -288,7 +321,8 @@
       "type": "stamina",
       "spin": "right",
       "verified": true,
-      "note": "CX: Lock Chip + Main Blade + Assist Blade (R)."
+      "note": "CX: Lock Chip + Main Blade + Assist Blade (R).",
+      "weightG": null
     },
     {
       "id": "PerseusDark",
@@ -297,7 +331,8 @@
       "type": "defense",
       "spin": "right",
       "verified": true,
-      "note": "CX: Assist Blade (B)."
+      "note": "CX: Assist Blade (B).",
+      "weightG": null
     },
     {
       "id": "KnightFortress",
@@ -307,7 +342,8 @@
       "spin": "right",
       "verified": true,
       "note": "CX: Assist Blade (GV).",
-      "wikiTitle": "KnightFortress GV8-70UN"
+      "wikiTitle": "KnightFortress GV8-70UN",
+      "weightG": null
     },
     {
       "id": "WeissTiger",
@@ -317,7 +353,8 @@
       "spin": "right",
       "verified": true,
       "imported": true,
-      "wikiTitle": "WeissTiger 3-60U"
+      "wikiTitle": "WeissTiger 3-60U",
+      "weightG": 34.6
     },
     {
       "id": "TriceraPress",
@@ -327,7 +364,8 @@
       "spin": "right",
       "verified": true,
       "imported": true,
-      "wikiTitle": "TriceraPress M-85BS"
+      "wikiTitle": "TriceraPress M-85BS",
+      "weightG": 36.5
     },
     {
       "id": "SamuraiCalibur",
@@ -337,7 +375,8 @@
       "spin": "right",
       "verified": true,
       "imported": true,
-      "wikiTitle": "SamuraiCalibur 6-70M"
+      "wikiTitle": "SamuraiCalibur 6-70M",
+      "weightG": 36
     },
     {
       "id": "SiegSuperion",
@@ -347,7 +386,8 @@
       "spin": "right",
       "verified": false,
       "imported": true,
-      "wikiTitle": "SiegSuperion 0-70LP"
+      "wikiTitle": "SiegSuperion 0-70LP",
+      "weightG": 40
     },
     {
       "id": "SilverWolf",
@@ -357,7 +397,8 @@
       "spin": "right",
       "verified": true,
       "imported": true,
-      "wikiTitle": "SilverWolf 3-80FB"
+      "wikiTitle": "SilverWolf 3-80FB",
+      "weightG": 36.8
     },
     {
       "id": "ImpactDrake",
@@ -367,7 +408,8 @@
       "spin": "right",
       "verified": true,
       "imported": true,
-      "wikiTitle": "ImpactDrake 9-60LR"
+      "wikiTitle": "ImpactDrake 9-60LR",
+      "weightG": 39
     },
     {
       "id": "GolemRock",
@@ -377,7 +419,8 @@
       "spin": "right",
       "verified": true,
       "imported": true,
-      "wikiTitle": "GolemRock 1-60UN"
+      "wikiTitle": "GolemRock 1-60UN",
+      "weightG": 34
     },
     {
       "id": "ScorpioSpear",
@@ -387,7 +430,8 @@
       "spin": "right",
       "verified": true,
       "imported": true,
-      "wikiTitle": "ScorpioSpear 0-70Z"
+      "wikiTitle": "ScorpioSpear 0-70Z",
+      "weightG": 39.6
     },
     {
       "id": "MeteorDragoon",
@@ -397,7 +441,8 @@
       "spin": "left",
       "verified": true,
       "imported": true,
-      "wikiTitle": "MeteorDragoon 3-70J"
+      "wikiTitle": "MeteorDragoon 3-70J",
+      "weightG": 39
     },
     {
       "id": "PegasusBlast",
@@ -408,7 +453,8 @@
       "verified": true,
       "imported": true,
       "wikiTitle": "PegasusBlast ATr",
-      "integratedRatchet": true
+      "integratedRatchet": true,
+      "weightG": null
     },
     {
       "id": "SolEclipse",
@@ -419,7 +465,8 @@
       "verified": true,
       "imported": true,
       "wikiTitle": "SolEclipse D5-70TK",
-      "note": "CX: Assist Blade (D)."
+      "note": "CX: Assist Blade (D).",
+      "weightG": null
     },
     {
       "id": "WolfHunt",
@@ -430,7 +477,8 @@
       "verified": true,
       "imported": true,
       "wikiTitle": "WolfHunt F0-60DB",
-      "note": "CX: Assist Blade (F)."
+      "note": "CX: Assist Blade (F).",
+      "weightG": null
     },
     {
       "id": "PhoenixFlare",
@@ -441,7 +489,8 @@
       "verified": true,
       "imported": true,
       "wikiTitle": "PhoenixFlare Z9-80WW",
-      "note": "CX: Assist Blade (Z)."
+      "note": "CX: Assist Blade (Z).",
+      "weightG": null
     },
     {
       "id": "BahamutBlitz",
@@ -452,7 +501,8 @@
       "verified": true,
       "imported": true,
       "wikiTitle": "BahamutBlitz BK1-50I",
-      "note": "CX: Assist Blade (BK)."
+      "note": "CX: Assist Blade (BK).",
+      "weightG": null
     },
     {
       "id": "RagnaRage",
@@ -463,7 +513,8 @@
       "verified": true,
       "imported": true,
       "wikiTitle": "RagnaRage FE4-55Y",
-      "note": "CX: Assist Blade (FE)."
+      "note": "CX: Assist Blade (FE).",
+      "weightG": null
     },
     {
       "id": "ValkyrieVolt",
@@ -474,7 +525,8 @@
       "verified": true,
       "imported": true,
       "wikiTitle": "ValkyrieVolt S4-70V",
-      "note": "CX: Assist Blade (S)."
+      "note": "CX: Assist Blade (S).",
+      "weightG": null
     },
     {
       "id": "LeonFang",
@@ -485,7 +537,8 @@
       "verified": true,
       "imported": true,
       "wikiTitle": "LeonFang T4-60A",
-      "note": "CX: Assist Blade (T)."
+      "note": "CX: Assist Blade (T).",
+      "weightG": null
     },
     {
       "id": "DranArc",
@@ -496,7 +549,8 @@
       "verified": true,
       "imported": true,
       "wikiTitle": "DranArc S2-70K",
-      "note": "CX: Assist Blade (S)."
+      "note": "CX: Assist Blade (S).",
+      "weightG": null
     },
     {
       "id": "BucksAntlers",
@@ -507,7 +561,8 @@
       "verified": true,
       "imported": true,
       "wikiTitle": "BucksAntlers B2-60D",
-      "note": "CX: Assist Blade (B)."
+      "note": "CX: Assist Blade (B).",
+      "weightG": null
     },
     {
       "id": "HornetFort",
@@ -518,7 +573,8 @@
       "verified": true,
       "imported": true,
       "wikiTitle": "HornetFort R7-60T",
-      "note": "CX: Assist Blade (R)."
+      "note": "CX: Assist Blade (R).",
+      "weightG": null
     },
     {
       "id": "KrakenWriggle",
@@ -529,7 +585,8 @@
       "verified": true,
       "imported": true,
       "wikiTitle": "KrakenWriggle S3-70O",
-      "note": "CX: Assist Blade (S)."
+      "note": "CX: Assist Blade (S).",
+      "weightG": null
     },
     {
       "id": "DrakeBrave",
@@ -540,7 +597,8 @@
       "verified": true,
       "imported": true,
       "wikiTitle": "DrakeBrave G4-70I",
-      "note": "CX: Assist Blade (G)."
+      "note": "CX: Assist Blade (G).",
+      "weightG": null
     },
     {
       "id": "TigaRage",
@@ -551,7 +609,8 @@
       "verified": true,
       "imported": true,
       "wikiTitle": "TigaRage FT3-60T",
-      "note": "CX: Assist Blade (FT)."
+      "note": "CX: Assist Blade (FT).",
+      "weightG": null
     },
     {
       "id": "BlackShell",
@@ -561,7 +620,8 @@
       "spin": "right",
       "verified": true,
       "imported": true,
-      "wikiTitle": "BlackShell 4-60D"
+      "wikiTitle": "BlackShell 4-60D",
+      "weightG": 32.4
     },
     {
       "id": "WhaleWave",
@@ -571,7 +631,8 @@
       "spin": "right",
       "verified": true,
       "imported": true,
-      "wikiTitle": "WhaleWave 5-80E"
+      "wikiTitle": "WhaleWave 5-80E",
+      "weightG": 38.2
     },
     {
       "id": "ShelterDrake",
@@ -581,7 +642,8 @@
       "spin": "right",
       "verified": true,
       "imported": true,
-      "wikiTitle": "ShelterDrake 7-80GP"
+      "wikiTitle": "ShelterDrake 7-80GP",
+      "weightG": 32.6
     },
     {
       "id": "CobaltDrake",
@@ -591,7 +653,8 @@
       "spin": "right",
       "verified": true,
       "imported": true,
-      "wikiTitle": "CobaltDrake 9-60R"
+      "wikiTitle": "CobaltDrake 9-60R",
+      "weightG": 38
     },
     {
       "id": "GoatTackle",
@@ -601,7 +664,8 @@
       "spin": "right",
       "verified": true,
       "imported": true,
-      "wikiTitle": "GoatTackle 7-70T"
+      "wikiTitle": "GoatTackle 7-70T",
+      "weightG": 31.5
     },
     {
       "id": "MammothTusk",
@@ -612,7 +676,8 @@
       "verified": true,
       "imported": true,
       "wikiTitle": "MammothTusk 7-60S",
-      "hasbroName": "Tusk Mammoth"
+      "hasbroName": "Tusk Mammoth",
+      "weightG": 32.3
     },
     {
       "id": "HeavensRing",
@@ -622,7 +687,8 @@
       "spin": "right",
       "verified": true,
       "imported": true,
-      "wikiTitle": "HeavensRing 0-80DS"
+      "wikiTitle": "HeavensRing 0-80DS",
+      "weightG": 37.4
     },
     {
       "id": "GhostCircle",
@@ -632,7 +698,8 @@
       "spin": "right",
       "verified": true,
       "imported": true,
-      "wikiTitle": "GhostCircle M-85DS"
+      "wikiTitle": "GhostCircle M-85DS",
+      "weightG": 26.7
     },
     {
       "id": "WolfFlame",
@@ -643,7 +710,8 @@
       "verified": true,
       "imported": true,
       "wikiTitle": "WolfFlame D9-65L",
-      "note": "CX: Assist Blade (D)."
+      "note": "CX: Assist Blade (D).",
+      "weightG": null
     },
     {
       "id": "CerberusReaper",
@@ -654,7 +722,8 @@
       "verified": true,
       "imported": true,
       "wikiTitle": "CerberusReaper B0-80WB",
-      "note": "CX: Assist Blade (B)."
+      "note": "CX: Assist Blade (B).",
+      "weightG": null
     },
     {
       "id": "HorusShatter",
@@ -664,7 +733,8 @@
       "spin": "right",
       "verified": false,
       "imported": true,
-      "wikiTitle": "HorusShatter 3-85MO"
+      "wikiTitle": "HorusShatter 3-85MO",
+      "weightG": 32.9
     },
     {
       "id": "FoxBlast",
@@ -675,7 +745,8 @@
       "verified": false,
       "imported": true,
       "wikiTitle": "FoxBlast R6-70A",
-      "note": "CX: Assist Blade (R)."
+      "note": "CX: Assist Blade (R).",
+      "weightG": null
     },
     {
       "id": "ShinobiShadow",
@@ -685,7 +756,8 @@
       "spin": "right",
       "verified": true,
       "imported": true,
-      "wikiTitle": "ShinobiShadow 1-80MN"
+      "wikiTitle": "ShinobiShadow 1-80MN",
+      "weightG": 28.2
     },
     {
       "id": "PhoenixRudder",
@@ -695,7 +767,8 @@
       "spin": "right",
       "verified": true,
       "imported": true,
-      "wikiTitle": "PhoenixRudder 9-70G"
+      "wikiTitle": "PhoenixRudder 9-70G",
+      "weightG": 34.5
     },
     {
       "id": "KnightMail",
@@ -705,7 +778,8 @@
       "spin": "right",
       "verified": true,
       "imported": true,
-      "wikiTitle": "KnightMail 3-85BS"
+      "wikiTitle": "KnightMail 3-85BS",
+      "weightG": 36.7
     },
     {
       "id": "PhoenixFeather",
@@ -715,7 +789,8 @@
       "spin": "right",
       "verified": true,
       "imported": true,
-      "wikiTitle": "PhoenixFeather 2-60N"
+      "wikiTitle": "PhoenixFeather 2-60N",
+      "weightG": 33.3
     },
     {
       "id": "MummyCurse",
@@ -725,7 +800,8 @@
       "spin": "right",
       "verified": true,
       "imported": true,
-      "wikiTitle": "MummyCurse 7-55W"
+      "wikiTitle": "MummyCurse 7-55W",
+      "weightG": 37.5
     },
     {
       "id": "PegasusBrush",
@@ -736,7 +812,8 @@
       "verified": true,
       "imported": true,
       "wikiTitle": "PegasusBrush M3-85W",
-      "note": "CX: Assist Blade (M)."
+      "note": "CX: Assist Blade (M).",
+      "weightG": null
     },
     {
       "id": "SolBrave",
@@ -747,7 +824,8 @@
       "verified": true,
       "imported": true,
       "wikiTitle": "SolBrave C9-70TP",
-      "note": "CX: Assist Blade (C)."
+      "note": "CX: Assist Blade (C).",
+      "weightG": null
     },
     {
       "id": "HellsNether",
@@ -758,7 +836,8 @@
       "verified": true,
       "imported": true,
       "wikiTitle": "HellsNether Z",
-      "integratedRatchet": true
+      "integratedRatchet": true,
+      "weightG": null
     },
     {
       "id": "WyvernHover",
@@ -768,7 +847,8 @@
       "spin": "right",
       "verified": true,
       "imported": true,
-      "wikiTitle": "WyvernHover 8-80B"
+      "wikiTitle": "WyvernHover 8-80B",
+      "weightG": 35.1
     },
     {
       "id": "HellsReaper",
@@ -779,7 +859,8 @@
       "verified": true,
       "imported": true,
       "wikiTitle": "HellsReaper T4-70K",
-      "note": "CX: Assist Blade (T)."
+      "note": "CX: Assist Blade (T).",
+      "weightG": null
     },
     {
       "id": "RhinoReaper",
@@ -790,7 +871,8 @@
       "verified": true,
       "imported": true,
       "wikiTitle": "RhinoReaper C4-55D",
-      "note": "CX: Assist Blade (C)."
+      "note": "CX: Assist Blade (C).",
+      "weightG": null
     },
     {
       "id": "HellsArc",
@@ -801,7 +883,8 @@
       "verified": true,
       "imported": true,
       "wikiTitle": "HellsArc T3-85O",
-      "note": "CX: Assist Blade (T)."
+      "note": "CX: Assist Blade (T).",
+      "weightG": null
     },
     {
       "id": "FoxBrush",
@@ -812,7 +895,8 @@
       "verified": true,
       "imported": true,
       "wikiTitle": "FoxBrush J9-70GR",
-      "note": "CX: Assist Blade (J)."
+      "note": "CX: Assist Blade (J).",
+      "weightG": null
     },
     {
       "id": "CerberusFlame",
@@ -823,7 +907,8 @@
       "verified": true,
       "imported": true,
       "wikiTitle": "CerberusFlame W5-80WB",
-      "note": "CX: Assist Blade (W)."
+      "note": "CX: Assist Blade (W).",
+      "weightG": null
     },
     {
       "id": "WhaleFlame",
@@ -834,7 +919,8 @@
       "verified": true,
       "imported": true,
       "wikiTitle": "WhaleFlame M3-85HT",
-      "note": "CX: Assist Blade (M)."
+      "note": "CX: Assist Blade (M).",
+      "weightG": null
     },
     {
       "id": "CerberusDark",
@@ -845,7 +931,8 @@
       "verified": true,
       "imported": true,
       "wikiTitle": "CerberusDark W1-60F",
-      "note": "CX: Assist Blade (W)."
+      "note": "CX: Assist Blade (W).",
+      "weightG": null
     },
     {
       "id": "EmperorMight",
@@ -856,7 +943,8 @@
       "verified": true,
       "imported": true,
       "wikiTitle": "EmperorMight HOp",
-      "integratedRatchet": true
+      "integratedRatchet": true,
+      "weightG": null
     },
     {
       "id": "SharkGill",
@@ -866,7 +954,8 @@
       "spin": "right",
       "verified": true,
       "imported": true,
-      "wikiTitle": "SharkGill 5-60FB"
+      "wikiTitle": "SharkGill 5-60FB",
+      "weightG": null
     },
     {
       "id": "UnicornDelta",
@@ -877,7 +966,8 @@
       "verified": true,
       "imported": true,
       "wikiTitle": "UnicornDelta PO3-60GU",
-      "note": "CX: Assist Blade (PO)."
+      "note": "CX: Assist Blade (PO).",
+      "weightG": null
     },
     {
       "id": "BrachioWhip",
@@ -888,7 +978,8 @@
       "verified": true,
       "imported": true,
       "wikiTitle": "BrachioWhip OW5-70Nr",
-      "note": "CX: Assist Blade (OW)."
+      "note": "CX: Assist Blade (OW).",
+      "weightG": null
     },
     {
       "id": "CrocoTread",
@@ -899,7 +990,8 @@
       "verified": true,
       "imported": true,
       "wikiTitle": "CrocoTread TQ5-50GN",
-      "note": "CX: Assist Blade (TQ)."
+      "note": "CX: Assist Blade (TQ).",
+      "weightG": null
     },
     {
       "id": "PhoenixForce",
@@ -910,7 +1002,8 @@
       "verified": false,
       "imported": true,
       "wikiTitle": "PhoenixForce WHM-65MT",
-      "note": "CX: Assist Blade (WH)."
+      "note": "CX: Assist Blade (WH).",
+      "weightG": null
     }
   ],
   "ratchets": [
@@ -1682,7 +1775,8 @@
       "verified": true,
       "bladeId": "ClockMirage",
       "note": "Inhalt zufällig.",
-      "priceJpy": null
+      "priceJpy": null,
+      "releaseJp": "2026-12-26"
     },
     {
       "code": "UX-19",
@@ -1715,7 +1809,8 @@
       "bitId": "WW",
       "includesLauncher": true,
       "note": "Japan-Release 26.12.2026.",
-      "priceJpy": 2500
+      "priceJpy": 2500,
+      "releaseJp": "2026-12-26"
     },
     {
       "code": "CX-01",
@@ -1888,7 +1983,8 @@
       "verified": false,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/SiegSuperion_0-70LP",
-      "priceJpy": 1600
+      "priceJpy": 1600,
+      "releaseJp": "2026-11-21"
     },
     {
       "code": "UX-08",
@@ -2826,7 +2922,8 @@
       "verified": false,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/HorusShatter_3-85MO",
-      "priceJpy": 1600
+      "priceJpy": 1600,
+      "releaseJp": "2026-12-26"
     },
     {
       "code": "BX-55-02",
@@ -2862,7 +2959,8 @@
       "verified": false,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/FoxBlast_R6-70A",
-      "priceJpy": 1600
+      "priceJpy": 1600,
+      "releaseJp": "2026-12-26"
     },
     {
       "code": "BX-55-05",
@@ -2886,7 +2984,8 @@
       "verified": false,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/ClockMirage_4-55MO",
-      "priceJpy": 1600
+      "priceJpy": 1600,
+      "releaseJp": "2026-12-26"
     },
     {
       "code": "UX-04-01",
@@ -3532,7 +3631,8 @@
       "verified": false,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/PhoenixForce_WHM-65MT",
-      "priceJpy": null
+      "priceJpy": null,
+      "releaseJp": "2026-11-21"
     }
   ]
 }
