@@ -67,7 +67,11 @@ describe('Hasbro-Katalog', () => {
 |}`;
     const pages: Record<string, { title: string; wikitext: string }> = {
       'Cobalt Dragoon Deluxe Left-Spin String Launcher Set': { title: 'x', wikitext: "The set includes '''Cobalt Dragoon 2-60C'''.\n==Related==\n[[Cobalt Drake 4-60F]] [[Meteor Dragoon 3-70J]]" },
-      'Xtreme Battle Set': { title: 'x', wikitext: 'Includes [[Dagger Dran 4-60R]] and [[Tusk Mammoth 3-60T]] and a Beystadium.\n==Gallery==\n[[Sword Dran 3-60F]]' },
+      // wie im Wiki: Inhalt im Abschnitt „Contents“, davor/danach fremde Kreisel
+      'Xtreme Battle Set': {
+        title: 'x',
+        wikitext: 'Similar to [[Helm Knight 3-80N]].\n==Contents==\n*[[Dagger Dran 4-60R]]\n*[[Tusk Mammoth 3-60T]]\n*[[Blade - Circle Ghost|Circle Ghost]]\n*Beystadium\n==Gallery==\n[[Sword Dran 3-60F]]',
+      },
     };
     const { db: out } = await mergeHasbro(db, parseHasbroList(wt), (t: string) => Promise.resolve(pages[t] ?? null));
     const p = (c: string) => out.products.find((x: { code: string }) => x.code === c);

@@ -127,7 +127,7 @@ export function parseHasbroList(wikitext) {
  */
 export async function mergeHasbro(db, entries, fetchPage) {
   const out = structuredClone(db);
-  const report = { added: { blades: [], ratchets: [], bits: [], products: [] }, names: [], skipped: [], unresolved: [], pageSamples: [] };
+  const report = { added: { blades: [], ratchets: [], bits: [], products: [] }, names: [], skipped: [], unresolved: [] };
   // Neu aufbauen: importierte Hasbro-Produkte und nur dafür angelegte Blades entfernen
   out.products = out.products.filter((p) => !(p.region === 'hasbro' && p.imported));
   const used = new Set(out.products.map((p) => p.bladeId));
@@ -174,22 +174,24 @@ export async function mergeHasbro(db, entries, fetchPage) {
         const names = namesInLinkName(l).map(wkey);
         const pg = await page(l);
         const wt = String(pg?.wikitext ?? '');
-        if (!names.length && report.pageSamples.length < 6) report.pageSamples.push({ code: entry.code, link: l, wikitext: wt.slice(0, 1800) });
-        const scope = names.length ? wt : wt.split(/\n==/)[0];
+        // Produktseiten haben einen Abschnitt „==Contents==“ mit genau dem Packungsinhalt – der ist maßgeblich.
+        const contents = /\n==\s*Contents\s*==([\s\S]*?)(?=\n==[^=]|$)/i.exec(wt)?.[1];
+        const scope = contents ?? (names.length ? wt : wt.split(/\n==/)[0]);
         const found = [];
         for (const m of scope.matchAll(/\[\[([^\]|#]+)(?:#[^\]|]*)?(?:\|([^\]]*))?\]\]/g)) {
           const bey = parseHasbroTitle(m[1].trim());
           if (bey) found.push({ ...bey, page: m[1].trim(), hasbro: hasbroLabel(m[2] ?? '') ?? bey.blade });
         }
         // Kreisel nur als Text erwähnt (Seite verlinkt sich nicht selbst): „includes Saber Samurai 2-70L“
-        const plain = scope.replace(/\[\[(?:[^\]|]*\|)?([^\]]*)\]\]/g, '$1').replace(/'''?|<[^>]+>|\{\{[^{}]*\}\}/g, ' ');
+        // Im Contents-Abschnitt reichen die Links (Teile wie „Blade - Circle Ghost“ sind keine ganzen Kreisel).
+        const plain = contents ? '' : scope.replace(/\[\[(?:[^\]|]*\|)?([^\]]*)\]\]/g, '$1').replace(/'''?|<[^>]+>|\{\{[^{}]*\}\}/g, ' ');
         found.push(...beysInLinkName(plain));
         for (const bey of found) {
           if (entry.beys.some((b) => b.bladeId === bey.bladeId || wkey(b.hasbro ?? '') === wkey(bey.hasbro ?? ''))) continue;
           if (names.length && !names.includes(wkey(bey.hasbro ?? '')) && !names.includes(wkey(bey.blade))) continue;
           entry.beys.push(bey);
         }
-        if (!names.length && entry.beys.length > 4) entry.beys.length = 0; // unklar → lieber nichts als falsch
+        if (!contents && !names.length && entry.beys.length > 4) entry.beys.length = 0; // unklar → lieber nichts als falsch
       }
       if (!entry.beys.length) {
         report.unresolved.push({ code: entry.code, links: entry.links.slice(0, 5) });
