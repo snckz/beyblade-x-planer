@@ -6,7 +6,7 @@ export interface Detector {
   detect(source: CanvasImageSource): Promise<{ rawValue: string; format: string }[]>;
 }
 
-export const FORMATS = ['ean_13', 'ean_8', 'upc_a', 'upc_e'];
+export const FORMATS = ['ean_13', 'ean_8', 'upc_a'];
 
 /** Prüfziffer von EAN-8/EAN-13/UPC-A (GTIN) – schützt vor Fehllesungen. */
 export function validGtin(code: string): boolean {

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { convert, priceHint, sumPrices } from '../src/lib/price';
 // @ts-expect-error – JS-Modul ohne Typen
-import { parseEcb } from '../scripts/update-rates.mjs';
+import { needsUpdate, parseEcb } from '../scripts/update-rates.mjs';
 // @ts-expect-error – JS-Modul ohne Typen
 import { parsePriceJpy } from '../scripts/import-catalog.mjs';
 
@@ -24,12 +24,17 @@ describe('Preise', () => {
       { code: 'BX-05', kind: 'booster' as const, priceJpy: 1500 },
     ];
     expect(sumPrices(set)).toEqual({ jpy: 9000, missing: 0 });
-    expect(priceHint(set[0], null)).toBe('Set: ¥7.500');
+    expect(priceHint(set[0]!, null)).toBe('Set: ¥7.500');
   });
   it('liest EZB-Kurse', () => {
     const xml = `<Cube><Cube time='2026-11-13'><Cube currency='USD' rate='1.08'/><Cube currency='JPY' rate='162.35'/><Cube currency='THB' rate='37.9'/></Cube></Cube>`;
     expect(parseEcb(xml)).toMatchObject({ date: '2026-11-13', JPY: 162.35, THB: 37.9 });
     expect(parseEcb('<x/>')).toBeNull();
+    const prev = { date: '2026-11-13', JPY: 176.8, THB: 37.5 };
+    expect(needsUpdate(prev, { date: '2026-11-14', JPY: 177.0, THB: 37.5 })).toBe(false);
+    expect(needsUpdate(prev, { date: '2026-11-14', JPY: 180.0, THB: 37.5 })).toBe(true);
+    expect(needsUpdate(prev, { date: '2026-11-20', JPY: 176.8, THB: 37.5 })).toBe(true);
+    expect(needsUpdate(null, { date: '2026-11-14', JPY: 1, THB: 1 })).toBe(true);
   });
   it('liest den Japan-Preis aus dem Wiki-Text', () => {
     expect(parsePriceJpy("It was released as a Starter in Japan on July 13th, 2024 for 2,321円.")).toBe(2321);

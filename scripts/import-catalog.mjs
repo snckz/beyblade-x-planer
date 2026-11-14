@@ -267,25 +267,32 @@ export async function mergeCatalog(db, entries, fetchPage) {
       report.added.bits.push(`${bit.id} (Name: ${name})`);
     }
   }
-  // Japan-Preise: jede Produktseite einmal ansehen; null = nichts gefunden, wird nicht erneut versucht.
+  // Japan-Preise: jede Kreisel-Seite einmal ansehen.
+  // null = Seite fehlt oder kein Preis (wird nicht erneut versucht); Netzwerkfehler → undefined (nächster Lauf).
+  // Sets: Die Kreisel-Seite nennt den Einzelpreis, nicht den Set-Preis – daher bewusst kein Preis.
   report.prices = 0;
   const pageCache = new Map();
   for (const p of out.products) {
     if (p.priceJpy !== undefined || !p.bladeId || fetched >= MAX_PAGES) continue;
-    const blade = out.blades.find((b) => b.id === p.bladeId);
-    const fromSource = p.source?.includes('/wiki/') ? decodeURIComponent(p.source.split('/wiki/')[1]).replace(/_/g, ' ') : null;
-    const guess = blade ? `${blade.id} ${p.ratchetId ?? ''}${p.bitId ?? ''}`.trim() : null;
-    const title = fromSource ?? guess;
-    if (!title) continue;
-    if (!pageCache.has(title)) {
-      fetched++;
-      pageCache.set(title, await fetchPage(title).catch(() => null));
-    }
-    const wt = pageCache.get(title);
-    if (wt === null && !fromSource) {
+    if (p.kind === 'set') {
       p.priceJpy = null;
       continue;
     }
+    const blade = out.blades.find((b) => b.id === p.bladeId);
+    let fromSource = null;
+    try {
+      fromSource = p.source?.includes('/wiki/') ? decodeURIComponent(p.source.split('/wiki/')[1]).replace(/_/g, ' ') : null;
+    } catch {
+      /* kaputte URL – Titel raten */
+    }
+    const title = fromSource ?? (blade ? `${blade.id} ${p.ratchetId ?? ''}${p.bitId ?? ''}`.trim() : null);
+    if (!title) continue;
+    if (!pageCache.has(title)) {
+      fetched++;
+      pageCache.set(title, await fetchPage(title).catch(() => undefined));
+    }
+    const wt = pageCache.get(title);
+    if (wt === undefined) continue; // Netzwerkfehler: später erneut
     p.priceJpy = wt ? parsePriceJpy(wt) : null;
     if (p.priceJpy) report.prices++;
   }

@@ -18,6 +18,15 @@ export function parseEcb(xml) {
   return { source: 'EZB-Referenzkurse', date, base: 'EUR', JPY, THB };
 }
 
+/** Für Preis-Richtwerte reicht ein Update bei > 1 % Kursänderung oder wenn der Stand älter als 7 Tage ist. */
+export function needsUpdate(prev, next) {
+  if (!prev?.date || !(prev.JPY > 0) || !(prev.THB > 0)) return true;
+  if (prev.date === next.date) return false;
+  const moved = (a, b) => Math.abs(b / a - 1) > 0.01;
+  const ageDays = (Date.parse(next.date) - Date.parse(prev.date)) / 86400000;
+  return moved(prev.JPY, next.JPY) || moved(prev.THB, next.THB) || ageDays >= 7;
+}
+
 export async function run({ fetchFn = fetch, dataDir = new URL('../public/data/', import.meta.url) } = {}) {
   const path = new URL('rates.json', dataDir);
   try {
@@ -31,7 +40,7 @@ export async function run({ fetchFn = fetch, dataDir = new URL('../public/data/'
     } catch {
       /* erste Ausführung */
     }
-    if (prev?.date === rates.date) return { changed: false, rates };
+    if (!needsUpdate(prev, rates)) return { changed: false, rates };
     writeFileSync(path, JSON.stringify(rates, null, 2) + '\n');
     console.log(`Kurse ${rates.date}: 1 € = ${rates.JPY} ¥ = ${rates.THB} ฿`);
     return { changed: true, rates };

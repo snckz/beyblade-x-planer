@@ -66,8 +66,8 @@ a { color: inherit; }
   padding: 20px 16px calc(var(--tabbar-h) + var(--safe-b) + 28px);
 }
 .page-title { margin: 4px 0 18px; font-size: 28px; font-weight: 800; letter-spacing: -0.03em; }
-.stack { display: grid; gap: 20px; }
-.section { display: grid; gap: 10px; }
+.stack { display: grid; gap: 20px; grid-template-columns: minmax(0, 1fr); }
+.section { display: grid; gap: 10px; grid-template-columns: minmax(0, 1fr); }
 .section-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .section-head h2 { margin: 0; font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 700; }
 
@@ -209,7 +209,7 @@ input::placeholder { color: var(--faint); }
 .save-row input { flex: 1; min-width: 0; }
 
 /* Lists */
-.list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; grid-template-columns: minmax(0, 1fr); }
 .row {
   display: flex; align-items: center; gap: 12px; padding: 12px 12px 12px 14px;
   background: var(--card); border: 1px solid var(--line); border-radius: 12px; min-height: 58px;
@@ -410,7 +410,7 @@ input[type='text'], input[type='search'], select { background-color: rgba(8, 10,
 .mini-list li { display: flex; gap: 10px; align-items: center; }
 
 /* Battle */
-.stack-sm { display: grid; gap: 12px; }
+.stack-sm { display: grid; gap: 12px; grid-template-columns: minmax(0, 1fr); }
 .opp-row { display: flex; gap: 8px; align-items: center; }
 .verdict { display: flex; gap: 14px; align-items: center; }
 .verdict-score { min-width: 64px; height: 64px; display: grid; place-items: center; border-radius: 18px; font: 900 italic 24px var(--font); border: 1px solid var(--glass-line); }
@@ -646,3 +646,5 @@ button.bit-img:active { transform: scale(.95); }
 .trend-down { background: rgba(255, 255, 255, .08); color: var(--muted); }
 .trend-steady { background: rgba(255, 255, 255, .06); color: var(--muted); }
 .meta-deck .row-sub { line-height: 1.5; }
+.meta-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 2px 0; }
+.meta-tags .trend { margin-left: 0; }

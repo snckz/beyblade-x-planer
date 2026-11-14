@@ -6,6 +6,7 @@ import { ownedParts } from '../lib/data';
 import { Empty, Section, TypeBadge } from './ui';
 import { useApp } from '../lib/context';
 import { Scanner } from './Scanner';
+import { nb } from '../lib/analysis';
 import { convert, priceHint, sumPrices, yen } from '../lib/price';
 
 interface Props {
@@ -132,16 +133,15 @@ export function Collection({ db, state, update, goToParts }: Props) {
           <div class="card wish-card">
             <ul class="list">
               {wishProducts.map((p) => {
-                const b = db.blades.find((x) => x.id === p.bladeId);
                 const price = priceHint(p, rates);
                 return (
                   <li key={p.code} class="row">
-                    <span class="code">{p.code}</span>
                     <div class="row-main">
-                      <span class="row-title">{p.name}</span>
-                      <span class="row-sub">{price ?? 'Preis unbekannt'}</span>
+                      <span class="row-title">{nb(p.name)}</span>
+                      <span class="row-sub">
+                        {p.code} · {price ?? 'Preis unbekannt'}
+                      </span>
                     </div>
-                    {b && <TypeBadge type={b.type} small />}
                     <button type="button" class="btn btn-ghost btn-sm" onClick={() => gotIt(p.code)} aria-label={`${p.name} gekauft: in die Sammlung`}>
                       Gekauft
                     </button>
@@ -155,8 +155,8 @@ export function Collection({ db, state, update, goToParts }: Props) {
             <div class="wish-total">
               <span>Summe Japan-Preis</span>
               <strong>
-                {yen(wishSum.jpy)}
-                {wishConv && (
+                {wishSum.jpy ? yen(wishSum.jpy) : '–'}
+                {wishSum.jpy > 0 && wishConv && (
                   <small>
                     {' '}
                     ≈ {fmt(wishConv.eur)} € · {fmt(wishConv.thb)} ฿
@@ -166,7 +166,7 @@ export function Collection({ db, state, update, goToParts }: Props) {
             </div>
             <p class="fineprint">
               Japan-Verkaufspreis (Takara Tomy) laut Beyblade Wiki{wishSum.missing ? `, ${wishSum.missing} ohne Preis` : ''}. In Thailand und Europa (Hasbro) weichen die Preise ab – als grober Richtwert zum Vergleichen.
-              {rates && ` Kurs: EZB vom ${new Date(rates.date).toLocaleDateString('de-AT')}.`}
+              {rates && ` Kurs: EZB vom ${new Date(`${rates.date}T12:00:00`).toLocaleDateString('de-AT')}.`}
             </p>
           </div>
         ) : (

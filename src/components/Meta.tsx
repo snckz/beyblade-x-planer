@@ -1,7 +1,7 @@
 import type { Database, MetaFeed, MetaTrend } from '../lib/types';
 import type { UserState } from '../lib/storage';
 import { newId } from '../lib/storage';
-import { comboLabel, deriveType, nb, resolveCombo } from '../lib/analysis';
+import { deriveType, nb, resolveCombo } from '../lib/analysis';
 import { BeyImage } from './BeyImage';
 import { Section, TypeBadge } from './ui';
 
@@ -31,7 +31,7 @@ export function Meta({ db, meta, update, onBuild }: Props) {
   const loadAsOpponent = (deck: MetaFeed['decks'][number]) => {
     update((s) => ({
       ...s,
-      opponent: deck.combos.map(([bladeId, ratchetId, bitId]) => ({ id: newId(), bladeId, ratchetId: ratchetId ?? undefined, bitId })),
+      opponent: deck.combos.slice(0, 3).map(([bladeId, ratchetId, bitId]) => ({ id: newId(), bladeId, ratchetId: ratchetId ?? undefined, bitId })),
     }));
     document.getElementById('gegner')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
@@ -47,12 +47,15 @@ export function Meta({ db, meta, update, onBuild }: Props) {
               <BeyImage bladeId={r.blade.id} type={r.blade.type} size="sm" alt={r.blade.name} zoomable={false} />
               <div class="row-main">
                 <span class="row-title">
-                  {nb(comboLabel(r))} <span class={`trend ${TREND[c.trend].cls}`}>{TREND[c.trend].label}</span>
+                  {r.blade.name} {nb(`${r.ratchet?.id ?? ''}${r.bit.id}`)}
+                </span>
+                <span class="meta-tags">
+                  <TypeBadge type={deriveType(r.blade, r.bit)} small />
+                  <span class={`trend ${TREND[c.trend].cls}`}>{TREND[c.trend].label}</span>
                 </span>
                 <span class="row-sub">{c.note}</span>
               </div>
-              <TypeBadge type={deriveType(r.blade, r.bit)} small />
-              <button type="button" class="btn btn-ghost btn-sm" onClick={() => onBuild(c.bladeId, c.ratchetId ?? undefined, c.bitId)} aria-label={`${comboLabel(r)} im Kombo-Planer öffnen`}>
+              <button type="button" class="btn btn-ghost btn-sm" onClick={() => onBuild(c.bladeId, c.ratchetId ?? undefined, c.bitId)} aria-label={`${r.blade.name} ${r.ratchet?.id ?? ''}${r.bit.id} im Kombo-Planer öffnen`}>
                 Bauen
               </button>
             </li>
@@ -70,7 +73,7 @@ export function Meta({ db, meta, update, onBuild }: Props) {
                   {d.combos
                     .map(([bl, ra, bi]) => {
                       const res = resolveCombo(db, { id: '', bladeId: bl, ratchetId: ra ?? undefined, bitId: bi });
-                      return res ? nb(comboLabel(res)) : `${bl} ${ra ?? ''}${bi}`;
+                      return res ? `${res.blade.name} ${nb(`${res.ratchet?.id ?? ''}${res.bit.id}`)}` : `${bl} ${ra ?? ''}${bi}`;
                     })
                     .join(' · ')}
                 </span>

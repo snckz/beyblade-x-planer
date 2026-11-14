@@ -14,7 +14,7 @@ interface Props {
   onClose: () => void;
 }
 
-type Phase = 'starting' | 'scanning' | 'nocam' | 'unknown' | 'found' | 'done';
+type Phase = 'starting' | 'scanning' | 'nocam' | 'noreader' | 'unknown' | 'found' | 'done';
 
 /**
  * Scan-Modus: Barcode der Packung mit der Kamera lesen.
@@ -68,7 +68,12 @@ export function Scanner({ db, state, update, onClose }: Props) {
       const v = video.current!;
       v.srcObject = stream;
       await v.play();
-      const detector = await createDetector();
+      let detector;
+      try {
+        detector = await createDetector();
+      } catch {
+        throw new Error('noreader');
+      }
       if (stopped) return;
       setPhase('scanning');
       const tick = async () => {
@@ -97,10 +102,10 @@ export function Scanner({ db, state, update, onClose }: Props) {
         timer = window.setTimeout(tick, 180);
       };
       void tick();
-    })().catch(() => {
+    })().catch((err: unknown) => {
       if (stopped) return;
       stop();
-      setPhase('nocam');
+      setPhase(err instanceof Error && err.message === 'noreader' ? 'noreader' : 'nocam');
     });
     return stop;
   }, [round, db]);
@@ -136,8 +141,8 @@ export function Scanner({ db, state, update, onClose }: Props) {
   };
 
   const camera = phase === 'starting' || phase === 'scanning';
-  const pick = phase === 'unknown' || phase === 'nocam';
-  const results = pick ? searchProducts(db.products.filter((p) => p.bladeId), query).slice(0, 30) : [];
+  const pick = phase === 'unknown' || phase === 'nocam' || phase === 'noreader';
+  const results = pick ? searchProducts(db.products, query).slice(0, 30) : [];
   const blade = product && db.blades.find((b) => b.id === product.bladeId);
 
   return (
@@ -162,7 +167,22 @@ export function Scanner({ db, state, update, onClose }: Props) {
         )}
 
         <div class="scan-body">
-          {phase === 'nocam' && <p class="muted">Keine Kamera verfügbar oder Zugriff abgelehnt. Such das Produkt einfach hier:</p>}
+          {phase === 'nocam' && (
+            <p class="muted">
+              Keine Kamera verfügbar oder Zugriff abgelehnt (Einstellungen → Safari → Kamera). Du kannst das Produkt auch hier suchen.{' '}
+              <button type="button" class="btn btn-ghost btn-sm" onClick={again}>
+                Erneut versuchen
+              </button>
+            </p>
+          )}
+          {phase === 'noreader' && (
+            <p class="muted">
+              Der Barcode-Leser konnte nicht geladen werden – bist du offline? Du kannst das Produkt auch hier suchen.{' '}
+              <button type="button" class="btn btn-ghost btn-sm" onClick={again}>
+                Erneut versuchen
+              </button>
+            </p>
+          )}
           {phase === 'unknown' && (
             <p class="muted">
               Barcode <strong class="mono">{code}</strong> ist noch unbekannt. Welches Produkt ist das? Danach erkennt die App ihn sofort wieder.

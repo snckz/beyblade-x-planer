@@ -19,8 +19,8 @@ export function preloadList(index: ImageIndex): string[] {
  * respektiert den Datensparmodus. Rückgabe: Funktion zum Abbrechen.
  */
 export function preloadImages(index: ImageIndex, { parallel = 3, delayMs = 2500 } = {}): () => void {
-  const nav = navigator as Navigator & { connection?: { saveData?: boolean } };
-  if (nav.connection?.saveData) return () => {};
+  const nav = navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } };
+  if (nav.connection?.saveData || /(^|-)2g$/.test(nav.connection?.effectiveType ?? '')) return () => {};
   const queue = preloadList(index);
   let stopped = false;
   let timer = 0;
@@ -35,8 +35,13 @@ export function preloadImages(index: ImageIndex, { parallel = 3, delayMs = 2500 
     img.onload = img.onerror = () => next();
     img.src = url;
   };
-  timer = window.setTimeout(() => {
+  const start = () => {
     for (let i = 0; i < parallel; i++) next();
+  };
+  timer = window.setTimeout(() => {
+    const idle = (window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number }).requestIdleCallback;
+    if (idle) idle(start, { timeout: 3000 });
+    else start();
   }, delayMs);
   return () => {
     stopped = true;

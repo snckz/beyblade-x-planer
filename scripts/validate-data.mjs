@@ -100,6 +100,7 @@ export function validateMeta(meta, db) {
     if (!bits.has(bitId)) errors.push(`${where}: Bit ${bitId} unbekannt`);
   };
   meta.combos.forEach((c, i) => check(`meta.combos[${i}]`, c.bladeId, c.ratchetId, c.bitId));
+  meta.decks.forEach((d, i) => d.combos.length !== 3 && errors.push(`meta.decks[${i}]: genau 3 Kombos erwartet`));
   meta.decks.forEach((d, i) => d.combos.forEach(([bl, r, bi], j) => check(`meta.decks[${i}][${j}]`, bl, r, bi)));
   return errors;
 }
