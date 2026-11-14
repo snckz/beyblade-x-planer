@@ -73,7 +73,7 @@ export function beysInLinkName(link) {
 /** Kreisel-Namen ohne Teile in einem Produktnamen: „Gale Wyvern and Sword Dran Dual Pack“ → [Gale Wyvern, Sword Dran]. */
 export function namesInLinkName(link) {
   return String(link)
-    .replace(/\b(Dual Pack|Multi ?Pack|Battle Set|Launcher Set|Starter Set|Deck Set|Set|Pack)\b.*$/i, '')
+    .replace(/\b(Deluxe|String|Left-Spin|Custom|Victory|Dual Pack|Multi ?Pack|Battle Set|Launcher|Starter Set|Deck Set|Set|Pack)\b.*$/i, '')
     .split(/\s+(?:and|&|\+)\s+/i)
     .map((s) => s.trim())
     .filter((s) => /^[A-Z][a-z']+(?: [A-Z][a-z']+){1,2}$/.test(s));
@@ -169,17 +169,26 @@ export async function mergeHasbro(db, entries, fetchPage) {
           for (const b of direct) if (!entry.beys.some((x) => x.title === b.title)) entry.beys.push(b);
           continue;
         }
-        // 2. Dual Packs: nur Kreisel von der Produktseite, deren Name im Produktnamen vorkommt
+        // 2. Produktseite lesen. Mit Namen im Produktnamen (Dual Packs, „Cobalt Dragoon Deluxe …“): nur diese Kreisel.
+        //    Ohne Namen („Xtreme Battle Set“): nur Kreisel aus der Einleitung – weiter unten stehen oft fremde.
         const names = namesInLinkName(l).map(wkey);
-        if (!names.length) continue;
         const pg = await page(l);
-        for (const m of String(pg?.wikitext ?? '').matchAll(/\[\[([^\]|#]+)(?:#[^\]|]*)?(?:\|([^\]]*))?\]\]/g)) {
+        const wt = String(pg?.wikitext ?? '');
+        const scope = names.length ? wt : wt.split(/\n==/)[0];
+        const found = [];
+        for (const m of scope.matchAll(/\[\[([^\]|#]+)(?:#[^\]|]*)?(?:\|([^\]]*))?\]\]/g)) {
           const bey = parseHasbroTitle(m[1].trim());
-          if (!bey || entry.beys.some((b) => b.title === bey.title)) continue;
-          const label = hasbroLabel(m[2] ?? '') ?? bey.blade;
-          if (!names.includes(wkey(label)) && !names.includes(wkey(bey.blade))) continue;
-          entry.beys.push({ ...bey, page: m[1].trim(), hasbro: label });
+          if (bey) found.push({ ...bey, page: m[1].trim(), hasbro: hasbroLabel(m[2] ?? '') ?? bey.blade });
         }
+        // Kreisel nur als Text erwähnt (Seite verlinkt sich nicht selbst): „includes Saber Samurai 2-70L“
+        const plain = scope.replace(/\[\[(?:[^\]|]*\|)?([^\]]*)\]\]/g, '$1').replace(/'''?|<[^>]+>|\{\{[^{}]*\}\}/g, ' ');
+        found.push(...beysInLinkName(plain));
+        for (const bey of found) {
+          if (entry.beys.some((b) => b.bladeId === bey.bladeId || wkey(b.hasbro ?? '') === wkey(bey.hasbro ?? ''))) continue;
+          if (names.length && !names.includes(wkey(bey.hasbro ?? '')) && !names.includes(wkey(bey.blade))) continue;
+          entry.beys.push(bey);
+        }
+        if (!names.length && entry.beys.length > 4) entry.beys.length = 0; // unklar → lieber nichts als falsch
       }
       if (!entry.beys.length) {
         report.unresolved.push({ code: entry.code, links: entry.links.slice(0, 5) });

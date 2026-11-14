@@ -51,8 +51,31 @@ describe('Hasbro-Katalog', () => {
     expect(beysInLinkName('Cobalt Dragoon 2-60C Deluxe Left-Spin String Launcher Set')[0]).toMatchObject({ blade: 'Cobalt Dragoon', ratchet: '2-60', bit: 'C' });
     expect(beysInLinkName('Saber Samurai 2-70L Victory Grip Launcher Set')[0]).toMatchObject({ blade: 'Saber Samurai', ratchet: '2-70', bit: 'L' });
     expect(namesInLinkName('Gale Wyvern and Sword Dran Dual Pack')).toEqual(['Gale Wyvern', 'Sword Dran']);
+    expect(namesInLinkName('Cobalt Dragoon Deluxe Left-Spin String Launcher Set')).toEqual(['Cobalt Dragoon']);
+    expect(namesInLinkName('Bite Croc Deluxe String Launcher & Custom Grip Set')).toEqual(['Bite Croc']);
+    expect(namesInLinkName('Xtreme Battle Set')).toEqual([]);
     expect(parseHasbroTitle('Wide Beystadium')).toBeNull();
   });
+  it('liest Launcher-Sets und Battle Sets von der Produktseite (Text, nur Einleitung)', async () => {
+    const wt = `{| class="wikitable"
+|-
+|G1491
+|[[Cobalt Dragoon Deluxe Left-Spin String Launcher Set]]
+|-
+|F9588
+|[[Xtreme Battle Set]]
+|}`;
+    const pages: Record<string, { title: string; wikitext: string }> = {
+      'Cobalt Dragoon Deluxe Left-Spin String Launcher Set': { title: 'x', wikitext: "The set includes '''Cobalt Dragoon 2-60C'''.\n==Related==\n[[Cobalt Drake 4-60F]] [[Meteor Dragoon 3-70J]]" },
+      'Xtreme Battle Set': { title: 'x', wikitext: 'Includes [[Dagger Dran 4-60R]] and [[Tusk Mammoth 3-60T]] and a Beystadium.\n==Gallery==\n[[Sword Dran 3-60F]]' },
+    };
+    const { db: out } = await mergeHasbro(db, parseHasbroList(wt), (t: string) => Promise.resolve(pages[t] ?? null));
+    const p = (c: string) => out.products.find((x: { code: string }) => x.code === c);
+    expect(p('G1491')).toMatchObject({ bladeId: 'CobaltDragoon', ratchetId: '2-60', bitId: 'C' });
+    expect([p('F9588-01')?.bladeId, p('F9588-02')?.bladeId]).toEqual(['DranDagger', 'MammothTusk']);
+    expect(p('F9588-03')).toBeUndefined();
+  });
+
   it('löst Hasbro-Seiten per Weiterleitung auf, legt nur echte Hasbro-Kreisel neu an und ist wiederholbar', async () => {
     const pages: Record<string, { title: string; wikitext: string }> = {
       'Stun Medusa 9-60GB': { title: 'Stun Medusa 9-60GB', wikitext: `'''Stun Medusa''' is a Balance-Type Beyblade. [[Bit - Gear Ball]]` },
