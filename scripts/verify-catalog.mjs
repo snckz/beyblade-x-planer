@@ -35,7 +35,11 @@ export function parseRelease(wikitext, today = new Date()) {
 
 /** Typ eines Bits von seiner Seite: „Low Flat … is an Attack Type Bit“ (auch „Ratchet Integrated Bit“). */
 export function parseBitType(wikitext) {
-  const m = /\bis an?\s+(?:\[\[)?(Attack|Defense|Defence|Stamina|Balance)[ -]Type(?:\]\])?\s+(?:Ratchet Integrated\s+)?Bit\b/i.exec(String(wikitext));
+  const text = String(wikitext);
+  const m =
+    /\bis an?\s+(?:\[\[)?(Attack|Defense|Defence|Stamina|Balance)[ -]Type(?:\]\])?\s+(?:Ratchet Integrated\s+)?Bit\b/i.exec(text) ??
+    // Infobox-Feld, z. B. „| type = Attack“
+    /\|\s*type\s*=\s*(?:\[\[)?(Attack|Defense|Defence|Stamina|Balance)\b/i.exec(text);
   return m ? m[1].toLowerCase().replace('defence', 'defense') : null;
 }
 
@@ -73,6 +77,8 @@ export async function verifyCatalog(db, fetchPage, today = new Date()) {
     const candidates = [
       ...products.map((p) => titleFromUrl(p.source)),
       blade.wikiTitle,
+      // Produktname ohne Art, Blade-Name als Wiki-Schreibweise: „Knight Fortress GV8-70UN“ → „KnightFortress GV8-70UN“
+      ...products.map((p) => p.name.replace(/^(Starter|Booster|Set|Random Booster(?: Vol\.\s?\d+)?)\s+/, '').replace(blade.name, blade.id)),
       ...products.map((p) => `${blade.id} ${p.ratchetId ?? ''}${p.bitId ?? ''}`.trim()),
     ].filter((t, i, a) => t && a.indexOf(t) === i);
     let found = null;

@@ -21,6 +21,7 @@ describe('parseBitType', () => {
     expect(parseBitType("'''Glide''' (G) is a Stamina Type Bit released by Takara Tomy.")).toBe('stamina');
     expect(parseBitType('Operate is a Balance Type Ratchet Integrated Bit, and the second released')).toBe('balance');
     expect(parseBitType('Turbo is an [[Attack Type]] Bit')).toBe('attack');
+    expect(parseBitType('{{BitInfobox\n| name = Jolt\n| type = Attack\n}}')).toBe('attack');
     expect(parseBitType('used on an Attack Type Beyblade')).toBeNull();
   });
 });

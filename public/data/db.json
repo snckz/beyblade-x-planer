@@ -145,7 +145,7 @@
       "id": "CrimsonGaruda",
       "name": "Crimson Garuda",
       "line": "BX",
-      "type": "stamina",
+      "type": "balance",
       "spin": "right",
       "verified": false
     },
@@ -181,16 +181,8 @@
       "type": "attack",
       "spin": "right",
       "verified": false,
-      "note": "Limitierte Neuauflage des Metal-Fight-Klassikers für Beyblade X."
-    },
-    {
-      "id": "TuskMammoth",
-      "name": "Tusk Mammoth",
-      "line": "BX",
-      "type": "balance",
-      "spin": "right",
-      "verified": false,
-      "note": "Hasbro-Name (Xtreme Battle Set)."
+      "note": "Limitierte Neuauflage des Metal-Fight-Klassikers für Beyblade X.",
+      "wikiTitle": "StormPegasis 3-70RA"
     },
     {
       "id": "DranBuster",
@@ -220,7 +212,7 @@
       "id": "LeonCrest",
       "name": "Leon Crest",
       "line": "UX",
-      "type": "defense",
+      "type": "balance",
       "spin": "right",
       "verified": false
     },
@@ -314,7 +306,8 @@
       "type": "defense",
       "spin": "right",
       "verified": false,
-      "note": "CX: Assist-Blade-Kürzel „GV“ laut Händlerangabe."
+      "note": "CX: Assist Blade (GV).",
+      "wikiTitle": "KnightFortress GV8-70UN"
     },
     {
       "id": "WeissTiger",
@@ -618,7 +611,8 @@
       "spin": "right",
       "verified": true,
       "imported": true,
-      "wikiTitle": "MammothTusk 7-60S"
+      "wikiTitle": "MammothTusk 7-60S",
+      "hasbroName": "Tusk Mammoth"
     },
     {
       "id": "HeavensRing",
@@ -1681,10 +1675,13 @@
     },
     {
       "code": "UX-15",
-      "name": "Booster Shark Scale",
-      "kind": "booster",
+      "name": "Set Shark Scale 4-50UF",
+      "kind": "set",
       "verified": false,
       "bladeId": "SharkScale",
+      "ratchetId": "4-50",
+      "bitId": "UF",
+      "note": "Deck Set mit Tyranno Roar 1-70L und Hells Brave J3-60GF.",
       "priceJpy": null
     },
     {

@@ -84,3 +84,26 @@ describe('pickRatchetPage', () => {
     expect(validateImages(out)).toEqual([]);
   });
 });
+
+describe('findImageInPage', () => {
+  it('nimmt die Datei, deren Name zum Teil passt', async () => {
+    // @ts-expect-error – JS-Modul ohne Typen
+    const { findImageInPage } = await import('../scripts/update-images.mjs');
+    const fetchFn = async () => ({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        query: {
+          pages: [
+            { title: 'File:PegasusBlastATr.png', imageinfo: [{ thumburl: 'https://static.wikia.nocookie.net/beyblade/images/a/a1/PegasusBlastATr.png/revision/latest/scale-to-width-down/400' }] },
+            { title: 'File:RatchetIntegratedBitTurbo.png', imageinfo: [{ thumburl: 'https://static.wikia.nocookie.net/beyblade/images/b/b2/RatchetIntegratedBitTurbo.png/revision/latest/scale-to-width-down/400' }] },
+            { title: 'File:Turbo.gif', imageinfo: [{ thumburl: 'https://evil.example/x.gif' }] },
+          ],
+        },
+      }),
+    });
+    const img = await findImageInPage(fetchFn, 'Ratchet Integrated Bit - Turbo', 'Turbo');
+    expect(img?.thumb).toContain('RatchetIntegratedBitTurbo');
+    expect(img?.page).toBe('https://beyblade.fandom.com/wiki/Ratchet_Integrated_Bit_-_Turbo');
+  });
+});

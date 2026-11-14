@@ -53,12 +53,25 @@ export function pickBitPage(bit, pages) {
   return exact.sort((a, b) => pref(a) - pref(b) || (a.index ?? 0) - (b.index ?? 0))[0];
 }
 
+/**
+ * Fallback, wenn eine Seite kein Vorschaubild hat (z. B. Ratchet Integrated Bits):
+ * Dateien der Seite durchgehen und die nehmen, deren Name den Teile-Namen enthält.
+ */
+export async function findImageInPage(fetchFn, title, name) {
+  const d = await query(fetchFn, { generator: 'images', titles: title, gimlimit: '50', prop: 'imageinfo', iiprop: 'url', iiurlwidth: '400', redirects: '1' });
+  const key = String(name).toLowerCase().replace(/[^a-z0-9]/g, '');
+  const files = (d?.query?.pages ?? []).filter((f) => /\.(png|jpe?g|webp)$/i.test(f.title ?? '') && f.imageinfo?.[0]?.thumburl && ALLOWED_HOST.test(f.imageinfo[0].thumburl));
+  const hit = files.find((f) => f.title.toLowerCase().replace(/[^a-z0-9]/g, '').includes(key));
+  return hit ? { thumb: hit.imageinfo[0].thumburl, page: wikiUrl(title), title } : null;
+}
+
 export async function findBitImage(fetchFn, bit) {
   const common = { prop: 'pageimages', piprop: 'thumbnail', pithumbsize: '400', redirects: '1' };
   if (bit.wikiTitle) {
     const d = await query(fetchFn, { ...common, titles: bit.wikiTitle });
     const p = (d?.query?.pages ?? []).find((x) => x?.thumbnail?.source && ALLOWED_HOST.test(x.thumbnail.source));
-    return p ? { thumb: p.thumbnail.source, page: wikiUrl(p.title), title: p.title } : null;
+    if (p) return { thumb: p.thumbnail.source, page: wikiUrl(p.title), title: p.title };
+    return findImageInPage(fetchFn, bit.wikiTitle, bit.name);
   }
   // Direkte Titel-Kandidaten zuerst (schnell und eindeutig), dann Suche.
   const titles = [`Bit - ${bit.name}`, `${bit.name} (Bit)`, bit.name].join('|');
