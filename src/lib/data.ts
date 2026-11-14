@@ -1,4 +1,4 @@
-import type { Database, EventFeed, ImageIndex, NewsFeed, Product } from './types';
+import type { Database, EventFeed, ImageIndex, NewsFeed, Product, Rates } from './types';
 
 const base = import.meta.env.BASE_URL;
 
@@ -34,6 +34,15 @@ export async function loadEvents(): Promise<EventFeed> {
     return await getJson<EventFeed>('events.json');
   } catch {
     return { updatedAt: '', events: [] };
+  }
+}
+
+export async function loadRates(): Promise<Rates | null> {
+  try {
+    const r = await getJson<Rates>('rates.json');
+    return r && r.JPY > 0 && r.THB > 0 ? r : null;
+  } catch {
+    return null;
   }
 }
 

@@ -71,6 +71,17 @@ export interface Product {
   /** überschreibt die automatisch abgeleitete Seltenheit */
   rarity?: Rarity;
   imported?: boolean;
+  /** Japan-Verkaufspreis (Takara Tomy) in Yen laut Wiki; null = nicht gefunden */
+  priceJpy?: number | null;
+}
+
+/** Euro-Referenzkurse: 1 € = JPY Yen = THB Baht */
+export interface Rates {
+  source: string;
+  date: string;
+  base: 'EUR';
+  JPY: number;
+  THB: number;
 }
 
 export interface Database {

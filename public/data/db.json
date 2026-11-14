@@ -1484,7 +1484,7 @@
   "products": [
     {
       "code": "BX-01",
-      "name": "Starter DranSword 3-60F",
+      "name": "Starter Dran Sword 3-60F",
       "kind": "starter",
       "verified": true,
       "bladeId": "DranSword",
@@ -1494,7 +1494,7 @@
     },
     {
       "code": "BX-02",
-      "name": "Starter HellsScythe 4-60T",
+      "name": "Starter Hells Scythe 4-60T",
       "kind": "starter",
       "verified": true,
       "bladeId": "HellsScythe",
@@ -1504,7 +1504,7 @@
     },
     {
       "code": "BX-03",
-      "name": "Starter WizardArrow 4-80B",
+      "name": "Starter Wizard Arrow 4-80B",
       "kind": "starter",
       "verified": true,
       "bladeId": "WizardArrow",
@@ -1514,7 +1514,7 @@
     },
     {
       "code": "BX-04",
-      "name": "Starter KnightShield 3-80N",
+      "name": "Starter Knight Shield 3-80N",
       "kind": "starter",
       "verified": true,
       "bladeId": "KnightShield",
@@ -1530,7 +1530,7 @@
     },
     {
       "code": "BX-13",
-      "name": "Booster KnightLance 4-80HN",
+      "name": "Booster Knight Lance 4-80HN",
       "kind": "booster",
       "verified": true,
       "bladeId": "KnightLance",
@@ -1539,7 +1539,7 @@
     },
     {
       "code": "BX-14",
-      "name": "Random Booster Vol.1 SharkEdge 3-60LF",
+      "name": "Random Booster Vol.1 Shark Edge 3-60LF",
       "kind": "random-booster",
       "verified": true,
       "bladeId": "SharkEdge",
@@ -1548,7 +1548,7 @@
     },
     {
       "code": "BX-15",
-      "name": "Starter LeonClaw 5-60P",
+      "name": "Starter Leon Claw 5-60P",
       "kind": "starter",
       "verified": true,
       "bladeId": "LeonClaw",
@@ -1558,7 +1558,7 @@
     },
     {
       "code": "BX-16",
-      "name": "Random Booster ViperTail Select 5-80O",
+      "name": "Random Booster Viper Tail Select 5-80O",
       "kind": "random-booster",
       "verified": false,
       "bladeId": "ViperTail",
@@ -1567,7 +1567,7 @@
     },
     {
       "code": "BX-23",
-      "name": "Starter PhoenixWing 9-60GF",
+      "name": "Starter Phoenix Wing 9-60GF",
       "kind": "starter",
       "verified": true,
       "bladeId": "PhoenixWing",
@@ -1577,7 +1577,7 @@
     },
     {
       "code": "BX-34",
-      "name": "Starter CobaltDragoon 2-60C",
+      "name": "Starter Cobalt Dragoon 2-60C",
       "kind": "starter",
       "verified": true,
       "bladeId": "CobaltDragoon",
@@ -1596,7 +1596,7 @@
     },
     {
       "code": "BX-38",
-      "name": "Booster CrimsonGaruda 4-70TP",
+      "name": "Booster Crimson Garuda 4-70TP",
       "kind": "booster",
       "verified": false,
       "bladeId": "CrimsonGaruda",
@@ -1605,7 +1605,7 @@
     },
     {
       "code": "BX-49",
-      "name": "DranStrike 4-50FF",
+      "name": "Dran Strike 4-50FF",
       "kind": "booster",
       "verified": true,
       "bladeId": "DranStrike",
@@ -1614,7 +1614,7 @@
     },
     {
       "code": "BX-52",
-      "name": "Starter LusterDragoon 6-60LC",
+      "name": "Starter Luster Dragoon 6-60LC",
       "kind": "starter",
       "verified": true,
       "bladeId": "LusterDragoon",
@@ -1624,7 +1624,7 @@
     },
     {
       "code": "UX-01",
-      "name": "Starter DranBuster 1-60A",
+      "name": "Starter Dran Buster 1-60A",
       "kind": "starter",
       "verified": true,
       "bladeId": "DranBuster",
@@ -1634,7 +1634,7 @@
     },
     {
       "code": "UX-02",
-      "name": "Starter HellsHammer 3-70H",
+      "name": "Starter Hells Hammer 3-70H",
       "kind": "starter",
       "verified": true,
       "bladeId": "HellsHammer",
@@ -1644,7 +1644,7 @@
     },
     {
       "code": "UX-03",
-      "name": "Booster WizardRod 5-70DB",
+      "name": "Booster Wizard Rod 5-70DB",
       "kind": "booster",
       "verified": true,
       "bladeId": "WizardRod",
@@ -1653,7 +1653,7 @@
     },
     {
       "code": "UX-06",
-      "name": "Booster LeonCrest 7-60GN",
+      "name": "Booster Leon Crest 7-60GN",
       "kind": "booster",
       "verified": false,
       "bladeId": "LeonCrest",
@@ -1662,7 +1662,7 @@
     },
     {
       "code": "UX-09",
-      "name": "Starter SamuraiSaber 2-70L",
+      "name": "Starter Samurai Saber 2-70L",
       "kind": "starter",
       "verified": true,
       "bladeId": "SamuraiSaber",
@@ -1673,14 +1673,14 @@
     },
     {
       "code": "UX-15",
-      "name": "Booster SharkScale",
+      "name": "Booster Shark Scale",
       "kind": "booster",
       "verified": false,
       "bladeId": "SharkScale"
     },
     {
       "code": "UX-16",
-      "name": "Random Booster ClockMirage",
+      "name": "Random Booster Clock Mirage",
       "kind": "random-booster",
       "verified": true,
       "bladeId": "ClockMirage",
@@ -1688,7 +1688,7 @@
     },
     {
       "code": "UX-19",
-      "name": "Starter BulletGriffon H",
+      "name": "Starter Bullet Griffon H",
       "kind": "starter",
       "verified": true,
       "bladeId": "BulletGriffon",
@@ -1697,7 +1697,7 @@
     },
     {
       "code": "UX-20",
-      "name": "Starter GloryValkyrie LF",
+      "name": "Starter Glory Valkyrie LF",
       "kind": "starter",
       "verified": true,
       "bladeId": "GloryValkyrie",
@@ -1708,7 +1708,7 @@
     },
     {
       "code": "UX-22",
-      "name": "Starter VanishLucifer WW",
+      "name": "Starter Vanish Lucifer WW",
       "kind": "starter",
       "verified": true,
       "bladeId": "VanishLucifer",
@@ -1718,7 +1718,7 @@
     },
     {
       "code": "CX-01",
-      "name": "Starter DranBrave S6-60V",
+      "name": "Starter Dran Brave S6-60V",
       "kind": "starter",
       "verified": true,
       "bladeId": "DranBrave",
@@ -1728,7 +1728,7 @@
     },
     {
       "code": "CX-02",
-      "name": "Starter WizardArc R4-55LO",
+      "name": "Starter Wizard Arc R4-55LO",
       "kind": "starter",
       "verified": true,
       "bladeId": "WizardArc",
@@ -1738,7 +1738,7 @@
     },
     {
       "code": "CX-14",
-      "name": "KnightFortress GV8-70UN",
+      "name": "Knight Fortress GV8-70UN",
       "kind": "booster",
       "verified": false,
       "bladeId": "KnightFortress",
@@ -1778,7 +1778,7 @@
     },
     {
       "code": "BX-05",
-      "name": "Booster WizardArrow 4-80B",
+      "name": "Booster Wizard Arrow 4-80B",
       "kind": "booster",
       "bladeId": "WizardArrow",
       "ratchetId": "4-80",
@@ -1789,7 +1789,7 @@
     },
     {
       "code": "BX-06",
-      "name": "Booster KnightShield 3-80N",
+      "name": "Booster Knight Shield 3-80N",
       "kind": "booster",
       "bladeId": "KnightShield",
       "ratchetId": "3-80",
@@ -1800,7 +1800,7 @@
     },
     {
       "code": "BX-19",
-      "name": "Booster RhinoHorn 3-80S",
+      "name": "Booster Rhino Horn 3-80S",
       "kind": "booster",
       "bladeId": "RhinoHorn",
       "ratchetId": "3-80",
@@ -1811,7 +1811,7 @@
     },
     {
       "code": "BX-22",
-      "name": "Booster DranSword 3-60F",
+      "name": "Booster Dran Sword 3-60F",
       "kind": "booster",
       "bladeId": "DranSword",
       "ratchetId": "3-60",
@@ -1822,7 +1822,7 @@
     },
     {
       "code": "BX-26",
-      "name": "Booster UnicornSting 5-60GP",
+      "name": "Booster Unicorn Sting 5-60GP",
       "kind": "booster",
       "bladeId": "UnicornSting",
       "ratchetId": "5-60",
@@ -1833,7 +1833,7 @@
     },
     {
       "code": "BX-33",
-      "name": "Booster WeissTiger 3-60U",
+      "name": "Booster Weiss Tiger 3-60U",
       "kind": "booster",
       "bladeId": "WeissTiger",
       "ratchetId": "3-60",
@@ -1844,7 +1844,7 @@
     },
     {
       "code": "BX-44",
-      "name": "Booster TriceraPress M-85BS",
+      "name": "Booster Tricera Press M-85BS",
       "kind": "booster",
       "bladeId": "TriceraPress",
       "ratchetId": "M-85",
@@ -1855,7 +1855,7 @@
     },
     {
       "code": "BX-45",
-      "name": "Booster SamuraiCalibur 6-70M",
+      "name": "Booster Samurai Calibur 6-70M",
       "kind": "booster",
       "bladeId": "SamuraiCalibur",
       "ratchetId": "6-70",
@@ -1866,7 +1866,7 @@
     },
     {
       "code": "BX-54",
-      "name": "Booster SiegSuperion 0-70LP",
+      "name": "Booster Sieg Superion 0-70LP",
       "kind": "booster",
       "bladeId": "SiegSuperion",
       "ratchetId": "0-70",
@@ -1877,7 +1877,7 @@
     },
     {
       "code": "UX-08",
-      "name": "Starter SilverWolf 3-80FB",
+      "name": "Starter Silver Wolf 3-80FB",
       "kind": "starter",
       "bladeId": "SilverWolf",
       "ratchetId": "3-80",
@@ -1889,7 +1889,7 @@
     },
     {
       "code": "UX-11",
-      "name": "Starter ImpactDrake 9-60LR",
+      "name": "Starter Impact Drake 9-60LR",
       "kind": "starter",
       "bladeId": "ImpactDrake",
       "ratchetId": "9-60",
@@ -1901,7 +1901,7 @@
     },
     {
       "code": "UX-13",
-      "name": "Booster GolemRock 1-60UN",
+      "name": "Booster Golem Rock 1-60UN",
       "kind": "booster",
       "bladeId": "GolemRock",
       "ratchetId": "1-60",
@@ -1912,7 +1912,7 @@
     },
     {
       "code": "UX-14",
-      "name": "Starter ScorpioSpear 0-70Z",
+      "name": "Starter Scorpio Spear 0-70Z",
       "kind": "starter",
       "bladeId": "ScorpioSpear",
       "ratchetId": "0-70",
@@ -1924,7 +1924,7 @@
     },
     {
       "code": "UX-17",
-      "name": "Starter MeteorDragoon 3-70J",
+      "name": "Starter Meteor Dragoon 3-70J",
       "kind": "starter",
       "bladeId": "MeteorDragoon",
       "ratchetId": "3-70",
@@ -1936,7 +1936,7 @@
     },
     {
       "code": "CX-03",
-      "name": "Booster PerseusDark B6-80W",
+      "name": "Booster Perseus Dark B6-80W",
       "kind": "booster",
       "bladeId": "PerseusDark",
       "ratchetId": "6-80",
@@ -1947,7 +1947,7 @@
     },
     {
       "code": "CX-07",
-      "name": "Starter PegasusBlast ATr",
+      "name": "Starter Pegasus Blast ATr",
       "kind": "starter",
       "bladeId": "PegasusBlast",
       "bitId": "ATr",
@@ -1958,7 +1958,7 @@
     },
     {
       "code": "CX-09",
-      "name": "Starter SolEclipse D5-70TK",
+      "name": "Starter Sol Eclipse D5-70TK",
       "kind": "starter",
       "bladeId": "SolEclipse",
       "ratchetId": "5-70",
@@ -1970,7 +1970,7 @@
     },
     {
       "code": "CX-10",
-      "name": "Booster WolfHunt F0-60DB",
+      "name": "Booster Wolf Hunt F0-60DB",
       "kind": "booster",
       "bladeId": "WolfHunt",
       "ratchetId": "0-60",
@@ -1981,7 +1981,7 @@
     },
     {
       "code": "CX-12",
-      "name": "Booster PhoenixFlare Z9-80WW",
+      "name": "Booster Phoenix Flare Z9-80WW",
       "kind": "booster",
       "bladeId": "PhoenixFlare",
       "ratchetId": "9-80",
@@ -1992,7 +1992,7 @@
     },
     {
       "code": "CX-13",
-      "name": "Starter BahamutBlitz BK1-50I",
+      "name": "Starter Bahamut Blitz BK1-50I",
       "kind": "starter",
       "bladeId": "BahamutBlitz",
       "ratchetId": "1-50",
@@ -2004,7 +2004,7 @@
     },
     {
       "code": "CX-15",
-      "name": "Booster RagnaRage FE4-55Y",
+      "name": "Booster Ragna Rage FE4-55Y",
       "kind": "booster",
       "bladeId": "RagnaRage",
       "ratchetId": "4-55",
@@ -2015,7 +2015,7 @@
     },
     {
       "code": "CX-00-01",
-      "name": "Starter ValkyrieVolt S4-70V",
+      "name": "Starter Valkyrie Volt S4-70V",
       "kind": "starter",
       "bladeId": "ValkyrieVolt",
       "ratchetId": "4-70",
@@ -2027,7 +2027,7 @@
     },
     {
       "code": "CX-00-04",
-      "name": "Starter LeonFang T4-60A",
+      "name": "Starter Leon Fang T4-60A",
       "kind": "starter",
       "bladeId": "LeonFang",
       "ratchetId": "4-60",
@@ -2039,7 +2039,7 @@
     },
     {
       "code": "CX-00-06",
-      "name": "Starter DranArc S2-70K",
+      "name": "Starter Dran Arc S2-70K",
       "kind": "starter",
       "bladeId": "DranArc",
       "ratchetId": "2-70",
@@ -2051,7 +2051,7 @@
     },
     {
       "code": "CX-00-07",
-      "name": "Starter BucksAntlers B2-60D",
+      "name": "Starter Bucks Antlers B2-60D",
       "kind": "starter",
       "bladeId": "BucksAntlers",
       "ratchetId": "2-60",
@@ -2063,7 +2063,7 @@
     },
     {
       "code": "CX-00-08",
-      "name": "Starter HornetFort R7-60T",
+      "name": "Starter Hornet Fort R7-60T",
       "kind": "starter",
       "bladeId": "HornetFort",
       "ratchetId": "7-60",
@@ -2075,7 +2075,7 @@
     },
     {
       "code": "CX-00-09",
-      "name": "Starter KrakenWriggle S3-70O",
+      "name": "Starter Kraken Wriggle S3-70O",
       "kind": "starter",
       "bladeId": "KrakenWriggle",
       "ratchetId": "3-70",
@@ -2087,7 +2087,7 @@
     },
     {
       "code": "CX-00-10",
-      "name": "Starter DrakeBrave G4-70I",
+      "name": "Starter Drake Brave G4-70I",
       "kind": "starter",
       "bladeId": "DrakeBrave",
       "ratchetId": "4-70",
@@ -2099,7 +2099,7 @@
     },
     {
       "code": "CX-00-11",
-      "name": "Starter TigaRage FT3-60T",
+      "name": "Starter Tiga Rage FT3-60T",
       "kind": "starter",
       "bladeId": "TigaRage",
       "ratchetId": "3-60",
@@ -2111,7 +2111,7 @@
     },
     {
       "code": "BX-07",
-      "name": "Set DranSword 3-60F",
+      "name": "Set Dran Sword 3-60F",
       "kind": "set",
       "bladeId": "DranSword",
       "ratchetId": "3-60",
@@ -2122,7 +2122,7 @@
     },
     {
       "code": "BX-08-01",
-      "name": "Set HellsScythe 3-80B",
+      "name": "Set Hells Scythe 3-80B",
       "kind": "set",
       "bladeId": "HellsScythe",
       "ratchetId": "3-80",
@@ -2133,7 +2133,7 @@
     },
     {
       "code": "BX-08-02",
-      "name": "Set WizardArrow 4-60N",
+      "name": "Set Wizard Arrow 4-60N",
       "kind": "set",
       "bladeId": "WizardArrow",
       "ratchetId": "4-60",
@@ -2144,7 +2144,7 @@
     },
     {
       "code": "BX-08-03",
-      "name": "Set KnightShield 4-80T",
+      "name": "Set Knight Shield 4-80T",
       "kind": "set",
       "bladeId": "KnightShield",
       "ratchetId": "4-80",
@@ -2155,7 +2155,7 @@
     },
     {
       "code": "BX-17-01",
-      "name": "Set DranSword 3-60F",
+      "name": "Set Dran Sword 3-60F",
       "kind": "set",
       "bladeId": "DranSword",
       "ratchetId": "3-60",
@@ -2166,7 +2166,7 @@
     },
     {
       "code": "BX-17-02",
-      "name": "Set WizardArrow 4-80B",
+      "name": "Set Wizard Arrow 4-80B",
       "kind": "set",
       "bladeId": "WizardArrow",
       "ratchetId": "4-80",
@@ -2177,7 +2177,7 @@
     },
     {
       "code": "BX-20-01",
-      "name": "Set DranDagger 4-60R",
+      "name": "Set Dran Dagger 4-60R",
       "kind": "set",
       "bladeId": "DranDagger",
       "ratchetId": "4-60",
@@ -2188,7 +2188,7 @@
     },
     {
       "code": "BX-20-02",
-      "name": "Set KnightShield 5-80T",
+      "name": "Set Knight Shield 5-80T",
       "kind": "set",
       "bladeId": "KnightShield",
       "ratchetId": "5-80",
@@ -2199,7 +2199,7 @@
     },
     {
       "code": "BX-20-03",
-      "name": "Set SharkEdge 3-80F",
+      "name": "Set Shark Edge 3-80F",
       "kind": "set",
       "bladeId": "SharkEdge",
       "ratchetId": "3-80",
@@ -2210,7 +2210,7 @@
     },
     {
       "code": "BX-21-01",
-      "name": "Set HellsChain 5-60HT",
+      "name": "Set Hells Chain 5-60HT",
       "kind": "set",
       "bladeId": "HellsChain",
       "ratchetId": "5-60",
@@ -2221,7 +2221,7 @@
     },
     {
       "code": "BX-21-02",
-      "name": "Set KnightLance 3-60LF",
+      "name": "Set Knight Lance 3-60LF",
       "kind": "set",
       "bladeId": "KnightLance",
       "ratchetId": "3-60",
@@ -2232,7 +2232,7 @@
     },
     {
       "code": "BX-21-03",
-      "name": "Set WizardArrow 4-80N",
+      "name": "Set Wizard Arrow 4-80N",
       "kind": "set",
       "bladeId": "WizardArrow",
       "ratchetId": "4-80",
@@ -2243,7 +2243,7 @@
     },
     {
       "code": "BX-24-01",
-      "name": "Random Booster WyvernGale 5-80GB",
+      "name": "Random Booster Wyvern Gale 5-80GB",
       "kind": "random-booster",
       "bladeId": "WyvernGale",
       "ratchetId": "5-80",
@@ -2254,7 +2254,7 @@
     },
     {
       "code": "BX-24-02",
-      "name": "Random Booster WyvernGale 3-60T",
+      "name": "Random Booster Wyvern Gale 3-60T",
       "kind": "random-booster",
       "bladeId": "WyvernGale",
       "ratchetId": "3-60",
@@ -2265,7 +2265,7 @@
     },
     {
       "code": "BX-24-03",
-      "name": "Random Booster KnightLance 4-60GB",
+      "name": "Random Booster Knight Lance 4-60GB",
       "kind": "random-booster",
       "bladeId": "KnightLance",
       "ratchetId": "4-60",
@@ -2276,7 +2276,7 @@
     },
     {
       "code": "BX-24-04",
-      "name": "Random Booster ViperTail 5-60F",
+      "name": "Random Booster Viper Tail 5-60F",
       "kind": "random-booster",
       "bladeId": "ViperTail",
       "ratchetId": "5-60",
@@ -2287,7 +2287,7 @@
     },
     {
       "code": "BX-24-05",
-      "name": "Random Booster LeonClaw 3-80HN",
+      "name": "Random Booster Leon Claw 3-80HN",
       "kind": "random-booster",
       "bladeId": "LeonClaw",
       "ratchetId": "3-80",
@@ -2298,7 +2298,7 @@
     },
     {
       "code": "BX-24-06",
-      "name": "Random Booster WizardArrow 4-80GB",
+      "name": "Random Booster Wizard Arrow 4-80GB",
       "kind": "random-booster",
       "bladeId": "WizardArrow",
       "ratchetId": "4-80",
@@ -2309,7 +2309,7 @@
     },
     {
       "code": "BX-27-01",
-      "name": "Random Booster SphinxCowl 9-80GN",
+      "name": "Random Booster Sphinx Cowl 9-80GN",
       "kind": "random-booster",
       "bladeId": "SphinxCowl",
       "ratchetId": "9-80",
@@ -2320,7 +2320,7 @@
     },
     {
       "code": "BX-27-02",
-      "name": "Random Booster SphinxCowl 4-80HT",
+      "name": "Random Booster Sphinx Cowl 4-80HT",
       "kind": "random-booster",
       "bladeId": "SphinxCowl",
       "ratchetId": "4-80",
@@ -2331,7 +2331,7 @@
     },
     {
       "code": "BX-27-03",
-      "name": "Random Booster SphinxCowl 5-60O",
+      "name": "Random Booster Sphinx Cowl 5-60O",
       "kind": "random-booster",
       "bladeId": "SphinxCowl",
       "ratchetId": "5-60",
@@ -2342,7 +2342,7 @@
     },
     {
       "code": "BX-31-01",
-      "name": "Random Booster TyrannoBeat 4-70Q",
+      "name": "Random Booster Tyranno Beat 4-70Q",
       "kind": "random-booster",
       "bladeId": "TyrannoBeat",
       "ratchetId": "4-70",
@@ -2353,7 +2353,7 @@
     },
     {
       "code": "BX-31-02",
-      "name": "Random Booster TyrannoBeat 3-60S",
+      "name": "Random Booster Tyranno Beat 3-60S",
       "kind": "random-booster",
       "bladeId": "TyrannoBeat",
       "ratchetId": "3-60",
@@ -2364,7 +2364,7 @@
     },
     {
       "code": "BX-31-03",
-      "name": "Random Booster HellsChain 9-80O",
+      "name": "Random Booster Hells Chain 9-80O",
       "kind": "random-booster",
       "bladeId": "HellsChain",
       "ratchetId": "9-80",
@@ -2375,7 +2375,7 @@
     },
     {
       "code": "BX-31-04",
-      "name": "Random Booster DranDagger 4-70P",
+      "name": "Random Booster Dran Dagger 4-70P",
       "kind": "random-booster",
       "bladeId": "DranDagger",
       "ratchetId": "4-70",
@@ -2386,7 +2386,7 @@
     },
     {
       "code": "BX-31-05",
-      "name": "Random Booster SharkEdge 1-60Q",
+      "name": "Random Booster Shark Edge 1-60Q",
       "kind": "random-booster",
       "bladeId": "SharkEdge",
       "ratchetId": "1-60",
@@ -2397,7 +2397,7 @@
     },
     {
       "code": "BX-31-06",
-      "name": "Random Booster RhinoHorn 5-80Q",
+      "name": "Random Booster Rhino Horn 5-80Q",
       "kind": "random-booster",
       "bladeId": "RhinoHorn",
       "ratchetId": "5-80",
@@ -2408,7 +2408,7 @@
     },
     {
       "code": "BX-35-01",
-      "name": "Random Booster BlackShell 4-60D",
+      "name": "Random Booster Black Shell 4-60D",
       "kind": "random-booster",
       "bladeId": "BlackShell",
       "ratchetId": "4-60",
@@ -2419,7 +2419,7 @@
     },
     {
       "code": "BX-35-02",
-      "name": "Random Booster BlackShell 9-80B",
+      "name": "Random Booster Black Shell 9-80B",
       "kind": "random-booster",
       "bladeId": "BlackShell",
       "ratchetId": "9-80",
@@ -2430,7 +2430,7 @@
     },
     {
       "code": "BX-35-03",
-      "name": "Random Booster UnicornSting 3-70D",
+      "name": "Random Booster Unicorn Sting 3-70D",
       "kind": "random-booster",
       "bladeId": "UnicornSting",
       "ratchetId": "3-70",
@@ -2441,7 +2441,7 @@
     },
     {
       "code": "BX-35-04",
-      "name": "Random Booster WizardRod 1-60R",
+      "name": "Random Booster Wizard Rod 1-60R",
       "kind": "random-booster",
       "bladeId": "WizardRod",
       "ratchetId": "1-60",
@@ -2452,7 +2452,7 @@
     },
     {
       "code": "BX-35-05",
-      "name": "Random Booster PhoenixWing 5-80H",
+      "name": "Random Booster Phoenix Wing 5-80H",
       "kind": "random-booster",
       "bladeId": "PhoenixWing",
       "ratchetId": "5-80",
@@ -2463,7 +2463,7 @@
     },
     {
       "code": "BX-35-06",
-      "name": "Random Booster ViperTail 5-70D",
+      "name": "Random Booster Viper Tail 5-70D",
       "kind": "random-booster",
       "bladeId": "ViperTail",
       "ratchetId": "5-70",
@@ -2474,7 +2474,7 @@
     },
     {
       "code": "BX-36-01",
-      "name": "Random Booster WhaleWave 5-80E",
+      "name": "Random Booster Whale Wave 5-80E",
       "kind": "random-booster",
       "bladeId": "WhaleWave",
       "ratchetId": "5-80",
@@ -2485,7 +2485,7 @@
     },
     {
       "code": "BX-36-02",
-      "name": "Random Booster WhaleWave 4-70HN",
+      "name": "Random Booster Whale Wave 4-70HN",
       "kind": "random-booster",
       "bladeId": "WhaleWave",
       "ratchetId": "4-70",
@@ -2496,7 +2496,7 @@
     },
     {
       "code": "BX-36-03",
-      "name": "Random Booster WhaleWave 3-80GB",
+      "name": "Random Booster Whale Wave 3-80GB",
       "kind": "random-booster",
       "bladeId": "WhaleWave",
       "ratchetId": "3-80",
@@ -2507,7 +2507,7 @@
     },
     {
       "code": "BX-36-04",
-      "name": "Random Booster WhaleWave 4-80HN",
+      "name": "Random Booster Whale Wave 4-80HN",
       "kind": "random-booster",
       "bladeId": "WhaleWave",
       "ratchetId": "4-80",
@@ -2518,7 +2518,7 @@
     },
     {
       "code": "BX-39-01",
-      "name": "Random Booster ShelterDrake 7-80GP",
+      "name": "Random Booster Shelter Drake 7-80GP",
       "kind": "random-booster",
       "bladeId": "ShelterDrake",
       "ratchetId": "7-80",
@@ -2529,7 +2529,7 @@
     },
     {
       "code": "BX-39-02",
-      "name": "Random Booster ShelterDrake 5-70O",
+      "name": "Random Booster Shelter Drake 5-70O",
       "kind": "random-booster",
       "bladeId": "ShelterDrake",
       "ratchetId": "5-70",
@@ -2540,7 +2540,7 @@
     },
     {
       "code": "BX-39-03",
-      "name": "Random Booster ShelterDrake 3-60D",
+      "name": "Random Booster Shelter Drake 3-60D",
       "kind": "random-booster",
       "bladeId": "ShelterDrake",
       "ratchetId": "3-60",
@@ -2551,7 +2551,7 @@
     },
     {
       "code": "BX-46-01",
-      "name": "Set CobaltDrake 9-60R",
+      "name": "Set Cobalt Drake 9-60R",
       "kind": "set",
       "bladeId": "CobaltDrake",
       "ratchetId": "9-60",
@@ -2562,7 +2562,7 @@
     },
     {
       "code": "BX-46-02",
-      "name": "Set GoatTackle 7-70T",
+      "name": "Set Goat Tackle 7-70T",
       "kind": "set",
       "bladeId": "GoatTackle",
       "ratchetId": "7-70",
@@ -2573,7 +2573,7 @@
     },
     {
       "code": "BX-48-01",
-      "name": "Random Booster CobaltDragoon 9-80F",
+      "name": "Random Booster Cobalt Dragoon 9-80F",
       "kind": "random-booster",
       "bladeId": "CobaltDragoon",
       "ratchetId": "9-80",
@@ -2584,7 +2584,7 @@
     },
     {
       "code": "BX-48-02",
-      "name": "Random Booster SharkEdge 4-70E",
+      "name": "Random Booster Shark Edge 4-70E",
       "kind": "random-booster",
       "bladeId": "SharkEdge",
       "ratchetId": "4-70",
@@ -2595,7 +2595,7 @@
     },
     {
       "code": "BX-48-03",
-      "name": "Random Booster MammothTusk 7-60S",
+      "name": "Random Booster Mammoth Tusk 7-60S",
       "kind": "random-booster",
       "bladeId": "MammothTusk",
       "ratchetId": "7-60",
@@ -2606,7 +2606,7 @@
     },
     {
       "code": "BX-48-04",
-      "name": "Random Booster HellsScythe 3-85GB",
+      "name": "Random Booster Hells Scythe 3-85GB",
       "kind": "random-booster",
       "bladeId": "HellsScythe",
       "ratchetId": "3-85",
@@ -2617,7 +2617,7 @@
     },
     {
       "code": "BX-48-05",
-      "name": "Random Booster DranBuster 2-80Q",
+      "name": "Random Booster Dran Buster 2-80Q",
       "kind": "random-booster",
       "bladeId": "DranBuster",
       "ratchetId": "2-80",
@@ -2628,7 +2628,7 @@
     },
     {
       "code": "BX-50-01",
-      "name": "Random Booster HeavensRing 0-80DS",
+      "name": "Random Booster Heavens Ring 0-80DS",
       "kind": "random-booster",
       "bladeId": "HeavensRing",
       "ratchetId": "0-80",
@@ -2639,7 +2639,7 @@
     },
     {
       "code": "BX-50-02",
-      "name": "Random Booster HeavensRing 6-60TP",
+      "name": "Random Booster Heavens Ring 6-60TP",
       "kind": "random-booster",
       "bladeId": "HeavensRing",
       "ratchetId": "6-60",
@@ -2650,7 +2650,7 @@
     },
     {
       "code": "BX-50-03",
-      "name": "Random Booster ImpactDrake 7-55FB",
+      "name": "Random Booster Impact Drake 7-55FB",
       "kind": "random-booster",
       "bladeId": "ImpactDrake",
       "ratchetId": "7-55",
@@ -2661,7 +2661,7 @@
     },
     {
       "code": "BX-50-04",
-      "name": "Random Booster GhostCircle M-85DS",
+      "name": "Random Booster Ghost Circle M-85DS",
       "kind": "random-booster",
       "bladeId": "GhostCircle",
       "ratchetId": "M-85",
@@ -2672,7 +2672,7 @@
     },
     {
       "code": "BX-50-05",
-      "name": "Random Booster WolfFlame D9-65L",
+      "name": "Random Booster Wolf Flame D9-65L",
       "kind": "random-booster",
       "bladeId": "WolfFlame",
       "ratchetId": "9-65",
@@ -2683,7 +2683,7 @@
     },
     {
       "code": "BX-50-06",
-      "name": "Random Booster CerberusReaper B0-80WB",
+      "name": "Random Booster Cerberus Reaper B0-80WB",
       "kind": "random-booster",
       "bladeId": "CerberusReaper",
       "ratchetId": "0-80",
@@ -2694,7 +2694,7 @@
     },
     {
       "code": "BX-53-01",
-      "name": "Set AeroPegasus 3-70A",
+      "name": "Set Aero Pegasus 3-70A",
       "kind": "set",
       "bladeId": "AeroPegasus",
       "ratchetId": "3-70",
@@ -2705,7 +2705,7 @@
     },
     {
       "code": "BX-53-02",
-      "name": "Set WizardArrow 4-80B",
+      "name": "Set Wizard Arrow 4-80B",
       "kind": "set",
       "bladeId": "WizardArrow",
       "ratchetId": "4-80",
@@ -2716,7 +2716,7 @@
     },
     {
       "code": "BX-53-03",
-      "name": "Set KnightShield 3-80N",
+      "name": "Set Knight Shield 3-80N",
       "kind": "set",
       "bladeId": "KnightShield",
       "ratchetId": "3-80",
@@ -2727,7 +2727,7 @@
     },
     {
       "code": "BX-55-01",
-      "name": "Random Booster HorusShatter 3-85MO",
+      "name": "Random Booster Horus Shatter 3-85MO",
       "kind": "random-booster",
       "bladeId": "HorusShatter",
       "ratchetId": "3-85",
@@ -2738,7 +2738,7 @@
     },
     {
       "code": "BX-55-02",
-      "name": "Random Booster HorusShatter 1-60BS",
+      "name": "Random Booster Horus Shatter 1-60BS",
       "kind": "random-booster",
       "bladeId": "HorusShatter",
       "ratchetId": "1-60",
@@ -2749,7 +2749,7 @@
     },
     {
       "code": "BX-55-03",
-      "name": "Random Booster LeonFang T9-65HT",
+      "name": "Random Booster Leon Fang T9-65HT",
       "kind": "random-booster",
       "bladeId": "LeonFang",
       "ratchetId": "9-65",
@@ -2760,7 +2760,7 @@
     },
     {
       "code": "BX-55-04",
-      "name": "Random Booster FoxBlast R6-70A",
+      "name": "Random Booster Fox Blast R6-70A",
       "kind": "random-booster",
       "bladeId": "FoxBlast",
       "ratchetId": "6-70",
@@ -2771,7 +2771,7 @@
     },
     {
       "code": "BX-55-05",
-      "name": "Random Booster TriceraPress 4-60DS",
+      "name": "Random Booster Tricera Press 4-60DS",
       "kind": "random-booster",
       "bladeId": "TriceraPress",
       "ratchetId": "4-60",
@@ -2782,7 +2782,7 @@
     },
     {
       "code": "BX-55-06",
-      "name": "Random Booster ClockMirage 4-55MO",
+      "name": "Random Booster Clock Mirage 4-55MO",
       "kind": "random-booster",
       "bladeId": "ClockMirage",
       "ratchetId": "4-55",
@@ -2793,7 +2793,7 @@
     },
     {
       "code": "UX-04-01",
-      "name": "Set DranBuster 1-60A",
+      "name": "Set Dran Buster 1-60A",
       "kind": "set",
       "bladeId": "DranBuster",
       "ratchetId": "1-60",
@@ -2804,7 +2804,7 @@
     },
     {
       "code": "UX-04-02",
-      "name": "Set WizardRod 5-70DB",
+      "name": "Set Wizard Rod 5-70DB",
       "kind": "set",
       "bladeId": "WizardRod",
       "ratchetId": "5-70",
@@ -2815,7 +2815,7 @@
     },
     {
       "code": "UX-05-01",
-      "name": "Random Booster ShinobiShadow 1-80MN",
+      "name": "Random Booster Shinobi Shadow 1-80MN",
       "kind": "random-booster",
       "bladeId": "ShinobiShadow",
       "ratchetId": "1-80",
@@ -2826,7 +2826,7 @@
     },
     {
       "code": "UX-05-02",
-      "name": "Random Booster ShinobiShadow 9-60LF",
+      "name": "Random Booster Shinobi Shadow 9-60LF",
       "kind": "random-booster",
       "bladeId": "ShinobiShadow",
       "ratchetId": "9-60",
@@ -2837,7 +2837,7 @@
     },
     {
       "code": "UX-05-03",
-      "name": "Random Booster ShinobiShadow 3-70GP",
+      "name": "Random Booster Shinobi Shadow 3-70GP",
       "kind": "random-booster",
       "bladeId": "ShinobiShadow",
       "ratchetId": "3-70",
@@ -2848,7 +2848,7 @@
     },
     {
       "code": "UX-07-01",
-      "name": "Set PhoenixRudder 9-70G",
+      "name": "Set Phoenix Rudder 9-70G",
       "kind": "set",
       "bladeId": "PhoenixRudder",
       "ratchetId": "9-70",
@@ -2859,7 +2859,7 @@
     },
     {
       "code": "UX-07-02",
-      "name": "Set SphinxCowl 1-80GF",
+      "name": "Set Sphinx Cowl 1-80GF",
       "kind": "set",
       "bladeId": "SphinxCowl",
       "ratchetId": "1-80",
@@ -2870,7 +2870,7 @@
     },
     {
       "code": "UX-07-03",
-      "name": "Set WyvernGale 2-60S",
+      "name": "Set Wyvern Gale 2-60S",
       "kind": "set",
       "bladeId": "WyvernGale",
       "ratchetId": "2-60",
@@ -2881,7 +2881,7 @@
     },
     {
       "code": "UX-10",
-      "name": "Set KnightMail 3-85BS",
+      "name": "Set Knight Mail 3-85BS",
       "kind": "set",
       "bladeId": "KnightMail",
       "ratchetId": "3-85",
@@ -2892,7 +2892,7 @@
     },
     {
       "code": "UX-12-01",
-      "name": "Random Booster GhostCircle 0-80GB",
+      "name": "Random Booster Ghost Circle 0-80GB",
       "kind": "random-booster",
       "bladeId": "GhostCircle",
       "ratchetId": "0-80",
@@ -2903,7 +2903,7 @@
     },
     {
       "code": "UX-12-02",
-      "name": "Random Booster GhostCircle 4-60H",
+      "name": "Random Booster Ghost Circle 4-60H",
       "kind": "random-booster",
       "bladeId": "GhostCircle",
       "ratchetId": "4-60",
@@ -2914,7 +2914,7 @@
     },
     {
       "code": "UX-12-03",
-      "name": "Random Booster ShinobiShadow 3-80F",
+      "name": "Random Booster Shinobi Shadow 3-80F",
       "kind": "random-booster",
       "bladeId": "ShinobiShadow",
       "ratchetId": "3-80",
@@ -2925,7 +2925,7 @@
     },
     {
       "code": "UX-12-04",
-      "name": "Random Booster LeonClaw 0-80E",
+      "name": "Random Booster Leon Claw 0-80E",
       "kind": "random-booster",
       "bladeId": "LeonClaw",
       "ratchetId": "0-80",
@@ -2936,7 +2936,7 @@
     },
     {
       "code": "UX-12-05",
-      "name": "Random Booster PhoenixFeather 2-60N",
+      "name": "Random Booster Phoenix Feather 2-60N",
       "kind": "random-booster",
       "bladeId": "PhoenixFeather",
       "ratchetId": "2-60",
@@ -2947,7 +2947,7 @@
     },
     {
       "code": "UX-12-06",
-      "name": "Random Booster WyvernGale 0-80C",
+      "name": "Random Booster Wyvern Gale 0-80C",
       "kind": "random-booster",
       "bladeId": "WyvernGale",
       "ratchetId": "0-80",
@@ -2958,7 +2958,7 @@
     },
     {
       "code": "UX-18-01",
-      "name": "Random Booster MummyCurse 7-55W",
+      "name": "Random Booster Mummy Curse 7-55W",
       "kind": "random-booster",
       "bladeId": "MummyCurse",
       "ratchetId": "7-55",
@@ -2969,7 +2969,7 @@
     },
     {
       "code": "UX-18-02",
-      "name": "Random Booster MummyCurse 4-60C",
+      "name": "Random Booster Mummy Curse 4-60C",
       "kind": "random-booster",
       "bladeId": "MummyCurse",
       "ratchetId": "4-60",
@@ -2980,7 +2980,7 @@
     },
     {
       "code": "UX-18-03",
-      "name": "Random Booster PegasusBrush M3-85W",
+      "name": "Random Booster Pegasus Brush M3-85W",
       "kind": "random-booster",
       "bladeId": "PegasusBrush",
       "ratchetId": "3-85",
@@ -2991,7 +2991,7 @@
     },
     {
       "code": "UX-18-04",
-      "name": "Random Booster SolBrave C9-70TP",
+      "name": "Random Booster Sol Brave C9-70TP",
       "kind": "random-booster",
       "bladeId": "SolBrave",
       "ratchetId": "9-70",
@@ -3002,7 +3002,7 @@
     },
     {
       "code": "UX-18-05",
-      "name": "Random Booster DranDagger 7-55G",
+      "name": "Random Booster Dran Dagger 7-55G",
       "kind": "random-booster",
       "bladeId": "DranDagger",
       "ratchetId": "7-55",
@@ -3013,7 +3013,7 @@
     },
     {
       "code": "UX-18-06",
-      "name": "Random Booster WeissTiger 4-80LR",
+      "name": "Random Booster Weiss Tiger 4-80LR",
       "kind": "random-booster",
       "bladeId": "WeissTiger",
       "ratchetId": "4-80",
@@ -3024,7 +3024,7 @@
     },
     {
       "code": "UX-21-01",
-      "name": "Set HellsNether Z",
+      "name": "Set Hells Nether Z",
       "kind": "set",
       "bladeId": "HellsNether",
       "bitId": "Z",
@@ -3034,7 +3034,7 @@
     },
     {
       "code": "UX-21-02",
-      "name": "Set SilverWolf 9-70R",
+      "name": "Set Silver Wolf 9-70R",
       "kind": "set",
       "bladeId": "SilverWolf",
       "ratchetId": "9-70",
@@ -3045,7 +3045,7 @@
     },
     {
       "code": "UX-21-03",
-      "name": "Set WyvernHover 8-80B",
+      "name": "Set Wyvern Hover 8-80B",
       "kind": "set",
       "bladeId": "WyvernHover",
       "ratchetId": "8-80",
@@ -3056,7 +3056,7 @@
     },
     {
       "code": "CX-04-01",
-      "name": "Set DranBrave S6-60V",
+      "name": "Set Dran Brave S6-60V",
       "kind": "set",
       "bladeId": "DranBrave",
       "ratchetId": "6-60",
@@ -3067,7 +3067,7 @@
     },
     {
       "code": "CX-04-02",
-      "name": "Set PerseusDark B6-80W",
+      "name": "Set Perseus Dark B6-80W",
       "kind": "set",
       "bladeId": "PerseusDark",
       "ratchetId": "6-80",
@@ -3078,7 +3078,7 @@
     },
     {
       "code": "CX-05-01",
-      "name": "Random Booster HellsReaper T4-70K",
+      "name": "Random Booster Hells Reaper T4-70K",
       "kind": "random-booster",
       "bladeId": "HellsReaper",
       "ratchetId": "4-70",
@@ -3089,7 +3089,7 @@
     },
     {
       "code": "CX-05-02",
-      "name": "Random Booster RhinoReaper C4-55D",
+      "name": "Random Booster Rhino Reaper C4-55D",
       "kind": "random-booster",
       "bladeId": "RhinoReaper",
       "ratchetId": "4-55",
@@ -3100,7 +3100,7 @@
     },
     {
       "code": "CX-05-03",
-      "name": "Random Booster HellsArc T3-85O",
+      "name": "Random Booster Hells Arc T3-85O",
       "kind": "random-booster",
       "bladeId": "HellsArc",
       "ratchetId": "3-85",
@@ -3111,7 +3111,7 @@
     },
     {
       "code": "CX-05-04",
-      "name": "Random Booster LeonCrest 9-80K",
+      "name": "Random Booster Leon Crest 9-80K",
       "kind": "random-booster",
       "bladeId": "LeonCrest",
       "ratchetId": "9-80",
@@ -3122,7 +3122,7 @@
     },
     {
       "code": "CX-05-05",
-      "name": "Random Booster PhoenixRudder 4-70LF",
+      "name": "Random Booster Phoenix Rudder 4-70LF",
       "kind": "random-booster",
       "bladeId": "PhoenixRudder",
       "ratchetId": "4-70",
@@ -3133,7 +3133,7 @@
     },
     {
       "code": "CX-05-06",
-      "name": "Random Booster WhaleWave 7-60K",
+      "name": "Random Booster Whale Wave 7-60K",
       "kind": "random-booster",
       "bladeId": "WhaleWave",
       "ratchetId": "7-60",
@@ -3144,7 +3144,7 @@
     },
     {
       "code": "CX-06-01",
-      "name": "Random Booster FoxBrush J9-70GR",
+      "name": "Random Booster Fox Brush J9-70GR",
       "kind": "random-booster",
       "bladeId": "FoxBrush",
       "ratchetId": "9-70",
@@ -3155,7 +3155,7 @@
     },
     {
       "code": "CX-06-02",
-      "name": "Random Booster FoxBrush J0-80DB",
+      "name": "Random Booster Fox Brush J0-80DB",
       "kind": "random-booster",
       "bladeId": "FoxBrush",
       "ratchetId": "0-80",
@@ -3166,7 +3166,7 @@
     },
     {
       "code": "CX-06-03",
-      "name": "Random Booster FoxBrush J2-60U",
+      "name": "Random Booster Fox Brush J2-60U",
       "kind": "random-booster",
       "bladeId": "FoxBrush",
       "ratchetId": "2-60",
@@ -3177,7 +3177,7 @@
     },
     {
       "code": "CX-08-01",
-      "name": "Random Booster CerberusFlame W5-80WB",
+      "name": "Random Booster Cerberus Flame W5-80WB",
       "kind": "random-booster",
       "bladeId": "CerberusFlame",
       "ratchetId": "5-80",
@@ -3188,7 +3188,7 @@
     },
     {
       "code": "CX-08-02",
-      "name": "Random Booster WhaleFlame M3-85HT",
+      "name": "Random Booster Whale Flame M3-85HT",
       "kind": "random-booster",
       "bladeId": "WhaleFlame",
       "ratchetId": "3-85",
@@ -3199,7 +3199,7 @@
     },
     {
       "code": "CX-08-03",
-      "name": "Random Booster CerberusDark W1-60F",
+      "name": "Random Booster Cerberus Dark W1-60F",
       "kind": "random-booster",
       "bladeId": "CerberusDark",
       "ratchetId": "1-60",
@@ -3210,7 +3210,7 @@
     },
     {
       "code": "CX-08-04",
-      "name": "Random Booster DranBuster 5-80MN",
+      "name": "Random Booster Dran Buster 5-80MN",
       "kind": "random-booster",
       "bladeId": "DranBuster",
       "ratchetId": "5-80",
@@ -3221,7 +3221,7 @@
     },
     {
       "code": "CX-08-05",
-      "name": "Random Booster BlackShell 7-70WB",
+      "name": "Random Booster Black Shell 7-70WB",
       "kind": "random-booster",
       "bladeId": "BlackShell",
       "ratchetId": "7-70",
@@ -3232,7 +3232,7 @@
     },
     {
       "code": "CX-08-06",
-      "name": "Random Booster CobaltDragoon 4-55WB",
+      "name": "Random Booster Cobalt Dragoon 4-55WB",
       "kind": "random-booster",
       "bladeId": "CobaltDragoon",
       "ratchetId": "4-55",
@@ -3243,7 +3243,7 @@
     },
     {
       "code": "CX-11-01",
-      "name": "Set EmperorMight HOp",
+      "name": "Set Emperor Might HOp",
       "kind": "set",
       "bladeId": "EmperorMight",
       "bitId": "HOp",
@@ -3253,7 +3253,7 @@
     },
     {
       "code": "CX-11-02",
-      "name": "Set GolemRock M-85HN",
+      "name": "Set Golem Rock M-85HN",
       "kind": "set",
       "bladeId": "GolemRock",
       "ratchetId": "M-85",
@@ -3264,7 +3264,7 @@
     },
     {
       "code": "CX-11-03",
-      "name": "Set SharkGill 5-60FB",
+      "name": "Set Shark Gill 5-60FB",
       "kind": "set",
       "bladeId": "SharkGill",
       "ratchetId": "5-60",
@@ -3275,7 +3275,7 @@
     },
     {
       "code": "CX-16",
-      "name": "Set BahamutBlitz BK1-50I",
+      "name": "Set Bahamut Blitz BK1-50I",
       "kind": "set",
       "bladeId": "BahamutBlitz",
       "ratchetId": "1-50",
@@ -3286,7 +3286,7 @@
     },
     {
       "code": "CX-17-01",
-      "name": "Random Booster UnicornDelta PO3-60GU",
+      "name": "Random Booster Unicorn Delta PO3-60GU",
       "kind": "random-booster",
       "bladeId": "UnicornDelta",
       "ratchetId": "3-60",
@@ -3297,7 +3297,7 @@
     },
     {
       "code": "CX-17-02",
-      "name": "Random Booster UnicornDelta PO1-80GR",
+      "name": "Random Booster Unicorn Delta PO1-80GR",
       "kind": "random-booster",
       "bladeId": "UnicornDelta",
       "ratchetId": "1-80",
@@ -3308,7 +3308,7 @@
     },
     {
       "code": "CX-17-03",
-      "name": "Random Booster SamuraiSaber 9-65LO",
+      "name": "Random Booster Samurai Saber 9-65LO",
       "kind": "random-booster",
       "bladeId": "SamuraiSaber",
       "ratchetId": "9-65",
@@ -3319,7 +3319,7 @@
     },
     {
       "code": "CX-17-04",
-      "name": "Random Booster HellsHammer 3-85GU",
+      "name": "Random Booster Hells Hammer 3-85GU",
       "kind": "random-booster",
       "bladeId": "HellsHammer",
       "ratchetId": "3-85",
@@ -3330,7 +3330,7 @@
     },
     {
       "code": "CX-17-05",
-      "name": "Random Booster TyrannoBeat 3-60N",
+      "name": "Random Booster Tyranno Beat 3-60N",
       "kind": "random-booster",
       "bladeId": "TyrannoBeat",
       "ratchetId": "3-60",
@@ -3341,7 +3341,7 @@
     },
     {
       "code": "CX-17-06",
-      "name": "Random Booster CrimsonGaruda 7-80GU",
+      "name": "Random Booster Crimson Garuda 7-80GU",
       "kind": "random-booster",
       "bladeId": "CrimsonGaruda",
       "ratchetId": "7-80",
@@ -3352,7 +3352,7 @@
     },
     {
       "code": "CX-18",
-      "name": "Random Booster BrachioWhip OW5-70Nr",
+      "name": "Random Booster Brachio Whip OW5-70Nr",
       "kind": "random-booster",
       "bladeId": "BrachioWhip",
       "ratchetId": "5-70",
@@ -3363,7 +3363,7 @@
     },
     {
       "code": "CX-19",
-      "name": "Random Booster CrocoTread TQ5-50GN",
+      "name": "Random Booster Croco Tread TQ5-50GN",
       "kind": "random-booster",
       "bladeId": "CrocoTread",
       "ratchetId": "5-50",
@@ -3374,7 +3374,7 @@
     },
     {
       "code": "CX-20",
-      "name": "Set PhoenixForce WHM-65MT",
+      "name": "Set Phoenix Force WHM-65MT",
       "kind": "set",
       "bladeId": "PhoenixForce",
       "ratchetId": "M-65",

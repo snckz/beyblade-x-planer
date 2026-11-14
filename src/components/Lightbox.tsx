@@ -1,4 +1,5 @@
-import { useEffect, useRef } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
+import { largeUrl } from '../lib/images';
 import type { Database } from '../lib/types';
 import { useApp, type ImageKind } from '../lib/context';
 
@@ -19,6 +20,7 @@ export function Lightbox({ db, id, kind = 'blade', onClose }: { db: Database; id
   const store = kind === 'bit' ? images.bits : kind === 'ratchet' ? images.ratchets : images.blades;
   const img = store?.[id];
   const name = partName(db, id, kind);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     const prev = document.activeElement as HTMLElement | null;
@@ -37,11 +39,15 @@ export function Lightbox({ db, id, kind = 'blade', onClose }: { db: Database; id
   }, [onClose]);
 
   if (!img) return null;
-  // Größere Variante vom Wiki anfordern (Thumbnail-Breite in der URL anpassen, falls vorhanden).
-  const large = img.thumb.replace(/scale-to-width-down\/\d+/, 'scale-to-width-down/900');
+  const large = largeUrl(img.thumb);
+  const cls = kind === 'blade' ? '' : ' lightbox-part';
   return (
     <div ref={ref} class="lightbox" role="dialog" aria-modal="true" aria-label={name} tabIndex={-1} onClick={onClose}>
-      <img src={large} alt={name} referrerpolicy="no-referrer" class={kind === 'blade' ? undefined : 'lightbox-part'} />
+      {/* Sofort das (schon geladene) kleine Bild zeigen, das große blendet darüber ein, sobald es da ist. */}
+      <div class="lightbox-pic">
+        {!ready && <img src={img.thumb} alt="" aria-hidden="true" referrerpolicy="no-referrer" class={`lightbox-ph${cls}`} />}
+        <img src={large} alt={name} referrerpolicy="no-referrer" class={`lightbox-full${cls}${ready ? ' ready' : ''}`} onLoad={() => setReady(true)} />
+      </div>
       <p class="lightbox-cap">
         <strong>{name}</strong>
         <a href={img.page} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>

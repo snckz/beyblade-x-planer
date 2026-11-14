@@ -70,6 +70,7 @@ describe('mergeCatalog', () => {
     };
     const res = await mergeCatalog(db, entries, async (t: string) => pages[t] ?? null);
     expect(res.report.added.products).toEqual(['CX-09', 'BX-24-01']);
+    expect(res.db.products.find((p: { code: string }) => p.code === 'CX-09')?.name).toBe('Starter Sol Eclipse D5-70TK');
     expect(res.report.added.bits).toEqual(['TK']);
     const sol = res.db.blades.find((b: { id: string }) => b.id === 'SolEclipse');
     expect(sol).toMatchObject({ type: 'balance', spin: 'right', verified: false, imported: true, line: 'CX' });

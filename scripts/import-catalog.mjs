@@ -11,7 +11,7 @@ import { validateDb } from './validate-data.mjs';
 export const LIST_TITLES = ['List of Beyblade X products (Takara Tomy)', 'List of Beyblade X Products (Takara Tomy)'];
 const CODE_RE = /\b(BX|UX|CX)-(\d{2,3})\b/g;
 const LINK_RE = /\[\[([^\]|#]+)(?:#[^\]|]*)?(?:\|[^\]]*)?\]\]/g;
-const MAX_PAGES = 300;
+const MAX_PAGES = 320;
 
 /** Schreibweisen im Wiki, die zu bereits gepflegten Blades gehören. */
 const BLADE_ALIASES = { StormPegasis: 'StormPegasus' };
@@ -45,6 +45,12 @@ export function kindOf(text) {
 }
 
 const KIND_LABEL = { starter: 'Starter', booster: 'Booster', 'random-booster': 'Random Booster', set: 'Set' };
+
+/** Lesbarer Produktname: „Starter Valkyrie Volt S4-70V“ statt „ValkyrieVolt S4-70V“. */
+export function productName(kind, bey, blade) {
+  const rest = bey.title.slice(bey.blade.length).trim();
+  return `${KIND_LABEL[kind] ?? 'Booster'} ${blade.name}${rest ? ' ' + rest : ''}`;
+}
 
 /**
  * Geht den Wikitext der Liste der Reihe nach durch: Jede Produktnummer gilt für die folgenden
@@ -89,6 +95,15 @@ export function beysOnPage(wikitext) {
 /** Nicht-Kreisel-Seiten, die sich als Produktseite eignen (Booster, Sets) – keine Teile- oder Themenseiten. */
 const PRODUCT_LINK = /random booster|booster|deck set|set\b|select|starter/i;
 const NOT_PRODUCT = /^(blade|bit|ratchet|lock chip|main blade|assist blade) - |^(takara tomy|hasbro|beyblade x|xtreme|launcher|stadium)/i;
+
+/** Japanischer Verkaufspreis (UVP Takara Tomy) aus dem Seitentext, z. B. „for 2,321円“ oder „¥1,320“. */
+export function parsePriceJpy(wikitext) {
+  const text = String(wikitext).replace(/<[^>]+>/g, ' ');
+  const m = /([\d][\d,.]{2,6})\s*(?:円|yen\b|JPY\b)/i.exec(text) ?? /(?:¥|￥)\s*([\d][\d,.]{2,6})/.exec(text);
+  if (!m) return null;
+  const n = Number(m[1].replace(/[,.]/g, ''));
+  return n >= 300 && n <= 30000 ? n : null;
+}
 
 /** Liest Typ, Drehrichtung und Teile-Namen aus dem Wikitext einer Kreisel-Seite. */
 export function parseBeyPage(wikitext) {
@@ -222,7 +237,7 @@ export async function mergeCatalog(db, entries, fetchPage) {
       if (/-00$/.test(entry.code) && combos.has(combo)) continue; // Sonderedition einer schon erfassten Kombo
       const product = {
         code,
-        name: `${KIND_LABEL[kind]} ${bey.title}`,
+        name: productName(kind, bey, blade),
         kind,
         bladeId: blade.id,
         ...(ratchetId ? { ratchetId } : {}),
@@ -252,6 +267,28 @@ export async function mergeCatalog(db, entries, fetchPage) {
       report.added.bits.push(`${bit.id} (Name: ${name})`);
     }
   }
+  // Japan-Preise: jede Produktseite einmal ansehen; null = nichts gefunden, wird nicht erneut versucht.
+  report.prices = 0;
+  const pageCache = new Map();
+  for (const p of out.products) {
+    if (p.priceJpy !== undefined || !p.bladeId || fetched >= MAX_PAGES) continue;
+    const blade = out.blades.find((b) => b.id === p.bladeId);
+    const fromSource = p.source?.includes('/wiki/') ? decodeURIComponent(p.source.split('/wiki/')[1]).replace(/_/g, ' ') : null;
+    const guess = blade ? `${blade.id} ${p.ratchetId ?? ''}${p.bitId ?? ''}`.trim() : null;
+    const title = fromSource ?? guess;
+    if (!title) continue;
+    if (!pageCache.has(title)) {
+      fetched++;
+      pageCache.set(title, await fetchPage(title).catch(() => null));
+    }
+    const wt = pageCache.get(title);
+    if (wt === null && !fromSource) {
+      p.priceJpy = null;
+      continue;
+    }
+    p.priceJpy = wt ? parsePriceJpy(wt) : null;
+    if (p.priceJpy) report.prices++;
+  }
   return { db: out, report, fetched };
 }
 
@@ -277,14 +314,14 @@ export async function run({ fetchFn = fetch, dataDir = new URL('../public/data/'
     const errors = validateDb(res.db);
     if (errors.length) throw new Error('Import ergäbe ungültige Daten: ' + errors.slice(0, 5).join('; '));
     Object.assign(report, { ok: true, fetched: res.fetched, ...res.report });
-    const changed = Object.values(res.report.added).some((a) => a.length);
+    const changed = Object.values(res.report.added).some((a) => a.length) || JSON.stringify(res.db.products) !== JSON.stringify(db.products);
     if (changed) {
       res.db.updatedAt = now.slice(0, 10);
       writeFileSync(dbPath, JSON.stringify(res.db, null, 2) + '\n');
     }
     writeReport(dataDir, report);
     const a = res.report.added;
-    console.log(`Katalog: ${entries.length} Nummern gelesen, neu: ${a.products.length} Produkte, ${a.blades.length} Blades, ${a.bits.length} Bits, ${a.ratchets.length} Ratchets, übersprungen: ${res.report.skipped.length}.`);
+    console.log(`Katalog: ${entries.length} Nummern gelesen, neu: ${a.products.length} Produkte, ${a.blades.length} Blades, ${a.bits.length} Bits, ${a.ratchets.length} Ratchets, ${res.report.prices} Preise, übersprungen: ${res.report.skipped.length}.`);
     return { changed, report };
   } catch (err) {
     report.error = err.message;

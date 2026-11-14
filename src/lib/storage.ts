@@ -12,9 +12,13 @@ export interface UserState {
   seenNews: string[];
   /** Gegner-Deck für die Battle-Analyse (max. 3) */
   opponent: Combo[];
+  /** Produktcodes auf der Wunschliste */
+  wishlist: string[];
+  /** gelernte Zuordnung Barcode (EAN/JAN) → Produktcode */
+  barcodes: Record<string, string>;
 }
 
-export const EMPTY_STATE: UserState = { owned: {}, combos: [], deck: [], seenNews: [], opponent: [] };
+export const EMPTY_STATE: UserState = { owned: {}, combos: [], deck: [], seenNews: [], opponent: [], wishlist: [], barcodes: {} };
 
 function isRecordOfNumbers(v: unknown): v is Record<string, number> {
   return !!v && typeof v === 'object' && Object.values(v).every((n) => typeof n === 'number' && Number.isFinite(n) && n >= 0);
@@ -36,6 +40,11 @@ export function sanitize(raw: unknown): UserState {
     deck: Array.isArray(r.deck) ? r.deck.filter((id) => typeof id === 'string' && ids.has(id)).slice(0, 3) : [],
     seenNews: Array.isArray(r.seenNews) ? r.seenNews.filter((s) => typeof s === 'string') : [],
     opponent: Array.isArray(r.opponent) ? r.opponent.filter(isCombo).slice(0, 3) : [],
+    wishlist: Array.isArray(r.wishlist) ? [...new Set(r.wishlist.filter((s) => typeof s === 'string'))] : [],
+    barcodes:
+      r.barcodes && typeof r.barcodes === 'object'
+        ? Object.fromEntries(Object.entries(r.barcodes).filter(([k, v]) => /^\d{8,14}$/.test(k) && typeof v === 'string'))
+        : {},
   };
 }
 

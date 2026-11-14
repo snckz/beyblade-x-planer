@@ -99,6 +99,12 @@ const products = [
   P('HAS-XBS', 'Hasbro Xtreme Battle Set (Dagger Dran 4-60R + Tusk Mammoth 3-60T)', 'set', true, { includesLauncher: true, note: 'Mit Stadium und zwei Launchern.' }),
 ];
 
+// Lesbare Produktnamen: „Starter DranSword 3-60F“ → „Starter Dran Sword 3-60F“.
+for (const p of products) {
+  const b = blades.find((x) => x.id === p.bladeId);
+  if (b && b.name !== b.id) p.name = p.name.replace(new RegExp(`\\b${b.id}\\b`), b.name);
+}
+
 // Vom Katalog-Import (scripts/import-catalog.mjs) ergänzte Einträge bleiben erhalten,
 // solange sie hier nicht von Hand gepflegt werden.
 const dbUrl = new URL('../public/data/db.json', import.meta.url);
@@ -112,6 +118,11 @@ if (existsSync(dbUrl)) {
   keep(old.ratchets, ratchets, 'id');
   keep(old.bits, bits, 'id');
   keep(old.products, products, 'code');
+  // Vom Import ermittelte Japan-Preise auch bei gepflegten Produkten behalten.
+  for (const p of products) {
+    const o = old.products?.find((x) => x.code === p.code);
+    if (o && o.priceJpy !== undefined && p.priceJpy === undefined) p.priceJpy = o.priceJpy;
+  }
 }
 
 const db = { version: 1, updatedAt: new Date().toISOString().slice(0, 10), blades, ratchets, bits, products };

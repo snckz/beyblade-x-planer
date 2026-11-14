@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'preact/hooks';
-import type { Database, EventFeed, ImageIndex, NewsFeed } from './lib/types';
-import { daysUntil, loadDatabase, loadEvents, loadImages, loadNews } from './lib/data';
+import type { Database, EventFeed, ImageIndex, NewsFeed, Rates } from './lib/types';
+import { daysUntil, loadDatabase, loadEvents, loadImages, loadNews, loadRates } from './lib/data';
 import { loadState, saveState, type UserState } from './lib/storage';
 import { AppContext, type ImageKind } from './lib/context';
+import { preloadImages } from './lib/images';
 import { ComboBuilder } from './components/ComboBuilder';
 import { Lexikon } from './components/Lexikon';
 import { Lightbox } from './components/Lightbox';
@@ -35,6 +36,7 @@ export function App() {
   const [news, setNews] = useState<NewsFeed>({ updatedAt: null, lastRunOk: true, items: [] });
   const [images, setImages] = useState<ImageIndex>({ source: '', blades: {} });
   const [events, setEvents] = useState<EventFeed>({ updatedAt: '', events: [] });
+  const [rates, setRates] = useState<Rates | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [state, setState] = useState<UserState>(loadState);
   const [tab, setTab] = useState<Tab>(readTab);
@@ -51,9 +53,12 @@ export function App() {
     void loadNews().then(setNews);
     void loadImages().then(setImages);
     void loadEvents().then(setEvents);
+    void loadRates().then(setRates);
   }, []);
 
   useEffect(load, [load]);
+  // Große Fotos vorladen, sobald der Bilder-Index da ist – dann öffnet die Großansicht sofort.
+  useEffect(() => (Object.keys(images.blades).length ? preloadImages(images) : undefined), [images]);
   useEffect(() => setStorageOk(saveState(state)), [state]);
   useEffect(() => {
     const onHash = () => setTab(readTab());
@@ -79,7 +84,7 @@ export function App() {
     },
     [go],
   );
-  const ctx = useMemo(() => ({ images, openBlade, openImage }), [images, openBlade, openImage]);
+  const ctx = useMemo(() => ({ images, rates, openBlade, openImage }), [images, rates, openBlade, openImage]);
 
   const unread = news.items.filter((n) => !state.seenNews.includes(n.id)).length;
   const soon = events.events.filter((e) => {
