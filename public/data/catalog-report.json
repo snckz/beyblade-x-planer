@@ -1,82 +1,294 @@
 {
   "ok": true,
   "listTitle": "List of Beyblade X products (Takara Tomy)",
-  "codes": 46,
+  "codes": 102,
   "listLength": 17623,
-  "fetched": 23,
+  "fetched": 75,
   "added": {
     "blades": [
-      "WeissTiger",
-      "TriceraPress",
-      "SamuraiCalibur",
-      "SiegSuperion",
-      "SilverWolf",
-      "ImpactDrake",
-      "GolemRock",
-      "ScorpioSpear",
-      "MeteorDragoon",
-      "PegasusBlast",
-      "SolEclipse",
-      "WolfHunt",
-      "PhoenixFlare",
-      "BahamutBlitz",
-      "RagnaRage",
-      "ValkyrieVolt",
-      "LeonFang",
-      "DranArc",
-      "BucksAntlers",
-      "HornetFort",
-      "KrakenWriggle",
-      "DrakeBrave",
-      "TigaRage"
+      "BlackShell",
+      "WhaleWave",
+      "ShelterDrake",
+      "CobaltDrake",
+      "GoatTackle",
+      "MammothTusk",
+      "HeavensRing",
+      "GhostCircle",
+      "WolfFlame",
+      "CerberusReaper",
+      "HorusShatter",
+      "FoxBlast",
+      "ShinobiShadow",
+      "PhoenixRudder",
+      "KnightMail",
+      "PhoenixFeather",
+      "MummyCurse",
+      "PegasusBrush",
+      "SolBrave",
+      "HellsNether",
+      "WyvernHover",
+      "HellsReaper",
+      "RhinoReaper",
+      "HellsArc",
+      "FoxBrush",
+      "CerberusFlame",
+      "WhaleFlame",
+      "CerberusDark",
+      "EmperorMight",
+      "SharkGill",
+      "UnicornDelta",
+      "BrachioWhip",
+      "CrocoTread",
+      "PhoenixForce"
     ],
     "ratchets": [
-      "M-85",
-      "0-60",
-      "1-50"
+      "7-55",
+      "8-80",
+      "5-50",
+      "M-65"
     ],
     "bits": [
-      "M",
-      "LP",
-      "Z",
-      "ATr",
-      "TK",
-      "I",
-      "Y",
-      "K"
+      "DS",
+      "WB",
+      "MO",
+      "MN",
+      "G",
+      "GR",
+      "HOp",
+      "GU",
+      "Nr",
+      "MT",
+      "M (Name: Merge==)",
+      "LP (Name: Low Point==)",
+      "Z (Name: Zap==)",
+      "ATr (Name: Turbo==)",
+      "TK (Name: Trans Kick==)",
+      "I (Name: Ignition==)",
+      "Y (Name: Yielding==)",
+      "K (Name: Kick==)"
     ],
     "products": [
-      "BX-05",
-      "BX-06",
-      "BX-19",
-      "BX-22",
-      "BX-26",
-      "BX-33",
-      "BX-44",
-      "BX-45",
-      "BX-54",
-      "UX-08",
-      "UX-11",
-      "UX-13",
-      "UX-14",
-      "UX-17",
-      "UX-22",
-      "CX-03",
-      "CX-07",
-      "CX-09",
-      "CX-10",
-      "CX-12",
-      "CX-13",
-      "CX-15",
-      "CX-00-01",
-      "CX-00-04",
-      "CX-00-06",
-      "CX-00-07",
-      "CX-00-08",
-      "CX-00-09",
-      "CX-00-10",
-      "CX-00-11"
+      "BX-07",
+      "BX-08-01",
+      "BX-08-02",
+      "BX-08-03",
+      "BX-17-01",
+      "BX-17-02",
+      "BX-20-01",
+      "BX-20-02",
+      "BX-20-03",
+      "BX-21-01",
+      "BX-21-02",
+      "BX-21-03",
+      "BX-24-01",
+      "BX-24-02",
+      "BX-24-03",
+      "BX-24-04",
+      "BX-24-05",
+      "BX-24-06",
+      "BX-27-01",
+      "BX-27-02",
+      "BX-27-03",
+      "BX-31-01",
+      "BX-31-02",
+      "BX-31-03",
+      "BX-31-04",
+      "BX-31-05",
+      "BX-31-06",
+      "BX-35-01",
+      "BX-35-02",
+      "BX-35-03",
+      "BX-35-04",
+      "BX-35-05",
+      "BX-35-06",
+      "BX-36-01",
+      "BX-36-02",
+      "BX-36-03",
+      "BX-36-04",
+      "BX-39-01",
+      "BX-39-02",
+      "BX-39-03",
+      "BX-46-01",
+      "BX-46-02",
+      "BX-48-01",
+      "BX-48-02",
+      "BX-48-03",
+      "BX-48-04",
+      "BX-48-05",
+      "BX-50-01",
+      "BX-50-02",
+      "BX-50-03",
+      "BX-50-04",
+      "BX-50-05",
+      "BX-50-06",
+      "BX-53-01",
+      "BX-53-02",
+      "BX-53-03",
+      "BX-55-01",
+      "BX-55-02",
+      "BX-55-03",
+      "BX-55-04",
+      "BX-55-05",
+      "BX-55-06",
+      "UX-04-01",
+      "UX-04-02",
+      "UX-05-01",
+      "UX-05-02",
+      "UX-05-03",
+      "UX-07-01",
+      "UX-07-02",
+      "UX-07-03",
+      "UX-10",
+      "UX-12-01",
+      "UX-12-02",
+      "UX-12-03",
+      "UX-12-04",
+      "UX-12-05",
+      "UX-12-06",
+      "UX-18-01",
+      "UX-18-02",
+      "UX-18-03",
+      "UX-18-04",
+      "UX-18-05",
+      "UX-18-06",
+      "UX-21-01",
+      "UX-21-02",
+      "UX-21-03",
+      "CX-04-01",
+      "CX-04-02",
+      "CX-05-01",
+      "CX-05-02",
+      "CX-05-03",
+      "CX-05-04",
+      "CX-05-05",
+      "CX-05-06",
+      "CX-06-01",
+      "CX-06-02",
+      "CX-06-03",
+      "CX-08-01",
+      "CX-08-02",
+      "CX-08-03",
+      "CX-08-04",
+      "CX-08-05",
+      "CX-08-06",
+      "CX-11-01",
+      "CX-11-02",
+      "CX-11-03",
+      "CX-16",
+      "CX-17-01",
+      "CX-17-02",
+      "CX-17-03",
+      "CX-17-04",
+      "CX-17-05",
+      "CX-17-06",
+      "CX-18",
+      "CX-19",
+      "CX-20"
     ]
   },
-  "skipped": []
+  "skipped": [],
+  "unresolved": [
+    {
+      "code": "BX-09",
+      "links": [
+        "Beybattle Pass"
+      ]
+    },
+    {
+      "code": "BX-11",
+      "links": [
+        "Launcher Grip (Beyblade X)"
+      ]
+    },
+    {
+      "code": "BX-12",
+      "links": [
+        "3on3 Deck Case"
+      ]
+    },
+    {
+      "code": "BX-18",
+      "links": [
+        "String Launcher (Beyblade X)"
+      ]
+    },
+    {
+      "code": "BX-25",
+      "links": [
+        "Gear Case"
+      ]
+    },
+    {
+      "code": "BX-28",
+      "links": [
+        "String Launcher (Beyblade X)"
+      ]
+    },
+    {
+      "code": "BX-29",
+      "links": [
+        "Custom Grip (Beyblade X)"
+      ]
+    },
+    {
+      "code": "BX-30",
+      "links": [
+        "Custom Grip (Beyblade X)"
+      ]
+    },
+    {
+      "code": "BX-32",
+      "links": [
+        "Wide Xtreme Stadium"
+      ]
+    },
+    {
+      "code": "BX-40",
+      "links": [
+        "Winder Launcher L"
+      ]
+    },
+    {
+      "code": "BX-41",
+      "links": [
+        "Rubber Custom Grip"
+      ]
+    },
+    {
+      "code": "BX-42",
+      "links": [
+        "Rubber Custom Grip"
+      ]
+    },
+    {
+      "code": "BX-43",
+      "links": [
+        "Gear Case"
+      ]
+    },
+    {
+      "code": "BX-47",
+      "links": [
+        "String Launcher L"
+      ]
+    },
+    {
+      "code": "BX-51",
+      "links": [
+        "String Launcher (Beyblade X)"
+      ]
+    },
+    {
+      "code": "BX-56",
+      "links": [
+        "String Launcher L"
+      ]
+    },
+    {
+      "code": "BX-57",
+      "links": [
+        "3on3 Deck Case"
+      ]
+    }
+  ]
 }
