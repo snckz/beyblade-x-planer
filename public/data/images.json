@@ -1,4 +1,185 @@
 {
   "source": "Beyblade Wiki (beyblade.fandom.com)",
-  "blades": {}
+  "blades": {
+    "DranSword": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/2/22/DranSword_3-80B.jpeg/revision/latest/scale-to-width-down/392?cb=20241117065450",
+      "page": "https://beyblade.fandom.com/wiki/DranSword_3-80B",
+      "title": "DranSword 3-80B"
+    },
+    "HellsScythe": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/1/1a/HellsScythe_4-60T.jpeg/revision/latest/scale-to-width-down/400?cb=20230517044323",
+      "page": "https://beyblade.fandom.com/wiki/HellsScythe_4-60T",
+      "title": "HellsScythe 4-60T"
+    },
+    "WizardArrow": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/2/2b/WizardArrow_3-60T.png/revision/latest?cb=20230812090416",
+      "page": "https://beyblade.fandom.com/wiki/WizardArrow_3-60T",
+      "title": "WizardArrow 3-60T"
+    },
+    "KnightShield": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/7/73/KnightShield_4-80T.jpeg/revision/latest/scale-to-width-down/400?cb=20230517053121",
+      "page": "https://beyblade.fandom.com/wiki/KnightShield_4-80T",
+      "title": "KnightShield 4-80T"
+    },
+    "KnightLance": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/d/d7/KnightLance_4-60GB.jpeg/revision/latest?cb=20231213161318",
+      "page": "https://beyblade.fandom.com/wiki/KnightLance_4-60GB",
+      "title": "KnightLance 4-60GB"
+    },
+    "SharkEdge": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/4/47/SharkEdge_4-70E_%28Metal_Coat_Blue_Minor_Change_Version%29.png/revision/latest/scale-to-width-down/389?cb=20260115030535",
+      "page": "https://beyblade.fandom.com/wiki/SharkEdge_4-70E",
+      "title": "SharkEdge 4-70E"
+    },
+    "LeonClaw": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/e/e4/LeonClaw_0-80E.png/revision/latest/scale-to-width-down/400?cb=20241115031231",
+      "page": "https://beyblade.fandom.com/wiki/LeonClaw_0-80E",
+      "title": "LeonClaw 0-80E"
+    },
+    "ViperTail": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/a/a7/ViperTail_4-60F.jpg/revision/latest/scale-to-width-down/400?cb=20231031061917",
+      "page": "https://beyblade.fandom.com/wiki/ViperTail_4-60F",
+      "title": "ViperTail 4-60F"
+    },
+    "RhinoHorn": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/f/f8/Beyblade_X_-_RhinoHorn_5-80A.png/revision/latest/scale-to-width-down/400?cb=20260907124031",
+      "page": "https://beyblade.fandom.com/wiki/RhinoHorn_5-80A",
+      "title": "RhinoHorn 5-80A"
+    },
+    "DranDagger": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/3/3d/DranDagger_7-55G.png/revision/latest/scale-to-width-down/380?cb=20251114044854",
+      "page": "https://beyblade.fandom.com/wiki/DranDagger_7-55G",
+      "title": "DranDagger 7-55G"
+    },
+    "HellsChain": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/8/86/HellsChain_9-80O.jpeg/revision/latest?cb=20240417121607",
+      "page": "https://beyblade.fandom.com/wiki/HellsChain_9-80O",
+      "title": "HellsChain 9-80O"
+    },
+    "PhoenixWing": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/0/02/PhoenixWing_5-80H.jpeg/revision/latest?cb=20240624191632",
+      "page": "https://beyblade.fandom.com/wiki/PhoenixWing_5-80H",
+      "title": "PhoenixWing 5-80H"
+    },
+    "WyvernGale": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/8/89/WyvernGale_2-60S.jpeg/revision/latest?cb=20240711224736",
+      "page": "https://beyblade.fandom.com/wiki/WyvernGale_2-60S",
+      "title": "WyvernGale 2-60S"
+    },
+    "UnicornSting": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/0/07/UnicornSting_3-70D.jpeg/revision/latest?cb=20240624191250",
+      "page": "https://beyblade.fandom.com/wiki/UnicornSting_3-70D",
+      "title": "UnicornSting 3-70D"
+    },
+    "SphinxCowl": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/d/db/SphinxCowl_5-60O.jpeg/revision/latest/scale-to-width-down/393?cb=20240115035456",
+      "page": "https://beyblade.fandom.com/wiki/SphinxCowl_5-60O",
+      "title": "SphinxCowl 5-60O"
+    },
+    "TyrannoBeat": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/4/4d/TyrannoBeat_3-60N.png/revision/latest/scale-to-width-down/400?cb=20260415015501",
+      "page": "https://beyblade.fandom.com/wiki/TyrannoBeat_3-60N",
+      "title": "TyrannoBeat 3-60N"
+    },
+    "CobaltDragoon": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/8/80/CobaltDragoon_9-80F_%28Metal_Coat_Black_Minor_Change_Version%29.png/revision/latest/scale-to-width-down/400?cb=20260115030520",
+      "page": "https://beyblade.fandom.com/wiki/CobaltDragoon_9-80F",
+      "title": "CobaltDragoon 9-80F"
+    },
+    "CrimsonGaruda": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/8/81/CrimsonGaruda_7-80GU.png/revision/latest/scale-to-width-down/383?cb=20260415015515",
+      "page": "https://beyblade.fandom.com/wiki/CrimsonGaruda_7-80GU",
+      "title": "CrimsonGaruda 7-80GU"
+    },
+    "DranStrike": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/a/a6/DranStrike_4-50FF.png/revision/latest/scale-to-width-down/400?cb=20260313073133",
+      "page": "https://beyblade.fandom.com/wiki/DranStrike_4-50FF",
+      "title": "DranStrike 4-50FF"
+    },
+    "LusterDragoon": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/d/db/LusterDragoon_6-60LC.png/revision/latest/scale-to-width-down/391?cb=20260915025339",
+      "page": "https://beyblade.fandom.com/wiki/LusterDragoon_6-60LC",
+      "title": "LusterDragoon 6-60LC"
+    },
+    "AeroPegasus": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/4/4e/AeroPegasus_3-70A.jpeg/revision/latest/scale-to-width-down/400?cb=20240712053337",
+      "page": "https://beyblade.fandom.com/wiki/AeroPegasus_3-70A",
+      "title": "AeroPegasus 3-70A"
+    },
+    "TuskMammoth": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/e/e2/Tusk_Mammoth_3-60T.jpeg/revision/latest?cb=20240321181854",
+      "page": "https://beyblade.fandom.com/wiki/Tusk_Mammoth_3-60T",
+      "title": "Tusk Mammoth 3-60T"
+    },
+    "DranBuster": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/4/43/DranBuster_2-80Q_%28Metal_Coat_Red_Minor_Change_Version%29.png/revision/latest/scale-to-width-down/390?cb=20260115030615",
+      "page": "https://beyblade.fandom.com/wiki/DranBuster_2-80Q",
+      "title": "DranBuster 2-80Q"
+    },
+    "HellsHammer": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/3/3b/HellsHammer_3-70H.jpg/revision/latest/scale-to-width-down/400?cb=20240217040728",
+      "page": "https://beyblade.fandom.com/wiki/HellsHammer_3-70H",
+      "title": "HellsHammer 3-70H"
+    },
+    "WizardRod": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/5/56/WizardRod_1-60R.jpeg/revision/latest?cb=20240624191835",
+      "page": "https://beyblade.fandom.com/wiki/WizardRod_1-60R",
+      "title": "WizardRod 1-60R"
+    },
+    "LeonCrest": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/5/5f/LeonCrest_9-80K.jpeg/revision/latest/scale-to-width-down/393?cb=20260619072952",
+      "page": "https://beyblade.fandom.com/wiki/LeonCrest_9-80K",
+      "title": "LeonCrest 9-80K"
+    },
+    "SamuraiSaber": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/7/76/SamuraiSaber_5-60K_%28Metal_Coat_Samurai_Blue_Japan_National_Football_Team_Ver.%29.png/revision/latest/scale-to-width-down/393?cb=20260415015659",
+      "page": "https://beyblade.fandom.com/wiki/SamuraiSaber_5-60K",
+      "title": "SamuraiSaber 5-60K"
+    },
+    "SharkScale": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/1/1c/SharkScale_4-50UF.jpeg/revision/latest/scale-to-width-down/389?cb=20260128024624",
+      "page": "https://beyblade.fandom.com/wiki/SharkScale_4-50UF",
+      "title": "SharkScale 4-50UF"
+    },
+    "ClockMirage": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/e/ed/ClockMirage_4-55S_%28Metal_Coat_Black_Fate_Rewinder_Ver.%3B_Angled_View%29.jpg/revision/latest/scale-to-width-down/400?cb=20260808044725",
+      "page": "https://beyblade.fandom.com/wiki/ClockMirage_4-55S",
+      "title": "ClockMirage 4-55S"
+    },
+    "BulletGriffon": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/6/65/Beyblade_X_-_BulletGriffon_H.png/revision/latest?cb=20260417104440",
+      "page": "https://beyblade.fandom.com/wiki/BulletGriffon_H",
+      "title": "BulletGriffon H"
+    },
+    "GloryValkyrie": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/4/4b/GloryValkyrie_LF.png/revision/latest/scale-to-width-down/380?cb=20260615032121",
+      "page": "https://beyblade.fandom.com/wiki/GloryValkyrie_LF",
+      "title": "GloryValkyrie LF"
+    },
+    "VanishLucifer": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/2/2f/VanishLucifer_WW.jpeg/revision/latest/scale-to-width-down/359?cb=20261112151843",
+      "page": "https://beyblade.fandom.com/wiki/VanishLucifer_WW",
+      "title": "VanishLucifer WW"
+    },
+    "DranBrave": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/3/34/DranBrave_H6-60V_%28Angled_View%29.png/revision/latest/scale-to-width-down/400?cb=20251104001452",
+      "page": "https://beyblade.fandom.com/wiki/DranBrave_H6-60V",
+      "title": "DranBrave H6-60V"
+    },
+    "WizardArc": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/9/9a/WizardArc_R4-55LO.png/revision/latest/scale-to-width-down/400?cb=20250215034148",
+      "page": "https://beyblade.fandom.com/wiki/WizardArc_R4-55LO",
+      "title": "WizardArc R4-55LO"
+    },
+    "PerseusDark": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/8/84/PerseusDark_B6-80W.jpeg/revision/latest/scale-to-width-down/400?cb=20250214171916",
+      "page": "https://beyblade.fandom.com/wiki/PerseusDark_B6-80W",
+      "title": "PerseusDark B6-80W"
+    },
+    "KnightFortress": {
+      "thumb": "https://static.wikia.nocookie.net/beyblade/images/b/b6/KnightFortress_GV8-70UN.png/revision/latest/scale-to-width-down/400?cb=20260214031248",
+      "page": "https://beyblade.fandom.com/wiki/KnightFortress_GV8-70UN",
+      "title": "KnightFortress GV8-70UN"
+    }
+  }
 }
