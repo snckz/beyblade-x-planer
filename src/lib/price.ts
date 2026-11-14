@@ -34,7 +34,7 @@ export function refPrice(p: Priced, rates: Rates | null): { eur: number; thb: nu
  * Nur eine echte Unternummer abtrennen – „UX-15“ allein bleibt „UX-15“.
  */
 export function groupKey(p: Partial<Pick<Product, 'code' | 'kind'>>): string {
-  const m = p.code ? /^([A-Z]+-\d+)-\d{2}$/.exec(p.code) : null;
+  const m = p.code ? /^([A-Z]+-?\d+)-\d{2}$/.exec(p.code) : null; // BX-08-01 (Takara) und G1543-01 (Hasbro)
   return m && (p.kind === 'set' || p.kind === 'random-booster') ? m[1]! : (p.code ?? '');
 }
 const setKey = (p: Priced) => (p.kind === 'set' && p.code ? groupKey(p) : null);

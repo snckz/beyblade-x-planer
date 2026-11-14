@@ -56,6 +56,8 @@ describe('Preise und Käufe', () => {
     expect(groupKey({ code: 'UX-15', kind: 'set' })).toBe('UX-15');
     expect(groupKey({ code: 'BX-08-02', kind: 'set' })).toBe('BX-08');
     expect(groupKey({ code: 'BX-08-02', kind: 'booster' })).toBe('BX-08-02');
+    expect(groupKey({ code: 'G1543-02', kind: 'set' })).toBe('G1543'); // Hasbro-Dual-Pack
+    expect(groupKey({ code: 'G1491', kind: 'starter' })).toBe('G1491');
     // zwei verschiedene Sets → beide Preise zählen
     expect(sumPrices([{ code: 'UX-15', kind: 'set', priceJpy: 1000 }, { code: 'UX-16', kind: 'set', priceJpy: 2000 }]).jpy).toBe(3000);
     expect(sumPrices([{ code: 'BX-08-01', kind: 'set', priceJpy: 5000 }, { code: 'BX-08-02', kind: 'set', priceJpy: 5000 }]).jpy).toBe(5000);
@@ -64,6 +66,8 @@ describe('Preise und Käufe', () => {
     const p = db.products.find((x) => x.code === 'BX-08-02')!;
     expect(purchaseCodes(db.products, p)).toEqual(['BX-08-01', 'BX-08-02', 'BX-08-03']);
     expect(purchaseCodes(db.products, db.products.find((x) => x.code === 'BX-05')!)).toEqual(['BX-05']);
+    const dual = db.products.find((x) => x.code === 'G1543-01');
+    if (dual) expect(purchaseCodes(db.products, dual)).toEqual(['G1543-01', 'G1543-02']);
   });
   it('Kaufberater mischt keine verschiedenen Produkte', async () => {
     const { offers } = await advise(db, {}, opponents);

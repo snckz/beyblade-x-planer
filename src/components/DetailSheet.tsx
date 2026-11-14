@@ -49,7 +49,6 @@ export function DetailSheet({ db, events, bladeId, onClose, onUse }: Props) {
     ['Linie', LINE_LABEL[blade.line]],
     ['Ratchet', blade.integratedRatchet ? 'In Blade integriert' : 'Austauschbar'],
     ['Hasbro-Name', blade.hasbroName ?? null],
-    ['Japan-Name', blade.hasbroName ? blade.name : null],
     ['Gewicht (Kreisel)', weight ? `${weight} g` : null],
     ['Erschienen in', products.map((p) => (p.code.startsWith('TBA') ? 'Neuheit' : p.code)).join(', ') || null],
     ['Datenstatus', blade.verified ? 'Geprüft' : 'Ungeprüft'],

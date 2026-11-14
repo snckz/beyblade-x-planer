@@ -1,4 +1,4 @@
-import { displayProductName } from '../lib/names';
+import { displayProductName, regionLabel } from '../lib/names';
 import { useMemo, useRef, useState } from 'preact/hooks';
 import type { BeyEvent, Database, MetaFeed } from '../lib/types';
 import { wishReleases } from '../lib/reminders';
@@ -16,7 +16,7 @@ import { PhotoCheck } from './PhotoCheck';
 import { AddProducts } from './AddProducts';
 import { Showcase } from './Showcase';
 import { nb } from '../lib/analysis';
-import { convert, priceHint, sumPrices, yen } from '../lib/price';
+import { convert, groupKey, priceHint, sumPrices, yen } from '../lib/price';
 
 interface Props {
   events?: BeyEvent[];
@@ -39,7 +39,15 @@ export function Collection({ db, state, update, events = [], meta }: Props) {
   const [showcase, setShowcase] = useState(false);
   const ownedProducts = db.products.filter((p) => (state.owned[p.code] ?? 0) > 0);
   const unknownCodes = Object.keys(state.owned).filter((c) => !db.products.some((p) => p.code === c));
-  const total = ownedProducts.reduce((n, p) => n + (state.owned[p.code] ?? 0), 0);
+  // Packungen zählen: ein Set/Dual Pack ist eine Packung, auch wenn mehrere Kreisel drin sind
+  const total = (() => {
+    const perBuy = new Map<string, number>();
+    for (const p of ownedProducts) {
+      const k = p.kind === 'set' ? groupKey(p) : p.code;
+      perBuy.set(k, Math.max(perBuy.get(k) ?? 0, state.owned[p.code] ?? 0));
+    }
+    return [...perBuy.values()].reduce((a, b) => a + b, 0);
+  })();
   const { rates, openCheck } = useApp();
   const wishProducts = state.wishlist.map((c) => db.products.find((p) => p.code === c)).filter((p): p is (typeof db.products)[number] => !!p);
   const wishSum = sumPrices(wishProducts);
@@ -141,7 +149,7 @@ export function Collection({ db, state, update, events = [], meta }: Props) {
           <div class="kpis">
             <div class="kpi">
               <span class="kpi-val">{total}</span>
-              <span class="kpi-label">Produkte</span>
+              <span class="kpi-label">Packungen</span>
             </div>
             <div class="kpi">
               <span class="kpi-val">{parts.blades.size}</span>
@@ -186,6 +194,9 @@ export function Collection({ db, state, update, events = [], meta }: Props) {
                     <span class="code">{p.code.startsWith('TBA') ? 'neu' : p.code}</span>
                     <div class="row-main">
                       <span class="row-title">{nb(displayProductName(p, db))}</span>
+                      <span class="row-sub">
+                        <span class={`region-tag ${p.region === 'hasbro' ? 'hasbro' : 'takara'}`}>{regionLabel(p)}</span>
+                      </span>
                     </div>
                     {b && <TypeBadge type={b.type} small />}
                     {!editing ? (

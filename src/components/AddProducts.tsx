@@ -2,9 +2,8 @@ import { useMemo, useRef, useState } from 'preact/hooks';
 import type { Database, Product } from '../lib/types';
 import type { UserState } from '../lib/storage';
 import { searchProducts } from '../lib/data';
-import { displayProductName } from '../lib/names';
+import { displayProductName, regionLabel } from '../lib/names';
 import { nb } from '../lib/analysis';
-import { useApp } from '../lib/context';
 import { useModal } from '../lib/useModal';
 import { BeyImage } from './BeyImage';
 
@@ -23,9 +22,8 @@ const KIND: Partial<Record<Product['kind'], string>> = { starter: 'Starter', boo
 /** Sammlung bearbeiten im eigenen Fenster: suchen, mit + / − Anzahl setzen – ohne den Tab zu wechseln. */
 export function AddProducts({ db, state, update, onClose }: Props) {
   const ref = useRef<HTMLDivElement>(null);
-  const { hasbroNames } = useApp();
   const [query, setQuery] = useState('');
-  const [region, setRegion] = useState<Region>(hasbroNames ? 'hasbro' : 'all');
+  const [region, setRegion] = useState<Region>('all');
   const [onlyMine, setOnlyMine] = useState(false);
   const [limit, setLimit] = useState(PAGE);
   useModal(ref, onClose);
@@ -103,8 +101,7 @@ export function AddProducts({ db, state, update, onClose }: Props) {
                   <div class="row-main">
                     <span class="row-title">{nb(displayProductName(p, db).replace(/^(Starter|Booster|Set|Random Booster)\s+/, ''))}</span>
                     <span class="row-sub">
-                      {p.code} · {KIND[p.kind] ?? 'Produkt'}
-                      {p.region === 'hasbro' ? ' · Hasbro' : ''}
+                      <span class={`region-tag ${p.region === 'hasbro' ? 'hasbro' : 'takara'}`}>{regionLabel(p)}</span> {p.code} · {KIND[p.kind] ?? 'Produkt'}
                     </span>
                   </div>
                   <div class="stepper stepper-sm" aria-label={`Anzahl ${p.name}`}>

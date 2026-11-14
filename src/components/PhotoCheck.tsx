@@ -8,7 +8,7 @@ import type { ScoreCache } from '../lib/optimizer';
 import { purchaseCodes, searchProducts } from '../lib/data';
 import { groupKey, refPrice, VERDICT_LABEL, yen } from '../lib/price';
 import { PriceInput } from './PriceInput';
-import { displayProductName } from '../lib/names';
+import { displayProductName, regionLabel } from '../lib/names';
 import { nb } from '../lib/analysis';
 import { useApp } from '../lib/context';
 import { useModal } from '../lib/useModal';
@@ -243,7 +243,9 @@ function ProductList({ db, list, onPick }: { db: Database; list: Product[]; onPi
             {p.bladeId && <BeyImage bladeId={p.bladeId} type={db.blades.find((b) => b.id === p.bladeId)?.type ?? 'balance'} size="sm" alt="" zoomable={false} />}
             <span class="row-main">
               <span class="row-title">{nb(displayProductName(p, db))}</span>
-              <span class="row-sub">{p.code}</span>
+              <span class="row-sub">
+                <span class={`region-tag ${p.region === 'hasbro' ? 'hasbro' : 'takara'}`}>{regionLabel(p)}</span> {p.code}
+              </span>
             </span>
           </button>
         </li>

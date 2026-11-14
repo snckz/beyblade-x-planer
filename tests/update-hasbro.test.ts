@@ -40,18 +40,16 @@ describe('Hasbro-Namen', () => {
 });
 
 describe('Namens-Anzeige', () => {
-  it('wechselt Blade- und Produktnamen nach Einstellung', async () => {
-    const { setHasbroNames, displayName, displayProductName, otherName } = await import('../src/lib/names');
-    const b = { name: 'Dagger Dran', hasbroName: undefined as string | undefined };
-    const blade = db.blades.find((x: { id: string }) => x.id === 'DranDagger');
-    const p = db.products.find((x: { bladeId?: string }) => x.bladeId === 'DranDagger');
-    setHasbroNames(true);
-    expect(displayName(blade)).toBe('Dagger Dran');
-    expect(displayName(b)).toBe('Dagger Dran');
-    expect(displayProductName(p, db)).toContain('Dagger Dran');
-    expect(otherName(blade)).toBe('Japan: Dran Dagger');
-    setHasbroNames(false);
-    expect(displayName(blade)).toBe('Dran Dagger');
-    expect(otherName(blade)).toBe('Hasbro: Dagger Dran');
+  it('zeigt Takara-Namen mit Hasbro-Namen daneben und den Hersteller der Packung', async () => {
+    const { displayName, bothNames, otherName, regionLabel } = await import('../src/lib/names');
+    const wizard = { name: 'Wizard Rod', hasbroName: 'Wand Wizard' };
+    expect(displayName(wizard)).toBe('Wizard Rod');
+    expect(bothNames(wizard)).toBe('Wizard Rod · Wand Wizard');
+    expect(otherName(wizard)).toBe('Hasbro: Wand Wizard');
+    // nur umgedreht → kein doppelter Name in einer Zeile
+    expect(bothNames({ name: 'Dran Sword', hasbroName: 'Sword Dran' })).toBe('Dran Sword');
+    expect(otherName({ name: 'Dran Sword' })).toBeNull();
+    expect(regionLabel({ region: 'hasbro' })).toBe('Hasbro');
+    expect(regionLabel({})).toBe('Takara Tomy');
   });
 });

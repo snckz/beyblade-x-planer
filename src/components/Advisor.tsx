@@ -20,7 +20,7 @@ type Sort = 'value' | 'gain';
 
 /** Welche Packung bringt dem besten Deck am meisten – und was kostet das? */
 export function Advisor({ db, state, update, meta }: Props) {
-  const { rates, hasbroNames } = useApp();
+  const { rates } = useApp();
   const [result, setResult] = useState<{ base: number; offers: Offer[] } | null>(null);
   const [progress, setProgress] = useState<number | null>(null);
   const [sort, setSort] = useState<Sort>('value');
@@ -38,7 +38,10 @@ export function Advisor({ db, state, update, meta }: Props) {
   const start = async () => {
     const id = ++run.current;
     setProgress(0);
-    const res = await advise(db, state.owned, opponents, (done, total) => run.current === id && setProgress(done / total), hasbroNames);
+    // Gleiche Kreisel als Takara- und Hasbro-Packung: die Variante anbieten, die man selbst meist kauft
+    const mine = db.products.filter((p) => (state.owned[p.code] ?? 0) > 0);
+    const preferHasbro = mine.filter((p) => p.region === 'hasbro').length > mine.length / 2;
+    const res = await advise(db, state.owned, opponents, (done, total) => run.current === id && setProgress(done / total), preferHasbro);
     if (run.current !== id) return; // inzwischen neu gestartet oder Sammlung geändert
     setResult(res);
     setProgress(null);
