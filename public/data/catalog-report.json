@@ -3,7 +3,7 @@
   "listTitle": "List of Beyblade X products (Takara Tomy)",
   "codes": 102,
   "listLength": 17623,
-  "fetched": 160,
+  "fetched": 0,
   "added": {
     "blades": [],
     "ratchets": [],
@@ -115,5 +115,5 @@
       ]
     }
   ],
-  "prices": 165
+  "prices": 0
 }
