@@ -1,6 +1,6 @@
 import { render } from 'preact';
 import { App } from './App';
-import '@fontsource-variable/inter-tight/wght.css';
+import './fonts.css';
 import './styles.css';
 
 render(<App />, document.getElementById('app')!);

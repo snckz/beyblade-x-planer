@@ -967,3 +967,9 @@ input, select, textarea { font-size: max(16px, 1em); }
 
 .photo-result.o-collect { border-left-color: #f5c542; }
 .photo-verdict.o-collect { color: #f5c76a; }
+
+/* Lange Listen: Zeilen außerhalb des Bildschirms nicht zeichnen (schnelleres Scrollen) */
+.album > li { content-visibility: auto; contain-intrinsic-size: auto 360px; }
+.add-list > li, .showcase > li { content-visibility: auto; contain-intrinsic-size: auto 80px; }
+.showcase > li { contain-intrinsic-size: auto 260px; }
+.load-more { height: 1px; }
