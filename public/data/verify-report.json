@@ -1,7 +1,38 @@
 {
-  "blades": [],
+  "blades": [
+    "StunMedusa",
+    "CourageDranS",
+    "ReaperIncendioT",
+    "ArcWizardR",
+    "DarkPerseusB",
+    "BrushFoxJ",
+    "FortHornetR",
+    "WriggleKrakenS",
+    "AntlerStagB",
+    "ReaperRhinoC",
+    "FlameCerberusW",
+    "FangLeonT",
+    "HurricaneEnlilIS",
+    "DeltaUnicornPO",
+    "RageRagnaFE",
+    "ArmorKnightGV",
+    "TreadCrocTQ",
+    "WhipBrachioOW",
+    "GlareCyclops",
+    "BlitzBahamutBK",
+    "SteelSamurai",
+    "TalonPtera",
+    "RoarTyranno",
+    "SavageBear",
+    "YellKong",
+    "GustBat",
+    "RidgeTriceratops",
+    "DranzerSpiral",
+    "DrigerSlash",
+    "DracielShield"
+  ],
   "bits": [],
-  "products": 0,
+  "products": 71,
   "mismatches": [],
   "unreleased": [
     "ClockMirage (2026-12-26)",
@@ -12,5 +43,5 @@
     "PhoenixForce (2026-11-21)"
   ],
   "notFound": [],
-  "fetched": 9
+  "fetched": 77
 }
