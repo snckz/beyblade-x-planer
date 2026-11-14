@@ -149,7 +149,7 @@
       "text": "  G1688\n| Tackle Goat and Sword Dran Dual Pack \n| File:Flag of United States.png  July 2025\n| File:Flag of Canada.png  $22.99<br> File:Flag of United States.png"
     }
   ],
-  "fetched": 114,
+  "fetched": 74,
   "added": {
     "blades": [
       "StunMedusa",
@@ -170,45 +170,23 @@
       "HackViking",
       "ClampCrab",
       "OrochiCluster",
-      "DragoonStorm",
-      "VictoryValkyrie",
-      "AFC",
-      "NFC",
       "TheMandalorian",
       "MoffGideon",
       "IronMan",
-      "Thanos",
-      "SpiderMan",
-      "Venom",
       "LukeSkywalker",
       "DarthVader",
       "OptimusPrimal",
-      "Starscream",
       "OptimusPrime",
-      "Megatron",
       "CaptainAmerica",
       "RedHulk",
       "MilesMorales",
       "GreenGoblin",
-      "Bumblebee",
-      "Shockwave",
-      "ObiWanKenobi",
       "GeneralGrievous",
-      "Chewbacca",
-      "Stormtrooper",
-      "Mosasaurus",
-      "Spinosaurus",
-      "Quetzalcoatlus",
-      "Grogu",
-      "Snowtrooper",
       "MisterFantastic",
       "DoctorDoom",
-      "Hulk",
       "DranzerSpiral",
       "DrigerSlash",
-      "DracielShield",
-      "CutterShinobi",
-      "RampartAegis"
+      "DracielShield"
     ],
     "ratchets": [],
     "bits": [],
@@ -323,95 +301,119 @@
       "G2762-02",
       "G2763-01",
       "G2763-02",
-      "G1844-01",
-      "G1844-02",
-      "G1844-03",
-      "G1844-04",
-      "G3028-01",
-      "G3028-02",
-      "G3028-03",
-      "G3084-01",
-      "G3084-02",
-      "G3084-03",
-      "G3084-04",
-      "G3084-05",
-      "G3084-06",
-      "G3195",
-      "G3393-01",
-      "G3393-02",
-      "G3393-03",
-      "G3607-01",
-      "G3607-02",
-      "G4706-01",
-      "G4706-02",
-      "G4706-03",
       "F9589-01",
       "F9589-02",
-      "G0287-01",
-      "G0287-02",
-      "G0288-01",
-      "G0288-02",
+      "G0287",
       "G0290-01",
       "G0290-02",
-      "G0352-01",
-      "G0352-02",
-      "G0353-01",
-      "G0353-02",
+      "G0352",
+      "G0353",
       "G1690-01",
       "G1690-02",
       "G1691-01",
       "G1691-02",
-      "G1692-01",
-      "G1692-02",
-      "G1694-01",
-      "G1694-02",
-      "G1695-01",
-      "G1695-02",
-      "G1898",
-      "G1899-01",
-      "G1899-02",
-      "G3061-01",
-      "G3061-02",
+      "G1694",
       "G3063-01",
       "G3063-02",
-      "G3064-01",
-      "G3064-02",
-      "G3797-01",
-      "G3797-02",
+      "G3797",
       "F9584",
       "F9585",
       "G1842",
       "G1843",
-      "G2218",
-      "F9588-01",
-      "F9588-02",
-      "G0842-01",
-      "G0842-02",
-      "G1940-01",
-      "G1940-02",
-      "G3745-01",
-      "G3745-02",
-      "F9324-01",
-      "F9324-02",
-      "G1491-01",
-      "G1491-02",
-      "G1862-01",
-      "G1862-02",
-      "G2951-01",
-      "G2951-02",
-      "G3083",
-      "G3491"
+      "G2218"
     ]
   },
   "names": [
     "Hells Chain → Chain Incendio",
     "Weiss Tiger → Pearl Tiger",
-    "Tricera Press → Brace Triceratops",
-    "Storm Pegasus → StormPegasis",
-    "Meteor Dragoon → Meteoroid Dragoon"
+    "Tricera Press → Brace Triceratops"
   ],
   "skipped": [],
   "unresolved": [
+    {
+      "code": "G1844",
+      "links": [
+        "Beyblade 25th Anniversary Set"
+      ]
+    },
+    {
+      "code": "G3028",
+      "links": [
+        "X-treme Battlers Pack"
+      ]
+    },
+    {
+      "code": "G3084",
+      "links": [
+        "Rival Rumble Pack"
+      ]
+    },
+    {
+      "code": "G3195",
+      "links": [
+        "X-treme Expansion Pack"
+      ]
+    },
+    {
+      "code": "G3393",
+      "links": [
+        "Yggdrasil Team Pack"
+      ]
+    },
+    {
+      "code": "G3607",
+      "links": [
+        "NFL CX Top Pack"
+      ]
+    },
+    {
+      "code": "G4706",
+      "links": [
+        "Lightning Hunters Multipack"
+      ]
+    },
+    {
+      "code": "G0288",
+      "links": [
+        "Spider-Man and Venom Multipack Set"
+      ]
+    },
+    {
+      "code": "G1692",
+      "links": [
+        "Bumblebee and Shockwave Multipack Set"
+      ]
+    },
+    {
+      "code": "G1695",
+      "links": [
+        "Chewbacca and Stormtrooper Multipack Set"
+      ]
+    },
+    {
+      "code": "G1898",
+      "links": [
+        "T. Rex and Mosasaurus Multipack Set"
+      ]
+    },
+    {
+      "code": "G1899",
+      "links": [
+        "Spinosaurus and Quetzalcoatlus Multipack Set"
+      ]
+    },
+    {
+      "code": "G3061",
+      "links": [
+        "Grogu and Snowtrooper Multipack Set"
+      ]
+    },
+    {
+      "code": "G3064",
+      "links": [
+        "Spider-Man and Hulk Multipack Set"
+      ]
+    },
     {
       "code": "F9578",
       "links": [
@@ -449,15 +451,75 @@
       ]
     },
     {
+      "code": "F9588",
+      "links": [
+        "Xtreme Battle Set"
+      ]
+    },
+    {
+      "code": "G0842",
+      "links": [
+        "Drop Attack Battle Set"
+      ]
+    },
+    {
+      "code": "G1940",
+      "links": [
+        "Sneak Attack Battle Set"
+      ]
+    },
+    {
+      "code": "G3745",
+      "links": [
+        "Infinity Rail Battle Set"
+      ]
+    },
+    {
+      "code": "F9324",
+      "links": [
+        "Soar Phoenix Deluxe String Launcher Set"
+      ]
+    },
+    {
       "code": "G0440",
       "links": [
         "Winder Launcher"
       ]
     },
     {
+      "code": "G1491",
+      "links": [
+        "Cobalt Dragoon Deluxe Left-Spin String Launcher Set"
+      ]
+    },
+    {
+      "code": "G1862",
+      "links": [
+        "Victory Grip Launcher Set"
+      ]
+    },
+    {
       "code": "G2350",
       "links": [
         "Clip & Rip Launcher Set"
+      ]
+    },
+    {
+      "code": "G2951",
+      "links": [
+        "Deluxe String Launcher 2-Pack"
+      ]
+    },
+    {
+      "code": "G3083",
+      "links": [
+        "Bite Croc Deluxe String Launcher & Custom Grip Set"
+      ]
+    },
+    {
+      "code": "G3491",
+      "links": [
+        "Meteoroid Dragoon Deluxe Left-Spin String Launcher Set"
       ]
     }
   ]

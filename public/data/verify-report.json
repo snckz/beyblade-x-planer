@@ -3,7 +3,9 @@
     "StunMedusa",
     "AntlerStag",
     "HurricaneEnlil",
+    "ValorBison",
     "GlareCyclops",
+    "SeizeJaguar",
     "SteelSamurai",
     "TalonPtera",
     "RoarTyranno",
@@ -52,10 +54,12 @@
     "Hulk",
     "DranzerSpiral",
     "DrigerSlash",
-    "DracielShield"
+    "DracielShield",
+    "CutterShinobi",
+    "RampartAegis"
   ],
   "bits": [],
-  "products": 175,
+  "products": 184,
   "mismatches": [],
   "unreleased": [
     "ClockMirage (2026-12-26)",
@@ -66,5 +70,5 @@
     "PhoenixForce (2026-11-21)"
   ],
   "notFound": [],
-  "fetched": 167
+  "fetched": 176
 }
