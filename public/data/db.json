@@ -147,7 +147,7 @@
       "line": "BX",
       "type": "balance",
       "spin": "right",
-      "verified": false
+      "verified": true
     },
     {
       "id": "DranStrike",
@@ -180,7 +180,7 @@
       "line": "BX",
       "type": "attack",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "note": "Limitierte Neuauflage des Metal-Fight-Klassikers für Beyblade X.",
       "wikiTitle": "StormPegasis 3-70RA"
     },
@@ -214,7 +214,7 @@
       "line": "UX",
       "type": "balance",
       "spin": "right",
-      "verified": false
+      "verified": true
     },
     {
       "id": "SamuraiSaber",
@@ -231,7 +231,7 @@
       "line": "UX",
       "type": "attack",
       "spin": "right",
-      "verified": false
+      "verified": true
     },
     {
       "id": "ClockMirage",
@@ -305,7 +305,7 @@
       "line": "CX",
       "type": "defense",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "note": "CX: Assist Blade (GV).",
       "wikiTitle": "KnightFortress GV8-70UN"
     },
@@ -1181,8 +1181,7 @@
     {
       "id": "J",
       "name": "Jolt",
-      "type": "attack",
-      "uncertain": true
+      "type": "attack"
     },
     {
       "id": "T",
@@ -1324,9 +1323,8 @@
       "id": "LP",
       "name": "Low Point",
       "type": "balance",
-      "uncertain": true,
       "imported": true,
-      "note": "Aus dem Wiki übernommen (SiegSuperion 0-70LP); Typ vom Kreisel abgeleitet.",
+      "note": "Aus dem Beyblade Wiki übernommen und geprüft.",
       "wikiTitle": "Bit - Low Point"
     },
     {
@@ -1365,9 +1363,8 @@
       "id": "Y",
       "name": "Yielding",
       "type": "stamina",
-      "uncertain": true,
       "imported": true,
-      "note": "Aus dem Wiki übernommen (RagnaRage FE4-55Y); Typ vom Kreisel abgeleitet.",
+      "note": "Aus dem Beyblade Wiki übernommen und geprüft.",
       "wikiTitle": "Bit - Yielding"
     },
     {
@@ -1390,19 +1387,17 @@
       "id": "WB",
       "name": "Wall Ball",
       "type": "stamina",
-      "uncertain": true,
       "imported": true,
       "wikiTitle": "Bit - Wall Ball",
-      "note": "Aus dem Wiki übernommen (CerberusReaper B0-80WB); Typ vom Kreisel abgeleitet."
+      "note": "Aus dem Beyblade Wiki übernommen und geprüft."
     },
     {
       "id": "MO",
       "name": "Metal Orb",
       "type": "stamina",
-      "uncertain": true,
       "imported": true,
       "wikiTitle": "Bit - Metal Orb",
-      "note": "Aus dem Wiki übernommen (HorusShatter 3-85MO); Typ vom Kreisel abgeleitet."
+      "note": "Aus dem Beyblade Wiki übernommen und geprüft."
     },
     {
       "id": "MN",
@@ -1424,10 +1419,9 @@
       "id": "GR",
       "name": "Gear Rush",
       "type": "attack",
-      "uncertain": true,
       "imported": true,
       "wikiTitle": "Bit - Gear Rush",
-      "note": "Aus dem Wiki übernommen (FoxBrush J9-70GR); Typ vom Kreisel abgeleitet."
+      "note": "Aus dem Beyblade Wiki übernommen und geprüft."
     },
     {
       "id": "HOp",
@@ -1441,28 +1435,25 @@
       "id": "GU",
       "name": "Gear Unite",
       "type": "balance",
-      "uncertain": true,
       "imported": true,
       "wikiTitle": "Bit - Gear Unite",
-      "note": "Aus dem Wiki übernommen (UnicornDelta PO3-60GU); Typ vom Kreisel abgeleitet."
+      "note": "Aus dem Beyblade Wiki übernommen und geprüft."
     },
     {
       "id": "Nr",
       "name": "Narrow",
       "type": "stamina",
-      "uncertain": true,
       "imported": true,
       "wikiTitle": "Bit - Narrow",
-      "note": "Aus dem Wiki übernommen (BrachioWhip OW5-70Nr); Typ vom Kreisel abgeleitet."
+      "note": "Aus dem Beyblade Wiki übernommen und geprüft."
     },
     {
       "id": "MT",
       "name": "Metal Taper",
       "type": "balance",
-      "uncertain": true,
       "imported": true,
       "wikiTitle": "Bit - Metal Taper",
-      "note": "Aus dem Wiki übernommen (PhoenixForce WHM-65MT); Typ vom Kreisel abgeleitet."
+      "note": "Aus dem Beyblade Wiki übernommen und geprüft."
     }
   ],
   "products": [
@@ -1592,7 +1583,7 @@
       "code": "BX-38",
       "name": "Booster Crimson Garuda 4-70TP",
       "kind": "booster",
-      "verified": false,
+      "verified": true,
       "bladeId": "CrimsonGaruda",
       "ratchetId": "4-70",
       "bitId": "TP",
@@ -1655,7 +1646,7 @@
       "code": "UX-06",
       "name": "Booster Leon Crest 7-60GN",
       "kind": "booster",
-      "verified": false,
+      "verified": true,
       "bladeId": "LeonCrest",
       "ratchetId": "7-60",
       "bitId": "GN",
@@ -1677,7 +1668,7 @@
       "code": "UX-15",
       "name": "Set Shark Scale 4-50UF",
       "kind": "set",
-      "verified": false,
+      "verified": true,
       "bladeId": "SharkScale",
       "ratchetId": "4-50",
       "bitId": "UF",
@@ -1752,7 +1743,7 @@
       "code": "CX-14",
       "name": "Knight Fortress GV8-70UN",
       "kind": "booster",
-      "verified": false,
+      "verified": true,
       "bladeId": "KnightFortress",
       "ratchetId": "8-70",
       "bitId": "UN",
@@ -1762,7 +1753,7 @@
       "code": "BX-00-SP",
       "name": "Starter Storm Pegasus 3-70RA",
       "kind": "starter",
-      "verified": false,
+      "verified": true,
       "bladeId": "StormPegasus",
       "ratchetId": "3-70",
       "bitId": "RA",
@@ -3251,7 +3242,7 @@
       "bladeId": "LeonCrest",
       "ratchetId": "9-80",
       "bitId": "K",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/LeonCrest_9-80K",
       "priceJpy": 1600
@@ -3502,7 +3493,7 @@
       "bladeId": "CrimsonGaruda",
       "ratchetId": "7-80",
       "bitId": "GU",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/CrimsonGaruda_7-80GU",
       "priceJpy": 1600
