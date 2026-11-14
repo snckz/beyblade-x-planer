@@ -63,6 +63,8 @@ export interface Product {
   name: string;
   hasbroName?: string;
   kind: ProductKind;
+  /** 'hasbro' = Hasbro-Packung (Artikelnummer wie G1670), sonst Takara Tomy */
+  region?: 'hasbro';
   bladeId?: string;
   ratchetId?: string;
   bitId?: string;

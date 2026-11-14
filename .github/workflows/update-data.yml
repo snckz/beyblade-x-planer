@@ -15,6 +15,7 @@ on:
       - 'scripts/update-weights.mjs'
       - 'scripts/update-meta.mjs'
       - 'scripts/update-hasbro.mjs'
+      - 'scripts/import-hasbro.mjs'
       - 'scripts/seed-db.mjs'
 
 permissions:
@@ -40,6 +41,8 @@ jobs:
         run: node scripts/verify-catalog.mjs
       - name: Blade-Gewichte aus dem Wiki
         run: node scripts/update-weights.mjs
+      - name: Hasbro-Produkte aus dem Wiki (Artikelnummern, Dual Packs, Hasbro-Kreisel)
+        run: node scripts/import-hasbro.mjs
       - name: Hasbro-Namen aus dem Wiki
         run: node scripts/update-hasbro.mjs
       - name: Turnier-Meta (wöchentlich)

@@ -10,8 +10,8 @@ import { validateDb } from './validate-data.mjs';
 
 export const LIST_TITLES = ['List of Beyblade X products (Takara Tomy)', 'List of Beyblade X Products (Takara Tomy)'];
 const CODE_RE = /\b(BX|UX|CX)-(\d{2,3})\b/g;
-const LINK_RE = /\[\[([^\]|#]+)(?:#[^\]|]*)?(?:\|[^\]]*)?\]\]/g;
-const MAX_PAGES = 320;
+export const LINK_RE = /\[\[([^\]|#]+)(?:#[^\]|]*)?(?:\|[^\]]*)?\]\]/g;
+export const MAX_PAGES = 320;
 
 /** Schreibweisen im Wiki, die zu bereits gepflegten Blades gehören. */
 const BLADE_ALIASES = { StormPegasis: 'StormPegasus' };
@@ -125,7 +125,7 @@ async function api(fetchFn, params) {
   return res.json();
 }
 
-async function wikitextOf(fetchFn, title) {
+export async function wikitextOf(fetchFn, title) {
   const d = await api(fetchFn, { action: 'parse', page: title, prop: 'wikitext', redirects: '1' });
   return d?.parse?.wikitext ?? null;
 }
