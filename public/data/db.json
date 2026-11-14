@@ -228,7 +228,9 @@
       "verified": true,
       "note": "Limitierte Neuauflage des Metal-Fight-Klassikers für Beyblade X.",
       "wikiTitle": "StormPegasis 3-70RA",
-      "weightG": null
+      "weightG": null,
+      "hasbroName": "StormPegasis",
+      "hasbroNameAuto": true
     },
     {
       "id": "DranBuster",
@@ -1137,6 +1139,18 @@
       "note": "Aus der Hasbro-Produktliste übernommen."
     },
     {
+      "id": "ValorBison",
+      "name": "Valor Bison",
+      "line": "BX",
+      "type": "stamina",
+      "spin": "right",
+      "verified": false,
+      "imported": true,
+      "wikiTitle": "Valor Bison FB",
+      "note": "Aus der Hasbro-Produktliste übernommen.",
+      "integratedRatchet": true
+    },
+    {
       "id": "GlareCyclops",
       "name": "Glare Cyclops",
       "line": "BX",
@@ -1146,6 +1160,18 @@
       "imported": true,
       "wikiTitle": "Glare Cyclops 7-55FB",
       "note": "Aus der Hasbro-Produktliste übernommen."
+    },
+    {
+      "id": "SeizeJaguar",
+      "name": "Seize Jaguar",
+      "line": "BX",
+      "type": "defense",
+      "spin": "right",
+      "verified": false,
+      "imported": true,
+      "wikiTitle": "Seize Jaguar HN",
+      "note": "Aus der Hasbro-Produktliste übernommen.",
+      "integratedRatchet": true
     },
     {
       "id": "SteelSamurai",
@@ -1687,6 +1713,30 @@
       "imported": true,
       "wikiTitle": "DracielShield 7-60D",
       "note": "Aus der Hasbro-Produktliste übernommen."
+    },
+    {
+      "id": "CutterShinobi",
+      "name": "Cutter Shinobi",
+      "line": "BX",
+      "type": "attack",
+      "spin": "right",
+      "verified": false,
+      "imported": true,
+      "wikiTitle": "Cutter Shinobi LF",
+      "note": "Aus der Hasbro-Produktliste übernommen.",
+      "integratedRatchet": true
+    },
+    {
+      "id": "RampartAegis",
+      "name": "Rampart Aegis",
+      "line": "BX",
+      "type": "stamina",
+      "spin": "right",
+      "verified": false,
+      "imported": true,
+      "wikiTitle": "Rampart Aegis GB",
+      "note": "Aus der Hasbro-Produktliste übernommen.",
+      "integratedRatchet": true
     }
   ],
   "ratchets": [
@@ -4835,6 +4885,34 @@
       "source": "https://beyblade.fandom.com/wiki/Delta_Unicorn_PO_3-60GU"
     },
     {
+      "code": "G3497",
+      "name": "Booster Valor Bison FB",
+      "hasbroName": "Booster Valor Bison FB",
+      "kind": "booster",
+      "bladeId": "ValorBison",
+      "bitId": "FB",
+      "region": "hasbro",
+      "priceJpy": null,
+      "priceUsd": 14.99,
+      "verified": false,
+      "imported": true,
+      "source": "https://beyblade.fandom.com/wiki/Valor_Bison_FB"
+    },
+    {
+      "code": "G4561",
+      "name": "Booster Rocket Griffon H",
+      "hasbroName": "Booster Rocket Griffon H",
+      "kind": "booster",
+      "bladeId": "BulletGriffon",
+      "bitId": "H",
+      "region": "hasbro",
+      "priceJpy": null,
+      "priceUsd": 14.99,
+      "verified": false,
+      "imported": true,
+      "source": "https://beyblade.fandom.com/wiki/Rocket_Griffon_H"
+    },
+    {
       "code": "G4562",
       "name": "Booster Rage Ragna 4-55Y",
       "hasbroName": "Booster Rage Ragna 4-55Y",
@@ -4863,6 +4941,20 @@
       "verified": false,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Armor_Knight_GV_8-70UN"
+    },
+    {
+      "code": "G4564",
+      "name": "Booster Nether Incendio Z",
+      "hasbroName": "Booster Nether Incendio Z",
+      "kind": "booster",
+      "bladeId": "HellsNether",
+      "bitId": "Z",
+      "region": "hasbro",
+      "priceJpy": null,
+      "priceUsd": 14.99,
+      "verified": false,
+      "imported": true,
+      "source": "https://beyblade.fandom.com/wiki/Nether_Incendio_Z"
     },
     {
       "code": "G4565",
@@ -4910,6 +5002,20 @@
       "source": "https://beyblade.fandom.com/wiki/Shatter_Horus_9-65GB"
     },
     {
+      "code": "G4568",
+      "name": "Booster Glory Valkerion LF",
+      "hasbroName": "Booster Glory Valkerion LF",
+      "kind": "booster",
+      "bladeId": "GloryValkyrie",
+      "bitId": "LF",
+      "region": "hasbro",
+      "priceJpy": null,
+      "priceUsd": 14.99,
+      "verified": false,
+      "imported": true,
+      "source": "https://beyblade.fandom.com/wiki/Glory_Valkerion_LF"
+    },
+    {
       "code": "G4569",
       "name": "Booster Glare Cyclops 7-55FB",
       "hasbroName": "Booster Glare Cyclops 7-55FB",
@@ -4923,6 +5029,20 @@
       "verified": false,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Glare_Cyclops_7-55FB"
+    },
+    {
+      "code": "G4570",
+      "name": "Booster Seize Jaguar HN",
+      "hasbroName": "Booster Seize Jaguar HN",
+      "kind": "booster",
+      "bladeId": "SeizeJaguar",
+      "bitId": "HN",
+      "region": "hasbro",
+      "priceJpy": null,
+      "priceUsd": 14.99,
+      "verified": false,
+      "imported": true,
+      "source": "https://beyblade.fandom.com/wiki/Seize_Jaguar_HN"
     },
     {
       "code": "G4571",
@@ -6847,6 +6967,62 @@
       "verified": false,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Impact_Drake_9-60LR"
+    },
+    {
+      "code": "G1940-01",
+      "name": "Set Cutter Shinobi LF",
+      "hasbroName": "Set Cutter Shinobi LF",
+      "kind": "set",
+      "bladeId": "CutterShinobi",
+      "bitId": "LF",
+      "region": "hasbro",
+      "priceJpy": null,
+      "priceUsd": 54.99,
+      "verified": false,
+      "imported": true,
+      "source": "https://beyblade.fandom.com/wiki/Cutter_Shinobi_LF"
+    },
+    {
+      "code": "G1940-02",
+      "name": "Set Rampart Aegis GB",
+      "hasbroName": "Set Rampart Aegis GB",
+      "kind": "set",
+      "bladeId": "RampartAegis",
+      "bitId": "GB",
+      "region": "hasbro",
+      "priceJpy": null,
+      "priceUsd": 54.99,
+      "verified": false,
+      "imported": true,
+      "source": "https://beyblade.fandom.com/wiki/Rampart_Aegis_GB"
+    },
+    {
+      "code": "G3745-01",
+      "name": "Set Cutter Shinobi GF",
+      "hasbroName": "Set Cutter Shinobi GF",
+      "kind": "set",
+      "bladeId": "CutterShinobi",
+      "bitId": "GF",
+      "region": "hasbro",
+      "priceJpy": null,
+      "priceUsd": 54.99,
+      "verified": false,
+      "imported": true,
+      "source": "https://beyblade.fandom.com/wiki/Cutter_Shinobi_GF"
+    },
+    {
+      "code": "G3745-02",
+      "name": "Set Rampart Aegis B",
+      "hasbroName": "Set Rampart Aegis B",
+      "kind": "set",
+      "bladeId": "RampartAegis",
+      "bitId": "B",
+      "region": "hasbro",
+      "priceJpy": null,
+      "priceUsd": 54.99,
+      "verified": false,
+      "imported": true,
+      "source": "https://beyblade.fandom.com/wiki/Rampart_Aegis_B"
     },
     {
       "code": "F9324-01",

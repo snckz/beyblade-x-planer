@@ -65,41 +65,6 @@
   ],
   "linkOnly": [
     {
-      "code": "G3497",
-      "links": [
-        "Valor Bison FB"
-      ],
-      "text": "  G3497\n| Valor Bison FB \n|<!-- File:Flag of Canada.png  TBA<br> File:Flag of United States.png  TBA<!--<br> File:Flag of Australia.png  TBA-->\n| File:Flag of C"
-    },
-    {
-      "code": "G4561",
-      "links": [
-        "Rocket Griffon H"
-      ],
-      "text": "  G4561\n| Rocket Griffon H \n|<!-- File:Flag of Canada.png  TBA<br>--> File:Flag of United States.png  July 15th, 2026<!--<br> File:Flag of Australia.png  TBA-->"
-    },
-    {
-      "code": "G4564",
-      "links": [
-        "Nether Incendio Z"
-      ],
-      "text": "  G4564\n| Nether Incendio Z \n|<!-- File:Flag of Canada.png  TBA<br> File:Flag of United States.png  TBA<br> File:Flag of Australia.png  TBA-->\n| File:Flag of Ca"
-    },
-    {
-      "code": "G4568",
-      "links": [
-        "Glory Valkerion LF"
-      ],
-      "text": "  G4568\n| Glory Valkerion LF \n|<!-- File:Flag of Canada.png  TBA<br>--> File:Flag of United States.png  July 15th, 2026<!--<br> File:Flag of Australia.png  TBA-"
-    },
-    {
-      "code": "G4570",
-      "links": [
-        "Seize Jaguar HN"
-      ],
-      "text": "  G4570\n| Seize Jaguar HN \n|<!-- File:Flag of Canada.png  TBA<!--<br> File:Flag of United States.png  TBA<br> File:Flag of Australia.png  TBA-->\n| File:Flag of "
-    },
-    {
       "code": "G0190",
       "links": [
         "Knife Shinobi and Keel Shark Dual Pack"
@@ -147,15 +112,52 @@
         "Beat Tyranno and Knife Shinobi Dual Pack"
       ],
       "text": "  G1542\n| Beat Tyranno and Knife Shinobi Dual Pack \n| File:Flag of United States.png  December 2024\n| File:Flag of Canada.png  $22.99<br> File:Flag of United St"
+    },
+    {
+      "code": "G1543",
+      "links": [
+        "Gale Wyvern and Sword Dran Dual Pack"
+      ],
+      "text": "  G1543\n| Gale Wyvern and Sword Dran Dual Pack \n| File:Flag of United States.png  December 2024\n| File:Flag of Canada.png  $22.99<br> File:Flag of United States"
+    },
+    {
+      "code": "G1685",
+      "links": [
+        "Cowl Sphinx and Crest Leon Dual Pack"
+      ],
+      "text": "  G1685\n| Cowl Sphinx and Crest Leon Dual Pack \n| File:Flag of United States.png  June 2025\n| File:Flag of Canada.png  $22.99<br> File:Flag of United States.png"
+    },
+    {
+      "code": "G1686",
+      "links": [
+        "Pearl Tiger and Gill Shark Dual Pack"
+      ],
+      "text": "  G1686\n| Pearl Tiger and Gill Shark Dual Pack \n| File:Flag of United States.png  June 2025\n| File:Flag of Canada.png  $22.99<br> File:Flag of United States.png"
+    },
+    {
+      "code": "G1687",
+      "links": [
+        "Circle Ghost and Chain Incendio Dual Pack"
+      ],
+      "text": "  G1687\n| Circle Ghost and Chain Incendio Dual Pack \n| File:Flag of United States.png  July 2025\n| File:Flag of Canada.png  $22.99<br> File:Flag of United State"
+    },
+    {
+      "code": "G1688",
+      "links": [
+        "Tackle Goat and Sword Dran Dual Pack"
+      ],
+      "text": "  G1688\n| Tackle Goat and Sword Dran Dual Pack \n| File:Flag of United States.png  July 2025\n| File:Flag of Canada.png  $22.99<br> File:Flag of United States.png"
     }
   ],
-  "fetched": 115,
+  "fetched": 114,
   "added": {
     "blades": [
       "StunMedusa",
       "AntlerStag",
       "HurricaneEnlil",
+      "ValorBison",
       "GlareCyclops",
+      "SeizeJaguar",
       "SteelSamurai",
       "TalonPtera",
       "RoarTyranno",
@@ -169,7 +171,6 @@
       "ClampCrab",
       "OrochiCluster",
       "DragoonStorm",
-      "StormPegasis",
       "VictoryValkyrie",
       "AFC",
       "NFC",
@@ -205,7 +206,9 @@
       "Hulk",
       "DranzerSpiral",
       "DrigerSlash",
-      "DracielShield"
+      "DracielShield",
+      "CutterShinobi",
+      "RampartAegis"
     ],
     "ratchets": [],
     "bits": [],
@@ -244,12 +247,17 @@
       "G2745",
       "G2750",
       "G2752",
+      "G3497",
+      "G4561",
       "G4562",
       "G4563",
+      "G4564",
       "G4565",
       "G4566",
       "G4567",
+      "G4568",
       "G4569",
+      "G4570",
       "G4571",
       "G4572",
       "G0188",
@@ -379,6 +387,10 @@
       "F9588-02",
       "G0842-01",
       "G0842-02",
+      "G1940-01",
+      "G1940-02",
+      "G3745-01",
+      "G3745-02",
       "F9324-01",
       "F9324-02",
       "G1491-01",
@@ -392,47 +404,14 @@
     ]
   },
   "names": [
-    "Dran Brave → Courage Dran",
-    "Hells Reaper → Reaper Incendio",
-    "Knight Fortress → Armor Knight",
-    "Croco Tread → Tread Croc",
     "Hells Chain → Chain Incendio",
     "Weiss Tiger → Pearl Tiger",
     "Tricera Press → Brace Triceratops",
+    "Storm Pegasus → StormPegasis",
     "Meteor Dragoon → Meteoroid Dragoon"
   ],
   "skipped": [],
   "unresolved": [
-    {
-      "code": "G3497",
-      "links": [
-        "Valor Bison FB"
-      ]
-    },
-    {
-      "code": "G4561",
-      "links": [
-        "Rocket Griffon H"
-      ]
-    },
-    {
-      "code": "G4564",
-      "links": [
-        "Nether Incendio Z"
-      ]
-    },
-    {
-      "code": "G4568",
-      "links": [
-        "Glory Valkerion LF"
-      ]
-    },
-    {
-      "code": "G4570",
-      "links": [
-        "Seize Jaguar HN"
-      ]
-    },
     {
       "code": "F9578",
       "links": [
@@ -467,18 +446,6 @@
       "code": "G1864",
       "links": [
         "Double Xtreme Motorized Beystadium"
-      ]
-    },
-    {
-      "code": "G1940",
-      "links": [
-        "Sneak Attack Battle Set"
-      ]
-    },
-    {
-      "code": "G3745",
-      "links": [
-        "Infinity Rail Battle Set"
       ]
     },
     {
