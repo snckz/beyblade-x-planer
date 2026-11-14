@@ -200,7 +200,7 @@ export async function mergeHasbro(db, entries, fetchPage) {
     }
     let kind = kindOfHasbro(entry.text);
     // Launcher-Sets gab es nacheinander mit verschiedenen Kreiseln: jede Variante ist ein eigener Kauf, kein Set.
-    if (/launcher set/i.test(entry.text) && entry.beys.length > 1) kind = 'starter';
+    if (/launcher set/i.test(entry.text)) kind = 'starter';
     const multi = entry.beys.length > 1;
     let n = 0;
     for (const bey of entry.beys) {
