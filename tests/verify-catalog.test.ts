@@ -10,7 +10,7 @@ const today = new Date('2026-11-14T12:00:00Z');
 describe('parseRelease', () => {
   it('erkennt Datum und ob schon erschienen', () => {
     expect(parseRelease("'''X''' is an Attack Type Beyblade released by Takara Tomy. It was released as a Starter in Japan on July 13th, 2024 for 2,321円.", today)).toEqual({ released: true, date: '2024-07-13' });
-    expect(parseRelease('It will be released as a Starter in Japan on December 26th, 2026.', today).released).toBe(false);
+    expect(parseRelease('It will be released as a Starter in Japan on December 26th, 2026.', today)).toEqual({ released: false, date: '2026-12-26' });
     expect(parseRelease('It was released in [[Japan]] on December 26th, 2026 for 2,000円.', today)).toEqual({ released: false, date: '2026-12-26' });
     expect(parseRelease('Nothing here.', today).released).toBe(false);
   });
@@ -68,6 +68,8 @@ describe('verifyCatalog', () => {
     expect(res.db.bits.find((b: { id: string }) => b.id === 'WW').uncertain).toBe(true);
     expect(res.db.products.find((p: { code: string }) => p.code === 'CX-09').verified).toBe(true);
     expect(res.db.products.find((p: { code: string }) => p.code === 'UX-22').verified).toBe(false);
+    expect(res.db.products.find((p: { code: string }) => p.code === 'UX-22').releaseJp).toBe('2026-12-26');
+    expect(res.db.products.find((p: { code: string }) => p.code === 'CX-09').releaseJp).toBe('2025-06-07');
     expect(validateDb(res.db)).toEqual([]);
     expect(base.blades[0]!.verified).toBe(false); // Original unverändert
   });

@@ -12,6 +12,8 @@ on:
       - 'scripts/import-catalog.mjs'
       - 'scripts/update-rates.mjs'
       - 'scripts/verify-catalog.mjs'
+      - 'scripts/update-weights.mjs'
+      - 'scripts/update-meta.mjs'
       - 'scripts/seed-db.mjs'
 
 permissions:
@@ -35,6 +37,10 @@ jobs:
         run: node scripts/import-catalog.mjs
       - name: Ungeprüfte Einträge gegen das Wiki prüfen
         run: node scripts/verify-catalog.mjs
+      - name: Blade-Gewichte aus dem Wiki
+        run: node scripts/update-weights.mjs
+      - name: Turnier-Meta (wöchentlich)
+        run: node scripts/update-meta.mjs
       - name: Wechselkurse (EZB) für Preis-Hinweise
         run: node scripts/update-rates.mjs
       - name: Wiki-Bilder verknüpfen (neue Blades; sonntags alle neu prüfen)

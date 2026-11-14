@@ -26,6 +26,8 @@ export interface Blade {
   wikiTitle?: string;
   /** automatisch aus dem Beyblade Wiki übernommen (scripts/import-catalog.mjs) */
   imported?: boolean;
+  /** Gewicht der Blade in g laut Wiki; null = nicht bekannt (scripts/update-weights.mjs) */
+  weightG?: number | null;
 }
 
 export interface Ratchet {
@@ -71,6 +73,8 @@ export interface Product {
   /** überschreibt die automatisch abgeleitete Seltenheit */
   rarity?: Rarity;
   imported?: boolean;
+  /** Japan-Release laut Wiki (YYYY-MM-DD), gesetzt von scripts/verify-catalog.mjs */
+  releaseJp?: string;
   /** Japan-Verkaufspreis (Takara Tomy) in Yen laut Wiki; null = nicht gefunden */
   priceJpy?: number | null;
 }
@@ -161,4 +165,8 @@ export interface MetaFeed {
   combos: { bladeId: string; ratchetId: string | null; bitId: string; note: string; trend: MetaTrend }[];
   /** Siegerdecks: je Kombo [Blade, Ratchet (null = integriert), Bit] */
   decks: { event: string; date: string; combos: [string, string | null, string][] }[];
+  /** true = von scripts/update-meta.mjs erzeugt */
+  auto?: boolean;
+  decksTotal?: number;
+  counts?: Record<string, number>;
 }

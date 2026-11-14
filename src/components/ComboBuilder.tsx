@@ -130,7 +130,9 @@ export function ComboBuilder({ db, state, update, presetBladeId, presetRatchetId
             <StatBar label="Verteidigung" value={result.profile.defense} tone="defense" />
             <StatBar label="Burst-Schutz" value={result.profile.burstResistance} tone="balance" />
           </div>
-          <p class="fineprint">Richtwerte aus Teile-Typen und Ratchet-Form, keine Messwerte.</p>
+          <p class="fineprint">
+            Richtwerte aus Teile-Typen, Ratchet-Form{typeof resolved.blade.weightG === 'number' ? ` und dem echten Blade-Gewicht (${resolved.blade.weightG.toLocaleString('de-DE')} g)` : ''} – keine Messwerte.
+          </p>
           {result.warnings.length > 0 && (
             <ul class="notes notes-warn">
               {result.warnings.map((w) => (

@@ -20,7 +20,8 @@ import { ownedParts } from '../lib/data';
 import { BeyImage } from './BeyImage';
 import { Deck } from './Deck';
 import { Meta } from './Meta';
-import { PartField } from './PartPicker';
+import { ComboPicker } from './ComboPicker';
+import { BattleLog } from './BattleLog';
 import { Section, TypeBadge } from './ui';
 
 interface Props {
@@ -32,36 +33,6 @@ interface Props {
   onBuild?: (bladeId: string, ratchetId: string | undefined, bitId: string) => void;
 }
 
-function ComboPicker({ db, value, onChange, label }: { db: Database; value: Combo; onChange: (c: Combo) => void; label: string }) {
-  const blade = db.blades.find((b) => b.id === value.bladeId);
-  const integrated = !!blade?.integratedRatchet;
-  return (
-    <div class="picker" role="group" aria-label={label}>
-      <PartField
-        compact
-        kind="blade"
-        label="Blade"
-        blades={db.blades}
-        value={value.bladeId}
-        onChange={(id) => {
-          const b = db.blades.find((x) => x.id === id);
-          onChange({ ...value, bladeId: id, ratchetId: b?.integratedRatchet ? undefined : (value.ratchetId ?? '3-60') });
-        }}
-      />
-      <PartField
-        compact
-        kind="ratchet"
-        label="Ratchet"
-        ratchets={db.ratchets}
-        value={integrated ? '' : (value.ratchetId ?? '')}
-        disabled={integrated}
-        disabledText="integriert"
-        onChange={(id) => onChange({ ...value, ratchetId: id })}
-      />
-      <PartField compact kind="bit" label="Bit" bits={[...db.bits].sort((a, b) => a.id.localeCompare(b.id))} value={value.bitId} onChange={(id) => onChange({ ...value, bitId: id })} />
-    </div>
-  );
-}
 
 const tone = (m: Matchup) => (m.score >= 10 ? 'win' : m.score <= -10 ? 'lose' : 'even');
 
@@ -237,6 +208,7 @@ export function Battle(props: Props) {
           </div>
         </Section>
       )}
+      <BattleLog db={db} state={state} update={update} />
       {props.meta && props.onBuild && <Meta db={db} meta={props.meta} update={update} onBuild={props.onBuild} />}
     </div>
   );

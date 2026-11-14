@@ -758,3 +758,28 @@ input[type='text'], input[type='search'], select { border-radius: 16px; backgrou
 .album-count { font: 500 44px/1 var(--font); letter-spacing: -.06em; }
 .meta-rank { font-style: normal; font-weight: 500; font-size: 18px; letter-spacing: -.04em; }
 @media (min-width: 860px) { .tabbar { display: none; } }
+
+/* Battle-Tagebuch */
+.chip-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip-row .chip-on { background: var(--pill-red); color: #fff; border-color: transparent; }
+.segmented.seg-2 { grid-template-columns: repeat(2, 1fr); }
+.segmented.seg-4 { grid-template-columns: repeat(4, 1fr); }
+.segmented small { opacity: .7; font-size: 11px; }
+.log-summary { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.log-big { font: 500 44px/1 var(--font); letter-spacing: -.06em; }
+.log-rate { flex: none; font: 600 18px var(--font); letter-spacing: -.03em; }
+.log-rate.good, .log-dot.good { color: var(--stamina); }
+.log-rate.bad, .log-dot.bad { color: var(--attack); }
+.log-dot { flex: none; width: 10px; height: 10px; border-radius: 50%; background: currentColor; }
+.log-history summary { cursor: pointer; color: var(--muted); font-weight: 550; padding: 4px 0; }
+.log-history .list { margin-top: 8px; }
+
+/* Übertragung */
+.qr { width: min(260px, 70vw); margin: 4px auto; padding: 10px; border-radius: 20px; background: #fff; }
+.qr svg { display: block; width: 100%; height: auto; }
+
+/* Erinnerungen */
+.release-tag { justify-self: start; margin-top: 4px; padding: 2px 9px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+.release-tag.upcoming { background: rgba(245, 197, 66, .14); color: var(--balance); }
+.release-tag.new { background: rgba(54, 211, 127, .16); color: var(--stamina); }
+.event-actions { display: flex; flex-wrap: wrap; gap: 4px 16px; }

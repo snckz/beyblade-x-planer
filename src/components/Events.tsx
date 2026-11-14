@@ -3,6 +3,7 @@ import type { UserState } from '../lib/storage';
 import { daysUntil } from '../lib/data';
 import { useApp } from '../lib/context';
 import { News } from './News';
+import { downloadIcs, type CalItem } from '../lib/ics';
 import { Empty, Section } from './ui';
 
 interface Props {
@@ -45,6 +46,16 @@ export function Events({ db, events, news, state, update }: Props) {
     months.set(key, [...(months.get(key) ?? []), e]);
   }
 
+  const cal = (e: BeyEvent): CalItem => ({
+    uid: e.id,
+    date: e.date,
+    endDate: e.endDate,
+    title: `Beyblade X: ${e.title}`,
+    location: e.place,
+    description: e.note,
+    url: e.url,
+  });
+
   const card = (e: BeyEvent) => {
     const blade = e.bladeId ? db.blades.find((b) => b.id === e.bladeId) : undefined;
     return (
@@ -68,11 +79,18 @@ export function Events({ db, events, news, state, update }: Props) {
             {e.place ? ` · ${e.place}` : ''}
           </span>
           {e.note && <span class="row-note">{e.note}</span>}
-          {blade && (
-            <button type="button" class="link-btn" onClick={() => openBlade(blade.id)}>
-              {blade.name} ansehen →
-            </button>
-          )}
+          <span class="event-actions">
+            {blade && (
+              <button type="button" class="link-btn" onClick={() => openBlade(blade.id)}>
+                {blade.name} ansehen →
+              </button>
+            )}
+            {daysUntil(e.endDate ?? e.date) >= 0 && (
+              <button type="button" class="link-btn" onClick={() => downloadIcs([cal(e)], `${e.id}.ics`)}>
+                🔔 In Kalender
+              </button>
+            )}
+          </span>
         </div>
       </li>
     );
@@ -80,6 +98,11 @@ export function Events({ db, events, news, state, update }: Props) {
 
   return (
     <div class="stack">
+      {upcoming.length > 1 && (
+        <button type="button" class="btn" onClick={() => downloadIcs(upcoming.map(cal), 'beyblade-termine.ics')}>
+          🔔 Alle {upcoming.length} Termine in den Kalender
+        </button>
+      )}
       {upcoming.length ? (
         [...months.entries()].map(([month, list]) => (
           <Section key={month} title={month}>

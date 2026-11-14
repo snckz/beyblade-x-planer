@@ -19,15 +19,16 @@ const MONTHS = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 
  */
 export function parseRelease(wikitext, today = new Date()) {
   const text = String(wikitext).replace(/\[\[(?:[^\]|]*\|)?([^\]]*)\]\]/g, '$1');
-  if (/\bwill be released\b|\bupcoming\b|\bto be released\b/i.test(text.split(/\n==/)[0])) return { released: false };
+  const upcoming = /\bwill be released\b|\bupcoming\b|\bto be released\b/i.test(text.split(/\n==/)[0]);
   const m = /released[^.]{0,160}?\bon\s+([A-Z][a-z]+)\s+(\d{1,2})(?:st|nd|rd|th)?,?\s+(\d{4})/.exec(text);
   if (m) {
     const month = MONTHS.indexOf(m[1].toLowerCase());
     if (month >= 0) {
       const date = new Date(Date.UTC(Number(m[3]), month, Number(m[2])));
-      return { released: date.getTime() <= today.getTime(), date: date.toISOString().slice(0, 10) };
+      return { released: !upcoming && date.getTime() <= today.getTime(), date: date.toISOString().slice(0, 10) };
     }
   }
+  if (upcoming) return { released: false };
   // Ohne Datum: „was released … for 1,320円“ gilt als erschienen.
   if (/\bwas released\b|\bis an? .{0,40}Beyblade released by\b/i.test(text)) return { released: true };
   return { released: false };
@@ -97,6 +98,9 @@ export async function verifyCatalog(db, fetchPage, today = new Date()) {
     const info = parseBeyPage(found.wt);
     const rel = parseRelease(found.wt, today);
     releasedTitles.set(found.title, rel.released);
+    // Japan-Release-Datum merken (für Erinnerungen in der App)
+    if (rel.date) for (const p of products) if (!p.releaseJp && titleFromUrl(p.source) === found.title) p.releaseJp = rel.date;
+    if (rel.date && !rel.released) for (const p of products) if (!p.releaseJp && !p.source) p.releaseJp = rel.date;
     if (!info.type) {
       report.notFound.push(`${blade.id} (Typ nicht lesbar)`);
       continue;

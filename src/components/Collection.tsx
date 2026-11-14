@@ -1,26 +1,31 @@
 import { useMemo, useRef, useState } from 'preact/hooks';
-import type { Database } from '../lib/types';
+import type { BeyEvent, Database } from '../lib/types';
+import { wishReleases } from '../lib/reminders';
+import { downloadIcs } from '../lib/ics';
 import type { UserState } from '../lib/storage';
 import { exportState, importState } from '../lib/storage';
 import { ownedParts } from '../lib/data';
 import { Empty, Section, TypeBadge } from './ui';
 import { useApp } from '../lib/context';
 import { Scanner } from './Scanner';
+import { Transfer } from './Transfer';
 import { nb } from '../lib/analysis';
 import { convert, priceHint, sumPrices, yen } from '../lib/price';
 
 interface Props {
+  events?: BeyEvent[];
   db: Database;
   state: UserState;
   update: (fn: (s: UserState) => UserState) => void;
   goToParts: () => void;
 }
 
-export function Collection({ db, state, update, goToParts }: Props) {
+export function Collection({ db, state, update, goToParts, events = [] }: Props) {
   const parts = useMemo(() => ownedParts(db, state.owned), [db, state.owned]);
   const fileRef = useRef<HTMLInputElement>(null);
   const [msg, setMsg] = useState('');
   const [scan, setScan] = useState(false);
+  const [transfer, setTransfer] = useState(false);
   const ownedProducts = db.products.filter((p) => (state.owned[p.code] ?? 0) > 0);
   const unknownCodes = Object.keys(state.owned).filter((c) => !db.products.some((p) => p.code === c));
   const total = ownedProducts.reduce((n, p) => n + (state.owned[p.code] ?? 0), 0);
@@ -29,6 +34,21 @@ export function Collection({ db, state, update, goToParts }: Props) {
   const wishSum = sumPrices(wishProducts);
   const wishConv = convert(wishSum.jpy, rates);
   const fmt = (n: number) => new Intl.NumberFormat('de-DE', { maximumFractionDigits: 0 }).format(n);
+  const releases = wishReleases(db, state, events);
+  const releaseOf = (code: string) => releases.find((r) => r.product.code === code);
+  const upcoming = releases.filter((r) => r.status === 'upcoming');
+  const fmtDate = (d: string) => new Date(`${d}T12:00:00`).toLocaleDateString('de-AT', { day: 'numeric', month: 'short' });
+  const toCalendar = () =>
+    downloadIcs(
+      upcoming.map((r) => ({
+        uid: `release-${r.product.code}`,
+        date: r.date,
+        title: `Beyblade X Release: ${r.product.name}`,
+        location: 'Japan (Takara Tomy)',
+        description: `${r.product.code} von deiner Wunschliste erscheint heute in Japan.`,
+      })),
+      'beyblade-wunschliste.ics',
+    );
   const unwish = (code: string) => update((s) => ({ ...s, wishlist: s.wishlist.filter((c) => c !== code) }));
   const gotIt = (code: string) =>
     update((s) => ({ ...s, wishlist: s.wishlist.filter((c) => c !== code), owned: { ...s.owned, [code]: (s.owned[code] ?? 0) + 1 } }));
@@ -134,6 +154,7 @@ export function Collection({ db, state, update, goToParts }: Props) {
             <ul class="list">
               {wishProducts.map((p) => {
                 const price = priceHint(p, rates);
+                const rel = releaseOf(p.code);
                 return (
                   <li key={p.code} class="row">
                     <div class="row-main">
@@ -141,6 +162,11 @@ export function Collection({ db, state, update, goToParts }: Props) {
                       <span class="row-sub">
                         {p.code} · {price ?? 'Preis unbekannt'}
                       </span>
+                      {rel && (
+                        <span class={`release-tag ${rel.status}`}>
+                          {rel.status === 'new' ? `Neu erschienen (${fmtDate(rel.date)})` : rel.days === 0 ? 'Erscheint heute' : `Erscheint am ${fmtDate(rel.date)}`}
+                        </span>
+                      )}
                     </div>
                     <button type="button" class="btn btn-ghost btn-sm" onClick={() => gotIt(p.code)} aria-label={`${p.name} gekauft: in die Sammlung`}>
                       Gekauft
@@ -164,6 +190,11 @@ export function Collection({ db, state, update, goToParts }: Props) {
                 )}
               </strong>
             </div>
+            {upcoming.length > 0 && (
+              <button type="button" class="btn" onClick={toCalendar}>
+                🔔 {upcoming.length === 1 ? 'Release-Termin' : `${upcoming.length} Release-Termine`} in den Kalender
+              </button>
+            )}
             <p class="fineprint">
               Japan-Verkaufspreis (Takara Tomy) laut Beyblade Wiki{wishSum.missing ? `, ${wishSum.missing} ohne Preis` : ''}. In Thailand und Europa (Hasbro) weichen die Preise ab – als grober Richtwert zum Vergleichen.
               {rates && ` Kurs: EZB vom ${new Date(`${rates.date}T12:00:00`).toLocaleDateString('de-AT')}.`}
@@ -180,8 +211,11 @@ export function Collection({ db, state, update, goToParts }: Props) {
 
       <Section title="Sichern">
         <div class="card">
-          <p class="muted">Deine Daten liegen nur auf diesem Gerät. Exportiere sie als Datei, um sie zu sichern oder aufs Handy zu übertragen.</p>
+          <p class="muted">Deine Daten liegen auf diesem Gerät. Übertrag sie per QR-Code auf ein anderes Gerät oder sichere sie als Datei.</p>
           <div class="btn-row">
+            <button type="button" class="btn btn-primary" onClick={() => setTransfer(true)}>
+              Auf anderes Gerät
+            </button>
             <button type="button" class="btn" onClick={doExport}>
               Exportieren
             </button>
@@ -197,6 +231,7 @@ export function Collection({ db, state, update, goToParts }: Props) {
           )}
         </div>
       </Section>
+      {transfer && <Transfer state={state} onClose={() => setTransfer(false)} />}
     </div>
   );
 }

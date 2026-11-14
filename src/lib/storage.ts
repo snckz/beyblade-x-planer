@@ -1,4 +1,5 @@
 import type { Combo } from './types';
+import { sanitizeMatches, type Match } from './matches';
 
 const KEY = 'bxplaner:v1';
 
@@ -16,9 +17,11 @@ export interface UserState {
   wishlist: string[];
   /** gelernte Zuordnung Barcode (EAN/JAN) → Produktcode */
   barcodes: Record<string, string>;
+  /** eingetragene Kämpfe (Battle-Tagebuch) */
+  matches: Match[];
 }
 
-export const EMPTY_STATE: UserState = { owned: {}, combos: [], deck: [], seenNews: [], opponent: [], wishlist: [], barcodes: {} };
+export const EMPTY_STATE: UserState = { owned: {}, combos: [], deck: [], seenNews: [], opponent: [], wishlist: [], barcodes: {}, matches: [] };
 
 function isRecordOfNumbers(v: unknown): v is Record<string, number> {
   return !!v && typeof v === 'object' && Object.values(v).every((n) => typeof n === 'number' && Number.isFinite(n) && n >= 0);
@@ -45,6 +48,7 @@ export function sanitize(raw: unknown): UserState {
       r.barcodes && typeof r.barcodes === 'object'
         ? Object.fromEntries(Object.entries(r.barcodes).filter(([k, v]) => /^\d{8,14}$/.test(k) && typeof v === 'string'))
         : {},
+    matches: sanitizeMatches(r.matches),
   };
 }
 

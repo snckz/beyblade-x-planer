@@ -94,9 +94,20 @@ export function analyze(r: Resolved): Analysis {
   const bitBase = BASE[r.bit.type];
   // Blade und Bit tragen je etwa zur Hälfte bei; Kombi-Typ gibt die Richtung vor.
   let attack = (bladeBase.attack + bitBase.attack + base.attack) / 3;
-  const stamina = (bladeBase.stamina + bitBase.stamina + base.stamina) / 3;
+  let stamina = (bladeBase.stamina + bitBase.stamina + base.stamina) / 3;
   let defense = (bladeBase.defense + bitBase.defense + base.defense) / 3;
   let burst = 60;
+
+  // Echtes Blade-Gewicht (Wiki): mehr Masse = mehr Schwung für Ausdauer, Stand und Treffer. Mittel ca. 35 g.
+  const w = r.blade.weightG;
+  if (typeof w === 'number' && w > 0) {
+    const f = Math.max(-1, Math.min(1, (w - 35) / 6));
+    stamina += f * 10;
+    defense += f * 9;
+    attack += f * 5;
+    if (w >= 38) tips.push(`Schwere Blade (${w.toLocaleString('de-DE')} g): viel Schwung – gut für Ausdauer und Konter.`);
+    else if (w <= 32) tips.push(`Leichte Blade (${w.toLocaleString('de-DE')} g): verliert schneller Schwung, dafür wendiger.`);
+  }
 
   const h = r.ratchet?.heightMm ?? null;
   const contacts = r.ratchet?.contacts ?? null;

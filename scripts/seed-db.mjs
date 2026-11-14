@@ -117,6 +117,11 @@ if (existsSync(dbUrl)) {
   keep(old.ratchets, ratchets, 'id');
   keep(old.bits, bits, 'id');
   keep(old.products, products, 'code');
+  // Gewichte aus scripts/update-weights.mjs behalten.
+  for (const b of blades) {
+    const o = old.blades?.find((x) => x.id === b.id);
+    if (o && o.weightG !== undefined && b.weightG === undefined) b.weightG = o.weightG;
+  }
   // Von scripts/verify-catalog.mjs bestätigte Einträge bleiben bestätigt.
   for (const b of blades) if (!b.verified && old.blades?.find((x) => x.id === b.id)?.verified) b.verified = true;
   for (const b of bits) {
@@ -127,6 +132,10 @@ if (existsSync(dbUrl)) {
     }
   }
   for (const p of products) if (!p.verified && old.products?.find((x) => x.code === p.code)?.verified) p.verified = true;
+  for (const p of products) {
+    const o = old.products?.find((x) => x.code === p.code);
+    if (o?.releaseJp && !p.releaseJp) p.releaseJp = o.releaseJp;
+  }
   // Vom Import ermittelte Japan-Preise auch bei gepflegten Produkten behalten.
   for (const p of products) {
     const o = old.products?.find((x) => x.code === p.code);
