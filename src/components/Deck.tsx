@@ -8,6 +8,7 @@ import { newId } from '../lib/storage';
 import { useEffect, useState } from 'preact/hooks';
 import { useApp } from '../lib/context';
 import { canShareFile, deckFile, renderDeckImage } from '../lib/deckImage';
+import { inAndroidApp, saveBlob } from '../lib/download';
 
 interface Props {
   db: Database;
@@ -166,9 +167,9 @@ export function Deck({ db, state, update, goToBuilder }: Props) {
                 📤 Teilen
               </button>
             )}
-            <a class="btn" href={img.url} download="beyblade-deck.png">
-              Speichern
-            </a>
+            <button type="button" class="btn" onClick={() => void saveBlob(img.file, 'beyblade-deck.png')}>
+              {inAndroidApp() ? 'Teilen / Speichern' : 'Speichern'}
+            </button>
             <button type="button" class="btn btn-ghost" onClick={() => setImg(null)}>
               Schließen
             </button>

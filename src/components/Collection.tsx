@@ -14,6 +14,7 @@ import { Advisor } from './Advisor';
 import { ShopMode } from './ShopMode';
 import { PhotoCheck } from './PhotoCheck';
 import { AddProducts } from './AddProducts';
+import { isAndroidBrowser, saveBlob } from '../lib/download';
 import { Showcase } from './Showcase';
 import { nb } from '../lib/analysis';
 import { convert, groupKey, priceHint, sumPrices, yen } from '../lib/price';
@@ -96,13 +97,7 @@ export function Collection({ db, state, update, events = [], meta }: Props) {
 
   const doExport = () => {
     const blob = new Blob([exportState(state)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `beyblade-sammlung-${new Date().toISOString().slice(0, 10)}.json`;
-    a.click();
-    // iOS/Safari braucht die URL noch kurz nach dem Klick.
-    window.setTimeout(() => URL.revokeObjectURL(url), 1500);
+    void saveBlob(blob, `beyblade-sammlung-${new Date().toISOString().slice(0, 10)}.json`);
   };
 
   const doImport = async (file: File | undefined) => {
@@ -316,6 +311,17 @@ export function Collection({ db, state, update, events = [], meta }: Props) {
             entfernen
           </button>
         </p>
+      )}
+
+      {isAndroidBrowser() && (
+        <Section title="Android-App">
+          <div class="card">
+            <p class="muted">X-Planer gibt es auch als App für Android – mit Kamera-Scan, Teilen und ohne Browserleiste. Deine Daten nimmst du mit „Auf anderes Gerät“ mit.</p>
+            <a class="btn btn-primary" href="https://github.com/snckz/beyblade-x-planer/releases/latest" target="_blank" rel="noopener noreferrer">
+              App herunterladen (APK)
+            </a>
+          </div>
+        </Section>
       )}
 
       <Section title="Sichern">

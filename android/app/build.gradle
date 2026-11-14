@@ -1,0 +1,50 @@
+plugins {
+    id "com.android.application"
+}
+
+android {
+    namespace "at.snckz.xplaner"
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "at.snckz.xplaner"
+        minSdk 26
+        targetSdk 34
+        versionCode Integer.parseInt(System.getenv("VERSION_CODE") ?: "1")
+        versionName "1.0." + (System.getenv("VERSION_CODE") ?: "0")
+    }
+
+    // Signatur: auf GitHub aus der Datei release.keystore (Workflow legt sie an). Gleicher Schlüssel bei jedem Build,
+    // damit neue Versionen die alte einfach aktualisieren.
+    def keystoreFile = file("release.keystore")
+    def keystorePassword = System.getenv("KEYSTORE_PASSWORD")?.replaceAll("\\s", "")
+    def canSign = keystoreFile.exists() && keystorePassword
+
+    signingConfigs {
+        if (canSign) {
+            release {
+                storeFile keystoreFile
+                storePassword keystorePassword
+                keyAlias System.getenv("KEY_ALIAS") ?: "xplaner"
+                keyPassword keystorePassword
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            if (canSign) signingConfig signingConfigs.release
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    // nur für FileProvider (Fotos von der Kamera, Dateien teilen)
+    implementation "androidx.core:core:1.13.1"
+}

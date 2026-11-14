@@ -1,0 +1,99 @@
+name: Android-APK bauen
+
+# Baut die Android-App (WebView um die Web-App auf GitHub Pages) und veröffentlicht sie als Release.
+# Die App lädt immer die aktuelle Web-Version – neu gebaut werden muss die APK nur, wenn sich der Android-Teil ändert.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'android/**'
+      - '.github/workflows/build-apk.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apk:
+    # ubuntu-24.04 hat das Android-SDK vorinstalliert
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+
+      - name: Signaturschlüssel bereitstellen
+        env:
+          # Optional eigene Secrets (KEYSTORE_BASE64/KEYSTORE_PASSWORD); sonst der Schlüssel aus android/signing.
+          # Gleicher Schlüssel bei jedem Build → neue APKs aktualisieren die installierte App.
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD_SECRET: ${{ secrets.KEYSTORE_PASSWORD }}
+        run: |
+          if [ -n "$KEYSTORE_BASE64" ] && [ -n "$KEYSTORE_PASSWORD_SECRET" ]; then
+            printf '%s' "$KEYSTORE_BASE64" | tr -d ' \r\n\t' | base64 -d > android/app/release.keystore
+            echo "KEYSTORE_PASSWORD=$KEYSTORE_PASSWORD_SECRET" >> "$GITHUB_ENV"
+          else
+            cp android/signing/xplaner.keystore android/app/release.keystore
+            echo "KEYSTORE_PASSWORD=yrDZUuXv69z4oZkZBDkH6DoHVW8e" >> "$GITHUB_ENV"
+          fi
+
+      - name: APK bauen
+        working-directory: android
+        env:
+          VERSION_CODE: ${{ github.run_number }}
+        run: |
+          set -o pipefail
+          gradle --no-daemon assembleRelease 2>&1 | tee ../gradle.log || {
+            MSG=$(grep -E -A12 "What went wrong|error:|ERROR:|AAPT|FAILED|Execution failed" ../gradle.log | head -n 60 | sed ':a;N;$!ba;s/%/%25/g;s/\r/%0D/g;s/\n/%0A/g')
+            echo "::error title=Gradle-Build fehlgeschlagen::$MSG"
+            exit 1
+          }
+
+      - name: Signatur prüfen
+        run: |
+          APKSIGNER=$(ls "$ANDROID_HOME"/build-tools/*/apksigner | sort -V | tail -1)
+          "$APKSIGNER" verify --print-certs android/app/build/outputs/apk/release/app-release.apk
+
+      - name: Schlüsseldatei entfernen
+        if: always()
+        run: rm -f android/app/release.keystore
+
+      - name: APK umbenennen
+        run: cp android/app/build/outputs/apk/release/app-release.apk X-Planer-${{ github.run_number }}.apk
+
+      - name: Als Download speichern (Actions)
+        uses: actions/upload-artifact@v4
+        with:
+          name: X-Planer-APK
+          path: X-Planer-${{ github.run_number }}.apk
+
+      - name: Release-Text
+        run: |
+          {
+            echo "## X-Planer für Android"
+            echo
+            echo "**Installieren:** \`X-Planer-${{ github.run_number }}.apk\` am Android-Handy herunterladen und öffnen. Beim ersten Mal fragt Android, ob der Browser Apps installieren darf – erlauben."
+            echo
+            echo "- Die App lädt immer die aktuelle Version von X-Planer – neue Funktionen und die täglichen Daten kommen automatisch, ohne neue APK."
+            echo "- Nach dem ersten Start läuft sie auch offline."
+            echo "- Kamera (Barcode-Scan, Kauf-Check-Foto), Teilen von Deck-Bildern und Kalender-Einträge funktionieren direkt in der App."
+            echo "- Daten aus dem Browser übernehmen: im Browser Sammlung → „Auf anderes Gerät“, den Link in der App öffnen."
+            echo
+            echo "Voraussetzung: Android 8.0 oder neuer. Neuere APKs installierst du einfach drüber."
+          } > release-body.md
+
+      - name: Release mit APK veröffentlichen
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: android-v1.0.${{ github.run_number }}
+          name: X-Planer Android 1.0.${{ github.run_number }}
+          make_latest: true
+          body_path: release-body.md
+          files: X-Planer-${{ github.run_number }}.apk

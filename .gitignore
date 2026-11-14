@@ -3,3 +3,8 @@ dist
 *.log
 .DS_Store
 public/ocr
+android/.gradle
+android/build
+android/app/build
+android/app/release.keystore
+android/local.properties

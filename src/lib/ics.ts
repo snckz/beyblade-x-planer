@@ -1,3 +1,4 @@
+import { inAndroidApp, saveBlob } from './download';
 // Kalender-Export (.ics): iPhone, Android und PC übernehmen die Termine samt Erinnerung in ihren Kalender.
 
 export interface CalItem {
@@ -77,6 +78,11 @@ const isIos = () => /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.pla
  */
 export function downloadIcs(items: CalItem[], filename: string) {
   const blob = new Blob([buildIcs(items)], { type: 'text/calendar;charset=utf-8' });
+  // Android-App: öffnet direkt die Kalender-App
+  if (inAndroidApp()) {
+    void saveBlob(blob, filename);
+    return;
+  }
   const url = URL.createObjectURL(blob);
   if (isIos()) {
     window.location.href = url;
