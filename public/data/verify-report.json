@@ -1,23 +1,7 @@
 {
-  "blades": [
-    "CrimsonGaruda",
-    "StormPegasus",
-    "LeonCrest",
-    "SharkScale",
-    "KnightFortress"
-  ],
-  "bits": [
-    "J",
-    "LP",
-    "Y",
-    "WB",
-    "MO",
-    "GR",
-    "GU",
-    "Nr",
-    "MT"
-  ],
-  "products": 7,
+  "blades": [],
+  "bits": [],
+  "products": 0,
   "mismatches": [],
   "unreleased": [
     "ClockMirage (2026-12-26)",
@@ -28,5 +12,5 @@
     "PhoenixForce (2026-11-21)"
   ],
   "notFound": [],
-  "fetched": 23
+  "fetched": 9
 }
