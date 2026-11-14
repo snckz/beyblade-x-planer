@@ -13,6 +13,8 @@ export interface WishRelease {
 /** Japan-Release eines Produkts: aus der Datenbank, sonst aus einem Release-Termin mit derselben Blade. */
 export function releaseDate(p: Product, events: BeyEvent[]): string | null {
   if (p.releaseJp) return p.releaseJp;
+  // Nur für noch nicht bestätigte (= neue) Produkte – sonst bekäme ein altes Produkt mit derselben Blade das neue Datum.
+  if (p.verified) return null;
   const ev = events.find((e) => e.kind === 'release' && e.bladeId && e.bladeId === p.bladeId);
   return ev?.date ?? null;
 }

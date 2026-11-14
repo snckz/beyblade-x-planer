@@ -18,12 +18,13 @@ export function parseWeight(wikitext) {
   return g >= 20 && g <= 60 ? Math.round(g * 10) / 10 : null;
 }
 
-export async function updateWeights(db, fetchPage) {
+export async function updateWeights(db, fetchPage, { retryMissing = false } = {}) {
   const out = structuredClone(db);
   let fetched = 0;
   const found = [];
   for (const b of out.blades) {
-    if (b.weightG !== undefined || fetched >= MAX_PAGES) continue;
+    // null = bisher nicht gefunden: einmal pro Woche erneut (neue Blades bekommen ihr Gewicht oft erst später).
+    if ((b.weightG !== undefined && !(retryMissing && b.weightG === null && b.line !== 'CX')) || fetched >= MAX_PAGES) continue;
     // CX-Blades bestehen aus mehreren Teilen – dort gibt es kein einzelnes Blade-Gewicht.
     if (b.line === 'CX') {
       b.weightG = null;
@@ -32,7 +33,7 @@ export async function updateWeights(db, fetchPage) {
     fetched++;
     const wt = await fetchPage(`Blade - ${b.id}`);
     if (wt === undefined) continue;
-    b.weightG = wt ? parseWeight(wt) : null;
+    b.weightG = (wt ? parseWeight(wt) : null) ?? null;
     if (b.weightG) found.push(`${b.id} ${b.weightG} g`);
   }
   return { db: out, found, fetched };
@@ -41,7 +42,7 @@ export async function updateWeights(db, fetchPage) {
 async function wikitextOf(fetchFn, title) {
   const url = `${API}?${new URLSearchParams({ action: 'parse', page: title, prop: 'wikitext', redirects: '1', format: 'json', formatversion: '2' })}`;
   try {
-    const res = await fetchFn(url, { headers: { 'User-Agent': 'beyblade-x-planer-weights/1.0 (GitHub Actions)' } });
+    const res = await fetchFn(url, { headers: { 'User-Agent': 'beyblade-x-planer-weights/1.0 (GitHub Actions)' }, signal: AbortSignal.timeout(15000) });
     if (!res.ok) return undefined;
     const d = await res.json();
     return d?.parse?.wikitext ?? null;
@@ -50,10 +51,10 @@ async function wikitextOf(fetchFn, title) {
   }
 }
 
-export async function run({ fetchFn = fetch, dataDir = new URL('../public/data/', import.meta.url) } = {}) {
+export async function run({ fetchFn = fetch, dataDir = new URL('../public/data/', import.meta.url), now = new Date() } = {}) {
   const path = new URL('db.json', dataDir);
   const db = JSON.parse(readFileSync(path, 'utf8'));
-  const res = await updateWeights(db, (t) => wikitextOf(fetchFn, t));
+  const res = await updateWeights(db, (t) => wikitextOf(fetchFn, t), { retryMissing: now.getUTCDay() === 0 });
   const changed = JSON.stringify(res.db) !== JSON.stringify(db);
   if (changed) writeFileSync(path, JSON.stringify(res.db, null, 2) + '\n');
   console.log(`Gewichte: ${res.found.length} gefunden (${res.fetched} Seiten).`);

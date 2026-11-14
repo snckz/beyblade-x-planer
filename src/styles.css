@@ -783,3 +783,4 @@ input[type='text'], input[type='search'], select { border-radius: 16px; backgrou
 .release-tag.upcoming { background: rgba(245, 197, 66, .14); color: var(--balance); }
 .release-tag.new { background: rgba(54, 211, 127, .16); color: var(--stamina); }
 .event-actions { display: flex; flex-wrap: wrap; gap: 4px 16px; }
+.sep { border: 0; border-top: 1px solid var(--card-line); margin: 6px 0; width: 100%; }

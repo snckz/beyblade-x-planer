@@ -12,7 +12,7 @@ export interface CalItem {
   url?: string;
 }
 
-const esc = (s: string) => s.replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/([,;])/g, '\\$1');
+const esc = (s: string) => s.replace(/\\/g, '\\\\').replace(/\r?\n|\r/g, '\\n').replace(/([,;])/g, '\\$1');
 const day = (d: string) => d.replace(/-/g, '');
 const nextDay = (d: string) => {
   const t = new Date(`${d}T12:00:00Z`);
@@ -20,15 +20,24 @@ const nextDay = (d: string) => {
   return t.toISOString().slice(0, 10);
 };
 
-/** Zeilen nach RFC 5545 auf 75 Zeichen falten. */
+const enc = new TextEncoder();
+
+/** Zeilen nach RFC 5545 auf 75 Bytes falten, ohne Zeichen (Umlaute, Emoji) zu zerschneiden. */
 const fold = (line: string) => {
   const out: string[] = [];
-  let rest = line;
-  while (rest.length > 74) {
-    out.push(rest.slice(0, 74));
-    rest = ' ' + rest.slice(74);
+  let cur = '';
+  let bytes = 0;
+  for (const ch of line) {
+    const n = enc.encode(ch).length;
+    if (bytes + n > 75) {
+      out.push(cur);
+      cur = ' ';
+      bytes = 1;
+    }
+    cur += ch;
+    bytes += n;
   }
-  out.push(rest);
+  out.push(cur);
   return out.join('\r\n');
 };
 
@@ -59,10 +68,21 @@ export function buildIcs(items: CalItem[], now = new Date()): string {
   return lines.map(fold).join('\r\n') + '\r\n';
 }
 
-/** .ics-Datei herunterladen – iOS bietet danach „Zum Kalender hinzufügen“ an. */
+const isIos = () => /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+/**
+ * Termine in den Kalender bringen.
+ * iPhone/iPad: Die Datei direkt öffnen – Safari zeigt dann „Zum Kalender hinzufügen“ (ein Download-Link landet sonst nur in „Downloads“).
+ * Andere Geräte: .ics herunterladen.
+ */
 export function downloadIcs(items: CalItem[], filename: string) {
   const blob = new Blob([buildIcs(items)], { type: 'text/calendar;charset=utf-8' });
   const url = URL.createObjectURL(blob);
+  if (isIos()) {
+    window.location.href = url;
+    window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    return;
+  }
   const a = document.createElement('a');
   a.href = url;
   a.download = filename;

@@ -99,8 +99,14 @@ export async function verifyCatalog(db, fetchPage, today = new Date()) {
     const rel = parseRelease(found.wt, today);
     releasedTitles.set(found.title, rel.released);
     // Japan-Release-Datum merken (für Erinnerungen in der App)
-    if (rel.date) for (const p of products) if (!p.releaseJp && titleFromUrl(p.source) === found.title) p.releaseJp = rel.date;
-    if (rel.date && !rel.released) for (const p of products) if (!p.releaseJp && !p.source) p.releaseJp = rel.date;
+    // Nur Produkte, die zu genau dieser Seite gehören (bzw. ohne Quelle und noch nicht erschienen).
+    // Solange nicht erschienen, wird das Datum aktualisiert – Takara Tomy verschiebt manchmal.
+    if (rel.date) {
+      for (const p of products) {
+        const own = titleFromUrl(p.source) === found.title || (!p.source && !p.verified);
+        if (own && (!p.releaseJp || !rel.released)) p.releaseJp = rel.date;
+      }
+    }
     if (!info.type) {
       report.notFound.push(`${blade.id} (Typ nicht lesbar)`);
       continue;

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { decodeState, encodeState, mergeState, transferLink } from '../src/lib/transfer';
+import { decodeState, encodeState, extractCode, mergeState, transferLink } from '../src/lib/transfer';
 import { EMPTY_STATE } from '../src/lib/storage';
 
 const a = { ...EMPTY_STATE, owned: { 'BX-01': 1, 'UX-01': 2 }, combos: [{ id: 'c1', bladeId: 'DranSword', ratchetId: '3-60', bitId: 'F' }], deck: ['c1'], wishlist: ['BX-05'], seenNews: ['n1'] };
@@ -25,5 +25,13 @@ describe('Übertragung', () => {
     expect(m.deck).toEqual(['c1']);
     expect(m.wishlist).toEqual(['BX-05', 'UX-15']);
     expect(m.barcodes).toEqual({ '4904810123453': 'BX-05' });
+  });
+});
+
+describe('Code einfügen', () => {
+  it('nimmt ganzen Link oder nur den Code', () => {
+    expect(extractCode(' https://snckz.github.io/beyblade-x-planer/#import=z.AbC-_1 ')).toBe('z.AbC-_1');
+    expect(extractCode('j.eyJ2Ijox')).toBe('j.eyJ2Ijox');
+    expect(extractCode('hallo')).toBeNull();
   });
 });

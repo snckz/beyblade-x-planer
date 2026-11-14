@@ -86,8 +86,8 @@ export function Events({ db, events, news, state, update }: Props) {
               </button>
             )}
             {daysUntil(e.endDate ?? e.date) >= 0 && (
-              <button type="button" class="link-btn" onClick={() => downloadIcs([cal(e)], `${e.id}.ics`)}>
-                🔔 In Kalender
+              <button type="button" class="link-btn" onClick={() => downloadIcs([cal(e)], `${e.id}.ics`)} aria-label={`${e.title} in den Kalender`}>
+                <span aria-hidden="true">🔔</span> In Kalender
               </button>
             )}
           </span>

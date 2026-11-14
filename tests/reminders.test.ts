@@ -36,6 +36,10 @@ describe('Erinnerungen', () => {
     expect(ics).toContain('DTEND;VALUE=DATE:20261227');
     expect(ics.replace(/\r\n /g, '')).toContain('Vanish Lucifer\\, mit Komma\\; und Semikolon');
     expect(ics).toContain('TRIGGER:-PT15H');
-    expect(ics.split('\r\n').every((l) => l.length <= 75)).toBe(true);
+    expect(ics.split('\r\n').every((l) => new TextEncoder().encode(l).length <= 75)).toBe(true);
+    const long = buildIcs([{ uid: 'x', date: '2026-12-26', title: 'Ä'.repeat(60) + ' 🌀🌀🌀', description: 'Zeile 1\r\nZeile 2' }]);
+    expect(long.split('\r\n').every((l) => new TextEncoder().encode(l).length <= 75)).toBe(true);
+    expect(long.replace(/\r\n /g, '')).toContain('🌀🌀🌀');
+    expect(long.replace(/\r\n /g, '')).toContain('Zeile 1\\nZeile 2');
   });
 });

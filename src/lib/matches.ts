@@ -66,7 +66,7 @@ export function statsByCombo(matches: Match[]): ComboStats[] {
 
 const isPart = (c: unknown): c is Omit<Combo, 'id' | 'name'> => {
   const x = c as Combo;
-  return !!x && typeof x.bladeId === 'string' && typeof x.bitId === 'string' && (x.ratchetId === undefined || typeof x.ratchetId === 'string');
+  return !!x && typeof x.bladeId === 'string' && !!x.bladeId && typeof x.bitId === 'string' && !!x.bitId && (x.ratchetId === undefined || typeof x.ratchetId === 'string');
 };
 
 /** Gespeicherte Kämpfe robust einlesen (max. 500). */

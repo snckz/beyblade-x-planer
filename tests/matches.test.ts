@@ -20,5 +20,6 @@ describe('Battle-Tagebuch', () => {
   it('verwirft kaputte Einträge', () => {
     expect(sanitizeMatches([m(true, 'spin'), { id: 'x' }, { ...m(true, 'spin'), finish: 'boom' }, null])).toHaveLength(1);
     expect(sanitizeMatches('x')).toEqual([]);
+    expect(sanitizeMatches([{ ...m(true, 'spin'), mine: { bladeId: '', bitId: '' } }])).toEqual([]);
   });
 });

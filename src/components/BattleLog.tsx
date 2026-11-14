@@ -38,15 +38,23 @@ export function BattleLog({ db, state, update }: Props) {
   const total = state.matches.length;
   const wins = state.matches.filter((m) => m.won).length;
 
+  const complete = (c: Part) => {
+    const r = resolveCombo(db, { id: '', ...c });
+    return !!r && (r.blade.integratedRatchet ? !c.ratchetId : !!c.ratchetId);
+  };
+  const ready = won !== null && !!finish && complete(mine) && complete(opp);
+
   const save = () => {
-    if (won === null || !finish) return;
+    if (!ready || won === null || !finish) return;
     const m: Match = { id: newId(), date: new Date().toISOString(), mine, opp, won, finish };
     update((s) => ({ ...s, matches: [...s.matches, m].slice(-500) }));
     setMsg(`${won ? 'Sieg' : 'Niederlage'} per ${FINISH[finish].label} gespeichert.`);
     setWon(null);
     setFinish(null);
   };
-  const remove = (id: string) => update((s) => ({ ...s, matches: s.matches.filter((m) => m.id !== id) }));
+  const remove = (id: string) => {
+    if (window.confirm('Diesen Kampf löschen?')) update((s) => ({ ...s, matches: s.matches.filter((m) => m.id !== id) }));
+  };
 
   return (
     <Section
@@ -92,7 +100,8 @@ export function BattleLog({ db, state, update }: Props) {
               </button>
             ))}
           </div>
-          <button type="button" class="btn btn-primary" disabled={won === null || !finish} onClick={save}>
+          {!(complete(mine) && complete(opp)) && <p class="fineprint">Wähle für beide Kreisel Blade, Ratchet und Bit.</p>}
+          <button type="button" class="btn btn-primary" disabled={!ready} onClick={save}>
             Kampf speichern
           </button>
           {msg && (

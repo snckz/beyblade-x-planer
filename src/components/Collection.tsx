@@ -231,7 +231,7 @@ export function Collection({ db, state, update, goToParts, events = [] }: Props)
           )}
         </div>
       </Section>
-      {transfer && <Transfer state={state} onClose={() => setTransfer(false)} />}
+      {transfer && <Transfer state={state} update={update} onClose={() => setTransfer(false)} />}
     </div>
   );
 }

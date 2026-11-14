@@ -22,11 +22,14 @@ export function htmlToLines(html) {
     .replace(/<(script|style)[\s\S]*?<\/\1>/gi, ' ')
     .replace(/<br\s*\/?>|<\/(li|div|p|a|h\d|td|tr|span|section|article|header|ul|ol)>/gi, '\n')
     .replace(/<[^>]+>/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&#x27;|&#39;|&apos;/g, "'")
+    .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCodePoint(parseInt(h, 16)))
+    .replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(Number(n)))
+    .replace(/&apos;/g, "'")
     .replace(/&quot;/g, '"')
     .replace(/&nbsp;/g, ' ')
-    .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)))
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&')
     .split('\n')
     .map((l) => l.replace(/\s+/g, ' ').trim())
     .filter(Boolean);
@@ -146,18 +149,16 @@ export async function run({ fetchFn = fetch, dataDir = new URL('../public/data/'
   try {
     // Anfang des Monats kann der neue Bericht noch fehlen → Vormonat.
     const prevMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, 15));
-    let html = null;
+    // Anfang des Monats ist der neue Bericht evtl. noch dünn → dann den Vormonat nehmen.
+    let decks = [];
     let source = null;
     for (const url of [reportUrl(now), reportUrl(prevMonth)]) {
-      const res = await fetchFn(url, { headers: { 'User-Agent': 'beyblade-x-planer-meta/1.0 (GitHub Actions)', Accept: 'text/html' } });
-      if (res.ok) {
-        html = await res.text();
-        source = url;
-        break;
-      }
+      const res = await fetchFn(url, { headers: { 'User-Agent': 'beyblade-x-planer-meta/1.0 (GitHub Actions)', Accept: 'text/html' }, signal: AbortSignal.timeout(20000) });
+      if (!res.ok) continue;
+      decks = parseDecks(htmlToLines(await res.text()), db);
+      source = url;
+      if (decks.length >= MIN_DECKS) break;
     }
-    if (!html) throw new Error('Meta-Report nicht erreichbar');
-    const decks = parseDecks(htmlToLines(html), db);
     if (decks.length < MIN_DECKS) throw new Error(`nur ${decks.length} Siegerdecks erkannt`);
     const meta = buildMeta(decks, prev, { today, source });
     const errors = validateMeta(meta, db);

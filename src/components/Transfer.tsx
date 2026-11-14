@@ -1,9 +1,11 @@
-import { useEffect, useState } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
 import type { UserState } from '../lib/storage';
-import { encodeState, transferLink } from '../lib/transfer';
+import { decodeState, encodeState, extractCode, importError, importQuestion, isIosBrowserTab, mergeState, transferLink } from '../lib/transfer';
 
 /** Link + QR-Code, um Sammlung, Kombos, Wunschliste und Kämpfe auf ein anderes Gerät zu holen. */
-export function Transfer({ state, onClose }: { state: UserState; onClose: () => void }) {
+export function Transfer({ state, update, onClose }: { state: UserState; update: (fn: (s: UserState) => UserState) => void; onClose: () => void }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [paste, setPaste] = useState('');
   const [link, setLink] = useState('');
   const [svg, setSvg] = useState('');
   const [msg, setMsg] = useState('');
@@ -14,8 +16,8 @@ export function Transfer({ state, onClose }: { state: UserState; onClose: () => 
       const url = transferLink(await encodeState(state));
       if (!alive) return;
       setLink(url);
-      // QR-Codes fassen nur begrenzt Daten; sehr große Sammlungen → nur Link.
-      if (url.length <= 2300) {
+      // Große QR-Codes lassen sich vom Bildschirm kaum scannen → ab ca. 1200 Zeichen nur Link.
+      if (url.length <= 1200) {
         const { renderSVG } = await import('uqr');
         if (alive) setSvg(renderSVG(url, { border: 2, whiteColor: '#ffffff', blackColor: '#0b0c12' }));
       }
@@ -24,6 +26,29 @@ export function Transfer({ state, onClose }: { state: UserState; onClose: () => 
       alive = false;
     };
   }, [state]);
+
+  // Panel ins Bild holen und fokussieren, sobald es aufgeht.
+  useEffect(() => {
+    ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    ref.current?.focus();
+  }, []);
+
+  const doImport = async () => {
+    const code = extractCode(paste);
+    if (!code) {
+      setMsg('Das ist kein gültiger Link oder Code.');
+      return;
+    }
+    try {
+      const incoming = await decodeState(code);
+      if (!window.confirm(importQuestion(incoming))) return;
+      update((s) => mergeState(s, incoming));
+      setPaste('');
+      setMsg('Daten übernommen.');
+    } catch (err) {
+      setMsg(importError(err));
+    }
+  };
 
   const copy = async () => {
     try {
@@ -42,7 +67,7 @@ export function Transfer({ state, onClose }: { state: UserState; onClose: () => 
   };
 
   return (
-    <div class="card glass stack-sm transfer">
+    <div ref={ref} tabIndex={-1} class="card glass stack-sm transfer" aria-label="Auf anderes Gerät übertragen">
       <p class="row-title">Auf anderes Gerät übertragen</p>
       <p class="muted">Scanne den Code mit dem anderen Gerät oder schick dir den Link. Dort wird alles mit den vorhandenen Daten zusammengeführt.</p>
       {svg ? (
@@ -70,6 +95,16 @@ export function Transfer({ state, onClose }: { state: UserState; onClose: () => 
         </p>
       )}
       <p class="fineprint">Der Link enthält deine Daten. Schick ihn nur an dich selbst.</p>
+      <hr class="sep" />
+      <p class="row-title">Code einfügen</p>
+      <p class="muted">
+        Hast du den Link von einem anderen Gerät kopiert? Füge ihn hier ein.
+        {isIosBrowserTab() ? ' Tipp: Nutzt du die App vom Home-Bildschirm, mach das dort – Safari und die App haben getrennten Speicher.' : ''}
+      </p>
+      <input type="text" inputMode="url" autoComplete="off" placeholder="Link oder Code einfügen …" value={paste} onInput={(e) => setPaste(e.currentTarget.value)} aria-label="Übertragungs-Link einfügen" />
+      <button type="button" class="btn" onClick={doImport} disabled={!paste.trim()}>
+        Übernehmen
+      </button>
     </div>
   );
 }
