@@ -47,11 +47,6 @@ Die Profilwerte im Kombo-Planer sind Richtwerte aus Teile-Typen und Ratchet-Form
 
 ## Schrift
 
-Die App nutzt nur **Saira** (OFL), selbst gehostet unter `src/assets/fonts/`. Die Dateien sind aus
-`@fontsource-variable/saira` (`saira-latin-standard-*.woff2`) auf Latein/Deutsch reduziert und in den Achsen begrenzt
-(Text: `wght` 400–750, `wdth` 75–100; Kursiv für Titel/Zahlen: `wght` 600–800, `wdth` 75) – zusammen ca. 70 KB:
-
-```sh
-pyftsubset saira-latin-standard-normal.woff2 --unicodes="U+0020-007E,U+00A0-00FF,U+2010-2027,U+20AC" --flavor=woff2 …
-python3 -c "from fontTools.varLib import instancer; …"  # Achsen begrenzen, siehe Kommentar in src/fonts.css
-```
+Die App nutzt nur **Inter Tight** (OFL), selbst gehostet unter `src/assets/fonts/`. Die Dateien sind die
+Latein-Ausschnitte aus `@fontsource-variable/inter-tight` (`inter-tight-latin-wght-normal.woff2` und
+`…-italic.woff2`, Gewichtsachse 100–900) – zusammen ca. 90 KB. Titel sind fett-kursiv, alles andere aufrecht.

@@ -1918,3 +1918,41 @@ input[type='text']::placeholder, input[type='search']::placeholder { color: rgba
 .tabbar a.on .dot-count { box-shadow: 0 0 0 2px #fff; }
 @media (prefers-reduced-motion: reduce) { .tabbar a { transition: none; } }
 @media (min-width: 860px) { .tabbar { display: none; } }
+
+/* ===== Schrift: Inter Tight (moderne enge Grotesk wie in den Referenzen) ===== */
+:root {
+  --font: 'Inter Tight', ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+  --display: 800 italic 1em/1 var(--font);
+}
+body { font-family: var(--font); font-size: 15.5px; letter-spacing: .006em; font-feature-settings: 'kern'; -webkit-font-smoothing: antialiased; }
+* { font-stretch: normal !important; }
+
+/* Große Titel: fett-kursiv, eng gesetzt, normale Groß-/Kleinschreibung */
+.page-title { font: 800 italic clamp(40px, 11.5vw, 60px)/.95 var(--font); text-transform: none; letter-spacing: -.03em; padding-right: .06em; }
+.hero-title { font: 800 italic 29px/1.05 var(--font); letter-spacing: -.025em; }
+.combo-name, .sheet-title { font-weight: 800; font-style: italic; letter-spacing: -.025em; text-transform: none; }
+.live-cta strong { font: 800 italic 24px/1.05 var(--font); letter-spacing: -.025em; }
+.improve-label { font: 750 italic 19px/1.1 var(--font); letter-spacing: -.025em; }
+
+/* Abschnitts-Überschriften: kräftig, aufrecht, ruhig */
+.section-head h2 { font: 750 20px/1.15 var(--font); letter-spacing: -.02em; white-space: nowrap; }
+
+/* Zahlen: aufrecht, Tabellenziffern, eng – wie Beträge in Banking-Apps */
+.kpi-val, .album-count, .log-big, .verdict-score, .event-day, .meta-rank, .tile-big, .hero-count b, .result .stat-val, .live-score {
+  font-style: normal; font-weight: 750; font-variant-numeric: tabular-nums; letter-spacing: -.03em; font-family: var(--font);
+}
+.kpi-val { font-size: clamp(26px, 8vw, 36px); line-height: 1; }
+.hero-count b { font-size: 60px; line-height: .85; }
+.result .stat-val { font-size: 32px; line-height: .95; }
+.event-day { font-size: 21px; }
+.live-score { font-weight: 700; }
+
+/* Bedienelemente und kleine Texte */
+.btn, .segmented button, .tabs-top a, .chip, .tabbar a .tab-label { font-weight: 600; letter-spacing: 0; }
+.btn-primary, .hero-btn { font-weight: 650; }
+.row-title, .part-name, .event-title { letter-spacing: -.015em; }
+.sheet-h, .infobox caption, .eyebrow { letter-spacing: .04em; }
+.code, .code-inline { font-variant-numeric: tabular-nums; letter-spacing: 0; }
+/* Zahlen in Chips und Codes: dieselbe Schrift mit Tabellenziffern statt Schreibmaschinenschrift */
+:root { --mono: var(--font); }
+.rarity-chip span, .mono, .matrix-sub, .stat-val, .parts-grid p:last-child { font-family: var(--font); font-variant-numeric: tabular-nums; letter-spacing: 0; }

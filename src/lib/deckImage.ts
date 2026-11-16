@@ -5,7 +5,7 @@ import { displayName } from './names';
 const W = 1080;
 const H = 1350;
 const TYPE_COLOR: Record<BeyType, string> = { attack: '#ff5a45', defense: '#4c8dff', stamina: '#36d37f', balance: '#f5c542' };
-const FONT = "'Saira', ui-sans-serif, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif";
+const FONT = "'Inter Tight', ui-sans-serif, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif";
 
 function loadImage(src: string, cors: boolean): Promise<HTMLImageElement | null> {
   return new Promise((resolve) => {
@@ -82,7 +82,7 @@ export async function renderDeckImage(db: Database, combos: Combo[], images: Ima
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('Canvas nicht verfügbar');
   try {
-    await Promise.all([document.fonts?.load(`700 40px 'Saira'`), document.fonts?.load(`italic condensed 800 40px 'Saira'`)]);
+    await Promise.all([document.fonts?.load(`700 40px 'Inter Tight'`), document.fonts?.load(`italic 800 40px 'Inter Tight'`)]);
   } catch {
     /* System-Schrift reicht */
   }
@@ -107,10 +107,7 @@ export async function renderDeckImage(db: Database, combos: Combo[], images: Ima
   ctx.fillStyle = '#fff';
   ctx.textAlign = 'center';
   ctx.font = `italic 800 84px ${FONT}`;
-  // Schmale Kursive wie in der App (Canvas-Standard wäre normale Breite → künstlich schräg)
-  (ctx as CanvasRenderingContext2D & { fontStretch?: string }).fontStretch = 'condensed';
-  ctx.fillText(fit(ctx, title.toUpperCase(), W - 160), W / 2, 228);
-  (ctx as CanvasRenderingContext2D & { fontStretch?: string }).fontStretch = 'normal';
+  ctx.fillText(fit(ctx, title, W - 160), W / 2, 228);
 
   const rows = combos.slice(0, 3);
   // Fotos parallel laden – nacheinander würde es offline bis zu 12 s dauern.
