@@ -1431,3 +1431,91 @@ input[type='text']:focus, input[type='search']:focus, select:focus { border-colo
 .scan-choice.primary small { color: rgba(255, 255, 255, .85); }
 .scan-choice.primary .scan-choice-icon { background: #fff; }
 .scan-reading { justify-items: center; text-align: center; padding: 28px 16px; }
+
+/* ===== Soft Plate, Stufe 3: Kombo-Karte, Schichten, Schalter, Überschriften ===== */
+
+/* Seitenkopf etwas kompakter – Inhalt rückt nach oben */
+.page-head { margin: 0 0 18px; }
+.page-title { font-size: clamp(38px, 10.5vw, 56px); }
+.page-sub { margin-top: 2px; font-size: 14.5px; max-width: 34ch; }
+
+/* Abschnitts-Überschriften in der Marken-Schrift */
+.section-head h2 { font: var(--display); font-stretch: 75%; font-size: 24px; line-height: 1; letter-spacing: .01em; }
+.section-head { align-items: center; margin-bottom: 12px; }
+
+/* Schalter statt Kästchen (Nur meine Teile, Nur fehlende Karten …) */
+.toggle { justify-content: space-between; gap: 14px; padding: 4px 0; color: var(--text); font-weight: 500; }
+.toggle > span { order: -1; }
+.toggle input {
+  appearance: none; -webkit-appearance: none; flex: none; position: relative; margin: 0; cursor: pointer;
+  width: 50px; height: 30px; border-radius: 999px; background: var(--surface-3); border: 1px solid var(--hair-2);
+  transition: background .25s var(--ease), border-color .25s;
+}
+.toggle input::after {
+  content: ''; position: absolute; top: 2px; left: 2px; width: 24px; height: 24px; border-radius: 50%; background: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .4); transition: transform .25s var(--ease);
+}
+.toggle input:checked { background: var(--x-red); border-color: transparent; }
+.toggle input:checked::after { transform: translateX(20px); }
+.toggle input:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.toggle input:disabled { opacity: .45; cursor: default; }
+
+/* Kombo-Planer: Blade → Ratchet → Bit als verbundene Schichten */
+.builder { gap: 16px; }
+.layers { position: relative; gap: 14px; }
+.layers::before {
+  content: ''; position: absolute; left: 5px; top: 14px; bottom: 40px; width: 2px; border-radius: 2px;
+  background: linear-gradient(var(--attack), var(--balance) 50%, var(--defense));
+  opacity: .5;
+}
+.layers .field-label { position: relative; padding-left: 22px; font-size: 12.5px; letter-spacing: .02em; }
+.layers .layer-dot { position: absolute; left: 0; top: 50%; width: 12px; height: 12px; margin-top: -6px; box-shadow: 0 0 0 4px var(--surface); }
+.layers .part-btn { margin-left: 22px; }
+.part-btn { min-height: 70px; padding: 8px 12px 8px 8px; gap: 12px; }
+.part-btn .bey-img-sm, .part-btn .part-glyph, .part-btn .bit-img-sm { width: 52px; height: 52px; }
+.part-main { font-size: 16.5px; }
+.part-chev { font-size: 22px; color: var(--faint); }
+
+/* Kombo-Ergebnis als Showcase-Karte */
+.result { padding: 24px 20px 20px; gap: 16px; text-align: left; }
+.result::before { content: none; }
+.result::after {
+  content: ''; position: absolute; z-index: 0; left: 50%; top: -90px; width: 360px; height: 260px; transform: translateX(-50%);
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--edge, var(--x-red)) 38%, transparent), transparent);
+  pointer-events: none;
+}
+.result > * { position: relative; z-index: 1; }
+.result-head { flex-direction: column; align-items: center; text-align: center; gap: 12px; }
+.result-head .bey-img { width: 132px; height: 132px; box-shadow: 0 18px 40px -16px rgba(0, 0, 0, .9), 0 0 0 6px rgba(255, 255, 255, .04); }
+.result-title { justify-items: center; }
+.result-title .combo-name { font-size: 34px; line-height: .95; }
+.result-title .badges-left { justify-content: center; }
+.result > .muted { text-align: center; margin: -4px auto 0; max-width: 34ch; }
+
+/* Werte als 2×2-Kacheln mit großer Zahl */
+.result .stats { grid-template-columns: 1fr 1fr; gap: 10px; }
+.result .stat { padding: 14px; border-radius: 18px; background: var(--surface-2); }
+.result .stat-head { flex-direction: column-reverse; gap: 2px; margin-bottom: 10px; font-size: 12.5px; }
+.result .stat-val { font: var(--display); font-stretch: 75%; font-size: 34px; line-height: .9; font-family: inherit; }
+.result .stat-track { height: 6px; background: rgba(255, 255, 255, .07); }
+
+.save-row { padding: 6px; border-radius: 999px; background: var(--surface-2); }
+.save-row input { background: transparent; min-height: 44px; border-radius: 999px; }
+.save-row input:focus { background: transparent; }
+
+/* Leere Zustände: ruhige Karte statt gestrichelter Rahmen */
+.empty { border: 1px solid var(--hair); background: var(--surface); padding: 30px 22px; }
+.empty-ring {
+  width: 64px; height: 64px; border: 0; border-radius: 22px; margin-bottom: 8px;
+  background:
+    radial-gradient(circle at 50% 50%, var(--surface) 0 9px, transparent 10px),
+    conic-gradient(from 200deg, var(--attack), var(--balance), var(--stamina), var(--defense), var(--attack));
+  opacity: .9; animation: none;
+}
+.empty-title { font-size: 17px; }
+
+/* Lexikon: Sammel-Chips als getönte Pillen */
+.chip-row .chip, .album-chips .chip { border-width: 0; background: var(--surface-2); }
+.layers .part-btn { margin-left: 0; }
+.layers .part-field { padding-left: 22px; }
+.layers .field-label { margin-left: -22px; }
