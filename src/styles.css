@@ -1829,3 +1829,92 @@ input[type='text']::placeholder, input[type='search']::placeholder { color: rgba
 
 /* Große Bey-Bilder als Glaslinse */
 .result-head .bey-img { box-shadow: 0 0 0 1.5px rgba(255, 255, 255, .35), inset 0 2px 4px rgba(255, 255, 255, .25), 0 24px 48px -16px rgba(0, 0, 0, .9), 0 0 0 10px rgba(255, 255, 255, .04); }
+
+/* ===== Stufe 4: Premium Dark nach Referenzen ===== */
+/* Ruhiger, fast schwarzer Grund mit einem roten Lichtschein und einem weichen Lichtstrahl statt bunter Flecken.
+   Dunkles Rauchglas, weiße aktive Elemente, runde Icon-Knöpfe, Tab-Leiste aus einzelnen Glas-Kreisen. */
+:root {
+  --rim: linear-gradient(140deg, rgba(255, 255, 255, .42), rgba(255, 255, 255, .06) 32%, rgba(255, 255, 255, .02) 66%, rgba(255, 255, 255, .16));
+  --fill:
+    radial-gradient(120% 80% at 0% 0%, rgba(255, 255, 255, .09), rgba(255, 255, 255, 0) 50%),
+    linear-gradient(165deg, rgba(255, 255, 255, .07), rgba(255, 255, 255, .025) 60%, rgba(255, 255, 255, .04));
+  --glass-blur: blur(28px) saturate(1.4);
+  --ink: #0d0e12;
+}
+
+/* Hintergrund */
+.bg { background: radial-gradient(130% 70% at 50% -10%, #1c0b10, #08080b 62%, #050507); }
+.bg::before {
+  opacity: .62; width: 90vmax; height: 70vmax; left: auto; right: -35vmax; top: -30vmax;
+  background: radial-gradient(circle at 45% 55%, #e8192e, rgba(232, 25, 46, 0) 62%);
+}
+.bg::after {
+  opacity: .5; width: 140vmax; height: 34vmax; right: auto; left: -50vmax; bottom: auto; top: 18vh;
+  border-radius: 0; filter: blur(60px); transform: rotate(-32deg);
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 236, 228, .1) 45%, rgba(255, 255, 255, 0));
+}
+@media (prefers-reduced-motion: no-preference) { .bg::after { animation: none; } }
+.bg-photo { opacity: .45; }
+
+/* Karten: dunkles Rauchglas, größerer Radius */
+.card, .glass, .empty, .tabs-top, .ios-hint, .event, .row, .bcard {
+  background: var(--fill) padding-box, var(--rim) border-box;
+}
+.card, .empty, .event { border-radius: 32px; }
+.card, .glass, .empty, .event { box-shadow: inset 0 1px 1px rgba(255, 255, 255, .08), 0 30px 60px -30px rgba(0, 0, 0, .95); }
+
+/* Aktive Auswahl: weiß wie in den Referenzen (Typ-Filter behalten ihre Typfarbe) */
+.chip { background: rgba(255, 255, 255, .06); border-color: rgba(255, 255, 255, .1); color: rgba(255, 255, 255, .78); }
+.chip-on:not([class*='type-chip-']), .chip-row .chip-on, .tabs-top a.on {
+  background: #f4f4f6; color: var(--ink); border-color: transparent;
+  box-shadow: inset 0 1px 0 #fff, 0 8px 20px -10px rgba(0, 0, 0, .8);
+}
+.segmented button.on { background: #f4f4f6; color: var(--ink); }
+
+/* Runde Icon-Knöpfe als Glas-Kreise */
+.icon-btn {
+  border: 1px solid transparent; color: #fff;
+  background:
+    linear-gradient(160deg, rgba(255, 255, 255, .14), rgba(255, 255, 255, .04)) padding-box,
+    linear-gradient(140deg, rgba(255, 255, 255, .45), rgba(255, 255, 255, .05) 50%, rgba(255, 255, 255, .18)) border-box;
+  box-shadow: 0 8px 18px -10px rgba(0, 0, 0, .9);
+}
+
+/* Tab-Leiste: einzelne Glas-Kreise, aktiver Tab als weiße Pille mit roter Icon-Farbe */
+.tabbar {
+  background: none !important; border: 0 !important; box-shadow: none;
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+  display: flex; justify-content: space-between; padding: 0; gap: 7px; height: 58px; align-items: center;
+  width: min(420px, calc(100% - 28px));
+}
+.tabbar::before {
+  content: ''; position: absolute; z-index: -1; pointer-events: none;
+  left: -50vw; right: -50vw; top: -56px; bottom: calc(-14px - var(--safe-b));
+  background: linear-gradient(180deg, rgba(5, 5, 7, 0), rgba(5, 5, 7, .78) 55%, rgba(5, 5, 7, .92));
+}
+.tabbar a {
+  flex: 0 0 52px; height: 52px; min-width: 0; border-radius: 999px; flex-direction: row; gap: 7px; padding: 0;
+  color: rgba(255, 255, 255, .8);
+  border: 1px solid transparent;
+  background:
+    radial-gradient(70% 50% at 32% 18%, rgba(255, 255, 255, .16), rgba(255, 255, 255, 0) 70%) padding-box,
+    linear-gradient(160deg, rgba(46, 47, 56, .78), rgba(16, 17, 21, .86)) padding-box,
+    linear-gradient(140deg, rgba(255, 255, 255, .42), rgba(255, 255, 255, .05) 50%, rgba(255, 255, 255, .16)) border-box;
+  -webkit-backdrop-filter: blur(18px) saturate(1.4); backdrop-filter: blur(18px) saturate(1.4);
+  box-shadow: 0 12px 24px -12px rgba(0, 0, 0, .95);
+  transition: flex-grow .3s cubic-bezier(.2, .8, .2, 1), background .25s, color .2s;
+}
+.tabbar a .tab-label { max-width: 0; opacity: 0; overflow: hidden; font-size: 13px; font-weight: 700; letter-spacing: -.01em; }
+@media (max-width: 380px) { .tabbar a { flex-basis: 48px; height: 48px; } .tabbar { height: 52px; } }
+.tabbar a.on {
+  flex: 1 1 auto; padding: 0 12px; gap: 6px; color: var(--ink);
+  background: linear-gradient(180deg, #ffffff, #e6e7eb) padding-box, linear-gradient(#fff, #fff) border-box;
+  box-shadow: inset 0 -2px 4px rgba(0, 0, 0, .08), 0 14px 28px -12px rgba(0, 0, 0, .9), 0 0 0 4px rgba(255, 255, 255, .06);
+}
+.tabbar a.on .tab-label { max-width: 120px; opacity: 1; }
+.tabbar a.on svg { stroke: #e3172b; }
+.tabbar a:not(.on):active { transform: scale(.94); }
+.tab-icon .dot-count { top: -12px; right: -14px; background: #e3172b; color: #fff; box-shadow: 0 0 0 2px #0d0e12; }
+.tabbar a.on .dot-count { box-shadow: 0 0 0 2px #fff; }
+@media (prefers-reduced-motion: reduce) { .tabbar a { transition: none; } }
+@media (min-width: 860px) { .tabbar { display: none; } }
