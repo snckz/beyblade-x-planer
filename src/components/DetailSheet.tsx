@@ -1,7 +1,8 @@
 import { useModal } from '../lib/useModal';
 import { displayName, displayProductName, otherName } from '../lib/names';
 import { useEffect, useRef } from 'preact/hooks';
-import type { BeyEvent, Database } from '../lib/types';
+import type { BeyEvent, Database, MetaFeed } from '../lib/types';
+import { bladeTraits } from '../lib/traits';
 import { TYPE_HINT, TYPE_LABEL } from '../lib/analysis';
 import { useApp } from '../lib/context';
 import { BeyImage, ImageCredit } from './BeyImage';
@@ -13,13 +14,14 @@ interface Props {
   bladeId: string;
   onClose: () => void;
   onUse: (bladeId: string) => void;
+  meta?: MetaFeed | null;
 }
 
 const LINE_LABEL = { BX: 'Basic Line (BX)', UX: 'Unique Line (UX)', CX: 'Custom Line (CX)' } as const;
 const SPIN_LABEL = { right: 'Rechts', left: 'Links', both: 'Beide' } as const;
 
 /** Wiki-artige Detailseite einer Blade mit Infobox, Produkten und Terminen. */
-export function DetailSheet({ db, events, bladeId, onClose, onUse }: Props) {
+export function DetailSheet({ db, events, bladeId, onClose, onUse, meta = null }: Props) {
   const { images, openCheck, ownedCount } = useApp();
   const closeRef = useRef<HTMLButtonElement>(null);
   const blade = db.blades.find((b) => b.id === bladeId);
@@ -33,6 +35,7 @@ export function DetailSheet({ db, events, bladeId, onClose, onUse }: Props) {
   const related = events.filter((e) => e.bladeId === blade.id);
   const weight = products.find((p) => p.weightG)?.weightG;
   const wiki = images.blades[blade.id];
+  const traits = bladeTraits(db, blade, meta, weight);
 
   const rows: [string, string | null][] = [
     ['Typ', TYPE_LABEL[blade.type]],
@@ -67,7 +70,28 @@ export function DetailSheet({ db, events, bladeId, onClose, onUse }: Props) {
         </header>
 
         <div class="sheet-body">
-          <p class="lead">{blade.note ?? TYPE_HINT[blade.type]}</p>
+          <p class="lead">{TYPE_HINT[blade.type]}</p>
+
+          {traits.length > 0 && (
+            <section aria-labelledby="traits-h">
+              <h3 id="traits-h" class="sheet-h">
+                Besonderheiten
+              </h3>
+              <ul class="traits">
+                {traits.map((t) => (
+                  <li key={t.title} class={`trait${t.strong ? ' strong' : ''}`}>
+                    <span class="trait-icon" aria-hidden="true">
+                      {t.icon}
+                    </span>
+                    <span class="trait-text">
+                      <strong>{t.title}</strong>
+                      <span>{t.text}</span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
 
           <table class="infobox">
             <caption>Steckbrief</caption>

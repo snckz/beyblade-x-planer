@@ -1,7 +1,9 @@
 import { CompareCombos } from './CompareCombos';
 import { displayName } from '../lib/names';
 import { useEffect, useMemo, useState } from 'preact/hooks';
-import type { Combo, Database } from '../lib/types';
+import type { Combo, Database, MetaFeed } from '../lib/types';
+import { improveCombo, type Improvement } from '../lib/improve';
+import { metaOpponents } from '../lib/battle';
 import type { UserState } from '../lib/storage';
 import { newId } from '../lib/storage';
 import { analyze, nb, resolveCombo, TYPE_HINT } from '../lib/analysis';
@@ -20,13 +22,15 @@ interface Props {
   presetBitId?: string;
   /** Kennung der Vorgabe: eine Vorgabe wird nur einmal übernommen, danach gilt die eigene Auswahl. */
   presetKey?: number;
+  /** aktuelle Turnier-Kombos – Gegner für „Kombo verbessern“ */
+  meta?: MetaFeed | null;
 }
 
 // Angefangene Auswahl überlebt den Tab-Wechsel (die Komponente wird beim Wechsel abgebaut).
 let draft = { bladeId: '', ratchetId: '', bitId: '' };
 let usedPreset = 0;
 
-export function ComboBuilder({ db, state, update, presetBladeId, presetRatchetId, presetBitId, presetKey = 0 }: Props) {
+export function ComboBuilder({ db, state, update, presetBladeId, presetRatchetId, presetBitId, presetKey = 0, meta = null }: Props) {
   const { openBlade } = useApp();
   const parts = useMemo(() => ownedParts(db, state.owned), [db, state.owned]);
   const hasCollection = parts.blades.size > 0;
@@ -68,6 +72,28 @@ export function ComboBuilder({ db, state, update, presetBladeId, presetRatchetId
     bladeSel && bitSel ? { id: '', bladeId: bladeSel, bitId: bitSel, ratchetId: integrated ? undefined : ratchetSel || undefined } : null;
   const resolved = combo ? resolveCombo(db, combo) : null;
   const result = resolved ? analyze(resolved) : null;
+
+  // „Kombo verbessern“: erst auf Knopfdruck rechnen, bei jeder Änderung der Kombo wieder zuklappen
+  const [improveOpen, setImproveOpen] = useState(false);
+  const comboKey = combo ? `${combo.bladeId}|${combo.ratchetId ?? ''}|${combo.bitId}|${useOwned}` : '';
+  useEffect(() => setImproveOpen(false), [comboKey]);
+  const improvements = useMemo<Improvement[] | null>(() => {
+    if (!improveOpen || !combo) return null;
+    const { opponents } = metaOpponents(db, meta);
+    const pool = useOwned
+      ? { ratchets: [...parts.ratchets.keys()], bits: [...parts.bits.keys()] }
+      : {
+          ratchets: db.ratchets.map((r) => r.id),
+          bits: db.bits.map((b) => b.id),
+          owned: hasCollection ? { ratchets: new Set(parts.ratchets.keys()), bits: new Set(parts.bits.keys()) } : undefined,
+        };
+    // Abhängigkeit über comboKey (Kombo + Filter), damit nicht bei jedem Rendern neu gerechnet wird
+    return improveCombo(db, combo, opponents, pool, meta);
+  }, [improveOpen, comboKey, db, meta, parts]);
+  const apply = (c: Combo) => {
+    setRatchetId(c.ratchetId ?? '');
+    setBitId(c.bitId);
+  };
 
   const save = () => {
     if (!combo || !result?.valid) return;
@@ -164,6 +190,37 @@ export function ComboBuilder({ db, state, update, presetBladeId, presetRatchetId
                 <li key={t}>{t}</li>
               ))}
             </ul>
+          )}
+          <button type="button" class={`btn improve-btn${improveOpen ? ' on' : ''}`} onClick={() => setImproveOpen((o) => !o)} aria-expanded={improveOpen}>
+            <span aria-hidden="true">✨</span> {improveOpen ? 'Vorschläge ausblenden' : 'Kombo verbessern'}
+          </button>
+          {improveOpen && improvements && (
+            <div class="improve" aria-live="polite">
+              {improvements.length ? (
+                <ul class="improve-list">
+                  {improvements.map((s) => (
+                    <li key={s.label} class="improve-item">
+                      <div class="improve-main">
+                        <span class="improve-label">{nb(s.label)}</span>
+                        <span class="improve-change">{s.change}</span>
+                        <span class="improve-why">
+                          {s.gain > 0 && <span class="improve-tag good">+{s.gain} gegen Turnier-Kombos</span>}
+                          {s.fixes.length > 0 && <span class="improve-tag fix">behebt: {s.fixes.map((f) => f.split(':')[0]).join(', ')}</span>}
+                          {s.metaDecks >= 3 && <span class="improve-tag meta">im Turnier {s.metaDecks}× gespielt</span>}
+                        </span>
+                        {s.missing.length > 0 && <span class="improve-missing">Fehlt dir noch: {s.missing.join(', ')}</span>}
+                      </div>
+                      <button type="button" class="btn btn-sm btn-primary" onClick={() => apply(s.combo)}>
+                        Übernehmen
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p class="muted">Mit {useOwned ? 'deinen Teilen' : 'den verfügbaren Teilen'} ist diese Blade so schon gut aufgestellt – ich finde keine klar bessere Ratchet/Bit-Kombination.</p>
+              )}
+              <p class="fineprint">Gerechnet gegen {meta?.combos?.length ? 'die aktuellen Turnier-Kombos' : 'typische Gegner'}. Blade bleibt gleich – getauscht werden nur Ratchet und Bit.</p>
+            </div>
           )}
           <div class="save-row">
             <input

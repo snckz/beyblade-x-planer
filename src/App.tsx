@@ -304,7 +304,7 @@ export function App() {
                   }
                 >
                   {tab === 'builder' && (
-                    <ComboBuilder key={preset?.key ?? 0} db={db} state={state} update={update} presetBladeId={preset?.bladeId} presetRatchetId={preset?.ratchetId} presetBitId={preset?.bitId} presetKey={preset?.key} />
+                    <ComboBuilder key={preset?.key ?? 0} db={db} state={state} update={update} presetBladeId={preset?.bladeId} presetRatchetId={preset?.ratchetId} presetBitId={preset?.bitId} presetKey={preset?.key} meta={meta} />
                   )}
                   {tab === 'parts' && <Lexikon db={db} state={state} update={update} />}
                   {tab === 'battle' && <Battle db={db} state={state} update={update} goToBuilder={() => go('builder')} meta={meta} onBuild={buildCombo} />}
@@ -320,7 +320,7 @@ export function App() {
           {TABS.map((t) => navLink(t, true))}
         </nav>
 
-        {db && detail && <DetailSheet db={db} events={events.events} bladeId={detail} onClose={closeDetail} onUse={useInBuilder} />}
+        {db && detail && <DetailSheet db={db} events={events.events} bladeId={detail} onClose={closeDetail} onUse={useInBuilder} meta={meta} />}
         {db && zoom && <Lightbox db={db} id={zoom.id} kind={zoom.kind} onClose={closeZoom} />}
         {db && check && (
           <ErrorBoundary>
