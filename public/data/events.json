@@ -38,6 +38,29 @@
       "confirmed": true
     },
     {
+      "id": "release-bahamutblitz-b4-black",
+      "kind": "release",
+      "date": "2026-12-26",
+      "title": "CX-00 BahamutBlitz BK1-50I Metal Coat: Black",
+      "place": "Japan (B4 Store)",
+      "country": "JP",
+      "url": "https://beyblade.takaratomy.co.jp/beyblade-x/lineup/",
+      "note": "Exklusive schwarze Metallic-Version, nur über den B4-Store. 2.400 Yen.",
+      "bladeId": "BahamutBlitz",
+      "confirmed": true
+    },
+    {
+      "id": "release-bx-55-random-booster-vol-12",
+      "kind": "release",
+      "date": "2026-12-26",
+      "title": "BX-55 Random Booster Vol.12",
+      "place": "Japan (Takara Tomy)",
+      "country": "JP",
+      "url": "https://beyblade.takaratomy.co.jp/beyblade-x/lineup/bx55.html",
+      "note": "Zufallsbox mit einer von sechs fertig kombinierten Sonderfarben-Beys. Seltener Treffer: Stamina-Typ Horus Shutter 3-85MO mit Metallspitze. 1.600 Yen.",
+      "confirmed": true
+    },
+    {
       "id": "release-vanishlucifer",
       "kind": "release",
       "date": "2026-12-26",
