@@ -1673,3 +1673,117 @@ input[type='text']:focus, input[type='search']:focus, select:focus { border-colo
 .hero-link { background: rgba(255, 255, 255, .14); border-color: rgba(255, 255, 255, .28); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .25); }
 /* Tab-Leiste: genug Tönung, damit die Beschriftung über Inhalt lesbar bleibt */
 .tabbar { background: linear-gradient(160deg, rgba(40, 42, 52, .62), rgba(16, 17, 22, .7)) !important; }
+
+/* ===== Liquid Glass, Stufe 2: Lichtkante, Glanz, kräftigerer Farbgrund ===== */
+:root {
+  /* Lichtkante: oben links hell, unten rechts schwach – wie Licht auf gewölbtem Glas */
+  --rim: linear-gradient(135deg, rgba(255, 255, 255, .55), rgba(255, 255, 255, .08) 35%, rgba(255, 255, 255, .04) 65%, rgba(255, 255, 255, .28));
+  /* Glasfüllung mit Glanzfleck oben links */
+  --fill:
+    radial-gradient(140% 90% at 0% 0%, rgba(255, 255, 255, .16), rgba(255, 255, 255, 0) 45%),
+    linear-gradient(160deg, rgba(255, 255, 255, .11), rgba(255, 255, 255, .04) 55%, rgba(255, 255, 255, .07));
+  --glass-blur: blur(30px) saturate(1.9) brightness(1.04);
+}
+
+/* Kräftigerer, wärmerer Farbgrund mit vier weichen Lichtern */
+.bg { background: radial-gradient(120% 80% at 50% 0%, #1a0d14, #07080c 70%); }
+.bg::before { opacity: .75; background: radial-gradient(circle at 40% 40%, #ff2a3d, rgba(255, 42, 61, 0) 62%); }
+.bg::after {
+  opacity: .7;
+  background:
+    radial-gradient(circle at 62% 38%, #2a66ff, rgba(42, 102, 255, 0) 58%),
+    radial-gradient(circle at 28% 78%, #ffae3d, rgba(255, 174, 61, 0) 52%),
+    radial-gradient(circle at 85% 85%, #b03cff, rgba(176, 60, 255, 0) 45%);
+}
+.bg-photo { opacity: .7; }
+
+/* Große Glasflächen mit Verlaufs-Rand (Füllung im Inneren, Lichtkante als Rand) */
+.card, .glass, .kpi, .empty, .segmented, .tabs-top, .ios-hint, .event {
+  border: 1px solid transparent;
+  background: var(--fill) padding-box, var(--rim) border-box;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, .12), 0 24px 50px -26px rgba(0, 0, 0, .85);
+}
+/* Listen ohne Blur bekommen dieselbe Kante */
+.row, .bcard {
+  border: 1px solid transparent;
+  background: var(--fill) padding-box, var(--rim) border-box;
+  box-shadow: 0 12px 28px -20px rgba(0, 0, 0, .85);
+}
+/* Innere Elemente: kleine Glasblasen */
+.card .row, .part-btn, .event-date, .result .stat, .improve-item, .trait, .rate-meters, .save-row, .scan-choice:not(.primary) {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(160deg, rgba(255, 255, 255, .1), rgba(255, 255, 255, .04)) padding-box,
+    linear-gradient(135deg, rgba(255, 255, 255, .3), rgba(255, 255, 255, .03) 50%, rgba(255, 255, 255, .12)) border-box;
+  box-shadow: none;
+}
+
+/* Tab-Leiste: dickes Glas, aktiver Tab als leuchtende Glasblase */
+.tabbar {
+  border: 1px solid transparent !important;
+  background:
+    radial-gradient(120% 100% at 0% 0%, rgba(255, 255, 255, .14), transparent 50%),
+    linear-gradient(160deg, rgba(44, 46, 58, .6), rgba(18, 19, 25, .68)) padding-box,
+    var(--rim) border-box !important;
+}
+.tabbar a.on {
+  background:
+    radial-gradient(120% 80% at 30% 0%, rgba(255, 255, 255, .45), transparent 55%),
+    linear-gradient(160deg, #ff4f5e, #d7112a);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .35), 0 10px 24px -8px rgba(242, 41, 58, .9);
+}
+
+/* Fenster */
+.sheet {
+  border: 1px solid transparent;
+  background:
+    radial-gradient(120% 60% at 0% 0%, rgba(255, 255, 255, .12), transparent 50%),
+    linear-gradient(170deg, rgba(42, 44, 56, .74), rgba(16, 17, 23, .86)) padding-box,
+    var(--rim) border-box;
+}
+
+/* Hero-Karten: rotes Glas mit Lichtkante */
+.hero-card, .live-cta {
+  border: 1px solid transparent;
+  background:
+    radial-gradient(120% 90% at 0% 0%, rgba(255, 255, 255, .32), transparent 50%),
+    linear-gradient(150deg, rgba(255, 70, 86, .8), rgba(214, 16, 36, .7) 60%, rgba(140, 8, 24, .78)) padding-box,
+    linear-gradient(135deg, rgba(255, 255, 255, .7), rgba(255, 255, 255, .1) 40%, rgba(255, 255, 255, .35)) border-box;
+}
+
+/* Knöpfe als Glasblasen mit Lichtkante */
+.btn {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(160deg, rgba(255, 255, 255, .16), rgba(255, 255, 255, .05)) padding-box,
+    linear-gradient(135deg, rgba(255, 255, 255, .45), rgba(255, 255, 255, .06) 50%, rgba(255, 255, 255, .2)) border-box;
+}
+.btn:hover:not(:disabled) {
+  background:
+    linear-gradient(160deg, rgba(255, 255, 255, .22), rgba(255, 255, 255, .08)) padding-box,
+    linear-gradient(135deg, rgba(255, 255, 255, .55), rgba(255, 255, 255, .1) 50%, rgba(255, 255, 255, .25)) border-box;
+}
+.btn-ghost, .btn-ghost:hover:not(:disabled) { background: transparent; border-color: transparent; }
+.btn-primary, .btn-primary:hover:not(:disabled) {
+  background:
+    radial-gradient(120% 90% at 30% 0%, rgba(255, 255, 255, .35), transparent 55%) padding-box,
+    linear-gradient(160deg, #ff4f5e, #d7112a) padding-box,
+    linear-gradient(135deg, rgba(255, 255, 255, .6), rgba(255, 255, 255, .1)) border-box;
+}
+.hero-btn, .hero-btn:hover:not(:disabled) { background: #fff; color: #b80d20; border-color: transparent; }
+
+/* Kennzahlen und Werte: Zahl mit leichtem Glanz */
+.kpi-val, .result .stat-val, .hero-count b {
+  background: linear-gradient(180deg, #fff 30%, rgba(255, 255, 255, .72));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.hero-count b { background: linear-gradient(180deg, #fff 40%, rgba(255, 255, 255, .8)); -webkit-background-clip: text; background-clip: text; }
+
+/* Bey-Bilder sitzen in einer Glaslinse */
+.bey-img, .bey-img.has-photo { box-shadow: 0 0 0 1px rgba(255, 255, 255, .18), inset 0 1px 0 rgba(255, 255, 255, .25), 0 12px 28px -12px rgba(0, 0, 0, .8); }
+.hero-link, .hero-link:hover:not(:disabled) {
+  color: #fff;
+  background:
+    linear-gradient(160deg, rgba(255, 255, 255, .2), rgba(255, 255, 255, .08)) padding-box,
+    linear-gradient(135deg, rgba(255, 255, 255, .6), rgba(255, 255, 255, .1) 50%, rgba(255, 255, 255, .3)) border-box;
+}
