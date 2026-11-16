@@ -36,7 +36,7 @@ const blades = [
   B('ClockMirage', 'UX', 'stamina', 'right', false),
   B('BulletGriffon', 'UX', 'balance', 'right', false, { integratedRatchet: true, note: 'Spaltet sich im Kampf in Hauptkörper und „Bullet“.' }),
   B('GloryValkyrie', 'UX', 'attack', 'right', true, { integratedRatchet: true, hasbroName: 'Glory Valkerion', note: 'Nachfolger von ValkyrieVolt, Ratchet in die Blade integriert.' }),
-  B('VanishLucifer', 'UX', 'defense', 'right', false, { integratedRatchet: true, note: 'Erscheint in Japan am 26.12.2026, ausfahrbare Verteidigungsschicht (Barrier-Gimmick).' }),
+  B('VanishLucifer', 'UX', 'defense', 'right', true, { integratedRatchet: true, note: 'Erscheint in Japan am 26.12.2026, ausfahrbare Verteidigungsschicht (Barrier-Gimmick).' }),
   B('DranBrave', 'CX', 'attack', 'right', true, { note: 'CX: Lock Chip + Main Blade + Assist Blade (S).' }),
   B('WizardArc', 'CX', 'stamina', 'right', true, { note: 'CX: Lock Chip + Main Blade + Assist Blade (R).' }),
   B('PerseusDark', 'CX', 'defense', 'right', false, { note: 'CX: Assist Blade (B).' }),

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-14",
+  "updatedAt": "2026-11-16",
   "blades": [
     {
       "id": "DranSword",
@@ -335,7 +335,7 @@
       "line": "UX",
       "type": "defense",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "integratedRatchet": true,
       "note": "Erscheint in Japan am 26.12.2026, ausfahrbare Verteidigungsschicht (Barrier-Gimmick).",
       "weightG": null
@@ -432,7 +432,7 @@
       "line": "BX",
       "type": "balance",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "SiegSuperion 0-70LP",
       "weightG": 40,
@@ -803,7 +803,7 @@
       "line": "BX",
       "type": "stamina",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "HorusShatter 3-85MO",
       "weightG": 32.9,
@@ -1097,7 +1097,7 @@
       "line": "CX",
       "type": "balance",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "PhoenixForce WHM-65MT",
       "note": "CX: Assist Blade (WH).",
@@ -2471,8 +2471,8 @@
       "bitId": "WW",
       "includesLauncher": true,
       "note": "Japan-Release 26.12.2026.",
-      "priceJpy": 2500,
-      "releaseJp": "2026-12-26"
+      "releaseJp": "2026-12-26",
+      "priceJpy": 2500
     },
     {
       "code": "CX-01",
