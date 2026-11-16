@@ -169,6 +169,10 @@ export function ComboBuilder({ db, state, update, presetBladeId, presetRatchetId
 
           </div>
           <p class="muted">{TYPE_HINT[result.type]}</p>
+          <div class="block-head">
+            <h4 class="block-h">Profil</h4>
+            <span class="est-tag">Schätzwerte</span>
+          </div>
           <div class="stats">
             <StatBar label="Angriff" value={result.profile.attack} tone="attack" />
             <StatBar label="Ausdauer" value={result.profile.stamina} tone="stamina" />
@@ -192,6 +196,9 @@ export function ComboBuilder({ db, state, update, presetBladeId, presetRatchetId
               ))}
             </ul>
           )}
+          <div class="block-head block-sep">
+            <h4 class="block-h">Optimieren</h4>
+          </div>
           <button type="button" class={`btn improve-btn${improveOpen ? ' on' : ''}`} onClick={() => setImproveOpen((o) => !o)} aria-expanded={improveOpen}>
             <Sparkles aria-hidden="true" /> {improveOpen ? 'Vorschläge ausblenden' : 'Kombo verbessern'}
           </button>
@@ -223,6 +230,9 @@ export function ComboBuilder({ db, state, update, presetBladeId, presetRatchetId
               <p class="fineprint">Gerechnet gegen {meta?.combos?.length ? 'die aktuellen Turnier-Kombos' : 'typische Gegner'}. Blade bleibt gleich – getauscht werden nur Ratchet und Bit.</p>
             </div>
           )}
+          <div class="block-head block-sep">
+            <h4 class="block-h">Speichern</h4>
+          </div>
           <div class="save-row">
             <input
               type="text"

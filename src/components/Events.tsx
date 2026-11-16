@@ -64,12 +64,12 @@ export function Events({ db, events, news, state, update }: Props) {
   const card = (e: BeyEvent) => {
     const blade = e.bladeId ? db.blades.find((b) => b.id === e.bladeId) : undefined;
     return (
-      <li key={e.id} class={`event glass kind-${e.kind}`}>
-        <div class="event-date">
+      <li key={e.id} class={`tl-item kind-${e.kind}`}>
+        <div class="tl-date">
           <span class="event-day">{e.date.slice(8, 10)}</span>
           <span class="event-mon">{new Date(e.date + 'T00:00:00').toLocaleDateString('de-AT', { month: 'short' })}</span>
         </div>
-        <div class="row-main">
+        <div class="tl-body">
           <span class="event-top">
             <span class="event-kind">
               {KIND[e.kind]}
@@ -84,19 +84,17 @@ export function Events({ db, events, news, state, update }: Props) {
             {e.place ? ` · ${e.place}` : ''}
           </span>
           {e.note && <span class="row-note">{e.note}</span>}
-          <span class="event-actions">
-            {blade && (
-              <button type="button" class="link-btn" onClick={() => openBlade(blade.id)}>
-                {displayName(blade)} ansehen <ChevronRight aria-hidden="true" />
-              </button>
-            )}
-            {daysUntil(e.endDate ?? e.date) >= 0 && (
-              <button type="button" class="link-btn" onClick={() => downloadIcs([cal(e)], `${e.id}.ics`)} aria-label={`${e.title} in den Kalender`}>
-                <CalendarPlus aria-hidden="true" /> In Kalender
-              </button>
-            )}
-          </span>
+          {blade && (
+            <button type="button" class="tl-link" onClick={() => openBlade(blade.id)}>
+              {displayName(blade)} ansehen <ChevronRight aria-hidden="true" />
+            </button>
+          )}
         </div>
+        {daysUntil(e.endDate ?? e.date) >= 0 && (
+          <button type="button" class="icon-btn tl-cal" onClick={() => downloadIcs([cal(e)], `${e.id}.ics`)} aria-label={`${e.title} in den Kalender`}>
+            <CalendarPlus aria-hidden="true" />
+          </button>
+        )}
       </li>
     );
   };
@@ -136,26 +134,26 @@ export function Events({ db, events, news, state, update }: Props) {
             </button>
             {nextBlade && (
               <button type="button" class="btn btn-ghost hero-link" onClick={() => openBlade(nextBlade.id)}>
-                {displayName(nextBlade)} ansehen
+                {displayName(nextBlade)} <ChevronRight aria-hidden="true" />
               </button>
             )}
             {next.url && (
-              <a class="btn btn-ghost hero-link" href={next.url} target="_blank" rel="noopener noreferrer">
-                Quelle <ArrowUpRight aria-hidden="true" />
+              <a class="btn btn-ghost hero-link hero-icon" href={next.url} target="_blank" rel="noopener noreferrer" aria-label="Quelle öffnen">
+                <ArrowUpRight aria-hidden="true" />
               </a>
             )}
           </div>
         </article>
       )}
       {upcoming.length > 1 && (
-        <button type="button" class="btn" onClick={() => downloadIcs(upcoming.map(cal), 'beyblade-termine.ics')}>
+        <button type="button" class="btn btn-sm cal-all" onClick={() => downloadIcs(upcoming.map(cal), 'beyblade-termine.ics')}>
           <CalendarPlus aria-hidden="true" /> Alle {upcoming.length} Termine in den Kalender
         </button>
       )}
       {rest.length ? (
         [...months.entries()].map(([month, list]) => (
           <Section key={month} title={month}>
-            <ul class="list">{list.map(card)}</ul>
+            <ul class="timeline">{list.map(card)}</ul>
           </Section>
         ))
       ) : next ? null : (
@@ -164,7 +162,7 @@ export function Events({ db, events, news, state, update }: Props) {
       {past.length > 0 && (
         <details class="past">
           <summary>Vergangene Termine ({past.length})</summary>
-          <ul class="list">{past.map(card)}</ul>
+          <ul class="timeline">{past.map(card)}</ul>
         </details>
       )}
       <Section title="Neuheiten-Radar">

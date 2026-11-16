@@ -139,6 +139,16 @@ export function Collection({ db, state, update, events = [], meta }: Props) {
           </div>
         </dl>
       )}
+      {ownedProducts.length > 0 && (
+        <div class="progress-line" role="img" aria-label={`${parts.blades.size} von ${db.blades.length} Blades gesammelt`}>
+          <span class="progress-track">
+            <span style={{ width: `${Math.max(2, Math.round((parts.blades.size / Math.max(1, db.blades.length)) * 100))}%` }} />
+          </span>
+          <span class="progress-text">
+            {parts.blades.size} von {db.blades.length} Blades
+          </span>
+        </div>
+      )}
       <div class="cta-grid">
         <button type="button" class="card glass scan-cta" onClick={() => setScan(true)}>
           <svg viewBox="0 0 24 24" aria-hidden="true">
