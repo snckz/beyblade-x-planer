@@ -1,6 +1,6 @@
 import { CompareCombos } from './CompareCombos';
 import { displayName } from '../lib/names';
-import { useMemo, useState } from 'preact/hooks';
+import { useEffect, useMemo, useState } from 'preact/hooks';
 import type { Combo, Database } from '../lib/types';
 import type { UserState } from '../lib/storage';
 import { newId } from '../lib/storage';
@@ -18,16 +18,32 @@ interface Props {
   presetBladeId?: string;
   presetRatchetId?: string;
   presetBitId?: string;
+  /** Kennung der Vorgabe: eine Vorgabe wird nur einmal übernommen, danach gilt die eigene Auswahl. */
+  presetKey?: number;
 }
 
-export function ComboBuilder({ db, state, update, presetBladeId, presetRatchetId, presetBitId }: Props) {
+// Angefangene Auswahl überlebt den Tab-Wechsel (die Komponente wird beim Wechsel abgebaut).
+let draft = { bladeId: '', ratchetId: '', bitId: '' };
+let usedPreset = 0;
+
+export function ComboBuilder({ db, state, update, presetBladeId, presetRatchetId, presetBitId, presetKey = 0 }: Props) {
   const { openBlade } = useApp();
   const parts = useMemo(() => ownedParts(db, state.owned), [db, state.owned]);
   const hasCollection = parts.blades.size > 0;
   const [onlyOwned, setOnlyOwned] = useState(false);
-  const [bladeId, setBladeId] = useState(presetBladeId ?? '');
-  const [ratchetId, setRatchetId] = useState(presetRatchetId ?? '');
-  const [bitId, setBitId] = useState(presetBitId ?? '');
+  const [start] = useState(() => {
+    if (presetKey && presetKey !== usedPreset) {
+      usedPreset = presetKey;
+      return { bladeId: presetBladeId ?? '', ratchetId: presetRatchetId ?? '', bitId: presetBitId ?? '' };
+    }
+    return draft;
+  });
+  const [bladeId, setBladeId] = useState(start.bladeId);
+  const [ratchetId, setRatchetId] = useState(start.ratchetId);
+  const [bitId, setBitId] = useState(start.bitId);
+  useEffect(() => {
+    draft = { bladeId, ratchetId, bitId };
+  }, [bladeId, ratchetId, bitId]);
   const [name, setName] = useState('');
   const [saved, setSaved] = useState(false);
 
@@ -167,7 +183,7 @@ export function ComboBuilder({ db, state, update, presetBladeId, presetRatchetId
         <Empty title="Wähle Blade, Ratchet und Bit">Dann siehst du Typ, Profil und Hinweise zu deiner Kombo.</Empty>
       )}
 
-      <CompareCombos db={db} initial={bladeId && bitId ? { bladeId, ratchetId: ratchetId || undefined, bitId } : undefined} />
+      <CompareCombos db={db} initial={combo ? { bladeId: combo.bladeId, ratchetId: combo.ratchetId, bitId: combo.bitId } : undefined} />
       <SavedCombos db={db} state={state} update={update} />
     </div>
   );

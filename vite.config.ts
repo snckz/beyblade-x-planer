@@ -1,9 +1,10 @@
 import { defineConfig } from 'vitest/config';
 import preact from '@preact/preset-vite';
 import type { Plugin } from 'vite';
-import { copyFileSync, existsSync, mkdirSync, readdirSync, rmSync, statSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
-import { dirname, join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 
 /**
  * Texterkennung (Foto-Check) komplett selbst gehostet: Worker, WASM-Kern und englische Sprachdaten
@@ -38,12 +39,24 @@ function ocrAssets(): Plugin {
 
 /** Schreibt alle gebauten Assets (auch nachgeladene wie den Barcode-Leser) nach precache.json für den Service Worker. */
 function precacheList(): Plugin {
+  let build = '';
+  let outDir = 'dist';
   return {
     name: 'precache-list',
     apply: 'build',
+    configResolved(c) {
+      outDir = resolve(c.root, c.build.outDir);
+    },
     generateBundle(_, bundle) {
       const files = Object.keys(bundle).filter((f) => f.startsWith('assets/')).sort();
+      build = createHash('sha256').update(files.join('\n')).digest('hex').slice(0, 10);
       this.emitFile({ type: 'asset', fileName: 'precache.json', source: JSON.stringify(files) });
+    },
+    // Build-Kennung in sw.js schreiben: neue Version = neue Bytes = Service Worker wird neu installiert.
+    closeBundle() {
+      const file = resolve(outDir, 'sw.js');
+      if (!build || !existsSync(file)) return;
+      writeFileSync(file, readFileSync(file, 'utf8').replace("const BUILD = 'dev';", `const BUILD = '${build}';`));
     },
   };
 }

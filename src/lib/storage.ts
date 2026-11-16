@@ -1,7 +1,8 @@
 import type { Combo } from './types';
 import { sanitizeMatches, type Match } from './matches';
 
-const KEY = 'bxplaner:v1';
+export const STORAGE_KEY = 'bxplaner:v1';
+const KEY = STORAGE_KEY;
 
 export interface UserState {
   /** Produktcode → Anzahl im Besitz */
@@ -37,8 +38,9 @@ export interface Prefs {
 
 export const EMPTY_STATE: UserState = { owned: {}, combos: [], deck: [], seenNews: [], opponent: [], wishlist: [], barcodes: {}, matches: [], prefs: { hasbroNames: false }, shopPrices: {} };
 
-function isRecordOfNumbers(v: unknown): v is Record<string, number> {
-  return !!v && typeof v === 'object' && Object.values(v).every((n) => typeof n === 'number' && Number.isFinite(n) && n >= 0);
+/** Nur gültige Stückzahlen behalten – ein kaputter Eintrag löscht nicht mehr die ganze Sammlung. */
+function validCounts(v: object): Record<string, number> {
+  return Object.fromEntries(Object.entries(v).filter(([, n]) => typeof n === 'number' && Number.isFinite(n) && n > 0).map(([k, n]) => [k, Math.floor(n as number)]));
 }
 
 /** Robust gegen kaputte oder veraltete Daten im Speicher. */
@@ -70,9 +72,9 @@ export function sanitize(raw: unknown): UserState {
   const combos = Array.isArray(r.combos) ? r.combos.filter(isCombo) : [];
   const ids = new Set(combos.map((c) => c.id));
   return {
-    owned: isRecordOfNumbers(r.owned) ? migrateCodes(r.owned) : {},
+    owned: r.owned && typeof r.owned === 'object' ? migrateCodes(validCounts(r.owned)) : {},
     combos,
-    deck: Array.isArray(r.deck) ? r.deck.filter((id) => typeof id === 'string' && ids.has(id)).slice(0, 3) : [],
+    deck: Array.isArray(r.deck) ? [...new Set(r.deck.filter((id) => typeof id === 'string' && ids.has(id)))].slice(0, 3) : [],
     seenNews: Array.isArray(r.seenNews) ? r.seenNews.filter((s) => typeof s === 'string') : [],
     opponent: Array.isArray(r.opponent) ? r.opponent.filter(isCombo).slice(0, 3) : [],
     wishlist: migrateList(Array.isArray(r.wishlist) ? [...new Set(r.wishlist.filter((s) => typeof s === 'string'))] : []),
@@ -114,6 +116,10 @@ export function exportState(state: UserState): string {
 
 export function importState(text: string): UserState {
   const parsed = JSON.parse(text) as unknown;
+  // Nur Sicherungen dieser App annehmen – eine fremde JSON-Datei würde sonst alles durch einen leeren Stand ersetzen.
+  const r = parsed as Record<string, unknown> | null;
+  const known = !!r && typeof r === 'object' && !Array.isArray(r) && (r.app === 'beyblade-x-planer' || ['owned', 'combos', 'deck', 'wishlist'].some((k) => k in r));
+  if (!known) throw new Error('keine X-Planer-Sicherung');
   return sanitize(parsed);
 }
 

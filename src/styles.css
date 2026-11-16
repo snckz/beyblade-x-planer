@@ -986,3 +986,181 @@ img { -webkit-touch-callout: none; }
 .ios-hint { display: grid; gap: 8px; }
 .ios-hint .share-ico { display: inline-grid; place-items: center; width: 22px; height: 22px; vertical-align: -5px; border-radius: 6px; background: rgba(255, 255, 255, .1); }
 .ios-hint .share-ico svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+/* =========================================================================
+   Design „X-Rail“
+   Idee: die App als Ausrüstung für den Gear-Sport. Gunmetal-Platten auf Stadion-Nacht,
+   Rot (du) gegen Blau (Gegner) wie im Stadion, Silber für Metall und Zahlen.
+   Ein einziges auffälliges Element: die gezahnte X-Schiene (wie die Xtreme Line im Stadion)
+   unter dem Seitentitel und unter dem aktiven Tab. Alles andere bleibt ruhig.
+   Schrift: nur Saira – normal breit für Text, schmal + kursiv für Titel und Punkte.
+   ========================================================================= */
+:root {
+  --night: #0b0f1c;      /* Stadion-Nacht: Grund */
+  --plate: #141a29;      /* Gunmetal-Platte: Flächen */
+  --plate-2: #1c2436;    /* angehobene Platte */
+  --silver: #c7cdd9;     /* Druckguss-Silber: Kanten, Zahlen */
+  --x-red: #f2293a;      /* du, Hauptaktion */
+  --rail-blue: #2e7bff;  /* Gegner, Zweitaktion */
+  --spark: #ffc93c;      /* Fokus, Highlights */
+  --accent: var(--x-red);
+  --text: #eef1f7;
+  --muted: #a3abbf;
+  --faint: #7480a0;
+  --font: 'Saira', ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+  --display: 800 italic 1em/1 var(--font);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --edge: rgba(199, 205, 217, .13);
+  --edge-hi: rgba(199, 205, 217, .26);
+  --card-line: var(--edge);
+  --card-bg: linear-gradient(180deg, rgba(199, 205, 217, .075), rgba(199, 205, 217, .012) 46%), rgba(20, 26, 41, .93);
+  --pill-red: var(--x-red);
+  --glow-red: 0 0 0 transparent;
+}
+html { background: var(--night); }
+body { font-family: var(--font); font-size: 15.5px; letter-spacing: 0; font-feature-settings: 'kern', 'lnum'; font-stretch: 100%; }
+:focus-visible { outline: 2px solid var(--spark); outline-offset: 2px; }
+::selection { background: rgba(242, 41, 58, .45); }
+
+/* Hintergrund: das Stadionbild bleibt, aber kühler und ruhiger abgedunkelt */
+.bg-photo {
+  background:
+    radial-gradient(90% 55% at 15% 0%, rgba(46, 123, 255, .16), transparent 60%),
+    radial-gradient(90% 55% at 85% 0%, rgba(242, 41, 58, .14), transparent 60%),
+    linear-gradient(180deg, rgba(11, 15, 28, .82) 0%, rgba(11, 15, 28, .66) 28%, rgba(11, 15, 28, .86) 62%, rgba(11, 15, 28, .96) 100%),
+    url('/bg.webp') center 30% / cover no-repeat;
+}
+
+/* Kopfzeile */
+.top { background: rgba(11, 15, 28, .78) !important; border-bottom: 1px solid var(--edge); }
+.brand-logo { height: 28px; }
+
+/* Seitenkopf mit X-Schiene */
+.page-head { margin: 8px 0 26px; }
+.page-title {
+  margin: 0; font: var(--display); font-size: clamp(42px, 12.5vw, 66px); font-stretch: 75%;
+  text-transform: uppercase; letter-spacing: -.005em; line-height: .9; color: var(--text);
+}
+.x-rail {
+  --tooth: 7px;
+  display: block; width: 148px; height: 11px; margin: 12px 0 12px 4px; transform: skewX(-24deg); transform-origin: left;
+  background:
+    linear-gradient(var(--x-red), var(--x-red)) 0 100% / 100% 4px no-repeat,
+    repeating-linear-gradient(90deg, var(--x-red) 0 var(--tooth), transparent var(--tooth) calc(var(--tooth) * 1.9)) 0 0 / 100% 7px no-repeat;
+  -webkit-mask: linear-gradient(90deg, #000 70%, transparent);
+  mask: linear-gradient(90deg, #000 70%, transparent);
+  animation: x-dash .7s cubic-bezier(.16, .9, .2, 1) both;
+}
+@keyframes x-dash {
+  from { clip-path: inset(0 100% 0 0); background-position: -60px 100%, -60px 0; }
+  to { clip-path: inset(0 0 0 0); background-position: 0 100%, 0 0; }
+}
+.page-sub { margin: 0; max-width: 46ch; color: var(--muted); font-size: 15px; line-height: 1.45; }
+
+/* Abschnitte: schlichte Überschrift, kein Etikett */
+.section-head h2 {
+  display: block; padding: 0; border: 0; background: none; border-radius: 0;
+  font: 650 20px/1.15 var(--font); font-stretch: 82%; letter-spacing: .005em; text-transform: none; color: var(--text);
+}
+.section-head h2::before { content: none; }
+.eyebrow { text-transform: none; letter-spacing: 0; font-size: 12.5px; font-weight: 600; color: var(--faint); }
+
+/* Platten statt Glas: unterschiedliche Radien je Ebene */
+.glass, .card, .row, .kpi { background: var(--card-bg); border: 1px solid var(--edge); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06), 0 10px 26px rgba(3, 5, 12, .38); }
+.card { border-radius: var(--radius); }
+.row { border-radius: 12px; }
+.kpi { border-radius: 12px; }
+.kpi-val, .album-count, .log-big { font: var(--display); font-stretch: 75%; font-size: 40px; letter-spacing: 0; }
+.verdict-score { font: var(--display); font-stretch: 75%; font-size: 30px; }
+.event-day { font: var(--display); font-stretch: 75%; font-size: 28px; }
+.live-score { font: var(--display); font-stretch: 75%; font-size: clamp(72px, 24vw, 140px); letter-spacing: 0; }
+.meta-rank { font: var(--display); font-stretch: 75%; font-size: 24px; color: var(--silver); }
+.combo-name, .sheet-title { font: var(--display); font-stretch: 75%; text-transform: none; letter-spacing: .005em; }
+.sheet-title { font-size: 32px; }
+.tile-big { font: var(--display); font-stretch: 75%; font-size: 22px; }
+
+/* Knöpfe: gepresste Platten, nicht alles als Pille */
+.btn {
+  min-height: 44px; border-radius: 10px; font-weight: 600; font-stretch: 90%; letter-spacing: .01em;
+  background: var(--plate-2); border: 1px solid var(--edge-hi); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), inset 0 -2px 0 rgba(0, 0, 0, .35);
+}
+.btn:hover:not(:disabled) { border-color: rgba(199, 205, 217, .4); }
+.btn-primary {
+  background: var(--x-red); border-color: transparent; color: #fff; text-transform: none; font-style: normal; font-weight: 650;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .28), inset 0 -3px 0 rgba(90, 0, 10, .45);
+}
+.btn-primary:hover:not(:disabled) { background: #ff3a4a; }
+.btn-ghost { background: transparent; border-color: transparent; box-shadow: none; color: var(--muted); }
+.btn-ghost:hover:not(:disabled) { color: var(--text); border-color: var(--edge); }
+input[type='text'], input[type='search'], select { border-radius: 10px; background-color: rgba(6, 9, 18, .7); border-color: var(--edge-hi); }
+input[type='text']:focus, input[type='search']:focus, select:focus { border-color: var(--silver); }
+
+/* Umschalter: Auswahl als Silberplatte, Rot bleibt für Aktionen */
+.segmented { border-radius: 12px; padding: 4px; background: rgba(6, 9, 18, .72); border: 1px solid var(--edge); }
+.segmented button { border-radius: 9px; font-weight: 600; font-stretch: 90%; }
+.segmented button.on { background: linear-gradient(180deg, #e6e9f0, #b9c0cf); color: #0b0f1c; box-shadow: inset 0 1px 0 #fff, 0 2px 8px rgba(0, 0, 0, .35); }
+.chip-row .chip-on, .name-toggle span.sel { background: var(--silver); color: var(--night); box-shadow: none; }
+
+/* Fortschritt und Vergleich: Rot gegen Blau */
+.progress span, .cmp-bar span { background: var(--x-red); }
+.cmp-bar { background: rgba(46, 123, 255, .55); }
+.live-side.me { border-color: rgba(242, 41, 58, .5); }
+.live-side.them { border-color: rgba(46, 123, 255, .5); }
+.live-cta-icon { background: var(--x-red); box-shadow: none; }
+.live { background: radial-gradient(120% 60% at 50% 100%, rgba(242, 41, 58, .2), transparent 60%), radial-gradient(120% 60% at 50% 0%, rgba(46, 123, 255, .18), transparent 60%), var(--night); }
+
+/* Tab-Leiste: Symbol + Wort immer sichtbar, aktiver Tab bekommt die Schiene */
+.tabbar {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; padding: 6px 4px 8px;
+  left: 50%; right: auto; transform: translateX(-50%); width: min(460px, calc(100% - 20px)); height: 68px;
+  border-radius: 20px; background: rgba(11, 15, 28, .9) !important; border: 1px solid var(--edge-hi);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .07), 0 18px 44px rgba(0, 0, 0, .55);
+}
+.tabbar a { position: relative; flex-direction: column; gap: 3px; border-radius: 14px; color: var(--faint); background: none; box-shadow: none; transition: color .2s; }
+.tabbar a .tab-label { max-width: none; opacity: 1; font-size: 11.5px; font-weight: 600; font-stretch: 85%; letter-spacing: .01em; }
+.tabbar a.on { color: var(--text); background: none; box-shadow: none; }
+.tabbar a.on svg { stroke: var(--text); }
+.tabbar a.on::after {
+  content: ''; position: absolute; bottom: -2px; left: 50%; width: 30px; height: 6px; transform: translateX(-50%) skewX(-24deg);
+  background:
+    linear-gradient(var(--x-red), var(--x-red)) 0 100% / 100% 3px no-repeat,
+    repeating-linear-gradient(90deg, var(--x-red) 0 4px, transparent 4px 7px) 0 0 / 100% 4px no-repeat;
+}
+.tabbar a:not(.on):active { background: rgba(199, 205, 217, .07); }
+.tab-icon svg { width: 23px; height: 23px; }
+.tab-icon .dot-count { top: -6px; right: -10px; background: var(--x-red); }
+.tabs-top { border-radius: 12px; background: rgba(6, 9, 18, .72); border: 1px solid var(--edge); }
+.tabs-top a { border-radius: 9px; font-weight: 600; font-stretch: 90%; }
+.tabs-top a.on { background: var(--plate-2); color: var(--text); box-shadow: inset 0 -3px 0 var(--x-red); }
+
+/* Bilder: Platzhalter als dunkle Metallscheibe statt weißem Kreis */
+.bey-img, .bey-img.has-photo { background: radial-gradient(circle at 35% 28%, #3a4357, #161c2b 70%); border: 1px solid var(--edge-hi); }
+.bey-img img { background: #fff; }
+
+/* Kaufen-Knopf, Region, Status */
+.buy-q { border-radius: 8px; font-stretch: 90%; border-color: rgba(242, 41, 58, .5); background: rgba(242, 41, 58, .14); }
+.region-tag { border-radius: 5px; }
+.region-tag.hasbro { background: rgba(46, 123, 255, .2); }
+.region-tag.takara { background: rgba(242, 41, 58, .18); }
+.show-card { border-radius: 14px; }
+.list.editing .row { border-color: rgba(242, 41, 58, .4); }
+.link-btn { text-underline-offset: 3px; }
+
+@media (prefers-reduced-motion: reduce) { .x-rail { animation: none; } }
+@media (min-width: 860px) { .page-title { font-size: 72px; } }
+.bg-photo {
+  background:
+    radial-gradient(90% 55% at 15% 0%, rgba(46, 123, 255, .14), transparent 60%),
+    radial-gradient(90% 55% at 85% 0%, rgba(242, 41, 58, .12), transparent 60%),
+    linear-gradient(180deg, rgba(11, 15, 28, .8) 0%, rgba(11, 15, 28, .76) 24%, rgba(11, 15, 28, .9) 55%, rgba(11, 15, 28, .97) 100%),
+    url('/bg.webp') center 30% / cover no-repeat;
+}
+.tabbar { background: linear-gradient(180deg, #121829, #0b0f1c) !important; -webkit-backdrop-filter: none; backdrop-filter: none; }
+@media (min-width: 860px) { .tabbar { display: none; } }
+.code, .code-inline { font-family: var(--font); font-stretch: 85%; font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: .02em; border-radius: 6px; }
+/* Nachkorrekturen: Kurzschreibweise `font` setzt Größe/Ziffern zurück */
+.combo-name { font-size: 26px; }
+.live-score { font-variant-numeric: tabular-nums; line-height: .9; }
+.btn-sm { min-height: 34px; }
+input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--spark); outline-offset: 2px; }

@@ -1,10 +1,10 @@
-import { lockScroll } from '../lib/scrollLock';
+import { useModal } from '../lib/useModal';
 import { displayProductName } from '../lib/names';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import type { Database, Product } from '../lib/types';
 import type { UserState } from '../lib/storage';
 import { createDetector, normalizeGtin, validGtin } from '../lib/barcode';
-import { ownedParts, searchProducts } from '../lib/data';
+import { ownedParts, purchaseCodes, searchProducts } from '../lib/data';
 import { useApp } from '../lib/context';
 import { priceHint } from '../lib/price';
 import { BeyImage } from './BeyImage';
@@ -39,18 +39,7 @@ export function Scanner({ db, state, update, onClose }: Props) {
   barcodes.current = state.barcodes;
 
   // Dialog-Grundverhalten: Fokus, Escape, Hintergrund nicht scrollen.
-  useEffect(() => {
-    const prev = document.activeElement as HTMLElement | null;
-    ref.current?.focus();
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && closeRef.current();
-    document.addEventListener('keydown', onKey);
-    const unlock = lockScroll();
-    return () => {
-      document.removeEventListener('keydown', onKey);
-      unlock();
-      prev?.focus?.();
-    };
-  }, []);
+  useModal(ref, () => closeRef.current());
 
   // Kamera + Erkennung. Läuft pro „round“ neu (nach „Nächste Packung“).
   useEffect(() => {
@@ -119,8 +108,14 @@ export function Scanner({ db, state, update, onClose }: Props) {
     setMsg('');
   };
   const addOwned = (p: Product) => {
-    update((s) => ({ ...s, owned: { ...s.owned, [p.code]: (s.owned[p.code] ?? 0) + 1 }, wishlist: s.wishlist.filter((c) => c !== p.code) }));
-    setMsg(`${p.code} ist jetzt in deiner Sammlung (${(state.owned[p.code] ?? 0) + 1}×).`);
+    // Sets: alle Kreisel der Packung eintragen, nicht nur den ersten
+    const codes = purchaseCodes(db.products, p);
+    update((s) => {
+      const owned = { ...s.owned };
+      for (const c of codes) owned[c] = (owned[c] ?? 0) + 1;
+      return { ...s, owned, wishlist: s.wishlist.filter((c) => !codes.includes(c)) };
+    });
+    setMsg(codes.length > 1 ? `${codes.length} Kreisel aus ${p.code} sind jetzt in deiner Sammlung.` : `${p.code} ist jetzt in deiner Sammlung (${(state.owned[p.code] ?? 0) + 1}×).`);
     setPhase('done');
   };
   const addWish = (p: Product) => {

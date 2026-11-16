@@ -1,5 +1,5 @@
-import { lockScroll } from '../lib/scrollLock';
-import { displayName, displayProductName } from '../lib/names';
+import { useModal } from '../lib/useModal';
+import { displayName, displayProductName, otherName } from '../lib/names';
 import { useEffect, useRef } from 'preact/hooks';
 import type { BeyEvent, Database } from '../lib/types';
 import { TYPE_HINT, TYPE_LABEL } from '../lib/analysis';
@@ -24,18 +24,9 @@ export function DetailSheet({ db, events, bladeId, onClose, onUse }: Props) {
   const closeRef = useRef<HTMLButtonElement>(null);
   const blade = db.blades.find((b) => b.id === bladeId);
 
-  useEffect(() => {
-    const prevFocus = document.activeElement as HTMLElement | null;
-    closeRef.current?.focus();
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
-    document.addEventListener('keydown', onKey);
-    const unlock = lockScroll();
-    return () => {
-      document.removeEventListener('keydown', onKey);
-      unlock();
-      prevFocus?.focus?.();
-    };
-  }, [onClose]);
+  const sheetRef = useRef<HTMLDivElement>(null);
+  useModal(sheetRef, onClose);
+  useEffect(() => closeRef.current?.focus(), []);
 
   if (!blade) return null;
   const products = db.products.filter((p) => p.bladeId === blade.id);
@@ -48,7 +39,7 @@ export function DetailSheet({ db, events, bladeId, onClose, onUse }: Props) {
     ['Drehrichtung', SPIN_LABEL[blade.spin]],
     ['Linie', LINE_LABEL[blade.line]],
     ['Ratchet', blade.integratedRatchet ? 'In Blade integriert' : 'Austauschbar'],
-    ['Hasbro-Name', blade.hasbroName ?? null],
+    ['Japanischer Name', otherName(blade) ? blade.name : null],
     ['Gewicht (Kreisel)', weight ? `${weight} g` : null],
     ['Erschienen in', products.map((p) => (p.code.startsWith('TBA') ? 'Neuheit' : p.code)).join(', ') || null],
     ['Datenstatus', blade.verified ? 'Geprüft' : 'Ungeprüft'],
@@ -56,7 +47,7 @@ export function DetailSheet({ db, events, bladeId, onClose, onUse }: Props) {
 
   return (
     <div class="sheet-backdrop" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div class="sheet glass" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+      <div ref={sheetRef} class="sheet glass" role="dialog" aria-modal="true" aria-labelledby="sheet-title" tabIndex={-1}>
         <div class="sheet-grab" aria-hidden="true" />
         <button ref={closeRef} type="button" class="icon-btn sheet-close" onClick={onClose} aria-label="Schließen">
           ×

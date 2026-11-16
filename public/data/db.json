@@ -221,16 +221,14 @@
     },
     {
       "id": "StormPegasus",
-      "name": "Storm Pegasus",
+      "name": "Storm Pegasis",
       "line": "BX",
       "type": "attack",
       "spin": "right",
       "verified": true,
       "note": "Limitierte Neuauflage des Metal-Fight-Klassikers für Beyblade X.",
       "wikiTitle": "StormPegasis 3-70RA",
-      "weightG": null,
-      "hasbroName": "StormPegasis",
-      "hasbroNameAuto": true
+      "weightG": null
     },
     {
       "id": "DranBuster",
@@ -2510,7 +2508,7 @@
     },
     {
       "code": "BX-00-SP",
-      "name": "Starter Storm Pegasus 3-70RA",
+      "name": "Starter Storm Pegasis 3-70RA",
       "kind": "starter",
       "verified": true,
       "bladeId": "StormPegasus",
@@ -5945,8 +5943,8 @@
     },
     {
       "code": "G1844-01",
-      "name": "Set DragoonStorm 4-60RA",
-      "hasbroName": "Set DragoonStorm 4-60RA",
+      "name": "Set Dragoon Storm 4-60RA",
+      "hasbroName": "Set Dragoon Storm 4-60RA",
       "kind": "set",
       "bladeId": "DragoonStorm",
       "ratchetId": "4-60",
@@ -5960,8 +5958,8 @@
     },
     {
       "code": "G1844-02",
-      "name": "Set StormPegasis 3-70RA",
-      "hasbroName": "Set StormPegasis 3-70RA",
+      "name": "Set Storm Pegasis 3-70RA",
+      "hasbroName": "Set Storm Pegasis 3-70RA",
       "kind": "set",
       "bladeId": "StormPegasus",
       "ratchetId": "3-70",
@@ -5975,8 +5973,8 @@
     },
     {
       "code": "G1844-03",
-      "name": "Set VictoryValkyrie 2-60RA",
-      "hasbroName": "Set VictoryValkyrie 2-60RA",
+      "name": "Set Victory Valkyrie 2-60RA",
+      "hasbroName": "Set Victory Valkyrie 2-60RA",
       "kind": "set",
       "bladeId": "VictoryValkyrie",
       "ratchetId": "2-60",
@@ -5990,8 +5988,8 @@
     },
     {
       "code": "G1844-04",
-      "name": "Set DranSword 3-60F",
-      "hasbroName": "Set DranSword 3-60F",
+      "name": "Set Dran Sword 3-60F",
+      "hasbroName": "Set Dran Sword 3-60F",
       "kind": "set",
       "bladeId": "DranSword",
       "ratchetId": "3-60",
@@ -6005,8 +6003,8 @@
     },
     {
       "code": "G3028-01",
-      "name": "Booster EmperorMight HOp",
-      "hasbroName": "Booster EmperorMight HOp",
+      "name": "Booster Emperor Might HOp",
+      "hasbroName": "Booster Emperor Might HOp",
       "kind": "booster",
       "bladeId": "EmperorMight",
       "bitId": "HOp",
@@ -6018,8 +6016,8 @@
     },
     {
       "code": "G3028-02",
-      "name": "Booster GolemRock M-85HN",
-      "hasbroName": "Booster GolemRock M-85HN",
+      "name": "Booster Golem Rock M-85HN",
+      "hasbroName": "Booster Golem Rock M-85HN",
       "kind": "booster",
       "bladeId": "GolemRock",
       "ratchetId": "M-85",
@@ -6032,8 +6030,8 @@
     },
     {
       "code": "G3028-03",
-      "name": "Booster SharkGill 5-60FB",
-      "hasbroName": "Booster SharkGill 5-60FB",
+      "name": "Booster Shark Gill 5-60FB",
+      "hasbroName": "Booster Shark Gill 5-60FB",
       "kind": "booster",
       "bladeId": "SharkGill",
       "ratchetId": "5-60",
@@ -6647,8 +6645,8 @@
     },
     {
       "code": "G1862-01",
-      "name": "Starter SamuraiSteel 5-70GF",
-      "hasbroName": "Starter SamuraiSteel 5-70GF",
+      "name": "Starter Samurai Steel 5-70GF",
+      "hasbroName": "Starter Samurai Steel 5-70GF",
       "kind": "starter",
       "bladeId": "SteelSamurai",
       "ratchetId": "5-70",
@@ -6663,8 +6661,8 @@
     },
     {
       "code": "G1862-02",
-      "name": "Starter SamuraiCalibur 6-70M",
-      "hasbroName": "Starter SamuraiCalibur 6-70M",
+      "name": "Starter Samurai Calibur 6-70M",
+      "hasbroName": "Starter Samurai Calibur 6-70M",
       "kind": "starter",
       "bladeId": "SamuraiCalibur",
       "ratchetId": "6-70",

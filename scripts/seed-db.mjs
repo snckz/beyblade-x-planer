@@ -26,7 +26,7 @@ const blades = [
   B('DranStrike', 'BX', 'attack', 'right', false),
   B('LusterDragoon', 'BX', 'attack', 'left', false, { note: 'Neuheit – Typ und Drehrichtung noch nicht bestätigt.' }),
   B('AeroPegasus', 'BX', 'attack', 'right', false),
-  B('StormPegasus', 'BX', 'attack', 'right', false, { note: 'Limitierte Neuauflage des Metal-Fight-Klassikers für Beyblade X.', wikiTitle: 'StormPegasis 3-70RA' }),
+  B('StormPegasus', 'BX', 'attack', 'right', false, { name: 'Storm Pegasis', note: 'Limitierte Neuauflage des Metal-Fight-Klassikers für Beyblade X.', wikiTitle: 'StormPegasis 3-70RA' }),
   B('DranBuster', 'UX', 'attack', 'right', true),
   B('HellsHammer', 'UX', 'balance', 'right', true),
   B('WizardRod', 'UX', 'stamina', 'right', true),
@@ -93,7 +93,7 @@ const products = [
   P('CX-01', 'Starter DranBrave S6-60V', 'starter', true, { ...bey('DranBrave', '6-60', 'V'), includesLauncher: true }),
   P('CX-02', 'Starter WizardArc R4-55LO', 'starter', true, { ...bey('WizardArc', '4-55', 'LO'), includesLauncher: true }),
   P('CX-14', 'KnightFortress GV8-70UN', 'booster', false, bey('KnightFortress', '8-70', 'UN')),
-  P('BX-00-SP', 'Starter Storm Pegasus 3-70RA', 'starter', false, { ...bey('StormPegasus', '3-70', 'RA'), includesLauncher: true, rarity: 'limited', note: 'Limitierte BX-00-Version.' }),
+  P('BX-00-SP', 'Starter Storm Pegasis 3-70RA', 'starter', false, { ...bey('StormPegasus', '3-70', 'RA'), includesLauncher: true, rarity: 'limited', note: 'Limitierte BX-00-Version.' }),
   P('UX-00-GVMC', 'Starter Glory Valkyrie LF Metal Coat: Blue', 'starter', true, { ...bey('GloryValkyrie', undefined, 'LF'), includesLauncher: true, rarity: 'limited', note: 'Event-Limited, erschienen am 29.08.2026 für Xtreme-Gear-Sports-Events.' }),
 ];
 

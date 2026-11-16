@@ -18,10 +18,11 @@ interface Props {
 export function BeyImage({ bladeId, type, size = 'md', alt, zoomable = true }: Props) {
   const { images, openImage } = useApp();
   const img = images.blades[bladeId];
-  const [failed, setFailed] = useState(false);
+  // Fehler je Bildadresse merken: wechselt die Blade, wird das neue Bild wieder versucht.
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
 
-  if (img && !failed) {
-    const pic = <img src={img.thumb} alt={alt} loading="lazy" decoding="async" referrerpolicy="no-referrer" onError={() => setFailed(true)} />;
+  if (img && failedSrc !== img.thumb) {
+    const pic = <img src={img.thumb} alt={alt} loading="lazy" decoding="async" referrerpolicy="no-referrer" onError={() => setFailedSrc(img.thumb)} />;
     if (!zoomable) return <span class={`bey-img bey-img-${size} has-photo`}>{pic}</span>;
     return (
       <button type="button" class={`bey-img bey-img-${size} has-photo zoom`} onClick={() => openImage(bladeId)} aria-label={`${alt}: Bild vergrößern`}>

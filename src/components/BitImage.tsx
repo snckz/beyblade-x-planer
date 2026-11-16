@@ -17,9 +17,9 @@ interface PhotoProps {
 
 function PartPhoto({ src, alt, size, fallback, zoom }: PhotoProps) {
   const { openImage } = useApp();
-  const [failed, setFailed] = useState(false);
-  if (src && !failed) {
-    const pic = <img src={src} alt={zoom ? '' : alt} loading="lazy" decoding="async" referrerpolicy="no-referrer" onError={() => setFailed(true)} />;
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
+  if (src && failedSrc !== src) {
+    const pic = <img src={src} alt={zoom ? '' : alt} loading="lazy" decoding="async" referrerpolicy="no-referrer" onError={() => setFailedSrc(src)} />;
     if (!zoom) return <span class={`bit-img bit-img-${size}`}>{pic}</span>;
     return (
       <button

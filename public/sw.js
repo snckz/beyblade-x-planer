@@ -3,6 +3,10 @@
 // - Seiten und Daten: Netzwerk zuerst (neue Versionen sofort), offline die letzte Version.
 // - Gehashte Assets: Cache zuerst; veraltete Assets werden beim Aktivieren aufgeräumt.
 const CACHE = 'xplaner-v13';
+// Wird beim Build durch eine Kennung der Build-Dateien ersetzt (vite.config.ts): jede neue Version
+// ändert sw.js, damit der Browser den Service Worker neu installiert und die neuen Dateien vorab speichert.
+const BUILD = 'dev';
+void BUILD;
 // Texterkennung (ca. 7 MB) in eigenem Cache: überlebt App-Updates, nur alte OCR-Versionen werden entfernt.
 const OCR_CACHE = 'xplaner-ocr';
 const STATIC = ['./', 'manifest.webmanifest', 'icons/icon.svg', 'icons/icon-192.png', 'data/db.json', 'data/news.json', 'data/images.json', 'data/events.json', 'data/meta.json', 'data/rates.json', 'bg.webp', 'logo.webp'];
@@ -66,10 +70,20 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(cleanup().then(() => self.clients.claim()));
 });
 
-function putInCache(req, res) {
+/** Netzwerk zuerst, aber bei schwachem Netz nach `ms` die gespeicherte Version zeigen (Netz aktualisiert im Hintergrund). */
+function networkFirst(event, req, key, ms = 3500) {
+  const cached = () => caches.match(key, { ignoreSearch: true, ignoreVary: true });
+  const net = fetch(req).then((res) => putInCache(key, res, event));
+  const slow = new Promise((r) => setTimeout(r, ms)).then(cached);
+  return Promise.race([net.catch(() => null), slow]).then((res) => res || net.catch(cached).then((r) => r || Response.error()));
+}
+
+/** Antwort speichern; mit `event` wartet der Service Worker, bis gespeichert ist (auch wenn längst der Cache geantwortet hat). */
+function putInCache(req, res, event) {
   if (res.ok) {
     const copy = res.clone();
-    caches.open(CACHE).then((c) => c.put(req, copy));
+    const done = caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => {});
+    if (event) event.waitUntil(done);
   }
   return res;
 }
@@ -79,11 +93,7 @@ self.addEventListener('fetch', (event) => {
   if (req.method !== 'GET' || new URL(req.url).origin !== self.location.origin) return;
 
   if (req.mode === 'navigate') {
-    event.respondWith(
-      fetch(req)
-        .then((res) => putInCache('./', res))
-        .catch(() => caches.match('./', { ignoreVary: true })),
-    );
+    event.respondWith(networkFirst(event, req, './'));
     return;
   }
   if (req.url.includes('/ocr/')) {
@@ -104,12 +114,8 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   if (req.url.includes('/data/')) {
-    event.respondWith(
-      fetch(req)
-        .then((res) => putInCache(req, res))
-        .catch(() => caches.match(req, { ignoreSearch: true, ignoreVary: true }).then((r) => r || Response.error())),
-    );
+    event.respondWith(networkFirst(event, req, req));
     return;
   }
-  event.respondWith(caches.match(req, { ignoreVary: true }).then((hit) => hit || fetch(req).then((res) => putInCache(req, res))));
+  event.respondWith(caches.match(req, { ignoreVary: true }).then((hit) => hit || fetch(req).then((res) => putInCache(req, res, event))));
 });

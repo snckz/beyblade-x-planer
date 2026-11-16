@@ -1,6 +1,6 @@
-import { lockScroll } from '../lib/scrollLock';
+import { useModal } from '../lib/useModal';
 import { bothNames, displayName, otherName } from '../lib/names';
-import { useEffect, useRef, useState } from 'preact/hooks';
+import { useRef, useState } from 'preact/hooks';
 import type { BeyType, Blade, Bit, Ratchet } from '../lib/types';
 import { TYPE_LABEL } from '../lib/analysis';
 import { BeyImage } from './BeyImage';
@@ -101,18 +101,7 @@ function PickerSheet({ kind, label, blades = [], ratchets = [], bits = [], value
   const closeRef = useRef(onClose);
   closeRef.current = onClose;
 
-  useEffect(() => {
-    const prev = document.activeElement as HTMLElement | null;
-    ref.current?.focus();
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && closeRef.current();
-    document.addEventListener('keydown', onKey);
-    const unlock = lockScroll();
-    return () => {
-      document.removeEventListener('keydown', onKey);
-      unlock();
-      prev?.focus?.();
-    };
-  }, []);
+  useModal(ref, () => closeRef.current());
 
   const q = query.trim().toLowerCase().replace(/\s+/g, '');
   const match = (s: string) => !q || s.toLowerCase().replace(/\s+/g, '').includes(q);

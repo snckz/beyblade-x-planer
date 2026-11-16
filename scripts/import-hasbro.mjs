@@ -30,6 +30,9 @@ export function kindOfHasbro(text) {
 const KIND_LABEL = { starter: 'Starter', booster: 'Booster', 'random-booster': 'Random Booster', set: 'Set' };
 
 /** Hasbro-Anzeigename aus dem Link-Text: „Sword Dran 3-60F“ → „Sword Dran“. */
+/** „StormPegasis“ → „Storm Pegasis“ (Wiki-Titel schreiben Namen zusammen). */
+export const spaced = (s) => (s && !s.includes(' ') ? s.replace(/([a-z])([A-Z])/g, '$1 $2') : s);
+
 export function hasbroLabel(label) {
   const m = /^(.*?)\s+(?:[A-Z]{1,2})?(?:(?:\d|M)-\d{2})?[A-Z]{1,3}[a-z]?$/.exec(String(label).trim());
   const name = (m ? m[1] : String(label)).replace(/\s*\([^)]*\)\s*$/, '').trim();
@@ -65,7 +68,7 @@ export function beysInLinkName(link) {
   const out = [];
   for (const m of String(link).matchAll(/([A-Z][a-z']+(?: [A-Z][a-z']+){1,2}(?: [A-Z]{1,2})?) ((?:\d|M)-\d{2}[A-Z]{1,3}[a-z]?)\b/g)) {
     const bey = parseHasbroTitle(`${m[1]} ${m[2]}`);
-    if (bey && !/^(Deluxe|Launcher|Set|Pack|Battle)\b/.test(bey.blade)) out.push({ ...bey, page: `${m[1]} ${m[2]}`, hasbro: bey.blade });
+    if (bey && !/^(Deluxe|Launcher|Set|Pack|Battle)\b/.test(bey.blade)) out.push({ ...bey, page: `${m[1]} ${m[2]}`, hasbro: spaced(bey.blade) });
   }
   return out;
 }
@@ -114,7 +117,7 @@ export function parseHasbroList(wikitext) {
       }
       if (entry.beys.some((b) => b.title === bey.title)) continue;
       // Linktext ist der Hasbro-Name; ohne Linktext ist schon das Ziel Hasbro-benannt
-      entry.beys.push({ ...bey, page: target, hasbro: hasbroLabel(l[2] ?? '') ?? bey.blade });
+      entry.beys.push({ ...bey, page: target, hasbro: hasbroLabel(l[2] ?? '') ?? spaced(bey.blade) });
     }
     byCode.set(code, entry);
   }
@@ -141,7 +144,7 @@ export async function mergeHasbro(db, entries, fetchPage) {
   };
   out.blades.forEach(index);
   // Schreibvarianten im Wiki für schon gepflegte Blades
-  const ALIASES = { StormPegasis: 'StormPegasus' };
+  const ALIASES = { StormPegasis: 'StormPegasus' }; // alte ID beibehalten (gespeicherte Kombos), Name ist „Storm Pegasis“
   const findBlade = (bey) =>
     (ALIASES[bey.bladeId] ? byKey.get(norm(ALIASES[bey.bladeId])) : undefined) ?? byKey.get(norm(bey.bladeId)) ?? byKey.get(wkey(bey.blade)) ?? (bey.hasbro ? byKey.get(wkey(bey.hasbro)) : undefined);
   const ratchetIds = new Set(out.ratchets.map((r) => r.id));
@@ -180,7 +183,7 @@ export async function mergeHasbro(db, entries, fetchPage) {
         const found = [];
         for (const m of scope.matchAll(/\[\[([^\]|#]+)(?:#[^\]|]*)?(?:\|([^\]]*))?\]\]/g)) {
           const bey = parseHasbroTitle(m[1].trim());
-          if (bey) found.push({ ...bey, page: m[1].trim(), hasbro: hasbroLabel(m[2] ?? '') ?? bey.blade });
+          if (bey) found.push({ ...bey, page: m[1].trim(), hasbro: hasbroLabel(m[2] ?? '') ?? spaced(bey.blade) });
         }
         // Kreisel nur als Text erwähnt (Seite verlinkt sich nicht selbst): „includes Saber Samurai 2-70L“
         // Im Contents-Abschnitt reichen die Links (Teile wie „Blade - Circle Ghost“ sind keine ganzen Kreisel).

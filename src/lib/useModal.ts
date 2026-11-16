@@ -24,7 +24,7 @@ export function useModal(ref: RefObject<HTMLElement | null>, onClose: () => void
       if (above) return;
       if (e.key === 'Escape') closeRef.current();
       if (e.key === 'Tab') {
-        const f = [...root.querySelectorAll<HTMLElement>('button:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])')];
+        const f = [...root.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), summary, [tabindex]:not([tabindex="-1"])')];
         if (!f.length) return;
         const first = f[0]!;
         const last = f[f.length - 1]!;

@@ -41,3 +41,17 @@ describe('storage', () => {
     expect(loadState().owned).toEqual({});
   });
 });
+
+describe('Import-Schutz', () => {
+  it('lehnt fremde JSON-Dateien ab statt alles zu leeren', async () => {
+    const { importState } = await import('../src/lib/storage');
+    expect(() => importState('{}')).toThrow();
+    expect(() => importState('[1,2]')).toThrow();
+    expect(() => importState('{"name":"package"}')).toThrow();
+    expect(importState('{"app":"beyblade-x-planer","owned":{"BX-01":2}}').owned).toEqual({ 'BX-01': 2 });
+  });
+  it('verwirft nur kaputte Stückzahlen, nicht die ganze Sammlung', () => {
+    const s = sanitize({ owned: { 'BX-01': 2, 'BX-02': null, 'BX-03': -1, 'BX-04': 1 }, deck: [] });
+    expect(s.owned).toEqual({ 'BX-01': 2, 'BX-04': 1 });
+  });
+});

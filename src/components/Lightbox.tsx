@@ -1,3 +1,4 @@
+import { lockScroll } from '../lib/scrollLock';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { largeUrl } from '../lib/images';
 import type { Database } from '../lib/types';
@@ -32,7 +33,9 @@ export function Lightbox({ db, id, kind = 'blade', onClose }: { db: Database; id
       onClose();
     };
     document.addEventListener('keydown', onKey, true);
+    const unlock = lockScroll();
     return () => {
+      unlock();
       document.removeEventListener('keydown', onKey, true);
       prev?.focus?.();
     };

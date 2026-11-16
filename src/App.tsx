@@ -2,7 +2,7 @@ import { displayName } from './lib/names';
 import { useCallback, useEffect, useMemo, useState } from 'preact/hooks';
 import type { Database, EventFeed, ImageIndex, MetaFeed, NewsFeed, Rates } from './lib/types';
 import { daysUntil, loadDatabase, loadEvents, loadImages, loadMeta, loadNews, loadRates } from './lib/data';
-import { loadState, saveState, type UserState } from './lib/storage';
+import { loadState, saveState, STORAGE_KEY, type UserState } from './lib/storage';
 import { AppContext, type ImageKind } from './lib/context';
 import { preloadImages } from './lib/images';
 import { decodeState, importError, importQuestion, mergeState } from './lib/transfer';
@@ -42,8 +42,6 @@ const TABS: {
   id: Tab;
   label: string;
   title: string;
-  lead: string;
-  accent: string;
   kicker: string;
   icon: string;
 }[] = [
@@ -51,45 +49,35 @@ const TABS: {
     id: 'builder',
     label: 'Kombo',
     title: 'Kombo-Planer',
-    lead: 'Kombo-',
-    accent: 'Planer',
-    kicker: 'Bauen & bewerten',
+    kicker: 'Blade, Ratchet und Bit kombinieren und bewerten lassen.',
     icon: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Zm0 5a4 4 0 1 1 0 8 4 4 0 0 1 0-8Z',
   },
   {
     id: 'parts',
     label: 'Lexikon',
     title: 'Lexikon',
-    lead: 'Lexikon',
-    accent: '.',
-    kicker: 'Karten & Teile',
+    kicker: 'Alle Blades, Ratchets und Bits mit Werten und Bildern.',
     icon: 'M5 4h10a4 4 0 0 1 4 4v12H9a4 4 0 0 1-4-4zM5 16a4 4 0 0 1 4-4h10',
   },
   {
     id: 'battle',
     label: 'Battle',
     title: 'Battle',
-    lead: 'Battle',
-    accent: '.',
-    kicker: 'Deck, Gegner & Meta',
+    kicker: 'Deck aufstellen, Gegner einschätzen, Punkte zählen.',
     icon: 'M5 19 19 5M14 5h5v5M5 5l5 5M14 14l5 5M19 14v5h-5',
   },
   {
     id: 'events',
     label: 'Termine',
     title: 'Termine & News',
-    lead: 'Termine & ',
-    accent: 'News',
-    kicker: 'Releases & Turniere',
+    kicker: 'Neuerscheinungen, Turniere und Meldungen.',
     icon: 'M5 6h14v14H5zM5 10h14M9 3v4M15 3v4',
   },
   {
     id: 'collection',
     label: 'Sammlung',
     title: 'Sammlung',
-    lead: 'Sammlung',
-    accent: '.',
-    kicker: 'Deine Beys',
+    kicker: 'Was du hast, was dir fehlt und was sich lohnt.',
     icon: 'M4 7l8-4 8 4-8 4-8-4Zm0 5l8 4 8-4M4 17l8 4 8-4',
   },
 ];
@@ -150,8 +138,22 @@ export function App() {
   // Große Fotos vorladen, sobald der Bilder-Index da ist – dann öffnet die Großansicht sofort.
   useEffect(() => (Object.keys(images.blades).length ? preloadImages(images) : undefined), [images]);
   useEffect(() => setStorageOk(saveState(state)), [state]);
+  // Zweiter Tab/Fenster hat gespeichert: Stand übernehmen statt ihn beim nächsten Speichern zu überschreiben.
   useEffect(() => {
-    const onHash = () => setTab(readTab());
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === STORAGE_KEY) setState(loadState());
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
+  useEffect(() => {
+    const onHash = () => {
+      setTab(readTab());
+      // Zurück-Taste (Android) oder Tab-Wechsel: offene Fenster auf App-Ebene schließen
+      setDetail(null);
+      setZoom(null);
+      setCheck(null);
+    };
     window.addEventListener('hashchange', onHash);
     return () => window.removeEventListener('hashchange', onHash);
   }, []);
@@ -273,14 +275,11 @@ export function App() {
         </header>
 
         <main class="main" id="main">
-          <p class="kicker">
-            <span class="kicker-dot" aria-hidden="true" />
-            {current.kicker}
-          </p>
-          <h1 class="page-title">
-            {current.lead}
-            <span class="accent">{current.accent}</span>
-          </h1>
+          <div class="page-head" key={tab}>
+            <h1 class="page-title">{current.title}</h1>
+            <span class="x-rail" aria-hidden="true" />
+            <p class="page-sub">{current.kicker}</p>
+          </div>
           {!storageOk && <p class="banner">Speichern auf diesem Gerät ist blockiert (z. B. privater Modus). Änderungen gehen beim Schließen verloren.</p>}
           {error ? (
             <div class="card glass error" role="alert">
@@ -296,7 +295,7 @@ export function App() {
           ) : (
             <>
               <IosHint hasData={Object.keys(state.owned).length > 0 || state.combos.length > 0} />
-              <ErrorBoundary>
+              <ErrorBoundary key={tab}>
                 <Suspense
                   fallback={
                     <div class="loading" aria-busy="true" aria-label="Lädt">
@@ -305,7 +304,7 @@ export function App() {
                   }
                 >
                   {tab === 'builder' && (
-                    <ComboBuilder key={preset?.key ?? 0} db={db} state={state} update={update} presetBladeId={preset?.bladeId} presetRatchetId={preset?.ratchetId} presetBitId={preset?.bitId} />
+                    <ComboBuilder key={preset?.key ?? 0} db={db} state={state} update={update} presetBladeId={preset?.bladeId} presetRatchetId={preset?.ratchetId} presetBitId={preset?.bitId} presetKey={preset?.key} />
                   )}
                   {tab === 'parts' && <Lexikon db={db} state={state} update={update} />}
                   {tab === 'battle' && <Battle db={db} state={state} update={update} goToBuilder={() => go('builder')} meta={meta} onBuild={buildCombo} />}

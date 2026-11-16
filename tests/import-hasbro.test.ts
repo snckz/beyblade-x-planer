@@ -2,7 +2,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 // @ts-expect-error – JS-Modul ohne Typen
-import { beysInLinkName, hasbroLabel, kindOfHasbro, mergeHasbro, namesInLinkName, parseHasbroList, parseHasbroTitle } from '../scripts/import-hasbro.mjs';
+import { spaced, beysInLinkName, hasbroLabel, kindOfHasbro, mergeHasbro, namesInLinkName, parseHasbroList, parseHasbroTitle } from '../scripts/import-hasbro.mjs';
 
 const db = JSON.parse(readFileSync(new URL('../public/data/db.json', import.meta.url), 'utf8'));
 
@@ -103,5 +103,12 @@ describe('Hasbro-Katalog', () => {
     // zweiter Lauf: gleiches Ergebnis, nichts doppelt
     const again = await mergeHasbro(out, parseHasbroList(WT), page);
     expect(JSON.stringify(again.db)).toBe(JSON.stringify(out));
+  });
+});
+
+describe('spaced', () => {
+  it('trennt zusammengeschriebene Wiki-Namen', () => {
+    expect(spaced('StormPegasis')).toBe('Storm Pegasis');
+    expect(spaced('Dran Sword')).toBe('Dran Sword');
   });
 });

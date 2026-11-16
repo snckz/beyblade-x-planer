@@ -5,7 +5,8 @@ import type { Blade, Database, Product } from './types';
 
 const words = (s: string) => s.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean).sort().join(' ');
 /** Gibt es einen abweichenden Hasbro-Namen? */
-const hasOther = (b: Pick<Blade, 'name' | 'hasbroName'>) => !!b.hasbroName && b.hasbroName !== b.name;
+const letters = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
+const hasOther = (b: Pick<Blade, 'name' | 'hasbroName'>) => !!b.hasbroName && letters(b.hasbroName) !== letters(b.name);
 
 /** Anzeigename einer Blade: Hasbro-Name, sonst Takara-Name. */
 export const displayName = (b: Pick<Blade, 'name' | 'hasbroName'>) => (hasOther(b) ? b.hasbroName! : b.name);
