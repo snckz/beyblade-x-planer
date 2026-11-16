@@ -1,5 +1,6 @@
 import { displayName } from '../lib/names';
-import type { BeyEvent, Database, NewsFeed } from '../lib/types';
+import type { BeyEvent, Blade, Database, NewsFeed } from '../lib/types';
+import { BeyEmblem, usePhotoState } from './BeyImage';
 import type { UserState } from '../lib/storage';
 import { daysUntil } from '../lib/data';
 import { useApp } from '../lib/context';
@@ -41,21 +42,31 @@ function dateRange(e: BeyEvent) {
 }
 
 /**
- * Echtes Blade-Foto zum Termin (Beyblade Wiki, nur verlinkt). Lädt es nicht, bleibt der Platz leer –
- * ein Termin braucht kein Ersatzsymbol. Passt das Foto nicht exakt zum Produkt, steht „Abb. ähnlich“ dabei.
+ * Echtes Blade-Foto zum Termin (Beyblade Wiki, nur verlinkt) auf hellem Sockel.
+ * Während des Ladens und bei Fehler: dunkle Kachel – bei Fehler mit dem Emblem in der Typ-Farbe.
+ * Passt das Foto nicht exakt zum Produkt (Set, Sonderfarbe), steht „Abb. ähnlich“ dabei.
  */
-function EventPhoto({ bladeId, name, eventTitle, large }: { bladeId: string; name: string; eventTitle: string; large?: boolean }) {
+function EventPhoto({ blade, name, eventTitle, large }: { blade: Blade; name: string; eventTitle: string; large?: boolean }) {
   const { images, openImage } = useApp();
-  const img = images.blades[bladeId];
-  const [failed, setFailed] = useState(false);
-  if (!img || failed) return null;
+  const img = images.blades[blade.id];
+  const photo = usePhotoState(img?.thumb);
+  const wrap = `ev-photo-wrap${large ? ' ev-photo-lg' : ''}`;
+  if (!img || photo.status === 'failed') {
+    return (
+      <span class={wrap}>
+        <span class={`ev-photo ev-photo-fallback type-fg-${blade.type}`} role="img" aria-label={`${name} (kein Foto verfügbar)`}>
+          <BeyEmblem />
+        </span>
+      </span>
+    );
+  }
   const exact = photoMatchesTitle(eventTitle, img.title);
   return (
-    <span class={`ev-photo-wrap${large ? ' ev-photo-lg' : ''}`}>
-      <button type="button" class="ev-photo" onClick={() => openImage(bladeId)} aria-label={`${name}: Bild vergrößern`}>
-        <img src={img.thumb} alt={name} loading="lazy" decoding="async" referrerpolicy="no-referrer" onError={() => setFailed(true)} />
+    <span class={wrap}>
+      <button type="button" class={`ev-photo${photo.status === 'ok' ? ' is-loaded' : ''}`} onClick={() => openImage(blade.id)} aria-label={`${name}: Bild vergrößern`}>
+        <img src={img.thumb} alt={name} loading="lazy" decoding="async" referrerpolicy="no-referrer" {...photo.imgProps} />
       </button>
-      {!exact && <span class="ev-photo-note">Abb. ähnlich</span>}
+      {!exact && photo.status === 'ok' && <span class="ev-photo-note">Abb. ähnlich</span>}
     </span>
   );
 }
@@ -167,7 +178,7 @@ export function Events({ db, events, news, state, update }: Props) {
           )}
         </div>
         <div class="tl-side">
-          {blade && <EventPhoto bladeId={blade.id} name={displayName(blade)} eventTitle={e.title} />}
+          {blade && <EventPhoto blade={blade} name={displayName(blade)} eventTitle={e.title} />}
           {upcomingItem && (
             <button type="button" class="icon-btn tl-cal" onClick={() => downloadIcs([cal(e)], `${e.id}.ics`)} aria-label={`${e.title} in den Kalender`}>
               <CalendarPlus aria-hidden="true" />
@@ -228,7 +239,7 @@ export function Events({ db, events, news, state, update }: Props) {
                   <small>{when(next)}</small>
                 </span>
               )}
-              {nextBlade && <EventPhoto bladeId={nextBlade.id} name={displayName(nextBlade)} eventTitle={next.title} large />}
+              {nextBlade && <EventPhoto blade={nextBlade} name={displayName(nextBlade)} eventTitle={next.title} large />}
             </div>
           </div>
           {noteBlock(nextNote, 'hero-note')}

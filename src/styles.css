@@ -2162,3 +2162,23 @@ html { scroll-padding-bottom: calc(var(--nav-h) + var(--nav-gap) + var(--s-6)); 
 }
 .tl-item.kind-tournament .event-kind { color: #ff6272; } /* 5.9:1 statt 4.3:1 */
 .tl-link { min-height: 44px; margin: -6px 0; }
+
+/* ---- Produktfotos: Ladezustand und Ersatz ----
+   Vorher zeigte ein noch nicht geladenes Foto eine leere weiße Scheibe (img hatte weißen Hintergrund).
+   Jetzt: dunkle Scheibe bis das Foto da ist, dann weich einblenden. Bei Fehler das Emblem – ruhig, in Typfarbe. */
+.bey-img.has-photo img { transition: opacity var(--dur-3) var(--ease); }
+.bey-img.has-photo.is-loading img { opacity: 0; }
+.bey-img.has-photo.is-loading { box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .08); }
+.ev-photo { background: var(--surface-3); }
+.ev-photo img { opacity: 0; transition: opacity var(--dur-3) var(--ease); }
+.ev-photo.is-loaded { background: #fff; }
+.ev-photo.is-loaded img { opacity: 1; }
+.ev-photo-fallback { display: grid; place-items: center; cursor: default; background: radial-gradient(circle at 35% 28%, #2a2a31, #131316 72%); }
+.ev-photo-fallback svg { width: 70%; height: 70%; }
+.hero-card .ev-photo:not(.is-loaded) { background: rgba(0, 0, 0, .3); box-shadow: 0 0 0 1px rgba(255, 255, 255, .14); }
+/* Emblem zurückhaltender: feiner Ring, gedämpfte Flügel */
+.em-ring { stroke-opacity: .28; stroke-width: 2; }
+.em-wings path { fill-opacity: .6; }
+.em-core { fill: #0d0d10; stroke-width: 2.5; }
+.em-dot { fill: rgba(255, 255, 255, .85); }
+@media (prefers-reduced-motion: reduce) { .bey-img.has-photo img, .ev-photo img { transition: none; } }
