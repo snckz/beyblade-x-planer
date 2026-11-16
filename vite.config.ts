@@ -19,7 +19,7 @@ function ocrAssets(): Plugin {
       const req = createRequire(import.meta.url);
       // Versionierter Ordner (ocr/7.0.0/): Worker und Kern passen immer zur gebauten App,
       // und der Service Worker kann alte Versionen gezielt aufräumen.
-      const root = join(__dirname, 'public/ocr');
+      const root = join(import.meta.dirname, 'public/ocr');
       const out = join(root, OCR_VERSION);
       mkdirSync(out, { recursive: true });
       for (const d of readdirSync(root)) if (d !== OCR_VERSION) rmSync(join(root, d), { recursive: true, force: true });
