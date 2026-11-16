@@ -1571,7 +1571,8 @@ input[type='text']:focus, input[type='search']:focus, select:focus { border-colo
   --display: 800 italic 1em/1 var(--font);
   --mono: var(--font);
 }
-html, body, .live { background-color: var(--night); }
+html, .live { background-color: var(--night); }
+body { background-color: transparent; } /* sonst verdeckt body den Lichtschein (.bg liegt auf z-index -1) */
 body { font-family: var(--font); font-size: 15.5px; letter-spacing: .006em; font-feature-settings: 'kern'; -webkit-font-smoothing: antialiased; }
 * { font-stretch: normal !important; }
 
@@ -1713,7 +1714,6 @@ input[type='text']:focus, input[type='search']:focus, select:focus { background-
 .result-head .bey-img { box-shadow: 0 0 0 1px rgba(255, 255, 255, .12), 0 24px 48px -18px rgba(0, 0, 0, .95), 0 0 0 10px rgba(255, 255, 255, .03); }
 
 /* Bewegung: nur die X-Schiene beim Seitenwechsel – keine gestaffelten Karten */
-@keyframes soft-in { from { opacity: 1; } to { opacity: 1; } }
 
 /* Rote Hero-Karten (nächster Termin, Live-Match) bleiben die eine farbige Fläche pro Seite */
 .hero-card, .live-cta, .card.live-cta, .glass.live-cta {
@@ -1748,3 +1748,100 @@ input[type='text']:focus, input[type='search']:focus, select:focus { background-
 .infobox tr:first-child th, .infobox tr:first-child td { border-top: 0; }
 .infobox th { color: var(--muted); font-weight: 500; }
 .sheet-h { text-transform: none; letter-spacing: -.01em; font-style: normal; font-size: 17px; font-weight: 750; color: var(--text); }
+
+/* =========================================================================
+   Aura – gemeinsame DNA der Referenzen, übersetzt auf Beyblade
+   1. Atmosphäre: Farbe kommt als weicher Lichtschein von oben und läuft ins Schwarz aus.
+   2. Editorial: große, ruhige Überschriften (aufrecht, mittleres Gewicht), Zahlen frei statt in Kästen.
+      Kursiv-fett gehört allein den Kreisel-Namen.
+   3. Bild zuerst: Kreisel als große Kacheln; jeder sitzt auf einem Lichtschein in seiner Typfarbe.
+   ========================================================================= */
+.bg-photo {
+  background:
+    radial-gradient(130% 46% at 50% -12%, rgba(240, 40, 60, .62), rgba(150, 14, 34, .3) 46%, rgba(240, 40, 60, 0) 78%),
+    radial-gradient(70% 26% at 96% 2%, rgba(255, 120, 96, .22), rgba(255, 120, 96, 0) 70%),
+    var(--night);
+}
+.top { background: rgba(5, 5, 6, .28) !important; border-bottom: 0; }
+
+/* Seitenkopf */
+.page-head { margin: 6px 0 22px; }
+.page-title { font: 600 clamp(38px, 10.6vw, 54px)/1 var(--font); letter-spacing: -.04em; padding-right: 0; }
+.x-rail { width: 72px; height: 8px; margin: 12px 0 12px 2px; }
+.page-sub { font-size: 15.5px; line-height: 1.4; color: rgba(255, 255, 255, .74); max-width: 32ch; }
+.section-head h2 { font: 650 21px/1.15 var(--font); letter-spacing: -.025em; }
+.live-cta strong { font: 650 22px/1.1 var(--font); letter-spacing: -.025em; }
+
+/* Kennzahlen als freie Zeile: große leichte Ziffern, kleine Beschriftung, Haarlinien dazwischen */
+.stat-strip { display: grid; grid-template-columns: repeat(4, 1fr); margin: 0; padding: 4px 0 6px; }
+.stat-strip > div { display: grid; gap: 4px; padding: 0 0 0 14px; border-left: 1px solid rgba(255, 255, 255, .14); }
+.stat-strip > div:first-child { padding-left: 0; border-left: 0; }
+.stat-strip dd { margin: 0; font: 500 clamp(34px, 10.5vw, 46px)/.95 var(--font); letter-spacing: -.045em; font-variant-numeric: tabular-nums; color: #fff; }
+.stat-strip dt { font-size: 13px; color: rgba(255, 255, 255, .7); }
+
+/* Kreisel-Kacheln */
+.aura-attack { --aura: var(--attack); }
+.aura-defense { --aura: var(--defense); }
+.aura-stamina { --aura: var(--stamina); }
+.aura-balance { --aura: var(--balance); }
+.tiles { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+@media (min-width: 700px) { .tiles { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); } }
+.tile-bey {
+  position: relative; isolation: isolate; overflow: hidden; display: flex; flex-direction: column; gap: 10px;
+  padding: 14px 14px 16px; border-radius: 28px; background: var(--surface); border: 1px solid var(--hair);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .05);
+  transition: transform .14s var(--ease);
+}
+.tile-bey::before {
+  content: ''; position: absolute; z-index: -1; left: 50%; top: 8px; width: 150%; aspect-ratio: 1; transform: translateX(-50%);
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--aura, #8a8c96) 36%, transparent), transparent 74%);
+}
+.tile-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; min-height: 26px; }
+.tile-art { display: grid; place-items: center; padding: 2px 0; }
+.tile-art .bey-img-lg { width: min(100%, 128px); height: auto; aspect-ratio: 1; box-shadow: 0 18px 30px -16px rgba(0, 0, 0, .9); }
+.tile-art .bey-img-lg img, .tile-art .bey-img-lg svg { width: 100%; height: 100%; }
+.tile-text { display: grid; gap: 3px; min-width: 0; justify-items: start; }
+.tile-kind { font-size: 12.5px; font-weight: 600; }
+.tile-name { font: 750 italic 18px/1.12 var(--font); letter-spacing: -.02em; color: var(--text); text-align: left; overflow-wrap: anywhere; text-wrap: balance; }
+button.tile-name { background: none; border: 0; padding: 0; cursor: pointer; }
+.tile-link .tile-name::after { content: ''; position: absolute; inset: 0; }
+.tile-link .bey-img, .tile-link .badge { position: relative; z-index: 1; }
+.tile-link:active { transform: scale(.98); }
+.tile-link .tile-name:focus-visible { outline: none; }
+.tile-link:has(.tile-name:focus-visible) { outline: 2px solid #fff; outline-offset: 2px; }
+.tile-bey .row-sub { font-size: 13px; }
+.tile-bey .row-note { font-size: 12.5px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.tile-bey .count { font: 600 14px var(--font); color: var(--text); padding: 3px 9px; border-radius: 999px; background: rgba(255, 255, 255, .1); }
+.tile-bey .stepper { align-self: stretch; justify-content: space-between; margin-top: 2px; }
+.tile-bey .owned-code { margin: 0; }
+
+/* Hero-Karten: Rot läuft nach unten ins Dunkle aus */
+.hero-card {
+  background:
+    radial-gradient(110% 60% at 88% 0%, rgba(255, 150, 140, .38), transparent 60%),
+    linear-gradient(180deg, #e2182c 0%, #a11022 40%, #3a0d14 78%, #1b0b0e 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .24), 0 30px 60px -32px rgba(240, 40, 60, .7);
+}
+.live-cta, .card.live-cta, .glass.live-cta {
+  background:
+    radial-gradient(90% 120% at 0% 0%, rgba(255, 150, 140, .3), transparent 60%),
+    linear-gradient(115deg, #e2182c 0%, #a11022 46%, #2a0c11 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .24), 0 26px 50px -30px rgba(240, 40, 60, .7);
+}
+.hero-card::after, .live-cta::after { opacity: .1; }
+.hero-count b { font-weight: 500; letter-spacing: -.05em; }
+
+/* Bewegung: Seitenkopf und Inhalt steigen beim Tab-Wechsel kurz gestaffelt auf */
+@media (prefers-reduced-motion: no-preference) {
+  .page-head { animation: soft-in .5s var(--ease) backwards; }
+}
+/* Kopfzeile ohne sichtbare Kante: Unschärfe läuft nach unten weich aus */
+.top {
+  background: linear-gradient(180deg, rgba(5, 5, 6, .5), rgba(5, 5, 6, 0)) !important;
+  -webkit-mask-image: linear-gradient(180deg, #000 55%, transparent); mask-image: linear-gradient(180deg, #000 55%, transparent);
+}
+/* Auf dem aktiven Tab ist der Zähler überflüssig und würde die Beschriftung verdecken */
+.tabbar a.on .dot-count { display: none; }
+.kpi-val, .album-count, .log-big, .verdict-score, .event-day, .meta-rank, .tile-big, .result .stat-val { font-weight: 600; }
+.tile-bey .stepper button { min-width: 44px; min-height: 44px; }
+.section-head { flex-wrap: wrap; row-gap: 8px; }

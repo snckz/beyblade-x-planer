@@ -7,7 +7,8 @@ import { downloadIcs } from '../lib/ics';
 import type { UserState } from '../lib/storage';
 import { exportState, importState } from '../lib/storage';
 import { ownedParts, purchaseCodes } from '../lib/data';
-import { Empty, Section, TypeBadge } from './ui';
+import { Empty, Section } from './ui';
+import { TYPE_LABEL } from '../lib/analysis';
 import { useApp } from '../lib/context';
 import { Scanner } from './Scanner';
 import { Transfer } from './Transfer';
@@ -118,6 +119,26 @@ export function Collection({ db, state, update, events = [], meta }: Props) {
 
   return (
     <div class="stack">
+      {ownedProducts.length > 0 && (
+        <dl class="stat-strip">
+          <div>
+            <dd>{total}</dd>
+            <dt>Packungen</dt>
+          </div>
+          <div>
+            <dd>{parts.blades.size}</dd>
+            <dt>Blades</dt>
+          </div>
+          <div>
+            <dd>{parts.ratchets.size}</dd>
+            <dt>Ratchets</dt>
+          </div>
+          <div>
+            <dd>{parts.bits.size}</dd>
+            <dt>Bits</dt>
+          </div>
+        </dl>
+      )}
       <div class="cta-grid">
         <button type="button" class="card glass scan-cta" onClick={() => setScan(true)}>
           <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -145,24 +166,6 @@ export function Collection({ db, state, update, events = [], meta }: Props) {
       {photo && <PhotoCheck db={db} state={state} update={update} meta={meta} onClose={() => setPhoto(false)} />}
       {ownedProducts.length ? (
         <>
-          <div class="kpis">
-            <div class="kpi">
-              <span class="kpi-val">{total}</span>
-              <span class="kpi-label">Packungen</span>
-            </div>
-            <div class="kpi">
-              <span class="kpi-val">{parts.blades.size}</span>
-              <span class="kpi-label">Blades</span>
-            </div>
-            <div class="kpi">
-              <span class="kpi-val">{parts.ratchets.size}</span>
-              <span class="kpi-label">Ratchets</span>
-            </div>
-            <div class="kpi">
-              <span class="kpi-val">{parts.bits.size}</span>
-              <span class="kpi-label">Bits</span>
-            </div>
-          </div>
           <section class="section">
             <div class="section-head">
               {/* Antippen öffnet die Vitrine mit allen Kreiseln */}
@@ -185,23 +188,22 @@ export function Collection({ db, state, update, events = [], meta }: Props) {
                 </button>
               )}
             </div>
-            <ul class={`list${editing ? ' editing' : ''}`}>
+            <ul class={`tiles${editing ? ' editing' : ''}`}>
               {ownedProducts.map((p) => {
                 const b = db.blades.find((x) => x.id === p.bladeId);
                 return (
-                  <li key={p.code} class="row owned-row">
-                    {b ? <BeyImage bladeId={b.id} type={b.type} size="md" alt={displayName(b)} /> : <span class="code">{p.code.startsWith('TBA') ? 'neu' : p.code}</span>}
-                    <div class="row-main">
-                      <span class="row-title">{nb(displayProductName(p, db))}</span>
-                      <span class="row-sub">
-                        <span class={`region-tag ${p.region === 'hasbro' ? 'hasbro' : 'takara'}`}>{regionLabel(p)}</span>
-                        {b && !p.code.startsWith('TBA') && <span class="owned-code"> {p.code}</span>}
-                      </span>
+                  <li key={p.code} class={`tile-bey${b ? ` aura-${b.type}` : ''}`}>
+                    <div class="tile-top">
+                      <span class={`region-tag ${p.region === 'hasbro' ? 'hasbro' : 'takara'}`}>{regionLabel(p)}</span>
+                      {!editing && <span class="count">{state.owned[p.code]}×</span>}
                     </div>
-                    {b && <TypeBadge type={b.type} small />}
-                    {!editing ? (
-                      <span class="count">{state.owned[p.code]}×</span>
-                    ) : (
+                    <div class="tile-art">{b ? <BeyImage bladeId={b.id} type={b.type} size="lg" alt={displayName(b)} /> : <span class="code">{p.code.startsWith('TBA') ? 'neu' : p.code}</span>}</div>
+                    <div class="tile-text">
+                      {b && <span class={`tile-kind type-fg-${b.type}`}>{TYPE_LABEL[b.type]}</span>}
+                      <span class="tile-name">{nb(displayProductName(p, db))}</span>
+                      {b && !p.code.startsWith('TBA') && <span class="owned-code">{p.code}</span>}
+                    </div>
+                    {editing && (
                       <div class="stepper stepper-sm" aria-label={`Anzahl ${p.name}`}>
                         <button type="button" onClick={() => changeOwned(p.code, -1)} aria-label={(state.owned[p.code] ?? 0) <= 1 ? `${p.name} aus der Sammlung entfernen` : 'Eins weniger'}>
                           {(state.owned[p.code] ?? 0) <= 1 ? '×' : '−'}

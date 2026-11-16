@@ -78,24 +78,28 @@ export function Lexikon({ db, state, update }: Props) {
 
       {view === 'blades' &&
         (blades.length ? (
-          <ul class="list">
+          <ul class="tiles">
             {blades.map((b) => (
-              <li key={b.id} class="row row-click">
-                <BeyImage bladeId={b.id} type={b.type} size="sm" alt={b.name} />
-                <div class="row-main">
+              <li key={b.id} class={`tile-bey tile-link aura-${b.type}`}>
+                <div class="tile-top">
                   <span class="code code-inline">{b.line}</span>
-                  <button type="button" class="row-title link-btn title-btn" onClick={() => openBlade(b.id)}>
+                  <SpinBadge spin={b.spin} />
+                </div>
+                <div class="tile-art">
+                  <BeyImage bladeId={b.id} type={b.type} size="lg" alt={b.name} />
+                </div>
+                <div class="tile-text">
+                  <span class={`tile-kind type-fg-${b.type}`}>{TYPE_LABEL[b.type]}</span>
+                  <button type="button" class="tile-name title-btn" onClick={() => openBlade(b.id)}>
                     {displayName(b)} <UnverifiedMark show={!b.verified} />
                   </button>
-                  <span class="row-sub">
-                    {otherName(b) ?? ''}
-                    {b.integratedRatchet ? `${otherName(b) ? ' · ' : ''}Ratchet integriert` : ''}
-                  </span>
+                  {(otherName(b) || b.integratedRatchet) && (
+                    <span class="row-sub">
+                      {otherName(b) ?? ''}
+                      {b.integratedRatchet ? `${otherName(b) ? ' · ' : ''}Ratchet integriert` : ''}
+                    </span>
+                  )}
                   {b.note && <span class="row-note">{b.note}</span>}
-                </div>
-                <div class="row-side">
-                  <SpinBadge spin={b.spin} />
-                  <TypeBadge type={b.type} small />
                 </div>
               </li>
             ))}
