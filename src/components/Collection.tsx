@@ -116,25 +116,27 @@ export function Collection({ db, state, update, events = [], meta }: Props) {
 
   return (
     <div class="stack">
-      <button type="button" class="card glass scan-cta" onClick={() => setScan(true)}>
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3M7 8v8M10 8v8M13 8v8M16 8v8" />
-        </svg>
-        <span>
-          <strong>Packung scannen</strong>
-          <small>Barcode fotografieren – Kreisel landet in der Sammlung</small>
-        </span>
-      </button>
-      <button type="button" class="card glass scan-cta" onClick={() => setPhoto(true)}>
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z" />
-          <circle cx="12" cy="13" r="3.5" />
-        </svg>
-        <span>
-          <strong>Kauf-Check: Foto oder Name</strong>
-          <small>Packung fotografieren oder eintippen – und bewerten lassen</small>
-        </span>
-      </button>
+      <div class="cta-grid">
+        <button type="button" class="card glass scan-cta" onClick={() => setScan(true)}>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3M7 8v8M10 8v8M13 8v8M16 8v8" />
+          </svg>
+          <span>
+            <strong>Packung scannen</strong>
+            <small>Barcode fotografieren – landet in der Sammlung</small>
+          </span>
+        </button>
+        <button type="button" class="card glass scan-cta" onClick={() => setPhoto(true)}>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z" />
+            <circle cx="12" cy="13" r="3.5" />
+          </svg>
+          <span>
+            <strong>Kauf-Check</strong>
+            <small>Foto oder Name – lohnt sich die Packung?</small>
+          </span>
+        </button>
+      </div>
       {scan && <Scanner db={db} state={state} update={update} onClose={() => setScan(false)} />}
       {showcase && <Showcase db={db} state={state} onClose={() => setShowcase(false)} />}
       {adding && <AddProducts db={db} state={state} update={update} onClose={() => setAdding(false)} />}

@@ -1312,3 +1312,90 @@ input[type='text']:focus, input[type='search']:focus, select:focus { border-colo
 
 @media (prefers-reduced-motion: reduce) { .btn, .tabbar a, .scan-cta, .live-cta { transition: none; } }
 @media (min-width: 860px) { .tabbar { display: none; } .main { padding-bottom: 48px; } }
+
+/* ===== Soft Plate, Stufe 2: Hero-Karten, Kacheln, Bewegung ===== */
+
+/* Hero-Karte: die eine Karte pro Seite, die zählt – gefüllt in Signalrot */
+.hero-card, .live-cta {
+  position: relative; overflow: hidden; isolation: isolate;
+  border-radius: 32px; border: 0; color: #fff;
+  background:
+    radial-gradient(120% 90% at 100% 0%, rgba(255, 255, 255, .22), transparent 55%),
+    radial-gradient(90% 80% at 0% 100%, rgba(120, 0, 18, .55), transparent 60%),
+    linear-gradient(150deg, #ff3b4c 0%, #e8172b 55%, #b80d20 100%);
+  box-shadow: 0 24px 48px -22px rgba(242, 41, 58, .85), inset 0 1px 0 rgba(255, 255, 255, .25);
+}
+/* gezahnte X-Schiene als Prägung rechts unten */
+.hero-card::after, .live-cta::after {
+  content: ''; position: absolute; z-index: -1; right: -30px; bottom: 18px; width: 220px; height: 22px;
+  transform: skewX(-24deg); opacity: .16;
+  background:
+    linear-gradient(#fff, #fff) 0 100% / 100% 7px no-repeat,
+    repeating-linear-gradient(90deg, #fff 0 12px, transparent 12px 22px) 0 0 / 100% 12px no-repeat;
+}
+.hero-card { padding: 22px 22px 20px; display: grid; gap: 6px; }
+.hero-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.hero-kicker {
+  display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px;
+  background: rgba(0, 0, 0, .22); font-size: 12.5px; font-weight: 600; letter-spacing: .01em;
+}
+.hero-count { display: grid; justify-items: end; line-height: 1; text-align: right; }
+.hero-count b { font: var(--display); font-stretch: 75%; font-size: 64px; letter-spacing: 0; line-height: .82; }
+.hero-count small { font-size: 13px; font-weight: 600; opacity: .85; }
+.hero-title { margin: 8px 0 0; font: var(--display); font-stretch: 75%; font-size: 30px; line-height: 1; text-transform: none; }
+.hero-sub { margin: 0; font-size: 14px; font-weight: 500; opacity: .9; }
+.hero-note { margin: 4px 0 0; font-size: 14px; line-height: 1.45; opacity: .85; max-width: 52ch; }
+.hero-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.hero-btn { background: #fff; color: #b80d20; border: 0; font-weight: 700; }
+.hero-btn:hover:not(:disabled) { background: #fff3f4; }
+.hero-link { color: #fff; border-color: rgba(255, 255, 255, .35); }
+.hero-link:hover:not(:disabled) { color: #fff; background: rgba(255, 255, 255, .12); border-color: rgba(255, 255, 255, .5); }
+
+/* Live-Match als Hero */
+.live-cta { padding: 22px; gap: 18px; min-height: 112px; }
+.live-cta small { color: rgba(255, 255, 255, .85); }
+.live-cta strong { font: var(--display); font-stretch: 75%; font-size: 26px; line-height: 1; }
+.live-cta span:last-child { gap: 6px; }
+.live-cta-icon { width: 60px; height: 60px; border-radius: 50%; background: #fff !important; color: var(--x-red); font-size: 20px; padding-left: 3px; box-shadow: 0 10px 24px -8px rgba(80, 0, 10, .7); }
+
+/* Aktions-Kacheln nebeneinander (Bento) */
+.cta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.cta-grid .scan-cta { flex-direction: column; align-items: flex-start; gap: 14px; padding: 18px; min-height: 172px; }
+.cta-grid .scan-cta span { gap: 4px; }
+.cta-grid .scan-cta strong { font-size: 17px; line-height: 1.15; }
+.cta-grid .scan-cta small { font-size: 13px; line-height: 1.35; }
+.cta-grid .scan-cta:first-child svg { stroke: #fff; background: var(--x-red); box-shadow: 0 10px 22px -10px rgba(242, 41, 58, .9); }
+
+/* Kompakter Hinweis „Zum Home-Bildschirm“ */
+.ios-hint { gap: 6px; padding: 16px 18px; border-radius: 24px; }
+.ios-hint .row-title { font-size: 15px; }
+.ios-hint .muted { font-size: 14px; line-height: 1.45; }
+.ios-hint .btn { justify-self: start; margin-top: 6px; }
+
+/* Ruhiger Auftritt: Karten gleiten beim Seitenwechsel nacheinander herein */
+@media (prefers-reduced-motion: no-preference) {
+  .stack > :is(.card, .section, .cta-grid, .hero-card, .empty, .btn, .list) { animation: soft-in .45s var(--ease) both; }
+  .stack > :nth-child(2) { animation-delay: .04s; }
+  .stack > :nth-child(3) { animation-delay: .08s; }
+  .stack > :nth-child(4) { animation-delay: .12s; }
+  .stack > :nth-child(n + 5) { animation-delay: .16s; }
+  .stack .stack > * { animation: none; }
+}
+@keyframes soft-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.ios-hint { margin-bottom: 20px; }
+.live-cta::after { top: 14px; bottom: auto; right: -50px; width: 170px; opacity: .12; }
+.hero-title { text-wrap: balance; }
+/* Aktionen in Termin-Karten als kleine Pillen statt unterstrichener Links */
+.event-actions { gap: 8px; margin-top: 8px; }
+.event-actions .link-btn {
+  display: inline-flex; align-items: center; gap: 6px; min-height: 34px; padding: 0 14px; border-radius: 999px;
+  background: var(--surface-2); text-decoration: none; font-size: 13.5px; font-weight: 600; transition: background .2s;
+}
+.event-actions .link-btn:hover { background: var(--surface-3); }
+.event .row-note { color: var(--muted); }
+.countdown { padding: 4px 10px; border-radius: 999px; background: var(--surface-2); font-size: 12px; font-weight: 600; }
+.event-actions { display: flex !important; flex-direction: row; flex-wrap: wrap; }
+.hero-link { text-decoration: none; }
+.hero-actions .btn { min-height: 40px; padding: 0 16px; font-size: 14px; }
+.hero-card::after { bottom: 10px; width: 180px; }
+.hero-link { background: rgba(120, 0, 18, .28); }

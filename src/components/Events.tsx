@@ -41,8 +41,11 @@ export function Events({ db, events, news, state, update }: Props) {
   const upcoming = sorted.filter((e) => daysUntil(e.endDate ?? e.date) >= 0);
   const past = sorted.filter((e) => daysUntil(e.endDate ?? e.date) < 0).reverse().slice(0, 10);
 
+  // Der nächste Termin steht groß oben; die Liste darunter zeigt die übrigen.
+  const next = upcoming[0];
+  const rest = upcoming.slice(1);
   const months = new Map<string, BeyEvent[]>();
-  for (const e of upcoming) {
+  for (const e of rest) {
     const key = new Date(e.date + 'T00:00:00').toLocaleDateString('de-AT', { month: 'long', year: 'numeric' });
     months.set(key, [...(months.get(key) ?? []), e]);
   }
@@ -97,20 +100,64 @@ export function Events({ db, events, news, state, update }: Props) {
     );
   };
 
+  const nextDays = next ? daysUntil(next.date) : 0;
+  const nextBlade = next?.bladeId ? db.blades.find((b) => b.id === next.bladeId) : undefined;
+
   return (
     <div class="stack">
+      {next && (
+        <article class="hero-card" aria-label="Nächster Termin">
+          <div class="hero-top">
+            <span class="hero-kicker">
+              Nächster Termin · {KIND[next.kind]}
+              {next.country && FLAG[next.country] ? ` ${FLAG[next.country]}` : ''}
+            </span>
+            {nextDays > 0 ? (
+              <span class="hero-count">
+                <b>{nextDays}</b>
+                <small>{nextDays === 1 ? 'Tag' : 'Tage'}</small>
+              </span>
+            ) : (
+              <span class="hero-count">
+                <small>{when(next)}</small>
+              </span>
+            )}
+          </div>
+          <h2 class="hero-title">{next.title}</h2>
+          <p class="hero-sub">
+            {dateRange(next)}
+            {next.place ? ` · ${next.place}` : ''}
+          </p>
+          {next.note && <p class="hero-note">{next.note}</p>}
+          <div class="hero-actions">
+            <button type="button" class="btn hero-btn" onClick={() => downloadIcs([cal(next)], `${next.id}.ics`)}>
+              <span aria-hidden="true">🔔</span> In Kalender
+            </button>
+            {nextBlade && (
+              <button type="button" class="btn btn-ghost hero-link" onClick={() => openBlade(nextBlade.id)}>
+                {displayName(nextBlade)} ansehen
+              </button>
+            )}
+            {next.url && (
+              <a class="btn btn-ghost hero-link" href={next.url} target="_blank" rel="noopener noreferrer">
+                Quelle ↗
+              </a>
+            )}
+          </div>
+        </article>
+      )}
       {upcoming.length > 1 && (
         <button type="button" class="btn" onClick={() => downloadIcs(upcoming.map(cal), 'beyblade-termine.ics')}>
           🔔 Alle {upcoming.length} Termine in den Kalender
         </button>
       )}
-      {upcoming.length ? (
+      {rest.length ? (
         [...months.entries()].map(([month, list]) => (
           <Section key={month} title={month}>
             <ul class="list">{list.map(card)}</ul>
           </Section>
         ))
-      ) : (
+      ) : next ? null : (
         <Empty title="Keine kommenden Termine">Neue Releases und Turniere werden zweimal pro Woche automatisch eingetragen.</Empty>
       )}
       {past.length > 0 && (
