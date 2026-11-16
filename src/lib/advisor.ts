@@ -1,4 +1,5 @@
-import type { Database, Product } from './types';
+import type { Database, MetaFeed, Product } from './types';
+import { META_SEEN, metaUsage } from './metaUsage';
 import type { Bey } from './battle';
 import { deckValue, type Candidate, type PartPool, type ScoreCache } from './optimizer';
 import { ownedParts } from './data';
@@ -21,7 +22,12 @@ export interface Offer {
   newParts: NewPart[];
   /** Deck nach dem Kauf (beim Random Booster: mit dem besten Treffer) */
   deck: Candidate[];
+  /** meistgespieltes neues Teil im Turnier-Meta (Anteil an Siegerdecks 0 … 1) */
+  meta?: { name: string; share: number };
 }
+
+/** Gesamtwert eines Angebots: Deck-Punkte plus Turnier-Bonus (Top-Teil mit 30 % ≈ +12 Punkte). */
+export const offerScore = (o: Pick<Offer, 'gain' | 'meta'>) => o.gain + (o.meta?.share ?? 0) * 40;
 
 export interface NewPart {
   kind: 'blade' | 'ratchet' | 'bit';
@@ -48,7 +54,16 @@ export async function advise(
   opponents: Bey[],
   onProgress?: (done: number, total: number) => void,
   preferHasbro = false,
+  meta: MetaFeed | null = null,
 ): Promise<{ base: number; offers: Offer[] }> {
+  // Turnier-Meta der neuen Teile: das am meisten gespielte zählt
+  const metaOf = (parts: NewPart[]): Offer['meta'] => {
+    const best = parts
+      .map((p) => metaUsage(db, meta, p.kind, p.id))
+      .filter((u) => !!u && u.share >= META_SEEN)
+      .sort((a, b) => b!.share - a!.share)[0];
+    return best ? { name: best.name, share: best.share } : undefined;
+  };
   const op = ownedParts(db, owned);
   const pool: PartPool = { blades: [...op.blades.keys()], ratchets: [...op.ratchets.keys()], bits: [...op.bits.keys()] };
   const cache: ScoreCache = new Map();
@@ -98,7 +113,11 @@ export async function advise(
       const gains = results.map((r) => Math.max(0, r.value - base));
       const gain = gains.reduce((s, g) => s + g, 0) / gains.length;
       const bestIdx = gains.indexOf(Math.max(...gains));
-      if (gains[bestIdx]! <= 0.5) continue;
+      const newParts = uniqParts(items.flatMap(fresh));
+      const m = metaOf(newParts);
+      // Erwarteter Turnier-Anteil: nur ein Kreisel aus dem Pack landet bei dir
+      const metaAvg = items.reduce((s2, p) => s2 + (metaOf(fresh(p))?.share ?? 0), 0) / items.length;
+      if (gains[bestIdx]! <= 0.5 && !m) continue;
       offers.push({
         code: first.code,
         codes: items.map((p) => p.code),
@@ -107,15 +126,18 @@ export async function advise(
         priceJpy: items.find((p) => p.priceJpy)?.priceJpy ?? null,
         gain,
         bestGain: gains[bestIdx],
-        newParts: uniqParts(items.flatMap(fresh)),
+        newParts,
         deck: results[bestIdx]!.picks,
+        meta: m && metaAvg > 0 ? { name: m.name, share: metaAvg } : undefined,
       });
     } else {
       const newParts = uniqParts(items.flatMap(fresh));
       if (!newParts.length) continue;
       const after = deckValue(db, items.reduce(addPart, pool), opponents, cache);
       const gain = Math.max(0, after.value - base);
-      if (gain <= 0.5) continue;
+      const m = metaOf(newParts);
+      // Teile, die viel im Turnier gespielt werden, bleiben drin – auch wenn die Punkte-Rechnung wenig zeigt.
+      if (gain <= 0.5 && !m) continue;
       offers.push({
         code: first.code,
         codes: items.map((p) => p.code),
@@ -125,6 +147,7 @@ export async function advise(
         gain,
         newParts,
         deck: after.picks,
+        meta: m,
       });
     }
   }
@@ -133,7 +156,7 @@ export async function advise(
 }
 
 /** Punkte pro 1.000 ¥ – höher ist besser. Ohne Preis: null. */
-export const valuePer1000 = (o: Offer) => (o.priceJpy ? (o.gain / o.priceJpy) * 1000 : null);
+export const valuePer1000 = (o: Offer) => (o.priceJpy ? (offerScore(o) / o.priceJpy) * 1000 : null);
 
 /** Sortierung „Preis-Leistung“: zuerst Angebote mit Preis nach Punkten pro Yen, dann die ohne Preis nach Punkten. */
 export function rankOffers(offers: Offer[]): Offer[] {
@@ -143,6 +166,6 @@ export function rankOffers(offers: Offer[]): Offer[] {
     if (va !== null && vb !== null) return vb - va;
     if (va !== null) return -1;
     if (vb !== null) return 1;
-    return b.gain - a.gain;
+    return offerScore(b) - offerScore(a);
   });
 }

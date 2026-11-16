@@ -1,4 +1,5 @@
-import { displayProductName, regionLabel } from '../lib/names';
+import { displayName, displayProductName, regionLabel } from '../lib/names';
+import { BeyImage } from './BeyImage';
 import { useMemo, useRef, useState } from 'preact/hooks';
 import type { BeyEvent, Database, MetaFeed } from '../lib/types';
 import { wishReleases } from '../lib/reminders';
@@ -187,12 +188,13 @@ export function Collection({ db, state, update, events = [], meta }: Props) {
               {ownedProducts.map((p) => {
                 const b = db.blades.find((x) => x.id === p.bladeId);
                 return (
-                  <li key={p.code} class="row">
-                    <span class="code">{p.code.startsWith('TBA') ? 'neu' : p.code}</span>
+                  <li key={p.code} class="row owned-row">
+                    {b ? <BeyImage bladeId={b.id} type={b.type} size="md" alt={displayName(b)} /> : <span class="code">{p.code.startsWith('TBA') ? 'neu' : p.code}</span>}
                     <div class="row-main">
                       <span class="row-title">{nb(displayProductName(p, db))}</span>
                       <span class="row-sub">
                         <span class={`region-tag ${p.region === 'hasbro' ? 'hasbro' : 'takara'}`}>{regionLabel(p)}</span>
+                        {b && !p.code.startsWith('TBA') && <span class="owned-code"> {p.code}</span>}
                       </span>
                     </div>
                     {b && <TypeBadge type={b.type} small />}

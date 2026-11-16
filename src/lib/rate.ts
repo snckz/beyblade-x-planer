@@ -1,4 +1,5 @@
-import type { Database, Product, Rates } from './types';
+import type { Database, MetaFeed, Product, Rates } from './types';
+import { comboName, META_SEEN, META_TOP, metaUsage, pct, type MetaUsage, type PartKind } from './metaUsage';
 import type { Bey } from './battle';
 import type { ShopPrice } from './storage';
 import { deckValue, type Candidate, type PartPool, type ScoreCache } from './optimizer';
@@ -16,6 +17,8 @@ export interface Rating {
   gain: number;
   deck: Candidate[];
   price: { verdict: Verdict; ratio: number } | null;
+  /** neue Teile, die im Turnier gespielt werden (meistgespielt zuerst) */
+  meta: MetaUsage[];
   overall: Overall;
   reasons: string[];
 }
@@ -43,6 +46,7 @@ export function rateProduct(
   price: ShopPrice | null,
   rates: Rates | null,
   cache: ScoreCache = new Map(),
+  meta: MetaFeed | null = null,
 ): Rating {
   const items = Array.isArray(item) ? item : [item];
   const p = items[0]!;
@@ -58,6 +62,18 @@ export function rateProduct(
     after = { blades: add(after.blades, x.bladeId), ratchets: add(after.ratchets, x.ratchetId), bits: add(after.bits, x.bitId) };
   }
   const hasParts = items.some((x) => x.bladeId || x.ratchetId || x.bitId);
+  // Turnier-Meta: Wie oft werden die neuen Teile in echten Siegerdecks gespielt?
+  const newParts: [PartKind, string][] = [];
+  for (const x of items) {
+    if (x.bladeId && !pool.blades.includes(x.bladeId)) newParts.push(['blade', x.bladeId]);
+    if (x.ratchetId && !pool.ratchets.includes(x.ratchetId)) newParts.push(['ratchet', x.ratchetId]);
+    if (x.bitId && !pool.bits.includes(x.bitId)) newParts.push(['bit', x.bitId]);
+  }
+  const metaParts = newParts
+    .map(([k, id]) => metaUsage(db, meta, k, id))
+    .filter((u): u is MetaUsage => !!u && u.share >= META_SEEN)
+    .filter((u, i, a) => a.findIndex((v) => v.kind === u.kind && v.id === u.id) === i)
+    .sort((a, b) => b.share - a.share);
   const base = deckValue(db, pool, opponents, cache).value;
   const res = deckValue(db, after, opponents, cache);
   const gain = Math.max(0, res.value - base);
@@ -81,15 +97,28 @@ export function rateProduct(
   } else {
     const strong = gain >= 8;
     const some = gain >= 2;
+    const top = metaParts[0];
+    if (top) {
+      const ofTotal = `in ${top.decks} von ${meta?.decksTotal} Siegerdecks (${pct(top.share)})`;
+      reasons.push(top.share >= META_TOP ? `${top.name} ist gerade ein Top-Teil im Turnier: ${ofTotal}.` : `${top.name} wird im Turnier regelmäßig gespielt: ${ofTotal}.`);
+      if (top.top) {
+        const missing = missingFor(db, after, top.top);
+        reasons.push(`Meistgespielt als ${comboName(db, top.top)} (${top.top.decks}×)${missing.length ? ` – dafür fehlt dir noch ${missing.join(' und ')}.` : ' – die Teile dafür hast du dann komplett.'}`);
+      }
+      for (const u of metaParts.slice(1, 2)) reasons.push(`Auch ${u.name} ist turnierrelevant (${pct(u.share)} der Siegerdecks).`);
+    }
+    const pts = gain.toFixed(1).replace('.', ',');
     reasons.push(
       strong
-        ? `Macht dein bestes Deck deutlich stärker (+${gain.toFixed(1).replace('.', ',')} Punkte).`
+        ? `Macht dein bestes Deck deutlich stärker (+${pts} Punkte).`
         : some
-          ? `Verbessert dein Deck etwas (+${gain.toFixed(1).replace('.', ',')} Punkte).`
-          : `${fresh === 1 ? '1 neues Teil' : `${fresh} neue Teile`}, aber dein bestes Deck wird kaum stärker.`,
+          ? `Verbessert dein Deck etwas (+${pts} Punkte).`
+          : top
+            ? `Für dein jetziges 3er-Deck rechnet die App wenig Zugewinn (+${pts}) – oft fehlen nur die passenden Partnerteile.`
+            : `${fresh === 1 ? '1 neues Teil' : `${fresh} neue Teile`}, aber dein bestes Deck wird kaum stärker.`,
     );
     if (pv) reasons.push(pv.verdict === 'good' ? 'Der Preis ist gut.' : pv.verdict === 'ok' ? 'Der Preis ist okay.' : 'Der Preis ist hoch.');
-    overall = judge(gain, pv);
+    overall = judgeWithMeta(gain, top?.share ?? 0, pv);
     if (p.kind === 'random-booster') reasons.push('Random Booster: Welcher Kreisel drin ist, siehst du erst beim Öffnen.');
   }
   // Limitierte Kreisel: der Wert liegt im Sammeln/Tauschen, nicht (nur) im Deck – kein „Nein“ nur wegen der Turnierstärke.
@@ -106,5 +135,25 @@ export function rateProduct(
       if (pv?.verdict === 'high') reasons.push('Fürs Sammeln okay, aber der Preis ist hoch – vergleichen lohnt sich.');
     }
   }
-  return { owned: n, fresh, gain, deck: res.picks, price: pv, overall, reasons };
+  return { owned: n, fresh, gain, deck: res.picks, price: pv, meta: metaParts, overall, reasons };
+}
+
+/**
+ * Urteil aus Deck-Gewinn UND Turnier-Meta: Die Punkte-Rechnung kennt nur die eigene Sammlung –
+ * ein Teil, das in vielen Siegerdecks steckt, ist trotzdem ein guter Kauf.
+ */
+export function judgeWithMeta(gain: number, metaShare: number, pv: { verdict: Verdict } | null): Overall {
+  const byPoints = judge(gain, pv);
+  if (metaShare >= META_TOP) return pv?.verdict === 'high' ? (byPoints === 'buy' ? 'buy' : 'maybe') : 'buy';
+  if (metaShare >= META_SEEN && byPoints === 'skip') return pv?.verdict === 'high' ? 'skip' : 'maybe';
+  return byPoints;
+}
+
+/** Welche Teile der Meta-Kombo fehlen nach dem Kauf noch? */
+function missingFor(db: Database, pool: PartPool, c: { bladeId: string; ratchetId: string | null; bitId: string }): string[] {
+  const out: string[] = [];
+  if (!pool.blades.includes(c.bladeId)) out.push(comboName(db, { ...c, ratchetId: null, bitId: '' }).trim());
+  if (c.ratchetId && !pool.ratchets.includes(c.ratchetId)) out.push(`Ratchet ${c.ratchetId}`);
+  if (!pool.bits.includes(c.bitId)) out.push(`Bit ${c.bitId}`);
+  return out;
 }

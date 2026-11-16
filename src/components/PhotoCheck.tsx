@@ -2,7 +2,8 @@ import { useCallback, useMemo, useRef, useState } from 'preact/hooks';
 import type { Database, MetaFeed, Product } from '../lib/types';
 import type { ShopPrice, UserState } from '../lib/storage';
 import { findByCode, findByName, recognizePhoto } from '../lib/photo';
-import { judge, rateProduct, OVERALL_LABEL, type Rating } from '../lib/rate';
+import { judgeWithMeta, rateProduct, OVERALL_LABEL, type Rating } from '../lib/rate';
+import { META_TOP, pct } from '../lib/metaUsage';
 import { metaOpponents } from '../lib/battle';
 import type { ScoreCache } from '../lib/optimizer';
 import { purchaseCodes, searchProducts } from '../lib/data';
@@ -55,7 +56,7 @@ export function PhotoCheck({ db, state, update, meta, onClose, initialCode }: Pr
   const { opponents } = useMemo(() => metaOpponents(db, meta), [db, meta]);
   const cache = useMemo<ScoreCache>(() => new Map(), [db, opponents]);
   // Neu, sobald Sammlung, Gegner oder Kurse (laden asynchron) sich ändern – damit die Bewertung mitzieht.
-  const rate = useCallback((p: Product | Product[], price: ShopPrice | null) => rateProduct(db, state.owned, opponents, p, price, rates, cache), [db, state.owned, opponents, rates, cache]);
+  const rate = useCallback((p: Product | Product[], price: ShopPrice | null) => rateProduct(db, state.owned, opponents, p, price, rates, cache, meta ?? null), [db, state.owned, opponents, rates, cache, meta]);
 
   const onFile = async (file: File | undefined) => {
     if (!file) return;
@@ -288,7 +289,10 @@ function Result({ db, state, update, product, rate, cur, setCur, msg, setMsg }: 
   const main = ratings[0]!;
   const avgGain = ratings.reduce((s, r) => s + r.gain, 0) / ratings.length;
   const best = ratings.reduce((a, b) => (b.gain > a.gain ? b : a), main);
-  const overall = isRandom ? (group.every((p) => (state.owned[p.code] ?? 0) > 0) ? 'owned' : judge(avgGain, main.price)) : main.overall;
+  // Random Booster: Meta-Anteil im Schnitt über alle möglichen Inhalte
+  const avgMeta = ratings.reduce((s, r) => s + (r.meta[0]?.share ?? 0), 0) / ratings.length;
+  const metaHit = ratings.map((r) => r.meta[0]).filter((u) => !!u).sort((a, b) => b!.share - a!.share)[0];
+  const overall = isRandom ? (group.every((p) => (state.owned[p.code] ?? 0) > 0) ? 'owned' : judgeWithMeta(avgGain, avgMeta, main.price)) : main.overall;
   const own = overall === 'owned';
   const blade = product.bladeId ? db.blades.find((b) => b.id === product.bladeId) : undefined;
   const sym = cur === 'THB' ? '฿' : '€';
@@ -321,6 +325,11 @@ function Result({ db, state, update, product, rate, cur, setCur, msg, setMsg }: 
               <li>
                 Im Schnitt +{avgGain.toFixed(1).replace('.', ',')} Punkte für dein Deck, bester Treffer +{best.gain.toFixed(1).replace('.', ',')}.
               </li>
+              {metaHit && (
+                <li>
+                  Bester Turnier-Treffer: {metaHit.name} ({pct(metaHit.share)} der Siegerdecks{metaHit.share >= META_TOP ? ', Top-Teil' : ''}).
+                </li>
+              )}
               <li>Welcher Kreisel drin ist, siehst du erst beim Öffnen.</li>
               {main.price && <li>{main.price.verdict === 'good' ? 'Der Preis ist gut.' : main.price.verdict === 'ok' ? 'Der Preis ist okay.' : 'Der Preis ist hoch.'}</li>}
             </>
@@ -328,6 +337,13 @@ function Result({ db, state, update, product, rate, cur, setCur, msg, setMsg }: 
             main.reasons.map((r) => <li key={r}>{r}</li>)
           )}
         </ul>
+        {!own && overall !== 'collect' && (
+          <div class="rate-meters" aria-label="Bewertung im Detail">
+            <Meter label="Turnier" value={Math.min(1, (isRandom ? avgMeta : (main.meta[0]?.share ?? 0)) / 0.3)} text={main.meta[0] || isRandom ? pct(isRandom ? avgMeta : (main.meta[0]?.share ?? 0)) : '–'} />
+            <Meter label="Dein Deck" value={Math.min(1, (isRandom ? avgGain : main.gain) / 10)} text={`+${(isRandom ? avgGain : main.gain).toFixed(1).replace('.', ',')}`} />
+            <Meter label="Neue Teile" value={Math.min(1, main.fresh / 3)} text={String(main.fresh)} />
+          </div>
+        )}
         {!isRandom && main.gain >= 2 && main.deck.length > 0 && (
           <p class="fineprint">
             Dein bestes Deck danach: {main.deck.map((c) => nb(`${db.blades.find((b) => b.id === c.combo.bladeId)?.name ?? c.combo.bladeId} ${c.combo.ratchetId ?? ''}${c.combo.bitId}`)).join(' · ')}
@@ -420,6 +436,19 @@ function Result({ db, state, update, product, rate, cur, setCur, msg, setMsg }: 
         </p>
       )}
       <p class="fineprint">Punkte = wie viel stärker dein bestes 3er-Deck gegen die aktuellen Turnier-Kombos wird. Richtwert, kein Messwert.</p>
+    </div>
+  );
+}
+
+/** Ein Balken der Detail-Bewertung (0 … 1). */
+function Meter({ label, value, text }: { label: string; value: number; text: string }) {
+  return (
+    <div class="rate-meter">
+      <span class="rate-meter-label">{label}</span>
+      <span class="rate-meter-bar" aria-hidden="true">
+        <span style={{ width: `${Math.round(Math.max(0.04, value) * 100)}%` }} />
+      </span>
+      <span class="rate-meter-val">{text}</span>
     </div>
   );
 }

@@ -5,7 +5,9 @@ import type { Database } from '../src/lib/types';
 import { findByCode, findByName } from '../src/lib/photo';
 import { groupKey, parsePrice, sumPrices } from '../src/lib/price';
 import { purchaseCodes } from '../src/lib/data';
-import { rateProduct } from '../src/lib/rate';
+import { judgeWithMeta, rateProduct } from '../src/lib/rate';
+import type { MetaFeed } from '../src/lib/types';
+import { metaUsage } from '../src/lib/metaUsage';
 import { ARCHETYPES, toBey, type Bey } from '../src/lib/battle';
 import { advise } from '../src/lib/advisor';
 
@@ -26,6 +28,13 @@ describe('Foto-Erkennung (Text → Produkt)', () => {
     expect(codes(findByCode('BX-05B', db))).toEqual(['BX-05']);
     expect(codes(findByCode('bx-0l', db))).toContain('BX-01'); // kleines L
     expect(findByCode('Größe 8 x 14 cm', db)).toEqual([]);
+  });
+  it('findet Hasbro-Materialnummern wie „G4568“ auf der Packung', () => {
+    expect(codes(findByCode('HASBRO G2745 EU4', db))).toEqual(['G2745']);
+    expect(codes(findByCode('G2745EU4', db))).toEqual(['G2745']); // Ländercode angeklebt
+    expect(codes(findByCode('G27A5', db))).toEqual([]);
+    expect(codes(findByCode('F9588', db))).toEqual(['F9588-01', 'F9588-02']);
+    expect(codes(findByCode('Z9999 1234', db))).toEqual([]);
   });
   it('findet Blade-Namen (auch Hasbro-Schreibweise) im Text', () => {
     const p = findByName('BEYBLADE X  DRAN SWORD 3-60F STARTER', db);
@@ -102,5 +111,33 @@ describe('Bewertung', () => {
     expect(['buy', 'maybe']).toContain(cheap.overall);
     expect(pricey.price?.verdict).toBe('high');
     expect(pricey.overall === 'buy').toBe(false);
+  });
+});
+
+describe('Kauf-Check mit Turnier-Meta', () => {
+  const meta = JSON.parse(readFileSync(new URL('../public/data/meta.json', import.meta.url), 'utf8')) as MetaFeed;
+  it('zählt Siegerdecks je Teil und findet die meistgespielte Kombo', () => {
+    const u = metaUsage(db, { ...meta, decksTotal: 100, counts: { 'GloryValkyrie||K': 30, 'GloryValkyrie||R': 10, 'WizardRod|1-60|K': 5 } }, 'blade', 'GloryValkyrie')!;
+    expect(u.decks).toBe(40);
+    expect(u.share).toBeCloseTo(0.4);
+    expect(u.top).toMatchObject({ bladeId: 'GloryValkyrie', ratchetId: null, bitId: 'K', decks: 30 });
+    expect(metaUsage(db, { ...meta, counts: undefined }, 'blade', 'GloryValkyrie')).toBeNull();
+  });
+  it('ein Top-Teil im Turnier ist ein Kauf, auch wenn die Deck-Punkte wenig zeigen', () => {
+    expect(judgeWithMeta(0.3, 0.28, null)).toBe('buy');
+    expect(judgeWithMeta(0.3, 0.28, { verdict: 'high' })).toBe('maybe');
+    expect(judgeWithMeta(0.3, 0.07, null)).toBe('maybe');
+    expect(judgeWithMeta(0.3, 0, null)).toBe('skip');
+    expect(judgeWithMeta(9, 0, null)).toBe('buy');
+  });
+  it('Glory Valkerion LF wird mit Meta nicht mehr abgelehnt', () => {
+    const p = db.products.find((x) => x.code === 'G4568')!;
+    const owned = Object.fromEntries(['G2745', 'G1543-01', 'G1543-02', 'F9588-01', 'F9588-02', 'G1491'].map((c) => [c, 1]));
+    const fake: MetaFeed = { ...meta, decksTotal: 100, counts: { 'GloryValkyrie||K': 20, 'GloryValkyrie||R': 8 } };
+    const r = rateProduct(db, owned, opponents, p, null, null, new Map(), fake);
+    expect(r.meta[0]?.id).toBe('GloryValkyrie');
+    expect(r.overall).toBe('buy');
+    expect(r.reasons[0]).toMatch(/Top-Teil im Turnier/);
+    expect(r.reasons.join(' ')).toMatch(/fehlt dir noch Bit K/);
   });
 });

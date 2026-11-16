@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import type { Database, MetaFeed } from '../lib/types';
 import type { UserState } from '../lib/storage';
-import { advise, rankOffers, valuePer1000, type NewPart, type Offer } from '../lib/advisor';
+import { advise, offerScore, rankOffers, valuePer1000, type NewPart, type Offer } from '../lib/advisor';
+import { META_TOP, pct } from '../lib/metaUsage';
 import { metaOpponents } from '../lib/battle';
 import { priceHint } from '../lib/price';
 import { displayName, displayProductName } from '../lib/names';
@@ -41,7 +42,7 @@ export function Advisor({ db, state, update, meta }: Props) {
     // Gleiche Kreisel als Takara- und Hasbro-Packung: die Variante anbieten, die man selbst meist kauft
     const mine = db.products.filter((p) => (state.owned[p.code] ?? 0) > 0);
     const preferHasbro = mine.filter((p) => p.region === 'hasbro').length > mine.length / 2;
-    const res = await advise(db, state.owned, opponents, (done, total) => run.current === id && setProgress(done / total), preferHasbro);
+    const res = await advise(db, state.owned, opponents, (done, total) => run.current === id && setProgress(done / total), preferHasbro, meta ?? null);
     if (run.current !== id) return; // inzwischen neu gestartet oder Sammlung geändert
     setResult(res);
     setProgress(null);
@@ -49,7 +50,7 @@ export function Advisor({ db, state, update, meta }: Props) {
 
   const offers = useMemo(() => {
     if (!result) return [];
-    const list = sort === 'value' ? rankOffers(result.offers) : [...result.offers].sort((a, b) => b.gain - a.gain);
+    const list = sort === 'value' ? rankOffers(result.offers) : [...result.offers].sort((a, b) => offerScore(b) - offerScore(a));
     return list.slice(0, 8);
   }, [result, sort]);
 
@@ -121,6 +122,11 @@ export function Advisor({ db, state, update, meta }: Props) {
                           )}
                           {v !== null && sort === 'value' && <span class="muted"> · {v.toLocaleString('de-DE', { maximumFractionDigits: 1 })} pro 1.000 ¥</span>}
                         </span>
+                        {o.meta && (
+                          <span class={`meta-tag${o.meta.share >= META_TOP ? ' top' : ''}`}>
+                            {o.meta.share >= META_TOP ? 'Top im Turnier' : 'Turnier-relevant'}: {o.meta.name} · {pct(o.meta.share)} der Siegerdecks
+                          </span>
+                        )}
                         <span class="row-sub">Neu: {o.newParts.map(partName).join(', ')}</span>
                         {hint && <span class="row-sub">{hint}</span>}
                       </div>

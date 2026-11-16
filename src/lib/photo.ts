@@ -17,6 +17,13 @@ export function findByCode(text: string, db: Pick<Database, 'products'>): Produc
   const re = /\b(?:([BUC])\s*[X×]\s*[-–—_.:]?\s*|(8)[X×][-–—_.:]\s*)([0-9OIL|SB]{2,3})(?:\s*[-–]\s*([0-9OIL]{2}))?(?![0-9])/g;
   const lookup = (code: string, sub: string | null) =>
     db.products.filter((p) => BUYABLE.has(p.kind) && (sub ? p.code === sub : p.code === code || p.code.startsWith(`${code}-`)));
+  // Hasbro-Materialnummer, z. B. „G4568“ oder „F9588EU4“ (steht auf jeder Hasbro-Packung beim Barcode)
+  for (const m of text.toUpperCase().matchAll(/\b([A-H])\s?([0-9OIL|SB]{4})(?![0-9])/g)) {
+    const raw = digits(m[2]!);
+    if (!/^\d{4}$/.test(raw)) continue;
+    const code = `${m[1]}${raw}`;
+    for (const p of db.products) if (BUYABLE.has(p.kind) && (p.code === code || p.code.startsWith(`${code}-`)) && !found.includes(p)) found.push(p);
+  }
   for (const m of text.toUpperCase().matchAll(re)) {
     const series = `${m[1] ?? 'B'}X`;
     const raw = digits(m[3]!);
