@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'preact/hooks';
 import { largeUrl } from '../lib/images';
 import type { Database } from '../lib/types';
 import { useApp, type ImageKind } from '../lib/context';
+import { ArrowUpRight } from 'lucide-preact';
 
 /** Anzeigename eines Teils für die Bildunterschrift. */
 function partName(db: Database, id: string, kind: ImageKind): string {
@@ -54,7 +55,7 @@ export function Lightbox({ db, id, kind = 'blade', onClose }: { db: Database; id
       <p class="lightbox-cap">
         <strong>{name}</strong>
         <a href={img.page} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
-          Bild: Beyblade Wiki ↗
+          Bild: Beyblade Wiki <ArrowUpRight aria-hidden="true" />
         </a>
       </p>
       <button type="button" class="icon-btn lightbox-close" aria-label="Schließen" onClick={onClose}>

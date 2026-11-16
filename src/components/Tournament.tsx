@@ -19,6 +19,7 @@ import {
 } from '../lib/tournament';
 import { DuelScorer } from './DuelScorer';
 import { Section } from './ui';
+import { Pencil, Trophy } from 'lucide-preact';
 
 /** Mini-Turnier mit Freunden: Spieler eintragen, Paarungen auslosen, Tabelle führen. Bleibt auf dem Gerät gespeichert. */
 export function Tournament() {
@@ -176,7 +177,7 @@ export function Tournament() {
             onClick={() => setEdit({ id: m.id, a: m.sa === null ? '' : String(m.sa), b: m.sb === null ? '' : String(m.sb) })}
             aria-label={`Ergebnis ${name(m.a)} gegen ${name(m.b)} ${isDone(m) ? 'korrigieren' : 'eintippen'}`}
           >
-            ✎
+            <Pencil aria-hidden="true" />
           </button>
         </>
       )}
@@ -203,7 +204,7 @@ export function Tournament() {
     >
       <div class="card glass stack-sm">
         {done ? (
-          <p class="tour-winner">🏆 {table[0]?.player.name} gewinnt das Turnier!</p>
+          <p class="tour-winner"><Trophy aria-hidden="true" /> {table[0]?.player.name} gewinnt das Turnier!</p>
         ) : canAdvance(t) ? (
           <p class="eyebrow">Runde {round} fertig – bereit für die nächste</p>
         ) : (

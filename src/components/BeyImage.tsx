@@ -1,6 +1,7 @@
 import { useState } from 'preact/hooks';
 import type { BeyType } from '../lib/types';
 import { useApp } from '../lib/context';
+import { ArrowUpRight } from 'lucide-preact';
 
 interface Props {
   bladeId: string;
@@ -52,7 +53,7 @@ export function ImageCredit({ bladeId }: { bladeId: string }) {
   if (!img) return null;
   return (
     <a class="credit" href={img.page} target="_blank" rel="noopener noreferrer">
-      Bild: Beyblade Wiki ↗
+      Bild: Beyblade Wiki <ArrowUpRight aria-hidden="true" />
     </a>
   );
 }

@@ -6,6 +6,7 @@ import { useApp } from '../lib/context';
 import { News } from './News';
 import { downloadIcs, type CalItem } from '../lib/ics';
 import { Empty, Section } from './ui';
+import { ArrowUpRight, CalendarPlus, ChevronRight } from 'lucide-preact';
 
 interface Props {
   db: Database;
@@ -77,7 +78,7 @@ export function Events({ db, events, news, state, update }: Props) {
             </span>
             <span class="countdown">{when(e)}</span>
           </span>
-          <span class="row-title">{e.url ? <a class="link" href={e.url} target="_blank" rel="noopener noreferrer">{e.title} ↗</a> : e.title}</span>
+          <span class="row-title">{e.url ? <a class="link" href={e.url} target="_blank" rel="noopener noreferrer">{e.title} <ArrowUpRight class="ico-inline" aria-hidden="true" /></a> : e.title}</span>
           <span class="row-sub">
             {dateRange(e)}
             {e.place ? ` · ${e.place}` : ''}
@@ -86,12 +87,12 @@ export function Events({ db, events, news, state, update }: Props) {
           <span class="event-actions">
             {blade && (
               <button type="button" class="link-btn" onClick={() => openBlade(blade.id)}>
-                {displayName(blade)} ansehen →
+                {displayName(blade)} ansehen <ChevronRight aria-hidden="true" />
               </button>
             )}
             {daysUntil(e.endDate ?? e.date) >= 0 && (
               <button type="button" class="link-btn" onClick={() => downloadIcs([cal(e)], `${e.id}.ics`)} aria-label={`${e.title} in den Kalender`}>
-                <span aria-hidden="true">🔔</span> In Kalender
+                <CalendarPlus aria-hidden="true" /> In Kalender
               </button>
             )}
           </span>
@@ -131,7 +132,7 @@ export function Events({ db, events, news, state, update }: Props) {
           {next.note && <p class="hero-note">{next.note}</p>}
           <div class="hero-actions">
             <button type="button" class="btn hero-btn" onClick={() => downloadIcs([cal(next)], `${next.id}.ics`)}>
-              <span aria-hidden="true">🔔</span> In Kalender
+              <CalendarPlus aria-hidden="true" /> In Kalender
             </button>
             {nextBlade && (
               <button type="button" class="btn btn-ghost hero-link" onClick={() => openBlade(nextBlade.id)}>
@@ -140,7 +141,7 @@ export function Events({ db, events, news, state, update }: Props) {
             )}
             {next.url && (
               <a class="btn btn-ghost hero-link" href={next.url} target="_blank" rel="noopener noreferrer">
-                Quelle ↗
+                Quelle <ArrowUpRight aria-hidden="true" />
               </a>
             )}
           </div>
@@ -148,7 +149,7 @@ export function Events({ db, events, news, state, update }: Props) {
       )}
       {upcoming.length > 1 && (
         <button type="button" class="btn" onClick={() => downloadIcs(upcoming.map(cal), 'beyblade-termine.ics')}>
-          🔔 Alle {upcoming.length} Termine in den Kalender
+          <CalendarPlus aria-hidden="true" /> Alle {upcoming.length} Termine in den Kalender
         </button>
       )}
       {rest.length ? (

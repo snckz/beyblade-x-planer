@@ -12,6 +12,7 @@ import { BeyImage } from './BeyImage';
 import { PriceInput } from './PriceInput';
 import { purchaseCodes } from '../lib/data';
 import { Scanner } from './Scanner';
+import { Check } from 'lucide-preact';
 
 interface Props {
   db: Database;
@@ -172,7 +173,7 @@ export function ShopMode({ db, state, update, meta, onClose }: Props) {
                   )}
                   <div class="btn-row">
                     <button type="button" class="btn btn-sm btn-primary" onClick={() => bought(p)}>
-                      Gekauft ✓
+                      <Check aria-hidden="true" /> Gekauft
                     </button>
                     <button type="button" class="btn btn-sm" onClick={() => openCheck(p.code)}>
                       Kaufen?

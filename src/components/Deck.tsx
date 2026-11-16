@@ -9,6 +9,7 @@ import { useEffect, useState } from 'preact/hooks';
 import { useApp } from '../lib/context';
 import { canShareFile, deckFile, renderDeckImage } from '../lib/deckImage';
 import { inAndroidApp, saveBlob } from '../lib/download';
+import { Check, ChevronDown, ChevronUp, Share } from 'lucide-preact';
 
 interface Props {
   db: Database;
@@ -121,10 +122,10 @@ export function Deck({ db, state, update, goToBuilder }: Props) {
                 <div class="row-side">
                   <div class="reorder">
                     <button type="button" class="icon-btn" onClick={() => move(i, -1)} disabled={i === 0} aria-label="Nach oben">
-                      ↑
+                      <ChevronUp aria-hidden="true" />
                     </button>
                     <button type="button" class="icon-btn" onClick={() => move(i, 1)} disabled={i === combos.length - 1} aria-label="Nach unten">
-                      ↓
+                      <ChevronDown aria-hidden="true" />
                     </button>
                     <button
                       type="button"
@@ -143,7 +144,7 @@ export function Deck({ db, state, update, goToBuilder }: Props) {
       </Section>
 
       <div class={`card check ${check.ok ? 'check-ok' : 'check-bad'}`} role="status">
-        <p class="check-title">{check.ok ? '✓ Turnier-tauglich' : 'Noch nicht turnier-tauglich'}</p>
+        <p class="check-title">{check.ok ? <><Check aria-hidden="true" /> Turnier-tauglich</> : 'Noch nicht turnier-tauglich'}</p>
         {check.problems.length > 0 && (
           <ul class="notes notes-warn">
             {check.problems.map((p) => (
@@ -164,7 +165,7 @@ export function Deck({ db, state, update, goToBuilder }: Props) {
           <div class="btn-row">
             {canShareFile(img.file) && (
               <button type="button" class="btn btn-primary" onClick={share}>
-                📤 Teilen
+                <Share aria-hidden="true" /> Teilen
               </button>
             )}
             <button type="button" class="btn" onClick={() => void saveBlob(img.file, 'beyblade-deck.png')}>
@@ -178,7 +179,7 @@ export function Deck({ db, state, update, goToBuilder }: Props) {
         </div>
       ) : (
         <button type="button" class="btn" onClick={create} disabled={sharing}>
-          {sharing ? 'Bild wird erstellt …' : '📤 Deck als Bild teilen'}
+          {sharing ? 'Bild wird erstellt …' : <><Share aria-hidden="true" /> Deck als Bild teilen</>}
         </button>
       )}
       {shareMsg && (

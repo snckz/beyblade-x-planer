@@ -1546,413 +1546,205 @@ input[type='text']:focus, input[type='search']:focus, select:focus { border-colo
 .trait-text strong { color: var(--text); font-size: 15px; }
 
 /* =========================================================================
-   Liquid Glass
-   Milchglas-Flächen über einem farbigen, weichen Hintergrund: Die Farbe scheint durch,
-   Kanten fangen Licht (heller Rand oben, dunkler unten). Blur nur auf großen Flächen –
-   lange Listen (Lexikon-Karten, Zeilen) bleiben ohne Blur, damit es auf dem iPhone flüssig läuft.
+   Design „Stadion bei Nacht“
+   Prinzip wie bei Apples Liquid Glass: Glas nur für die Bedien-Ebene, die über dem Inhalt schwebt
+   (Kopfzeile, Tab-Leiste, Fenster). Inhalte liegen auf ruhigen, matten Graphit-Flächen.
+   Eine Signalfarbe (X-Rot) für Hauptaktionen, Weiß für „ausgewählt“, Typfarben nur mit Bedeutung.
+   Markenmoment: kursive Titel mit der gezahnten X-Schiene darunter.
    ========================================================================= */
 :root {
-  --glass: rgba(255, 255, 255, .065);
-  --glass-2: rgba(255, 255, 255, .085);
-  --glass-hi: rgba(255, 255, 255, .22);
-  --glass-edge: rgba(255, 255, 255, .13);
-  --glass-blur: blur(26px) saturate(1.7);
-  --glass-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, .22),
-    inset 0 -1px 0 rgba(255, 255, 255, .04),
-    inset 0 0 0 1px rgba(255, 255, 255, .05),
-    0 18px 44px -20px rgba(0, 0, 0, .75);
-  --surface: rgba(255, 255, 255, .065);
-  --surface-2: rgba(255, 255, 255, .07);
-  --surface-3: rgba(255, 255, 255, .12);
+  --night: #050506;
+  --surface: #121215;    /* Karte */
+  --surface-2: #1b1b20;  /* Element in der Karte */
+  --surface-3: #26262c;  /* gedrückt / ausgewählt */
+  --hair: rgba(255, 255, 255, .06);
+  --hair-2: rgba(255, 255, 255, .1);
+  --text: #f4f4f6;
+  --muted: #a7a9b1;      /* 7:1 auf Graphit */
+  --faint: #878993;      /* 5:1 auf Graphit */
+  --x-red: #f0283c;
+  --chrome: #f4f4f6;     /* ausgewählt */
+  --ink: #0d0d10;        /* Text auf Weiß */
+  --glass-chrome: rgba(22, 22, 26, .62);
+  --glass-rim: linear-gradient(140deg, rgba(255, 255, 255, .36), rgba(255, 255, 255, .05) 40%, rgba(255, 255, 255, .03) 70%, rgba(255, 255, 255, .14));
+  --font: 'Inter Tight', ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+  --display: 800 italic 1em/1 var(--font);
+  --mono: var(--font);
 }
+html, body, .live { background-color: var(--night); }
+body { font-family: var(--font); font-size: 15.5px; letter-spacing: .006em; font-feature-settings: 'kern'; -webkit-font-smoothing: antialiased; }
+* { font-stretch: normal !important; }
 
-/* Farbiger Grund, damit das Glas etwas zum Durchscheinen hat: Rot, Blau, Bernstein in Beyblade-Farben */
-.bg { background: #07080c; }
-.bg::before, .bg::after {
-  content: ''; position: absolute; border-radius: 50%; filter: blur(70px); opacity: .55; pointer-events: none;
-}
-.bg::before {
-  width: 75vmax; height: 75vmax; left: -25vmax; top: -20vmax;
-  background: radial-gradient(circle at 40% 40%, #e3172b, rgba(227, 23, 43, 0) 65%);
-}
-.bg::after {
-  width: 80vmax; height: 80vmax; right: -30vmax; bottom: -25vmax;
-  background:
-    radial-gradient(circle at 60% 40%, #1f5bff, rgba(31, 91, 255, 0) 60%),
-    radial-gradient(circle at 30% 80%, #ff9d2e, rgba(255, 157, 46, 0) 55%);
-}
+/* Hintergrund: kein Logo, nur ein roter Stadion-Lichtschein von oben */
+.bg { background: var(--night); }
 .bg-photo {
+  position: absolute; inset: 0; opacity: 1;
   background:
-    linear-gradient(180deg, rgba(7, 8, 12, .35) 0%, rgba(7, 8, 12, .55) 55%, rgba(7, 8, 12, .8) 100%),
-    url('/bg-logo.webp') center 16% / min(120vw, 760px) auto no-repeat;
-  opacity: .9;
+    radial-gradient(90% 42% at 50% -8%, rgba(240, 40, 60, .2), rgba(240, 40, 60, 0) 70%),
+    radial-gradient(60% 30% at 100% 0%, rgba(240, 40, 60, .08), rgba(240, 40, 60, 0) 70%),
+    var(--night);
 }
-@media (prefers-reduced-motion: no-preference) {
-  .bg::before { animation: glass-drift-a 28s ease-in-out infinite alternate; }
-  .bg::after { animation: glass-drift-b 34s ease-in-out infinite alternate; }
-}
-@keyframes glass-drift-a { to { transform: translate(12vw, 10vh) scale(1.08); } }
-@keyframes glass-drift-b { to { transform: translate(-10vw, -12vh) scale(1.1); } }
 
-/* Große Glasflächen */
-.card, .glass, .kpi, .empty, .segmented, .tabs-top, .ios-hint {
-  background: linear-gradient(160deg, rgba(255, 255, 255, .1), rgba(255, 255, 255, .035) 55%, rgba(255, 255, 255, .06));
-  border: 1px solid var(--glass-edge);
-  box-shadow: var(--glass-shadow);
-  -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur);
-}
-/* Elemente in Glasflächen: zarter, ohne eigenen Blur */
-.card .row, .card .kpi, .sheet .row, .part-btn, .event-date, .result .stat, .improve-item, .trait, .rate-meters, .save-row,
-.scan-choice:not(.primary), .cta-grid .scan-cta svg, input[type='text'], input[type='search'], select {
-  background-color: rgba(255, 255, 255, .07);
-  border-color: rgba(255, 255, 255, .08);
-  -webkit-backdrop-filter: none; backdrop-filter: none;
-}
-.card .row, .part-btn, .improve-item, .trait { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08); }
-/* lange Listen: Glas-Optik ohne Blur (Leistung) */
-.row, .bcard, .event {
-  background: linear-gradient(160deg, rgba(255, 255, 255, .085), rgba(255, 255, 255, .035));
-  border: 1px solid var(--glass-edge);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .16), 0 10px 26px -18px rgba(0, 0, 0, .8);
-}
-.event { -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur); }
-
-/* Kopfzeile, Tab-Leiste und Fenster als Glas */
-.top { background: rgba(10, 11, 16, .45) !important; -webkit-backdrop-filter: blur(24px) saturate(1.8); backdrop-filter: blur(24px) saturate(1.8); border-bottom: 1px solid rgba(255, 255, 255, .06); }
-.tabbar {
-  background: linear-gradient(160deg, rgba(255, 255, 255, .14), rgba(255, 255, 255, .05)) !important;
-  border: 1px solid rgba(255, 255, 255, .18);
-  -webkit-backdrop-filter: blur(30px) saturate(1.9); backdrop-filter: blur(30px) saturate(1.9);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .3), 0 20px 44px -10px rgba(0, 0, 0, .7);
-}
-.tabbar a { color: rgba(255, 255, 255, .62); }
-.tabbar a.on {
-  background: linear-gradient(160deg, rgba(255, 80, 95, .95), rgba(214, 16, 36, .9));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45), 0 8px 20px -6px rgba(242, 41, 58, .8);
+/* ---- Bedien-Ebene aus Glas ---- */
+.top {
+  background: rgba(5, 5, 6, .55) !important; border-bottom: 1px solid rgba(255, 255, 255, .05);
+  -webkit-backdrop-filter: blur(22px) saturate(1.6); backdrop-filter: blur(22px) saturate(1.6);
 }
 .sheet {
-  background: linear-gradient(170deg, rgba(40, 42, 52, .72), rgba(18, 19, 25, .82));
-  border: 1px solid rgba(255, 255, 255, .14);
-  -webkit-backdrop-filter: blur(34px) saturate(1.8); backdrop-filter: blur(34px) saturate(1.8);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .22), 0 -20px 60px -20px rgba(0, 0, 0, .8);
+  border: 1px solid transparent; border-bottom: 0;
+  background: linear-gradient(180deg, rgba(30, 30, 35, .9), rgba(16, 16, 19, .96)) padding-box, var(--glass-rim) border-box;
+  -webkit-backdrop-filter: blur(30px) saturate(1.5); backdrop-filter: blur(30px) saturate(1.5);
+  box-shadow: 0 -24px 60px -24px rgba(0, 0, 0, .9);
 }
-.sheet-backdrop { background: rgba(4, 5, 8, .45); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+.sheet-backdrop { background: rgba(0, 0, 0, .55); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
 
-/* Knöpfe als Glas-Pillen */
-.btn {
-  background: linear-gradient(160deg, rgba(255, 255, 255, .14), rgba(255, 255, 255, .05));
-  border: 1px solid rgba(255, 255, 255, .14);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .22);
-}
-.btn:hover:not(:disabled) { background: linear-gradient(160deg, rgba(255, 255, 255, .2), rgba(255, 255, 255, .08)); }
-.btn-ghost { background: transparent; border-color: transparent; box-shadow: none; }
-.btn-primary, .hero-btn { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45), 0 10px 24px -10px rgba(242, 41, 58, .9); }
-.btn-primary { background: linear-gradient(160deg, #ff4d5c, #dc1328); border-color: rgba(255, 255, 255, .2); }
-.segmented button.on { background: rgba(255, 255, 255, .92); box-shadow: inset 0 1px 0 #fff, 0 6px 16px rgba(0, 0, 0, .35); }
-
-/* Rote Hero-Karten: farbiges Glas statt Volltonfläche */
-.hero-card, .live-cta {
-  background:
-    radial-gradient(120% 90% at 100% 0%, rgba(255, 255, 255, .28), transparent 55%),
-    linear-gradient(150deg, rgba(255, 70, 86, .82), rgba(214, 16, 36, .72) 60%, rgba(150, 8, 24, .78));
-  border: 1px solid rgba(255, 255, 255, .22);
-  -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45), inset 0 -1px 0 rgba(0, 0, 0, .15), 0 24px 48px -22px rgba(242, 41, 58, .85);
-}
-.scan-choice.primary, .cta-grid .scan-cta:first-child svg { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .4), 0 12px 26px -14px rgba(242, 41, 58, .9); }
-
-/* Kombo-Showcase: Glas mit Leuchten in Typfarbe bleibt */
-.result::after { opacity: .9; }
-
-/* Ohne Blur-Unterstützung: dichtere Flächen, damit Text lesbar bleibt */
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .card, .glass, .kpi, .empty, .sheet, .tabbar, .top { background: rgba(22, 24, 30, .94) !important; }
-}
-.hero-btn, .hero-btn:hover:not(:disabled) { background: #fff; color: #b80d20; border-color: transparent; }
-.hero-link { background: rgba(255, 255, 255, .14); border-color: rgba(255, 255, 255, .28); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .25); }
-/* Tab-Leiste: genug Tönung, damit die Beschriftung über Inhalt lesbar bleibt */
-.tabbar { background: linear-gradient(160deg, rgba(40, 42, 52, .62), rgba(16, 17, 22, .7)) !important; }
-
-/* ===== Liquid Glass, Stufe 2: Lichtkante, Glanz, kräftigerer Farbgrund ===== */
-:root {
-  /* Lichtkante: oben links hell, unten rechts schwach – wie Licht auf gewölbtem Glas */
-  --rim: linear-gradient(135deg, rgba(255, 255, 255, .55), rgba(255, 255, 255, .08) 35%, rgba(255, 255, 255, .04) 65%, rgba(255, 255, 255, .28));
-  /* Glasfüllung mit Glanzfleck oben links */
-  --fill:
-    radial-gradient(140% 90% at 0% 0%, rgba(255, 255, 255, .16), rgba(255, 255, 255, 0) 45%),
-    linear-gradient(160deg, rgba(255, 255, 255, .11), rgba(255, 255, 255, .04) 55%, rgba(255, 255, 255, .07));
-  --glass-blur: blur(30px) saturate(1.9) brightness(1.04);
-}
-
-/* Kräftigerer, wärmerer Farbgrund mit vier weichen Lichtern */
-.bg { background: radial-gradient(120% 80% at 50% 0%, #1a0d14, #07080c 70%); }
-.bg::before { opacity: .75; background: radial-gradient(circle at 40% 40%, #ff2a3d, rgba(255, 42, 61, 0) 62%); }
-.bg::after {
-  opacity: .7;
-  background:
-    radial-gradient(circle at 62% 38%, #2a66ff, rgba(42, 102, 255, 0) 58%),
-    radial-gradient(circle at 28% 78%, #ffae3d, rgba(255, 174, 61, 0) 52%),
-    radial-gradient(circle at 85% 85%, #b03cff, rgba(176, 60, 255, 0) 45%);
-}
-.bg-photo { opacity: .7; }
-
-/* Große Glasflächen mit Verlaufs-Rand (Füllung im Inneren, Lichtkante als Rand) */
-.card, .glass, .kpi, .empty, .segmented, .tabs-top, .ios-hint, .event {
-  border: 1px solid transparent;
-  background: var(--fill) padding-box, var(--rim) border-box;
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, .12), 0 24px 50px -26px rgba(0, 0, 0, .85);
-}
-/* Listen ohne Blur bekommen dieselbe Kante */
-.row, .bcard {
-  border: 1px solid transparent;
-  background: var(--fill) padding-box, var(--rim) border-box;
-  box-shadow: 0 12px 28px -20px rgba(0, 0, 0, .85);
-}
-/* Innere Elemente: kleine Glasblasen */
-.card .row, .part-btn, .event-date, .result .stat, .improve-item, .trait, .rate-meters, .save-row, .scan-choice:not(.primary) {
-  border: 1px solid transparent;
-  background:
-    linear-gradient(160deg, rgba(255, 255, 255, .1), rgba(255, 255, 255, .04)) padding-box,
-    linear-gradient(135deg, rgba(255, 255, 255, .3), rgba(255, 255, 255, .03) 50%, rgba(255, 255, 255, .12)) border-box;
-  box-shadow: none;
-}
-
-/* Tab-Leiste: dickes Glas, aktiver Tab als leuchtende Glasblase */
+/* Tab-Leiste: einzelne Glas-Kreise, aktiver Tab als weiße Pille mit rotem Symbol */
 .tabbar {
-  border: 1px solid transparent !important;
-  background:
-    radial-gradient(120% 100% at 0% 0%, rgba(255, 255, 255, .14), transparent 50%),
-    linear-gradient(160deg, rgba(44, 46, 58, .6), rgba(18, 19, 25, .68)) padding-box,
-    var(--rim) border-box !important;
-}
-.tabbar a.on {
-  background:
-    radial-gradient(120% 80% at 30% 0%, rgba(255, 255, 255, .45), transparent 55%),
-    linear-gradient(160deg, #ff4f5e, #d7112a);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .35), 0 10px 24px -8px rgba(242, 41, 58, .9);
-}
-
-/* Fenster */
-.sheet {
-  border: 1px solid transparent;
-  background:
-    radial-gradient(120% 60% at 0% 0%, rgba(255, 255, 255, .12), transparent 50%),
-    linear-gradient(170deg, rgba(42, 44, 56, .74), rgba(16, 17, 23, .86)) padding-box,
-    var(--rim) border-box;
-}
-
-/* Hero-Karten: rotes Glas mit Lichtkante */
-.hero-card, .live-cta {
-  border: 1px solid transparent;
-  background:
-    radial-gradient(120% 90% at 0% 0%, rgba(255, 255, 255, .32), transparent 50%),
-    linear-gradient(150deg, rgba(255, 70, 86, .8), rgba(214, 16, 36, .7) 60%, rgba(140, 8, 24, .78)) padding-box,
-    linear-gradient(135deg, rgba(255, 255, 255, .7), rgba(255, 255, 255, .1) 40%, rgba(255, 255, 255, .35)) border-box;
-}
-
-/* Knöpfe als Glasblasen mit Lichtkante */
-.btn {
-  border: 1px solid transparent;
-  background:
-    linear-gradient(160deg, rgba(255, 255, 255, .16), rgba(255, 255, 255, .05)) padding-box,
-    linear-gradient(135deg, rgba(255, 255, 255, .45), rgba(255, 255, 255, .06) 50%, rgba(255, 255, 255, .2)) border-box;
-}
-.btn:hover:not(:disabled) {
-  background:
-    linear-gradient(160deg, rgba(255, 255, 255, .22), rgba(255, 255, 255, .08)) padding-box,
-    linear-gradient(135deg, rgba(255, 255, 255, .55), rgba(255, 255, 255, .1) 50%, rgba(255, 255, 255, .25)) border-box;
-}
-.btn-ghost, .btn-ghost:hover:not(:disabled) { background: transparent; border-color: transparent; }
-.btn-primary, .btn-primary:hover:not(:disabled) {
-  background:
-    radial-gradient(120% 90% at 30% 0%, rgba(255, 255, 255, .35), transparent 55%) padding-box,
-    linear-gradient(160deg, #ff4f5e, #d7112a) padding-box,
-    linear-gradient(135deg, rgba(255, 255, 255, .6), rgba(255, 255, 255, .1)) border-box;
-}
-.hero-btn, .hero-btn:hover:not(:disabled) { background: #fff; color: #b80d20; border-color: transparent; }
-
-/* Kennzahlen und Werte: Zahl mit leichtem Glanz */
-.kpi-val, .result .stat-val, .hero-count b {
-  background: linear-gradient(180deg, #fff 30%, rgba(255, 255, 255, .72));
-  -webkit-background-clip: text; background-clip: text; color: transparent;
-}
-.hero-count b { background: linear-gradient(180deg, #fff 40%, rgba(255, 255, 255, .8)); -webkit-background-clip: text; background-clip: text; }
-
-/* Bey-Bilder sitzen in einer Glaslinse */
-.bey-img, .bey-img.has-photo { box-shadow: 0 0 0 1px rgba(255, 255, 255, .18), inset 0 1px 0 rgba(255, 255, 255, .25), 0 12px 28px -12px rgba(0, 0, 0, .8); }
-.hero-link, .hero-link:hover:not(:disabled) {
-  color: #fff;
-  background:
-    linear-gradient(160deg, rgba(255, 255, 255, .2), rgba(255, 255, 255, .08)) padding-box,
-    linear-gradient(135deg, rgba(255, 255, 255, .6), rgba(255, 255, 255, .1) 50%, rgba(255, 255, 255, .3)) border-box;
-}
-
-/* ===== Liquid Glass, Feinschliff: dunkles Glas (Basis Stufe 2) + Glasblasen und bessere Lesbarkeit ===== */
-
-/* Kennzahlen der Sammlung als runde, dunkle Glasblasen */
-.kpis { gap: 10px; }
-.kpi {
-  aspect-ratio: 1; border-radius: 50%; padding: 0; place-content: center; gap: 0;
-  border: 1.5px solid transparent;
-  background:
-    radial-gradient(60% 45% at 34% 20%, rgba(255, 255, 255, .26), rgba(255, 255, 255, 0) 70%) padding-box,
-    radial-gradient(80% 70% at 65% 90%, rgba(120, 150, 255, .14), rgba(120, 150, 255, 0) 70%) padding-box,
-    linear-gradient(160deg, rgba(255, 255, 255, .1), rgba(255, 255, 255, .03)) padding-box,
-    linear-gradient(150deg, rgba(255, 255, 255, .65), rgba(255, 255, 255, .08) 45%, rgba(255, 255, 255, .3)) border-box;
-  box-shadow: inset 0 -6px 14px rgba(255, 255, 255, .06), inset 0 2px 4px rgba(255, 255, 255, .2), 0 14px 28px -14px rgba(0, 0, 0, .85);
-}
-.kpi-val { font-size: clamp(24px, 7.5vw, 34px); line-height: .95; }
-.kpi-label { font-size: 10.5px; letter-spacing: .02em; color: rgba(255, 255, 255, .72); }
-
-/* Datum bei Terminen als kleine dunkle Glasblase */
-.event-date {
-  width: 58px; height: 58px; padding: 0; display: grid; place-content: center; border-radius: 50%;
-  border: 1px solid transparent;
-  background:
-    radial-gradient(60% 40% at 32% 16%, rgba(255, 255, 255, .22), rgba(255, 255, 255, 0) 70%) padding-box,
-    linear-gradient(160deg, rgba(255, 255, 255, .1), rgba(255, 255, 255, .03)) padding-box,
-    linear-gradient(150deg, rgba(255, 255, 255, .6), rgba(255, 255, 255, .08) 45%, rgba(255, 255, 255, .3)) border-box;
-  box-shadow: inset 0 2px 4px rgba(255, 255, 255, .18), 0 10px 20px -12px rgba(0, 0, 0, .8);
-}
-.event-day { font-size: 21px; line-height: 1; color: #fff; }
-.event-mon { font-size: 10px; color: rgba(255, 255, 255, .75); }
-.event { border-radius: 30px; }
-.event::before { content: none; }
-
-/* Lesbarkeit auf Glas */
-.card .muted, .event .row-sub, .event .row-note, .row .row-sub, .page-sub { color: rgba(255, 255, 255, .66); }
-.layers .field-label, .field-label { color: rgba(255, 255, 255, .8); }
-.part-sub, .result .stat-head, .fineprint { color: rgba(255, 255, 255, .62); }
-.badge { background-color: rgba(10, 12, 18, .5) !important; }
-input[type='text']::placeholder, input[type='search']::placeholder { color: rgba(255, 255, 255, .5); }
-
-/* Große Bey-Bilder als Glaslinse */
-.result-head .bey-img { box-shadow: 0 0 0 1.5px rgba(255, 255, 255, .35), inset 0 2px 4px rgba(255, 255, 255, .25), 0 24px 48px -16px rgba(0, 0, 0, .9), 0 0 0 10px rgba(255, 255, 255, .04); }
-
-/* ===== Stufe 4: Premium Dark nach Referenzen ===== */
-/* Ruhiger, fast schwarzer Grund mit einem roten Lichtschein und einem weichen Lichtstrahl statt bunter Flecken.
-   Dunkles Rauchglas, weiße aktive Elemente, runde Icon-Knöpfe, Tab-Leiste aus einzelnen Glas-Kreisen. */
-:root {
-  --rim: linear-gradient(140deg, rgba(255, 255, 255, .42), rgba(255, 255, 255, .06) 32%, rgba(255, 255, 255, .02) 66%, rgba(255, 255, 255, .16));
-  --fill:
-    radial-gradient(120% 80% at 0% 0%, rgba(255, 255, 255, .09), rgba(255, 255, 255, 0) 50%),
-    linear-gradient(165deg, rgba(255, 255, 255, .07), rgba(255, 255, 255, .025) 60%, rgba(255, 255, 255, .04));
-  --glass-blur: blur(28px) saturate(1.4);
-  --ink: #0d0e12;
-}
-
-/* Hintergrund */
-.bg { background: radial-gradient(130% 70% at 50% -10%, #1c0b10, #08080b 62%, #050507); }
-.bg::before {
-  opacity: .62; width: 90vmax; height: 70vmax; left: auto; right: -35vmax; top: -30vmax;
-  background: radial-gradient(circle at 45% 55%, #e8192e, rgba(232, 25, 46, 0) 62%);
-}
-.bg::after {
-  opacity: .5; width: 140vmax; height: 34vmax; right: auto; left: -50vmax; bottom: auto; top: 18vh;
-  border-radius: 0; filter: blur(60px); transform: rotate(-32deg);
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 236, 228, .1) 45%, rgba(255, 255, 255, 0));
-}
-@media (prefers-reduced-motion: no-preference) { .bg::after { animation: none; } }
-.bg-photo { opacity: .45; }
-
-/* Karten: dunkles Rauchglas, größerer Radius */
-.card, .glass, .empty, .tabs-top, .ios-hint, .event, .row, .bcard {
-  background: var(--fill) padding-box, var(--rim) border-box;
-}
-.card, .empty, .event { border-radius: 32px; }
-.card, .glass, .empty, .event { box-shadow: inset 0 1px 1px rgba(255, 255, 255, .08), 0 30px 60px -30px rgba(0, 0, 0, .95); }
-
-/* Aktive Auswahl: weiß wie in den Referenzen (Typ-Filter behalten ihre Typfarbe) */
-.chip { background: rgba(255, 255, 255, .06); border-color: rgba(255, 255, 255, .1); color: rgba(255, 255, 255, .78); }
-.chip-on:not([class*='type-chip-']), .chip-row .chip-on, .tabs-top a.on {
-  background: #f4f4f6; color: var(--ink); border-color: transparent;
-  box-shadow: inset 0 1px 0 #fff, 0 8px 20px -10px rgba(0, 0, 0, .8);
-}
-.segmented button.on { background: #f4f4f6; color: var(--ink); }
-
-/* Runde Icon-Knöpfe als Glas-Kreise */
-.icon-btn {
-  border: 1px solid transparent; color: #fff;
-  background:
-    linear-gradient(160deg, rgba(255, 255, 255, .14), rgba(255, 255, 255, .04)) padding-box,
-    linear-gradient(140deg, rgba(255, 255, 255, .45), rgba(255, 255, 255, .05) 50%, rgba(255, 255, 255, .18)) border-box;
-  box-shadow: 0 8px 18px -10px rgba(0, 0, 0, .9);
-}
-
-/* Tab-Leiste: einzelne Glas-Kreise, aktiver Tab als weiße Pille mit roter Icon-Farbe */
-.tabbar {
+  display: flex; justify-content: space-between; align-items: center; gap: 7px;
+  width: min(420px, calc(100% - 28px)); height: 58px; padding: 0;
   background: none !important; border: 0 !important; box-shadow: none;
   -webkit-backdrop-filter: none; backdrop-filter: none;
-  display: flex; justify-content: space-between; padding: 0; gap: 7px; height: 58px; align-items: center;
-  width: min(420px, calc(100% - 28px));
 }
 .tabbar::before {
   content: ''; position: absolute; z-index: -1; pointer-events: none;
   left: -50vw; right: -50vw; top: -56px; bottom: calc(-14px - var(--safe-b));
-  background: linear-gradient(180deg, rgba(5, 5, 7, 0), rgba(5, 5, 7, .78) 55%, rgba(5, 5, 7, .92));
+  background: linear-gradient(180deg, rgba(5, 5, 6, 0), rgba(5, 5, 6, .8) 55%, rgba(5, 5, 6, .94));
 }
 .tabbar a {
-  flex: 0 0 52px; height: 52px; min-width: 0; border-radius: 999px; flex-direction: row; gap: 7px; padding: 0;
-  color: rgba(255, 255, 255, .8);
-  border: 1px solid transparent;
-  background:
-    radial-gradient(70% 50% at 32% 18%, rgba(255, 255, 255, .16), rgba(255, 255, 255, 0) 70%) padding-box,
-    linear-gradient(160deg, rgba(46, 47, 56, .78), rgba(16, 17, 21, .86)) padding-box,
-    linear-gradient(140deg, rgba(255, 255, 255, .42), rgba(255, 255, 255, .05) 50%, rgba(255, 255, 255, .16)) border-box;
-  -webkit-backdrop-filter: blur(18px) saturate(1.4); backdrop-filter: blur(18px) saturate(1.4);
+  flex: 0 0 52px; min-width: 0; height: 52px; padding: 0; gap: 6px; flex-direction: row; border-radius: 999px;
+  color: rgba(255, 255, 255, .82); border: 1px solid transparent;
+  background: linear-gradient(160deg, rgba(48, 48, 56, .72), rgba(18, 18, 22, .84)) padding-box, var(--glass-rim) border-box;
+  -webkit-backdrop-filter: blur(18px) saturate(1.5); backdrop-filter: blur(18px) saturate(1.5);
   box-shadow: 0 12px 24px -12px rgba(0, 0, 0, .95);
-  transition: flex-grow .3s cubic-bezier(.2, .8, .2, 1), background .25s, color .2s;
+  transition: flex-grow .3s var(--ease), background .25s, color .2s, transform .12s;
 }
-.tabbar a .tab-label { max-width: 0; opacity: 0; overflow: hidden; font-size: 13px; font-weight: 700; letter-spacing: -.01em; }
-@media (max-width: 380px) { .tabbar a { flex-basis: 48px; height: 48px; } .tabbar { height: 52px; } }
+.tabbar a .tab-label { max-width: 0; opacity: 0; overflow: hidden; font-size: 13px; font-weight: 700; letter-spacing: 0; white-space: nowrap; }
 .tabbar a.on {
-  flex: 1 1 auto; padding: 0 12px; gap: 6px; color: var(--ink);
-  background: linear-gradient(180deg, #ffffff, #e6e7eb) padding-box, linear-gradient(#fff, #fff) border-box;
-  box-shadow: inset 0 -2px 4px rgba(0, 0, 0, .08), 0 14px 28px -12px rgba(0, 0, 0, .9), 0 0 0 4px rgba(255, 255, 255, .06);
+  flex: 1 1 auto; padding: 0 12px; color: var(--ink);
+  background: linear-gradient(180deg, #fff, #e7e7eb) padding-box, linear-gradient(#fff, #fff) border-box;
+  box-shadow: inset 0 -2px 4px rgba(0, 0, 0, .08), 0 14px 28px -12px rgba(0, 0, 0, .9);
 }
 .tabbar a.on .tab-label { max-width: 120px; opacity: 1; }
-.tabbar a.on svg { stroke: #e3172b; }
+.tabbar a.on svg { stroke: var(--x-red); }
+.tabbar a.on::after { content: none; }
 .tabbar a:not(.on):active { transform: scale(.94); }
-.tab-icon .dot-count { top: -12px; right: -14px; background: #e3172b; color: #fff; box-shadow: 0 0 0 2px #0d0e12; }
+.tab-icon .dot-count { top: -12px; right: -14px; background: var(--x-red); color: #fff; box-shadow: 0 0 0 2px var(--night); }
 .tabbar a.on .dot-count { box-shadow: 0 0 0 2px #fff; }
+@media (max-width: 380px) { .tabbar { height: 52px; } .tabbar a { flex-basis: 48px; height: 48px; } }
 @media (prefers-reduced-motion: reduce) { .tabbar a { transition: none; } }
 @media (min-width: 860px) { .tabbar { display: none; } }
 
-/* ===== Schrift: Inter Tight (moderne enge Grotesk wie in den Referenzen) ===== */
-:root {
-  --font: 'Inter Tight', ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
-  --display: 800 italic 1em/1 var(--font);
+/* ---- Inhalt auf mattem Graphit ---- */
+.glass, .card, .kpi, .empty, .ios-hint {
+  background: var(--surface); border: 1px solid var(--hair);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .045), 0 16px 36px -22px rgba(0, 0, 0, .9);
+  -webkit-backdrop-filter: none; backdrop-filter: none;
 }
-body { font-family: var(--font); font-size: 15.5px; letter-spacing: .006em; font-feature-settings: 'kern'; -webkit-font-smoothing: antialiased; }
-* { font-stretch: normal !important; }
+.row, .bcard, .event {
+  background: var(--surface); border: 1px solid var(--hair);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .04);
+}
+.card .row, .card .kpi, .sheet .row, .part-btn, .event-date, .result .stat, .improve-item, .trait, .rate-meters, .save-row,
+.scan-choice:not(.primary), .chip-row .chip, .album-chips .chip {
+  background: var(--surface-2); border-color: transparent; box-shadow: none;
+}
+.event::before { content: none; }
+.empty { border-style: solid; }
 
-/* Große Titel: fett-kursiv, eng gesetzt, normale Groß-/Kleinschreibung */
+/* Lesbarkeit */
+.muted, .page-sub, .row-sub, .row-note, .part-sub, .field-label, .fineprint, .result .stat-head, .kpi-label, .owned-code { color: var(--muted); }
+.fineprint, .owned-code, .improve-missing { color: var(--faint); }
+input[type='text']::placeholder, input[type='search']::placeholder { color: var(--faint); }
+
+/* ---- Bedienelemente ---- */
+.btn { background: var(--surface-3); border: 1px solid transparent; box-shadow: none; gap: 8px; }
+.btn:hover:not(:disabled) { background: #303037; border-color: transparent; }
+.btn-ghost, .btn-ghost:hover:not(:disabled) { background: transparent; }
+.btn-primary { background: var(--x-red); color: #fff; box-shadow: 0 10px 24px -12px rgba(240, 40, 60, .9); }
+.btn-primary:hover:not(:disabled) { background: #ff3a4c; }
+.hero-btn, .hero-btn:hover:not(:disabled) { background: #fff; color: #b80d20; }
+.hero-link, .hero-link:hover:not(:disabled) { color: #fff; background: rgba(255, 255, 255, .14); border: 1px solid rgba(255, 255, 255, .24); }
+.icon-btn { background: var(--surface-2); color: var(--text); border: 1px solid var(--hair); }
+.icon-btn:hover:not(:disabled) { background: var(--surface-3); }
+.segmented, .tabs-top { background: var(--surface); border: 1px solid var(--hair); box-shadow: none; }
+.segmented button.on, .tabs-top a.on, .chip-on:not([class*='type-chip-']), .chip-row .chip-on {
+  background: var(--chrome); color: var(--ink); border-color: transparent; box-shadow: 0 6px 16px -8px rgba(0, 0, 0, .8);
+}
+.chip { background: var(--surface-2); border-color: transparent; color: var(--text); }
+.badge { background-color: rgba(255, 255, 255, .07); }
+input[type='text'], input[type='search'], select { background-color: var(--surface-2); border: 1px solid transparent; }
+input[type='text']:focus, input[type='search']:focus, select:focus { background-color: var(--surface-3); border-color: rgba(255, 255, 255, .22); outline: none; }
+:is(a, button, input, select, [tabindex]):focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+/* Icons (Lucide): einheitliche Größe und Strichstärke */
+.lucide { width: 1.15em; height: 1.15em; flex: none; stroke-width: 2; vertical-align: -.2em; }
+.btn .lucide, .link-btn .lucide { width: 18px; height: 18px; }
+.icon-btn .lucide { width: 20px; height: 20px; }
+.trait-icon .lucide { width: 18px; height: 18px; color: var(--text); }
+.trait.strong .trait-icon { background: rgba(240, 40, 60, .18); }
+.trait.strong .trait-icon .lucide { color: #ff6b7a; }
+.photo-icon .lucide { width: 30px; height: 30px; stroke-width: 1.8; }
+.scan-status { display: flex; align-items: center; gap: 6px; }
+.link .lucide, .ico-inline { width: .95em; height: .95em; }
+
+/* ---- Typografie: Inter Tight ---- */
 .page-title { font: 800 italic clamp(40px, 11.5vw, 60px)/.95 var(--font); text-transform: none; letter-spacing: -.03em; padding-right: .06em; }
 .hero-title { font: 800 italic 29px/1.05 var(--font); letter-spacing: -.025em; }
 .combo-name, .sheet-title { font-weight: 800; font-style: italic; letter-spacing: -.025em; text-transform: none; }
 .live-cta strong { font: 800 italic 24px/1.05 var(--font); letter-spacing: -.025em; }
-.improve-label { font: 750 italic 19px/1.1 var(--font); letter-spacing: -.025em; }
-
-/* Abschnitts-Überschriften: kräftig, aufrecht, ruhig */
+.improve-label { font: 750 italic 19px/1.1 var(--font); letter-spacing: -.02em; }
 .section-head h2 { font: 750 20px/1.15 var(--font); letter-spacing: -.02em; white-space: nowrap; }
-
-/* Zahlen: aufrecht, Tabellenziffern, eng – wie Beträge in Banking-Apps */
 .kpi-val, .album-count, .log-big, .verdict-score, .event-day, .meta-rank, .tile-big, .hero-count b, .result .stat-val, .live-score {
-  font-style: normal; font-weight: 750; font-variant-numeric: tabular-nums; letter-spacing: -.03em; font-family: var(--font);
+  font-family: var(--font); font-style: normal; font-weight: 750; font-variant-numeric: tabular-nums; letter-spacing: -.03em;
 }
-.kpi-val { font-size: clamp(26px, 8vw, 36px); line-height: 1; }
+.kpi-val { font-size: clamp(26px, 8vw, 34px); line-height: 1; }
 .hero-count b { font-size: 60px; line-height: .85; }
 .result .stat-val { font-size: 32px; line-height: .95; }
-.event-day { font-size: 21px; }
+.event-day { font-size: 21px; line-height: 1; }
 .live-score { font-weight: 700; }
-
-/* Bedienelemente und kleine Texte */
-.btn, .segmented button, .tabs-top a, .chip, .tabbar a .tab-label { font-weight: 600; letter-spacing: 0; }
+.btn, .segmented button, .tabs-top a, .chip { font-weight: 600; letter-spacing: 0; }
 .btn-primary, .hero-btn { font-weight: 650; }
-.row-title, .part-name, .event-title { letter-spacing: -.015em; }
-.sheet-h, .infobox caption, .eyebrow { letter-spacing: .04em; }
-.code, .code-inline { font-variant-numeric: tabular-nums; letter-spacing: 0; }
-/* Zahlen in Chips und Codes: dieselbe Schrift mit Tabellenziffern statt Schreibmaschinenschrift */
-:root { --mono: var(--font); }
-.rarity-chip span, .mono, .matrix-sub, .stat-val, .parts-grid p:last-child { font-family: var(--font); font-variant-numeric: tabular-nums; letter-spacing: 0; }
+.row-title { letter-spacing: -.01em; }
+.sheet-h, .infobox caption, .eyebrow { letter-spacing: .03em; }
+.rarity-chip span, .mono, .matrix-sub, .stat-val, .parts-grid p:last-child, .code, .code-inline { font-family: var(--font); font-variant-numeric: tabular-nums; letter-spacing: 0; }
+
+/* Bilder: Blade sitzt in einer dunklen Schale */
+.bey-img, .bey-img.has-photo { border-color: var(--hair-2); background: radial-gradient(circle at 35% 28%, #2a2a31, #111114 72%); }
+.result-head .bey-img { box-shadow: 0 0 0 1px rgba(255, 255, 255, .12), 0 24px 48px -18px rgba(0, 0, 0, .95), 0 0 0 10px rgba(255, 255, 255, .03); }
+
+/* Bewegung: nur die X-Schiene beim Seitenwechsel – keine gestaffelten Karten */
+@keyframes soft-in { from { opacity: 1; } to { opacity: 1; } }
+
+/* Rote Hero-Karten (nächster Termin, Live-Match) bleiben die eine farbige Fläche pro Seite */
+.hero-card, .live-cta, .card.live-cta, .glass.live-cta {
+  border: 0;
+  background:
+    radial-gradient(120% 90% at 100% 0%, rgba(255, 255, 255, .2), transparent 55%),
+    radial-gradient(90% 80% at 0% 100%, rgba(110, 0, 16, .55), transparent 60%),
+    linear-gradient(150deg, #ff3b4c 0%, #e8172b 55%, #b30c1e 100%);
+  box-shadow: 0 24px 48px -24px rgba(240, 40, 60, .8), inset 0 1px 0 rgba(255, 255, 255, .25);
+}
+
+/* Leerer Zustand: ruhige Scheibe mit rotem Bogen statt Regenbogen */
+.empty-ring {
+  width: 64px; height: 64px; border-radius: 50%;
+  background:
+    radial-gradient(circle, var(--surface) 0 19px, transparent 20px),
+    conic-gradient(from -40deg, var(--x-red) 0 28%, var(--surface-3) 28% 100%);
+  opacity: 1;
+}
+
+/* Termin-Art in normaler Schreibweise statt Großbuchstaben */
+.event-kind { text-transform: none; letter-spacing: 0; font-size: 12.5px; font-weight: 700; }
+.row .link { text-decoration-color: rgba(255, 255, 255, .28); text-underline-offset: 4px; }
+
+/* Steckbrief: ruhige Tabelle statt roter Wiki-Kopfzeile */
+.infobox { border: 0; border-radius: 18px; background: var(--surface-2); }
+.infobox caption {
+  padding: 0 2px 10px; background: none; color: var(--text); border-radius: 0;
+  font-size: 17px; font-weight: 750; letter-spacing: -.01em; text-transform: none;
+}
+.infobox th, .infobox td { padding: 12px 16px; border-top: 1px solid var(--hair); background: none; }
+.infobox tr:first-child th, .infobox tr:first-child td { border-top: 0; }
+.infobox th { color: var(--muted); font-weight: 500; }
+.sheet-h { text-transform: none; letter-spacing: -.01em; font-style: normal; font-size: 17px; font-weight: 750; color: var(--text); }

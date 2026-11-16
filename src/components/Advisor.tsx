@@ -9,6 +9,7 @@ import { displayName, displayProductName } from '../lib/names';
 import { useApp } from '../lib/context';
 import { BeyImage } from './BeyImage';
 import { Section } from './ui';
+import { Heart } from 'lucide-preact';
 
 interface Props {
   db: Database;
@@ -137,7 +138,7 @@ export function Advisor({ db, state, update, meta }: Props) {
                         onClick={() => toggleWish(o)}
                         aria-label={`${product.name} ${wished ? 'von der Wunschliste nehmen' : 'auf die Wunschliste'}`}
                       >
-                        {wished ? '♥ Wunsch' : '♡ Wunsch'}
+                        <Heart aria-hidden="true" fill={wished ? 'currentColor' : 'none'} /> Wunsch
                       </button>
                     </li>
                   );

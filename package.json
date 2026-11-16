@@ -18,6 +18,7 @@
   "dependencies": {
     "@tesseract.js-data/eng": "^1.0.0",
     "barcode-detector": "^3.2.3",
+    "lucide-preact": "1.66.0",
     "preact": "^11.2.0",
     "tesseract.js": "^7.0.0",
     "uqr": "^0.1.3",

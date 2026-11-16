@@ -14,6 +14,7 @@ import { nb } from '../lib/analysis';
 import { useApp } from '../lib/context';
 import { useModal } from '../lib/useModal';
 import { BeyImage } from './BeyImage';
+import { Camera, Heart } from 'lucide-preact';
 
 interface Props {
   db: Database;
@@ -179,7 +180,7 @@ export function PhotoCheck({ db, state, update, meta, onClose, initialCode }: Pr
         {phase.k === 'idle' && !query.trim() && (
           <div class="card glass stack-sm photo-start">
             <span class="photo-icon" aria-hidden="true">
-              📷
+              <Camera />
             </span>
             <p>
               <strong>Packung fotografieren</strong>
@@ -426,7 +427,7 @@ function Result({ db, state, update, product, rate, cur, setCur, msg, setMsg }: 
               setMsg(`${product.code} steht auf deiner Wunschliste.`);
             }}
           >
-            ♡ Merken
+            <Heart aria-hidden="true" /> Merken
           </button>
         )}
       </div>

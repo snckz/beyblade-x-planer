@@ -19,6 +19,7 @@ import { isAndroidBrowser, saveBlob } from '../lib/download';
 import { Showcase } from './Showcase';
 import { nb } from '../lib/analysis';
 import { convert, groupKey, priceHint, sumPrices, yen } from '../lib/price';
+import { CalendarPlus, ShoppingCart } from 'lucide-preact';
 
 interface Props {
   events?: BeyEvent[];
@@ -241,7 +242,7 @@ export function Collection({ db, state, update, events = [], meta }: Props) {
         title={`Wunschliste${wishProducts.length ? ` (${wishProducts.length})` : ''}`}
         aside={
           <button type="button" class="btn btn-sm" onClick={() => setShop(true)}>
-            🛒 Einkaufsmodus
+            <ShoppingCart aria-hidden="true" /> Einkaufsmodus
           </button>
         }
       >
@@ -291,7 +292,7 @@ export function Collection({ db, state, update, events = [], meta }: Props) {
             </div>
             {upcoming.length > 0 && (
               <button type="button" class="btn" onClick={toCalendar}>
-                🔔 {upcoming.length === 1 ? 'Release-Termin' : `${upcoming.length} Release-Termine`} in den Kalender
+                <CalendarPlus aria-hidden="true" /> {upcoming.length === 1 ? 'Release-Termin' : `${upcoming.length} Release-Termine`} in den Kalender
               </button>
             )}
             <p class="fineprint">

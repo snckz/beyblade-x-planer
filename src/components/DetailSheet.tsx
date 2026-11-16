@@ -2,11 +2,12 @@ import { useModal } from '../lib/useModal';
 import { displayName, displayProductName, otherName } from '../lib/names';
 import { useEffect, useRef } from 'preact/hooks';
 import type { BeyEvent, Database, MetaFeed } from '../lib/types';
-import { bladeTraits } from '../lib/traits';
+import { bladeTraits, type TraitIcon } from '../lib/traits';
 import { TYPE_HINT, TYPE_LABEL } from '../lib/analysis';
 import { useApp } from '../lib/context';
 import { BeyImage, ImageCredit } from './BeyImage';
 import { SpinBadge, TypeBadge, UnverifiedMark } from './ui';
+import { ArrowLeftRight, ArrowUpRight, Check, Cog, Feather, Globe, Puzzle, RotateCcw, Trophy, Weight, Wrench } from 'lucide-preact';
 
 interface Props {
   db: Database;
@@ -81,7 +82,7 @@ export function DetailSheet({ db, events, bladeId, onClose, onUse, meta = null }
                 {traits.map((t) => (
                   <li key={t.title} class={`trait${t.strong ? ' strong' : ''}`}>
                     <span class="trait-icon" aria-hidden="true">
-                      {t.icon}
+                      <TraitSymbol icon={t.icon} />
                     </span>
                     <span class="trait-text">
                       <strong>{t.title}</strong>
@@ -122,7 +123,7 @@ export function DetailSheet({ db, events, bladeId, onClose, onUse, meta = null }
                         onClick={() => openCheck(p.code)}
                         aria-label={ownedCount(p.code) ? `${p.name}: hast du schon` : `Soll ich ${p.name} kaufen?`}
                       >
-                        {ownedCount(p.code) ? '✓ Hab ich' : 'Kaufen?'}
+                        {ownedCount(p.code) ? <><Check aria-hidden="true" /> Hab ich</> : 'Kaufen?'}
                       </button>
                     )}
                   </li>
@@ -154,7 +155,7 @@ export function DetailSheet({ db, events, bladeId, onClose, onUse, meta = null }
             </button>
             {wiki && (
               <a class="btn" href={wiki.page} target="_blank" rel="noopener noreferrer">
-                Im Beyblade Wiki ↗
+                Im Beyblade Wiki <ArrowUpRight aria-hidden="true" />
               </a>
             )}
           </div>
@@ -163,4 +164,21 @@ export function DetailSheet({ db, events, bladeId, onClose, onUse, meta = null }
       </div>
     </div>
   );
+}
+
+const TRAIT_ICONS: Record<TraitIcon, typeof Trophy> = {
+  meta: Trophy,
+  custom: Puzzle,
+  gimmick: Cog,
+  ratchet: Wrench,
+  left: RotateCcw,
+  both: ArrowLeftRight,
+  heavy: Weight,
+  light: Feather,
+  names: Globe,
+};
+
+function TraitSymbol({ icon }: { icon: TraitIcon }) {
+  const Icon = TRAIT_ICONS[icon];
+  return <Icon aria-hidden="true" />;
 }

@@ -2,6 +2,7 @@ import { createPortal } from 'preact/compat';
 import { useRef, useState } from 'preact/hooks';
 import { FINISH, type Finish } from '../lib/matches';
 import { useModal } from '../lib/useModal';
+import { Undo2 } from 'lucide-preact';
 
 interface Props {
   left: string;
@@ -73,7 +74,7 @@ function DuelScorerInner({ left, right, target, onDone, onClose }: Props) {
           <span class="muted">Runde {log.length + 1}</span>
         )}
         <button type="button" class="btn btn-sm" onClick={() => setLog((x) => x.slice(0, -1))} disabled={!log.length}>
-          ↶ Rückgängig
+          <Undo2 aria-hidden="true" /> Rückgängig
         </button>
       </div>
       {side(1)}

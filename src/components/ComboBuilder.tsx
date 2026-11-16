@@ -12,6 +12,7 @@ import { Empty, Section, SpinBadge, StatBar, TypeBadge } from './ui';
 import { BeyImage } from './BeyImage';
 import { PartField } from './PartPicker';
 import { useApp } from '../lib/context';
+import { Check, ChevronRight, Sparkles } from 'lucide-preact';
 
 interface Props {
   db: Database;
@@ -162,7 +163,7 @@ export function ComboBuilder({ db, state, update, presetBladeId, presetRatchetId
               <SpinBadge spin={resolved.blade.spin} />
             </div>
               <button type="button" class="link-btn" onClick={() => openBlade(resolved.blade.id)}>
-                Lexikon: {displayName(resolved.blade)} →
+                Lexikon: {displayName(resolved.blade)} <ChevronRight aria-hidden="true" />
               </button>
             </div>
 
@@ -192,7 +193,7 @@ export function ComboBuilder({ db, state, update, presetBladeId, presetRatchetId
             </ul>
           )}
           <button type="button" class={`btn improve-btn${improveOpen ? ' on' : ''}`} onClick={() => setImproveOpen((o) => !o)} aria-expanded={improveOpen}>
-            <span aria-hidden="true">✨</span> {improveOpen ? 'Vorschläge ausblenden' : 'Kombo verbessern'}
+            <Sparkles aria-hidden="true" /> {improveOpen ? 'Vorschläge ausblenden' : 'Kombo verbessern'}
           </button>
           {improveOpen && improvements && (
             <div class="improve" aria-live="polite">
@@ -232,7 +233,7 @@ export function ComboBuilder({ db, state, update, presetBladeId, presetRatchetId
               aria-label="Name der Kombo"
             />
             <button type="button" class="btn btn-primary" onClick={save} disabled={!result.valid}>
-              {saved ? 'Gespeichert ✓' : 'Speichern'}
+              {saved ? <><Check aria-hidden="true" /> Gespeichert</> : 'Speichern'}
             </button>
           </div>
         </div>

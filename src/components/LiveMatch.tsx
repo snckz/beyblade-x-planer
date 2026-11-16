@@ -8,6 +8,7 @@ import { nb, resolveCombo } from '../lib/analysis';
 import { displayName } from '../lib/names';
 import { FINISH, type Finish, type Match } from '../lib/matches';
 import { DeckPicker, DEFAULT_DECK, toPart, type Part } from './DeckPicker';
+import { Undo2 } from 'lucide-preact';
 
 interface Props {
   db: Database;
@@ -240,7 +241,7 @@ function LiveMatchInner({ db, state, update, onClose }: Props) {
               <span class="muted">Runde {log.length + 1}</span>
             )}
             <button type="button" class="btn btn-sm" onClick={undo} disabled={!log.length}>
-              ↶ Rückgängig
+              <Undo2 aria-hidden="true" /> Rückgängig
             </button>
           </div>
           {pad(true)}

@@ -1,6 +1,7 @@
 import type { ComponentChildren } from 'preact';
 import type { BeyType, Spin } from '../lib/types';
 import { TYPE_LABEL } from '../lib/analysis';
+import { ArrowLeftRight, RotateCcw } from 'lucide-preact';
 
 export function TypeBadge({ type, small }: { type: BeyType; small?: boolean }) {
   return <span class={`badge type-${type}${small ? ' badge-sm' : ''}`}>{TYPE_LABEL[type]}</span>;
@@ -10,7 +11,7 @@ export function SpinBadge({ spin }: { spin: Spin }) {
   if (spin === 'right') return null;
   return (
     <span class="badge badge-spin" title={spin === 'left' ? 'Linksdreher' : 'Beide Richtungen'}>
-      {spin === 'left' ? '↺ Links' : '⇄ Beide'}
+      {spin === 'left' ? <><RotateCcw aria-hidden="true" /> Links</> : <><ArrowLeftRight aria-hidden="true" /> Beide</>}
     </span>
   );
 }

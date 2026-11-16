@@ -11,6 +11,7 @@ import { priceHint } from '../lib/price';
 import { BeyImage } from './BeyImage';
 import { recognizePhoto } from '../lib/photo';
 import { groupKey } from '../lib/price';
+import { Check, Heart } from 'lucide-preact';
 
 interface Props {
   db: Database;
@@ -407,7 +408,7 @@ function ProductRow({ db, product, onClick }: { db: Database; product: Product; 
 /** Im Laden das Wichtigste auf einen Blick: schon da? auf der Wunschliste? bringt es neue Teile? */
 function OwnStatus({ db, state, product }: { db: Database; state: UserState; product: Product }) {
   const n = state.owned[product.code] ?? 0;
-  if (n > 0) return <p class="scan-status have">✓ Hast du schon ({n}×)</p>;
+  if (n > 0) return <p class="scan-status have"><Check aria-hidden="true" /> Hast du schon ({n}×)</p>;
   const parts = ownedParts(db, state.owned);
   const fresh = [
     product.bladeId && !parts.blades.has(product.bladeId),
@@ -416,7 +417,7 @@ function OwnStatus({ db, state, product }: { db: Database; state: UserState; pro
   ].filter(Boolean).length;
   return (
     <>
-      {state.wishlist.includes(product.code) && <p class="scan-status wish">♥ Steht auf deiner Wunschliste</p>}
+      {state.wishlist.includes(product.code) && <p class="scan-status wish"><Heart aria-hidden="true" fill="currentColor" /> Steht auf deiner Wunschliste</p>}
       {product.bladeId && (fresh ? <p class="scan-status new">{fresh === 1 ? '1 neues Teil' : `${fresh} neue Teile`} für deine Sammlung</p> : <p class="scan-status have">Alle Teile hast du schon aus anderen Packungen</p>)}
     </>
   );

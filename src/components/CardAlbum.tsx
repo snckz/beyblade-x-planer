@@ -9,6 +9,7 @@ import { priceHint } from '../lib/price';
 import { BeyImage } from './BeyImage';
 import { Empty, TypeBadge } from './ui';
 import { useProgressive } from '../lib/useProgressive';
+import { Check } from 'lucide-preact';
 
 interface Props {
   db: Database;
@@ -141,7 +142,7 @@ export function CardAlbum({ db, state, update }: Props) {
                     onClick={() => openCheck(p.code)}
                     aria-label={ownedCount(p.code) ? `${p.name}: hast du schon` : `Soll ich ${p.name} kaufen?`}
                   >
-                    {ownedCount(p.code) ? '✓ Hab ich' : 'Kaufen?'}
+                    {ownedCount(p.code) ? <><Check aria-hidden="true" /> Hab ich</> : 'Kaufen?'}
                   </button>
                   <div class="bcard-foot">
                     <TypeBadge type={blade.type} small />
