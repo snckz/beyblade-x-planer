@@ -1,6 +1,6 @@
 import { displayName } from '../lib/names';
-import type { BeyEvent, Blade, Database, NewsFeed } from '../lib/types';
-import { BeyEmblem, usePhotoState } from './BeyImage';
+import type { BeyEvent, Database, NewsFeed } from '../lib/types';
+import { BladeStage } from './BeyImage';
 import type { UserState } from '../lib/storage';
 import { daysUntil } from '../lib/data';
 import { useApp } from '../lib/context';
@@ -41,35 +41,8 @@ function dateRange(e: BeyEvent) {
   return e.endDate && e.endDate !== e.date ? `${fmt(e.date, false)}–${fmt(e.endDate, true)}` : fmt(e.date, true);
 }
 
-/**
- * Echtes Blade-Foto zum Termin (Beyblade Wiki, nur verlinkt) auf hellem Sockel.
- * Während des Ladens und bei Fehler: dunkle Kachel – bei Fehler mit dem Emblem in der Typ-Farbe.
- * Passt das Foto nicht exakt zum Produkt (Set, Sonderfarbe), steht „Abb. ähnlich“ dabei.
- */
-function EventPhoto({ blade, name, eventTitle, large }: { blade: Blade; name: string; eventTitle: string; large?: boolean }) {
-  const { images, openImage } = useApp();
-  const img = images.blades[blade.id];
-  const photo = usePhotoState(img?.thumb);
-  const wrap = `ev-photo-wrap${large ? ' ev-photo-lg' : ''}`;
-  if (!img || photo.status === 'failed') {
-    return (
-      <span class={wrap}>
-        <span class={`ev-photo ev-photo-fallback type-fg-${blade.type}`} role="img" aria-label={`${name} (kein Foto verfügbar)`}>
-          <BeyEmblem />
-        </span>
-      </span>
-    );
-  }
-  const exact = photoMatchesTitle(eventTitle, img.title);
-  return (
-    <span class={wrap}>
-      <button type="button" class={`ev-photo${photo.status === 'ok' ? ' is-loaded' : ''}`} onClick={() => openImage(blade.id)} aria-label={`${name}: Bild vergrößern`}>
-        <img src={img.thumb} alt={name} loading="lazy" decoding="async" referrerpolicy="no-referrer" {...photo.imgProps} />
-      </button>
-      {!exact && photo.status === 'ok' && <span class="ev-photo-note">Abb. ähnlich</span>}
-    </span>
-  );
-}
+/** „Abb. ähnlich“, wenn das Foto nicht exakt zum Produkt passt (Set, Sonderfarbe). */
+const similarNote = (eventTitle: string) => (imageTitle: string) => (photoMatchesTitle(eventTitle, imageTitle) ? null : 'Abb. ähnlich');
 
 export function Events({ db, events, news, state, update }: Props) {
   const { openBlade, rates } = useApp();
@@ -178,7 +151,7 @@ export function Events({ db, events, news, state, update }: Props) {
           )}
         </div>
         <div class="tl-side">
-          {blade && <EventPhoto blade={blade} name={displayName(blade)} eventTitle={e.title} />}
+          {blade && <BladeStage blade={blade} name={displayName(blade)} noteFor={similarNote(e.title)} />}
           {upcomingItem && (
             <button type="button" class="icon-btn tl-cal" onClick={() => downloadIcs([cal(e)], `${e.id}.ics`)} aria-label={`${e.title} in den Kalender`}>
               <CalendarPlus aria-hidden="true" />
@@ -239,7 +212,7 @@ export function Events({ db, events, news, state, update }: Props) {
                   <small>{when(next)}</small>
                 </span>
               )}
-              {nextBlade && <EventPhoto blade={nextBlade} name={displayName(nextBlade)} eventTitle={next.title} large />}
+              {nextBlade && <BladeStage blade={nextBlade} name={displayName(nextBlade)} size="lg" noteFor={similarNote(next.title)} />}
             </div>
           </div>
           {noteBlock(nextNote, 'hero-note')}

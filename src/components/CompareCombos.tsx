@@ -1,4 +1,4 @@
-import { useState } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
 import type { Combo, Database } from '../lib/types';
 import { matchup, toBey } from '../lib/battle';
 import { TYPE_LABEL, nb } from '../lib/analysis';
@@ -10,10 +10,22 @@ import { Section } from './ui';
 type Part = Omit<Combo, 'id' | 'name'>;
 
 /** Zwei Kombos nebeneinander: Werte, Gewicht, Höhe und wer im direkten Duell vorne liegt. */
-export function CompareCombos({ db, initial }: { db: Database; initial?: Part }) {
+/** `openSignal`: ändert sich der Zähler, öffnet sich der Vergleich mit `initial` als Kombo A und rückt ins Bild. */
+export function CompareCombos({ db, initial, openSignal = 0 }: { db: Database; initial?: Part; openSignal?: number }) {
   const [open, setOpen] = useState(false);
+  const anchor = useRef<HTMLDivElement>(null);
   const [a, setA] = useState<Part>(initial ?? { bladeId: 'DranSword', ratchetId: '3-60', bitId: 'F' });
   const [b, setB] = useState<Part>({ bladeId: 'WizardRod', ratchetId: '1-60', bitId: 'H' });
+
+  useEffect(() => {
+    if (!openSignal) return;
+    if (initial) setA(initial);
+    setOpen(true);
+    const smooth = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // erst nach dem Aufklappen scrollen, sonst stimmt die Höhe noch nicht
+    requestAnimationFrame(() => anchor.current?.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'start' }));
+    // nur auf den Auslöser reagieren, nicht auf jede Änderung der Kombo
+  }, [openSignal]);
 
   const ba = toBey(db, { id: 'a', ...a });
   const bb = toBey(db, { id: 'b', ...b });
@@ -38,6 +50,7 @@ export function CompareCombos({ db, initial }: { db: Database; initial?: Part })
   };
 
   return (
+    <div ref={anchor} class="scroll-anchor">
     <Section
       title="Kombos vergleichen"
       aside={
@@ -127,5 +140,6 @@ export function CompareCombos({ db, initial }: { db: Database; initial?: Part })
         </div>
       )}
     </Section>
+    </div>
   );
 }

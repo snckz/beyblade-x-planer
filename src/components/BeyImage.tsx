@@ -1,5 +1,6 @@
 import { useState } from 'preact/hooks';
-import type { BeyType } from '../lib/types';
+import type { BeyType, Blade } from '../lib/types';
+import { largeUrl } from '../lib/images';
 import { useApp } from '../lib/context';
 import { ArrowUpRight } from 'lucide-preact';
 
@@ -70,6 +71,58 @@ export function BeyImage({ bladeId, type, size = 'md', alt, zoomable = true }: P
   return (
     <span class={`bey-img bey-img-${size} bey-emblem type-fg-${type}`} role="img" aria-label={alt}>
       <BeyEmblem />
+    </span>
+  );
+}
+
+/**
+ * Foto-Bühne: das ganze Blade-Foto (unbeschnitten) auf hellem Sockel – für Termine und das Kombo-Ergebnis.
+ * Während des Ladens dunkel, bei Fehler oder ohne Foto das Emblem in der Typ-Farbe.
+ * `sharp` lädt für große Darstellung zusätzlich die größere Fassung desselben Fotos.
+ * `noteFor` kann aus dem Bildtitel einen Hinweis machen (z. B. „Abb. ähnlich“).
+ */
+export function BladeStage({
+  blade,
+  name,
+  size = 'sm',
+  sharp = false,
+  noteFor,
+}: {
+  blade: Pick<Blade, 'id' | 'type'>;
+  name: string;
+  size?: 'sm' | 'lg' | 'xl';
+  sharp?: boolean;
+  noteFor?: (imageTitle: string) => string | null;
+}) {
+  const { images, openImage } = useApp();
+  const img = images.blades[blade.id];
+  const photo = usePhotoState(img?.thumb);
+  const wrap = `stage-wrap stage-${size}`;
+  if (!img || photo.status === 'failed') {
+    return (
+      <span class={wrap}>
+        <span class={`stage-photo stage-fallback type-fg-${blade.type}`} role="img" aria-label={`${name} (kein Foto verfügbar)`}>
+          <BeyEmblem />
+        </span>
+      </span>
+    );
+  }
+  const note = photo.status === 'ok' ? (noteFor?.(img.title) ?? null) : null;
+  return (
+    <span class={wrap}>
+      <button type="button" class={`stage-photo${photo.status === 'ok' ? ' is-loaded' : ''}`} onClick={() => openImage(blade.id)} aria-label={`${name}: Bild vergrößern`}>
+        <img
+          src={img.thumb}
+          srcset={sharp ? `${img.thumb} 392w, ${largeUrl(img.thumb)} 700w` : undefined}
+          sizes={sharp ? '(max-width: 380px) 148px, 176px' : undefined}
+          alt={name}
+          loading="lazy"
+          decoding="async"
+          referrerpolicy="no-referrer"
+          {...photo.imgProps}
+        />
+      </button>
+      {note && <span class="stage-note">{note}</span>}
     </span>
   );
 }
