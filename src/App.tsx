@@ -235,6 +235,14 @@ export function App() {
   const badge = (t: Tab) => (t === 'events' ? unread + soon : t === 'collection' ? newWishes : 0);
   const current = TABS.find((t) => t.id === tab)!;
 
+  // Merkt, ob gescrollt ist – dann schützt eine dunkle Fläche die Statusleiste (siehe styles.css „.is-scrolled“).
+  useEffect(() => {
+    const onScroll = () => document.documentElement.classList.toggle('is-scrolled', window.scrollY > 12);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
   const navLink = (t: (typeof TABS)[number], withIcon: boolean) => (
     <a
       key={t.id}

@@ -1802,7 +1802,7 @@ input[type='text']:focus, input[type='search']:focus, select:focus { background-
 .tile-art .bey-img-lg img, .tile-art .bey-img-lg svg { width: 100%; height: 100%; }
 .tile-text { display: grid; gap: 3px; min-width: 0; justify-items: start; }
 .tile-kind { font-size: 12.5px; font-weight: 600; }
-.tile-name { font: 750 italic 18px/1.12 var(--font); letter-spacing: -.02em; color: var(--text); text-align: left; overflow-wrap: anywhere; text-wrap: balance; }
+.tile-bey .tile-name { font: 750 italic 18px/1.12 var(--font); letter-spacing: -.02em; color: var(--text); text-align: left; overflow-wrap: anywhere; text-wrap: balance; }
 button.tile-name { background: none; border: 0; padding: 0; cursor: pointer; }
 .tile-link .tile-name::after { content: ''; position: absolute; inset: 0; }
 .tile-link .bey-img, .tile-link .badge { position: relative; z-index: 1; }
@@ -1933,7 +1933,7 @@ html { scroll-padding-bottom: calc(var(--nav-h) + var(--nav-gap) + var(--s-6)); 
 .tile-top { min-height: 24px; }
 .tile-top .code, .tile-top .region-tag { font-size: 11px; letter-spacing: .04em; padding: 3px 8px; border-radius: 7px; border: 0; background: rgba(255, 255, 255, .08); color: var(--text-2); }
 .tile-kind { font-size: 12px; letter-spacing: .01em; }
-.tile-name { font-size: 17px; line-height: 1.15; overflow-wrap: break-word; -webkit-hyphens: auto; hyphens: auto; text-wrap: pretty; }
+.tile-bey .tile-name { font-size: 17px; line-height: 1.15; overflow-wrap: break-word; -webkit-hyphens: auto; hyphens: auto; text-wrap: pretty; }
 .tile-bey .row-sub, .tile-bey .owned-code { font-size: 12.5px; color: var(--text-3); }
 .tile-bey .row-note { color: var(--text-3); }
 .tile-bey .count { font-size: 12.5px; padding: 3px 8px; background: rgba(255, 255, 255, .12); }
@@ -2182,3 +2182,21 @@ html { scroll-padding-bottom: calc(var(--nav-h) + var(--nav-gap) + var(--s-6)); 
 .em-core { fill: #0d0d10; stroke-width: 2.5; }
 .em-dot { fill: rgba(255, 255, 255, .85); }
 @media (prefers-reduced-motion: reduce) { .bey-img.has-photo img, .ev-photo img { transition: none; } }
+
+/* ---- Nachzug nach iPhone-Test ----
+   1) Statusleiste: Beim Scrollen lief Inhalt hinter Uhr und Akku durch. Sobald gescrollt ist, deckt eine dunkle,
+      weich auslaufende Fläche genau den Bereich der Statusleiste ab. Ganz oben bleibt der Lichtschein frei. */
+:root { --safe-t: env(safe-area-inset-top, 0px); }
+@media (max-width: 859px) {
+  .app::before {
+    height: calc(var(--safe-t) + var(--s-3)); opacity: 0;
+    background: linear-gradient(180deg, rgba(5, 5, 6, .96) calc(100% - var(--s-4)), rgba(5, 5, 6, 0));
+    -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+    -webkit-mask-image: linear-gradient(180deg, #000 calc(100% - var(--s-4)), transparent); mask-image: linear-gradient(180deg, #000 calc(100% - var(--s-4)), transparent);
+    transition: opacity var(--dur-2) var(--ease);
+  }
+  .is-scrolled .app::before { opacity: 1; }
+}
+/* 2) Teile-Auswahl: Die Namensregel der Sammlungs-Kacheln hatte dieselbe Klasse getroffen (Trennung mitten im Wort,
+      links statt mittig). Jetzt wieder mittig, ganze Wörter, ausgewogen umbrochen. */
+.tile .tile-name { font: 700 13.5px/1.2 var(--font); letter-spacing: -.01em; text-align: center; -webkit-hyphens: manual; hyphens: manual; overflow-wrap: break-word; text-wrap: balance; }
