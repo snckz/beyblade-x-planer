@@ -53,16 +53,12 @@
     "DracielShield"
   ],
   "bits": [],
-  "products": 161,
+  "products": 162,
   "mismatches": [],
   "unreleased": [
     "ClockMirage (2026-12-26)",
-    "VanishLucifer (2026-12-26)",
-    "SiegSuperion (2026-11-21)",
-    "HorusShatter (2026-12-26)",
-    "FoxBlast (2026-12-26)",
-    "PhoenixForce (2026-11-21)"
+    "FoxBlast (2026-12-26)"
   ],
   "notFound": [],
-  "fetched": 160
+  "fetched": 162
 }
