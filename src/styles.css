@@ -1164,3 +1164,20 @@ input[type='text']:focus, input[type='search']:focus, select:focus { border-colo
 .live-score { font-variant-numeric: tabular-nums; line-height: .9; }
 .btn-sm { min-height: 34px; }
 input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--spark); outline-offset: 2px; }
+
+/* Hintergrund = das Start-Logo (App-Symbol): freigestelltes Drachen-Logo (public/bg-logo.webp) auf demselben Nachtblau,
+   oben hinter dem Seitentitel wie ein Startbildschirm; nach unten dunkler, damit Listen ruhig bleiben. */
+:root { --night: #0a0d18; }
+html { background: var(--night); }
+.bg-photo {
+  background:
+    linear-gradient(180deg, rgba(10, 13, 24, .8) 0%, rgba(10, 13, 24, .62) 30%, rgba(10, 13, 24, .55) 55%, rgba(10, 13, 24, .75) 85%, rgba(10, 13, 24, .92) 100%),
+    url('/bg-logo.webp') center 56% / min(108vw, 760px) auto no-repeat,
+    radial-gradient(110% 55% at 50% 22%, #13203a, var(--night) 72%);
+}
+@media (min-width: 860px) {
+  .bg-photo { background-size: auto, min(70vw, 980px) auto, auto; background-position: 0 0, center 60%, 0 0; }
+}
+
+.top { background: linear-gradient(180deg, #0d1222, #0a0d18) !important; -webkit-backdrop-filter: none; backdrop-filter: none; }
+.parts-grid p:last-child, .stat-val, .mono, .matrix-sub { font-family: var(--font); font-variant-numeric: tabular-nums; letter-spacing: .01em; }
