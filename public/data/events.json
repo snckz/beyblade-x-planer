@@ -1,6 +1,30 @@
 {
-  "updatedAt": "2026-11-14",
+  "updatedAt": "2026-11-16",
   "events": [
+    {
+      "id": "release-bx-54-siegsuperion",
+      "kind": "release",
+      "date": "2026-11-21",
+      "title": "BX-54 Booster SiegSuperion 0-70LP",
+      "place": "Japan (Takara Tomy)",
+      "country": "JP",
+      "url": "https://beyblade.takaratomy.co.jp/beyblade-x/lineup/bx54.html",
+      "note": "Balance-Typ, der je nach Abschuss eher angreift oder verteidigt. 1.600 Yen. Bei Hasbro als Suppress Superion.",
+      "bladeId": "SiegSuperion",
+      "confirmed": true
+    },
+    {
+      "id": "release-cx-20-customize-set-c",
+      "kind": "release",
+      "date": "2026-11-21",
+      "title": "CX-20 Customize Set C",
+      "place": "Japan (Takara Tomy)",
+      "country": "JP",
+      "url": "https://beyblade.takaratomy.co.jp/beyblade-x/lineup/cx20.html",
+      "note": "4 Blades, 3 Ratchets, 6 Bits (72 Kombos), Hauptkreisel Phoenix Force WHM-65MT mit Metallteilen. 6.600 Yen, ohne Launcher.",
+      "bladeId": "PhoenixForce",
+      "confirmed": true
+    },
     {
       "id": "gp-final-2026",
       "kind": "tournament",
@@ -9,18 +33,19 @@
       "title": "Beyblade X GP Final 2026",
       "place": "ICONSIAM, Bangkok",
       "country": "TH",
-      "url": "https://beyblade.com/gpfinal2026/",
-      "note": "Erste Weltmeisterschaft der Beyblade-X-GP-Serie. Teilnahme nur für Qualifizierte, Zuschauen möglich.",
+      "url": "https://beyblade.takaratomy.co.jp/gpfinal/en/",
+      "note": "Erstes Weltfinale der GP-Serie, 3-gegen-3 im BX-10-Stadium. Mitspielen nur für Qualifizierte, Zuschauen möglich. Du bist dann in Bangkok.",
       "confirmed": true
     },
     {
       "id": "release-vanishlucifer",
       "kind": "release",
       "date": "2026-12-26",
-      "title": "Starter Vanish Lucifer WW",
+      "title": "UX-22 Starter VanishLucifer WW",
       "place": "Japan (Takara Tomy)",
       "country": "JP",
-      "note": "Neuer UX-Defense-Typ mit ausfahrbarer Verteidigungsschicht, ca. 2.500 Yen.",
+      "url": "https://beyblade.takaratomy.co.jp/beyblade-x/lineup/ux22.html",
+      "note": "Defense-Typ, der durch die Drehung eine Barriere ausfährt. 2.500 Yen inkl. Long-Winder-Launcher.",
       "bladeId": "VanishLucifer",
       "confirmed": true
     }
