@@ -2,6 +2,18 @@
   "updatedAt": "2026-11-16",
   "events": [
     {
+      "id": "release-valkyrievolt-gunmetal",
+      "kind": "release",
+      "date": "2026-11-05",
+      "title": "CX-00 ValkyrieVolt S4-70V Gunmetal Ver.",
+      "place": "Japan (App & Events)",
+      "country": "JP",
+      "url": "https://beyblade.takaratomy.co.jp/beyblade-x/lineup/",
+      "note": "Limitierte Gunmetal-Version, nur über die App und Rare-Bey-Get-Battles bei Events. 1.800 Yen.",
+      "bladeId": "ValkyrieVolt",
+      "confirmed": true
+    },
+    {
       "id": "release-bx-54-siegsuperion",
       "kind": "release",
       "date": "2026-11-21",
@@ -34,7 +46,18 @@
       "place": "ICONSIAM, Bangkok",
       "country": "TH",
       "url": "https://beyblade.takaratomy.co.jp/gpfinal/en/",
-      "note": "Erstes Weltfinale der GP-Serie, 3-gegen-3 im BX-10-Stadium. Mitspielen nur für Qualifizierte, Zuschauen möglich. Du bist dann in Bangkok.",
+      "note": "Erstes Weltfinale der GP-Serie, 3-gegen-3 im BX-10-Stadium, Regular Class (6–12) und Open Class. Mitspielen nur für Qualifizierte; ob Zuschauer zugelassen sind, nennt die offizielle Seite noch nicht. Du bist dann in Bangkok.",
+      "confirmed": true
+    },
+    {
+      "id": "plus-one-bit-kampagne-2026",
+      "kind": "event",
+      "date": "2026-12-26",
+      "title": "Plus-One-Bit-Kampagne",
+      "place": "Japan (teilnehmende Händler)",
+      "country": "JP",
+      "url": "https://beyblade.takaratomy.co.jp/beyblade-x/news/news261113.html",
+      "note": "Ab 3.000 Yen Einkauf gibt es zufällig ein Sonderfarben-Bit (GF, T oder DB), solange der Vorrat reicht.",
       "confirmed": true
     },
     {

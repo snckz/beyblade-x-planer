@@ -237,6 +237,7 @@
       "type": "attack",
       "spin": "right",
       "verified": true,
+      "note": "Große Angriffsklinge mit viel Metall am Außenrand für wuchtige Sofort-Treffer.",
       "weightG": 36.5,
       "hasbroName": "Buster Dran",
       "hasbroNameAuto": true
@@ -248,6 +249,7 @@
       "type": "balance",
       "spin": "right",
       "verified": true,
+      "note": "Dicke Smash-Klingen und Metall am Außenrand, gebaut um Gegner gegen die Stadionwand zu schmettern.",
       "weightG": 33,
       "hasbroName": "Hammer Incendio",
       "hasbroNameAuto": true
@@ -259,6 +261,7 @@
       "type": "stamina",
       "spin": "right",
       "verified": true,
+      "note": "Großer Durchmesser mit Schwerpunkt weit außen und Metall am Rand – für lange Ausdauer.",
       "weightG": 35.3,
       "hasbroName": "Wand Wizard",
       "hasbroNameAuto": true
@@ -270,6 +273,7 @@
       "type": "balance",
       "spin": "right",
       "verified": true,
+      "note": "Steile, wandartige Klingen und Metall am Außenrand, die Angriffe aus jeder Richtung abprallen lassen.",
       "weightG": 35
     },
     {
@@ -299,7 +303,7 @@
       "line": "UX",
       "type": "stamina",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "weightG": 37.7,
       "hasbroName": "Mirage Clock",
       "hasbroNameAuto": true
