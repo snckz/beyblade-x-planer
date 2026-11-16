@@ -1,3 +1,4 @@
+import { createPortal } from 'preact/compat';
 import { useModal } from '../lib/useModal';
 import { displayProductName } from '../lib/names';
 import { useEffect, useRef, useState } from 'preact/hooks';
@@ -45,7 +46,7 @@ function grabFrame(v: HTMLVideoElement): Promise<Blob | null> {
  * Ein Barcode, der noch unbekannt ist, wird einmal einem Produkt zugeordnet und danach wiedererkannt.
  * Ohne Kamera (oder abgelehnt) bleibt die Produktsuche.
  */
-export function Scanner({ db, state, update, onClose }: Props) {
+function ScannerInner({ db, state, update, onClose }: Props) {
   const { rates } = useApp();
   const ref = useRef<HTMLDivElement>(null);
   const video = useRef<HTMLVideoElement>(null);
@@ -419,4 +420,13 @@ function OwnStatus({ db, state, product }: { db: Database; state: UserState; pro
       {product.bladeId && (fresh ? <p class="scan-status new">{fresh === 1 ? '1 neues Teil' : `${fresh} neue Teile`} für deine Sammlung</p> : <p class="scan-status have">Alle Teile hast du schon aus anderen Packungen</p>)}
     </>
   );
+}
+
+/**
+ * Vollbild-Fenster direkt in <body> zeichnen: So bleibt es auch dann bildschirmfüllend, wenn ein
+ * Elternelement (z. B. eine Karte mit Einblend-Animation) für position: fixed als Bezugsrahmen dient –
+ * Safari auf dem iPhone macht das bei animierten Elementen.
+ */
+export function Scanner(props: Parameters<typeof ScannerInner>[0]) {
+  return createPortal(<ScannerInner {...props} />, document.body);
 }

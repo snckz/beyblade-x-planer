@@ -1,3 +1,4 @@
+import { createPortal } from 'preact/compat';
 import { useModal } from '../lib/useModal';
 import { bothNames, displayName, otherName } from '../lib/names';
 import { useRef, useState } from 'preact/hooks';
@@ -78,16 +79,18 @@ export function PartField(props: FieldProps) {
         {type && !compact && <TypeBadge type={type} small />}
         <span class="part-chev" aria-hidden="true">›</span>
       </button>
-      {open && (
-        <PickerSheet
-          {...props}
-          onClose={() => setOpen(false)}
-          onPick={(id) => {
-            props.onChange(id);
-            setOpen(false);
-          }}
-        />
-      )}
+      {open &&
+        createPortal(
+          <PickerSheet
+            {...props}
+            onClose={() => setOpen(false)}
+            onPick={(id) => {
+              props.onChange(id);
+              setOpen(false);
+            }}
+          />,
+          document.body,
+        )}
     </div>
   );
 }

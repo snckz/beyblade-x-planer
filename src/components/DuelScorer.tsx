@@ -1,3 +1,4 @@
+import { createPortal } from 'preact/compat';
 import { useRef, useState } from 'preact/hooks';
 import { FINISH, type Finish } from '../lib/matches';
 import { useModal } from '../lib/useModal';
@@ -11,7 +12,7 @@ interface Props {
 }
 
 /** Punktezähler für ein Turnier-Match zwischen zwei Spielern (ohne Kombos, ohne Tagebuch). */
-export function DuelScorer({ left, right, target, onDone, onClose }: Props) {
+function DuelScorerInner({ left, right, target, onDone, onClose }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const [log, setLog] = useState<{ side: 0 | 1; finish: Finish }[]>([]);
   const score = (side: 0 | 1) => log.filter((l) => l.side === side).reduce((s, l) => s + FINISH[l.finish].points, 0);
@@ -78,4 +79,13 @@ export function DuelScorer({ left, right, target, onDone, onClose }: Props) {
       {side(1)}
     </div>
   );
+}
+
+/**
+ * Vollbild-Fenster direkt in <body> zeichnen: So bleibt es auch dann bildschirmfüllend, wenn ein
+ * Elternelement (z. B. eine Karte mit Einblend-Animation) für position: fixed als Bezugsrahmen dient –
+ * Safari auf dem iPhone macht das bei animierten Elementen.
+ */
+export function DuelScorer(props: Parameters<typeof DuelScorerInner>[0]) {
+  return createPortal(<DuelScorerInner {...props} />, document.body);
 }

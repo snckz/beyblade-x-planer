@@ -1,3 +1,4 @@
+import { createPortal } from 'preact/compat';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { useModal } from '../lib/useModal';
 import type { Combo, Database } from '../lib/types';
@@ -22,7 +23,7 @@ const valid = (db: Database, p: Part) => !!resolveCombo(db, { id: '', ...p });
  * Zwei Arten: nur Punkte zählen (ohne Kreisel) oder mit Kreiseln – dann landet jede Runde im Battle-Tagebuch.
  * Mit 3er-Deck kommt Runde für Runde der nächste Kreisel dran (wie im Turnier).
  */
-export function LiveMatch({ db, state, update, onClose }: Props) {
+function LiveMatchInner({ db, state, update, onClose }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const savedDeck = state.deck.map((id) => state.combos.find((c) => c.id === id)).filter((c): c is Combo => !!c && valid(db, c));
   const savedOpp = state.opponent.filter((c) => valid(db, c));
@@ -247,4 +248,13 @@ export function LiveMatch({ db, state, update, onClose }: Props) {
       )}
     </div>
   );
+}
+
+/**
+ * Vollbild-Fenster direkt in <body> zeichnen: So bleibt es auch dann bildschirmfüllend, wenn ein
+ * Elternelement (z. B. eine Karte mit Einblend-Animation) für position: fixed als Bezugsrahmen dient –
+ * Safari auf dem iPhone macht das bei animierten Elementen.
+ */
+export function LiveMatch(props: Parameters<typeof LiveMatchInner>[0]) {
+  return createPortal(<LiveMatchInner {...props} />, document.body);
 }
