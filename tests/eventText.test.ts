@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { notePriceYen, splitNote } from '../src/lib/eventText';
+import { notePriceYen, photoMatchesTitle, splitNote } from '../src/lib/eventText';
 
 describe('splitNote', () => {
   it('trennt nach dem ersten Satz, nicht in Zahlen', () => {
@@ -26,5 +26,18 @@ describe('notePriceYen', () => {
     expect(notePriceYen('Defense-Typ. 2.500 Yen inkl. Launcher.')).toBe(2500);
     expect(notePriceYen('Ab 3.000 Yen Einkauf gibt es ein Bit.')).toBe(3000);
     expect(notePriceYen('Erstes Weltfinale, BX-10-Stadium.')).toBeNull();
+  });
+});
+
+describe('photoMatchesTitle', () => {
+  it('erkennt genau passende Produktfotos', () => {
+    expect(photoMatchesTitle('BX-54 Booster SiegSuperion 0-70LP', 'SiegSuperion 0-70LP')).toBe(true);
+    expect(photoMatchesTitle('UX-22 Starter VanishLucifer WW', 'VanishLucifer WW')).toBe(true);
+  });
+  it('kennzeichnet Sets und Sonderfarben als ähnlich', () => {
+    expect(photoMatchesTitle('CX-00 BahamutBlitz BK1-50I Metal Coat: Black', 'BahamutBlitz BK1-50I')).toBe(false);
+    expect(photoMatchesTitle('CX-00 ValkyrieVolt S4-70V Gunmetal Ver.', 'ValkyrieVolt S4-70V')).toBe(false);
+    expect(photoMatchesTitle('CX-20 Customize Set C', 'PhoenixForce WHM-65MT')).toBe(false);
+    expect(photoMatchesTitle('Beyblade X GP Final 2026', undefined)).toBe(false);
   });
 });

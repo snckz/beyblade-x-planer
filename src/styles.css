@@ -2073,3 +2073,92 @@ html { scroll-padding-bottom: calc(var(--nav-h) + var(--nav-gap) + var(--s-6)); 
 .tabbar::before { background: linear-gradient(180deg, rgba(5, 5, 6, 0), rgba(5, 5, 6, .9) 42%, var(--night) 64%); }
 .chip-row .chip, .tl-foot .tl-link, .tl-more summary { min-height: 44px; }
 .tl-foot { margin-top: calc(-1 * var(--s-1)); margin-bottom: calc(-1 * var(--s-2)); }
+
+/* ---- Termine: Feinschliff (kompakter Hero, echte Produktfotos, aufklappbare Kurzbeschreibung) ---- */
+.hero-card { padding: var(--s-4); gap: var(--s-2); }
+.hero-top { align-items: center; }
+.hero-count { display: flex; align-items: baseline; gap: 6px; }
+.hero-count b { font-size: 38px; line-height: .9; text-shadow: 0 4px 18px rgba(0, 0, 0, .35); }
+.hero-count small { font-size: 13px; font-weight: 600; opacity: .9; }
+.hero-main { display: flex; align-items: flex-start; gap: var(--s-3); }
+.hero-text { flex: 1; min-width: 0; display: grid; gap: var(--s-2); }
+.hero-title { margin: 0; max-width: none; font-size: 21px; line-height: 1.1; overflow-wrap: break-word; -webkit-hyphens: auto; hyphens: auto; }
+.hero-meta { margin: 0; }
+.hero-card .hero-note { margin: 0; font-size: 13.5px; line-height: 1.45; }
+.hero-actions { margin-top: var(--s-1); }
+.hero-actions .btn { min-height: 44px; }
+
+/* Produktfoto: heller Sockel im dunklen Umfeld (Fotos haben weißen oder transparenten Grund) */
+.ev-photo {
+  position: relative; flex: none; width: 56px; height: 56px; padding: 0; border: 0; border-radius: var(--r-md);
+  background: #fff; overflow: hidden; cursor: zoom-in;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, .16), 0 12px 22px -12px rgba(0, 0, 0, .9);
+  transition: transform var(--dur-1) var(--ease);
+}
+.ev-photo img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.ev-photo:active { transform: scale(.96); }
+.ev-photo-lg { width: 84px; height: 84px; border-radius: var(--s-5); }
+.ev-photo-note { position: absolute; inset: auto 0 0 0; padding: 2px 0; font-size: 9.5px; font-weight: 600; line-height: 1.2; text-align: center; color: #fff; background: rgba(0, 0, 0, .66); }
+.ev-photo-lg .ev-photo-note { font-size: 10.5px; padding: 3px 0; }
+
+/* Zeitleiste kompakter */
+.tl-item { grid-template-columns: 40px minmax(0, 1fr) auto; padding: var(--s-3) 0; }
+.tl-side { display: grid; align-content: start; justify-items: center; gap: var(--s-2); }
+.tl-side:empty { display: none; }
+.tl-body .row-title { font-size: 15.5px; overflow-wrap: break-word; -webkit-hyphens: auto; hyphens: auto; }
+.tl-body .row-note { margin-top: 0; }
+.tl-price { display: inline-flex; align-items: baseline; gap: 6px; white-space: nowrap; }
+.tl-approx { font-weight: 500; color: var(--text-2); }
+.hero-meta .tl-approx { color: rgba(255, 255, 255, .82); }
+.tl-link { justify-self: start; min-height: 36px; margin: 0; font-size: 13.5px; }
+.rate-note { margin: calc(-1 * var(--s-2)) var(--s-1) 0; }
+
+/* Kurzbeschreibung als Schaltfläche: Antippen klappt den Rest auf */
+.tl-more summary, .tl-more summary.row-note, .tl-more summary.hero-note {
+  display: block; min-height: 0; padding: var(--s-1) 0; cursor: pointer; list-style: none; font-weight: 400;
+  -webkit-tap-highlight-color: transparent;
+}
+.tl-more summary::after { content: none; }
+.more-label { white-space: nowrap; font-weight: 650; color: var(--text); }
+.more-label::after { content: '›'; display: inline-block; margin-left: 4px; transform: rotate(90deg); transition: transform var(--dur-2) var(--ease); }
+.tl-more[open] .more-label::after { transform: rotate(-90deg); }
+.hero-card .more-label { color: #fff; }
+.when-open, .tl-more[open] .when-closed { display: none; }
+.tl-more[open] .when-open { display: inline; }
+.tl-more[open] > :not(summary) { display: block; padding-bottom: var(--s-1); }
+
+/* Microinteractions: kurze, ruhige Rückmeldung */
+.chip { transition: background-color var(--dur-2) var(--ease), color var(--dur-2) var(--ease), transform var(--dur-1) var(--ease); }
+.chip:active, .icon-btn:active:not(:disabled) { transform: scale(.95); }
+.icon-btn { transition: transform var(--dur-1) var(--ease), background-color var(--dur-2) var(--ease); }
+@media (prefers-reduced-motion: no-preference) {
+  .tl-more[open] > :not(summary) { animation: reveal var(--dur-2) var(--ease); }
+}
+@keyframes reveal { from { opacity: 0; transform: translateY(-4px); } }
+@media (prefers-reduced-motion: reduce) { .chip, .icon-btn, .ev-photo, .more-label::after { transition: none; } }
+/* Hero: links Text, rechts Countdown über dem Foto */
+.hero-card { padding: 14px var(--s-4) var(--s-4); gap: var(--s-2); }
+.hero-main { gap: var(--s-3); }
+.hero-text { gap: 6px; justify-items: start; }
+.hero-kicker { padding: 0; background: none; font-size: 12.5px; font-weight: 600; color: rgba(255, 255, 255, .86); }
+.hero-title { font-size: 21px; }
+.hero-aside { flex: none; display: grid; justify-items: end; align-content: start; gap: var(--s-2); }
+.hero-count b { font-size: 34px; }
+.hero-card .tl-more summary { padding: 0; }
+.hero-actions { margin-top: 2px; }
+.ev-photo-wrap { flex: none; display: grid; justify-items: center; gap: 3px; }
+.ev-photo-wrap.ev-photo-lg { width: auto; height: auto; }
+.ev-photo-lg .ev-photo { width: 76px; height: 76px; border-radius: var(--s-5); }
+.ev-photo-note, .ev-photo-lg .ev-photo-note { position: static; padding: 0; background: none; font-size: 10px; font-weight: 500; line-height: 1.2; color: var(--text-3); white-space: nowrap; }
+.hero-card .ev-photo-note { color: rgba(255, 255, 255, .78); }
+.tl-more summary, .tl-more summary.row-note { padding: 0; }
+.tl-link { min-height: 32px; }
+.tl-when { white-space: nowrap; }
+.tl-body .event-kind { display: flex; flex-wrap: wrap; align-items: baseline; }
+/* Sehr kleine Handys: Blade-Knopf bekommt eine eigene Zeile statt abgeschnitten zu werden */
+@media (max-width: 360px) {
+  .hero-actions { flex-wrap: wrap; }
+  .hero-actions .hero-link:not(.hero-icon) { order: 3; flex: 1 0 100%; text-align: center; }
+}
+.tl-item.kind-tournament .event-kind { color: #ff6272; } /* 5.9:1 statt 4.3:1 */
+.tl-link { min-height: 44px; margin: -6px 0; }

@@ -25,3 +25,14 @@ export function notePriceYen(note: string): number | null {
   const n = Number(m[1]!.replace(/\./g, ''));
   return Number.isFinite(n) && n > 0 ? n : null;
 }
+
+/**
+ * Passt das Blade-Foto genau zu diesem Termin? Nur wenn der Titel mit dem Bildtitel endet
+ * („BX-54 Booster SiegSuperion 0-70LP“ ↔ „SiegSuperion 0-70LP“). Sets und Sonderfarben
+ * („… Metal Coat: Black“, „… Gunmetal Ver.“) zeigen dieselbe Blade in anderer Ausführung → „Abb. ähnlich“.
+ */
+export function photoMatchesTitle(eventTitle: string, imageTitle: string | undefined): boolean {
+  if (!imageTitle) return false;
+  const norm = (t: string) => t.toLowerCase().replace(/\s+/g, ' ').trim();
+  return norm(eventTitle).endsWith(norm(imageTitle));
+}

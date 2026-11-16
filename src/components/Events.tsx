@@ -8,7 +8,7 @@ import { downloadIcs, type CalItem } from '../lib/ics';
 import { Empty, Section } from './ui';
 import { ArrowUpRight, CalendarPlus, ChevronRight, Clock, MapPin } from 'lucide-preact';
 import { useState } from 'preact/hooks';
-import { notePriceYen, splitNote } from '../lib/eventText';
+import { notePriceYen, photoMatchesTitle, splitNote } from '../lib/eventText';
 import { convert, yen } from '../lib/price';
 
 interface Props {
@@ -40,6 +40,26 @@ function dateRange(e: BeyEvent) {
   return e.endDate && e.endDate !== e.date ? `${fmt(e.date, false)}–${fmt(e.endDate, true)}` : fmt(e.date, true);
 }
 
+/**
+ * Echtes Blade-Foto zum Termin (Beyblade Wiki, nur verlinkt). Lädt es nicht, bleibt der Platz leer –
+ * ein Termin braucht kein Ersatzsymbol. Passt das Foto nicht exakt zum Produkt, steht „Abb. ähnlich“ dabei.
+ */
+function EventPhoto({ bladeId, name, eventTitle, large }: { bladeId: string; name: string; eventTitle: string; large?: boolean }) {
+  const { images, openImage } = useApp();
+  const img = images.blades[bladeId];
+  const [failed, setFailed] = useState(false);
+  if (!img || failed) return null;
+  const exact = photoMatchesTitle(eventTitle, img.title);
+  return (
+    <span class={`ev-photo-wrap${large ? ' ev-photo-lg' : ''}`}>
+      <button type="button" class="ev-photo" onClick={() => openImage(bladeId)} aria-label={`${name}: Bild vergrößern`}>
+        <img src={img.thumb} alt={name} loading="lazy" decoding="async" referrerpolicy="no-referrer" onError={() => setFailed(true)} />
+      </button>
+      {!exact && <span class="ev-photo-note">Abb. ähnlich</span>}
+    </span>
+  );
+}
+
 export function Events({ db, events, news, state, update }: Props) {
   const { openBlade, rates } = useApp();
   const [kind, setKind] = useState<'all' | BeyEvent['kind']>('all');
@@ -53,8 +73,18 @@ export function Events({ db, events, news, state, update }: Props) {
     const jpy = e.kind === 'release' && e.note ? notePriceYen(e.note) : null;
     if (!jpy) return null;
     const c = convert(jpy, rates);
-    return `${yen(jpy)}${c ? ` ≈ ${Math.round(c.eur)} €` : ''}`;
+    return { jpy: yen(jpy), eur: c ? `ca. ${Math.round(c.eur)} €` : null };
   };
+  const priceTag = (e: BeyEvent) => {
+    const p = price(e);
+    return p ? (
+      <span class="tl-price">
+        {p.jpy}
+        {p.eur && <span class="tl-approx">{p.eur}</span>}
+      </span>
+    ) : null;
+  };
+  const hasEuro = upcoming.some((e) => price(e)?.eur);
   const past = sorted.filter((e) => daysUntil(e.endDate ?? e.date) < 0).reverse().slice(0, 10);
 
   // Der nächste Termin steht groß oben; die Liste darunter zeigt die übrigen.
@@ -82,9 +112,26 @@ export function Events({ db, events, news, state, update }: Props) {
     url: e.url,
   });
 
+  /** Kurzbeschreibung; mit Rest aufklappbar – der ganze Text ist die Schaltfläche. */
+  const noteBlock = (n: { lead: string; rest: string }, cls: string) =>
+    !n.lead ? null : n.rest ? (
+      <details class="tl-more">
+        <summary class={cls}>
+          {n.lead}{' '}
+          <span class="more-label">
+            <span class="when-closed">Mehr</span>
+            <span class="when-open">Weniger</span>
+          </span>
+        </summary>
+        <span class={cls}>{n.rest}</span>
+      </details>
+    ) : (
+      <span class={cls}>{n.lead}</span>
+    );
+
   const card = (e: BeyEvent) => {
     const blade = e.bladeId ? db.blades.find((b) => b.id === e.bladeId) : undefined;
-    const note = shortNote(e);
+    const upcomingItem = daysUntil(e.endDate ?? e.date) >= 0;
     return (
       <li key={e.id} class={`tl-item kind-${e.kind}`}>
         <div class="tl-date">
@@ -110,30 +157,23 @@ export function Events({ db, events, news, state, update }: Props) {
                 <MapPin aria-hidden="true" /> {e.place}
               </span>
             )}
-            {price(e) && <span class="tl-price">{price(e)}</span>}
+            {priceTag(e)}
           </span>
-          {note.lead && <span class="row-note">{note.lead}</span>}
-          {(note.rest || blade) && (
-            <div class="tl-foot">
-              {note.rest && (
-                <details class="tl-more">
-                  <summary>Mehr</summary>
-                  <span class="row-note">{note.rest}</span>
-                </details>
-              )}
-              {blade && (
-                <button type="button" class="tl-link" onClick={() => openBlade(blade.id)}>
-                  {displayName(blade)} <ChevronRight aria-hidden="true" />
-                </button>
-              )}
-            </div>
+          {noteBlock(shortNote(e), 'row-note')}
+          {blade && (
+            <button type="button" class="tl-link" onClick={() => openBlade(blade.id)}>
+              {displayName(blade)} <ChevronRight aria-hidden="true" />
+            </button>
           )}
         </div>
-        {daysUntil(e.endDate ?? e.date) >= 0 && (
-          <button type="button" class="icon-btn tl-cal" onClick={() => downloadIcs([cal(e)], `${e.id}.ics`)} aria-label={`${e.title} in den Kalender`}>
-            <CalendarPlus aria-hidden="true" />
-          </button>
-        )}
+        <div class="tl-side">
+          {blade && <EventPhoto bladeId={blade.id} name={displayName(blade)} eventTitle={e.title} />}
+          {upcomingItem && (
+            <button type="button" class="icon-btn tl-cal" onClick={() => downloadIcs([cal(e)], `${e.id}.ics`)} aria-label={`${e.title} in den Kalender`}>
+              <CalendarPlus aria-hidden="true" />
+            </button>
+          )}
+        </div>
       </li>
     );
   };
@@ -158,41 +198,40 @@ export function Events({ db, events, news, state, update }: Props) {
       )}
       {next && (
         <article class="hero-card" aria-label="Nächster Termin">
-          <div class="hero-top">
-            <span class="hero-kicker">
-              Nächster Termin · {KIND[next.kind]}
-              {next.country && FLAG[next.country] ? ` ${FLAG[next.country]}` : ''}
-            </span>
-            {nextDays > 0 ? (
-              <span class="hero-count">
-                <b>{nextDays}</b>
-                <small>{nextDays === 1 ? 'Tag' : 'Tage'}</small>
+          <div class="hero-main">
+            <div class="hero-text">
+              <span class="hero-kicker">
+                Nächster Termin · {KIND[next.kind]}
+                {next.country && FLAG[next.country] ? ` ${FLAG[next.country]}` : ''}
               </span>
-            ) : (
-              <span class="hero-count">
-                <small>{when(next)}</small>
-              </span>
-            )}
+              <h2 class="hero-title">{next.title}</h2>
+              <p class="tl-meta hero-meta">
+                <span>
+                  <Clock aria-hidden="true" /> {dateRange(next)}
+                </span>
+                {next.place && (
+                  <span>
+                    <MapPin aria-hidden="true" /> {next.place}
+                  </span>
+                )}
+                {priceTag(next)}
+              </p>
+            </div>
+            <div class="hero-aside">
+              {nextDays > 0 ? (
+                <span class="hero-count">
+                  <b>{nextDays}</b>
+                  <small>{nextDays === 1 ? 'Tag' : 'Tage'}</small>
+                </span>
+              ) : (
+                <span class="hero-count">
+                  <small>{when(next)}</small>
+                </span>
+              )}
+              {nextBlade && <EventPhoto bladeId={nextBlade.id} name={displayName(nextBlade)} eventTitle={next.title} large />}
+            </div>
           </div>
-          <h2 class="hero-title">{next.title}</h2>
-          <p class="tl-meta hero-meta">
-            <span>
-              <Clock aria-hidden="true" /> {dateRange(next)}
-            </span>
-            {next.place && (
-              <span>
-                <MapPin aria-hidden="true" /> {next.place}
-              </span>
-            )}
-            {price(next) && <span class="tl-price">{price(next)}</span>}
-          </p>
-          {nextNote.lead && <p class="hero-note">{nextNote.lead}</p>}
-          {nextNote.rest && (
-            <details class="tl-more">
-              <summary>Mehr</summary>
-              <span class="hero-note">{nextNote.rest}</span>
-            </details>
-          )}
+          {noteBlock(nextNote, 'hero-note')}
           <div class="hero-actions">
             <button type="button" class="btn hero-btn" onClick={() => downloadIcs([cal(next)], `${next.id}.ics`)}>
               <CalendarPlus aria-hidden="true" /> In Kalender
@@ -222,7 +261,12 @@ export function Events({ db, events, news, state, update }: Props) {
           </Section>
         ))
       ) : next ? null : (
-        <Empty title="Keine kommenden Termine">Neue Releases und Turniere werden zweimal pro Woche automatisch eingetragen.</Empty>
+        <Empty title="Keine kommenden Termine">Neue Releases und Turniere werden regelmäßig automatisch eingetragen.</Empty>
+      )}
+      {hasEuro && rates && (
+        <p class="fineprint rate-note">
+          Euro-Beträge sind ungefähre Umrechnungen der japanischen Listenpreise ({rates.source} vom {rates.date.split('-').reverse().join('.')}) – keine Ladenpreise.
+        </p>
       )}
       {past.length > 0 && (
         <details class="past">
