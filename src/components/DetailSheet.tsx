@@ -7,7 +7,7 @@ import { TYPE_HINT, TYPE_LABEL } from '../lib/analysis';
 import { useApp } from '../lib/context';
 import { BeyImage, ImageCredit } from './BeyImage';
 import { SpinBadge, TypeBadge, UnverifiedMark } from './ui';
-import { ArrowLeftRight, ArrowUpRight, Check, Cog, Feather, Globe, Puzzle, RotateCcw, Trophy, Weight, Wrench } from 'lucide-preact';
+import { ArrowLeftRight, ArrowUpRight, Check, Cog, Feather, Globe, Puzzle, RotateCcw, Trophy, Weight, Wrench, X } from 'lucide-preact';
 
 interface Props {
   db: Database;
@@ -28,7 +28,7 @@ export function DetailSheet({ db, events, bladeId, onClose, onUse, meta = null }
   const blade = db.blades.find((b) => b.id === bladeId);
 
   const sheetRef = useRef<HTMLDivElement>(null);
-  useModal(sheetRef, onClose);
+  const close = useModal(sheetRef, onClose, { animate: true });
   useEffect(() => closeRef.current?.focus(), []);
 
   if (!blade) return null;
@@ -50,116 +50,124 @@ export function DetailSheet({ db, events, bladeId, onClose, onUse, meta = null }
   ];
 
   return (
-    <div class="sheet-backdrop" onClick={(e) => e.target === e.currentTarget && onClose()}>
+    <div class="sheet-backdrop" onClick={(e) => e.target === e.currentTarget && close()}>
       <div ref={sheetRef} class="sheet glass" role="dialog" aria-modal="true" aria-labelledby="sheet-title" tabIndex={-1}>
         <div class="sheet-grab" aria-hidden="true" />
-        <button ref={closeRef} type="button" class="icon-btn sheet-close" onClick={onClose} aria-label="Schließen">
-          ×
-        </button>
-        <header class={`sheet-hero hero-${blade.type}`}>
-          <BeyImage bladeId={blade.id} type={blade.type} size="lg" alt={blade.name} />
-          <div class="sheet-hero-text">
-            <p class="eyebrow">{blade.line} · Blade</p>
-            <h2 id="sheet-title" class="sheet-title">
-              {displayName(blade)} <UnverifiedMark show={!blade.verified} />
-            </h2>
-            <div class="badges badges-left">
-              <TypeBadge type={blade.type} />
-              <SpinBadge spin={blade.spin} />
+        <div class="win-head">
+          <div class="win-heading">
+            <p class="win-title">Steckbrief</p>
+            <p class="win-sub">Beyblade X</p>
+          </div>
+          <button ref={closeRef} type="button" class="icon-btn win-close" onClick={close} aria-label="Schließen">
+            <X aria-hidden="true" />
+          </button>
+        </div>
+        <div class="win-scroll">
+          <header class={`sheet-hero hero-${blade.type}`}>
+            <BeyImage bladeId={blade.id} type={blade.type} size="lg" alt={blade.name} />
+            <div class="sheet-hero-text">
+              <p class="eyebrow">{blade.line} · Blade</p>
+              <h2 id="sheet-title" class="sheet-title">
+                {displayName(blade)} <UnverifiedMark show={!blade.verified} />
+              </h2>
+              <div class="badges badges-left">
+                <TypeBadge type={blade.type} />
+                <SpinBadge spin={blade.spin} />
+              </div>
             </div>
-          </div>
-        </header>
+          </header>
 
-        <div class="sheet-body">
-          <p class="lead">{TYPE_HINT[blade.type]}</p>
+          <div class="sheet-body">
+            <p class="lead">{TYPE_HINT[blade.type]}</p>
 
-          {traits.length > 0 && (
-            <section aria-labelledby="traits-h">
-              <h3 id="traits-h" class="sheet-h">
-                Besonderheiten
-              </h3>
-              <ul class="traits">
-                {traits.map((t) => (
-                  <li key={t.title} class={`trait${t.strong ? ' strong' : ''}`}>
-                    <span class="trait-icon" aria-hidden="true">
-                      <TraitSymbol icon={t.icon} />
-                    </span>
-                    <span class="trait-text">
-                      <strong>{t.title}</strong>
-                      <span>{t.text}</span>
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
-
-          <table class="infobox">
-            <caption>Steckbrief</caption>
-            <tbody>
-              {rows
-                .filter(([, v]) => v)
-                .map(([k, v]) => (
-                  <tr key={k}>
-                    <th scope="row">{k}</th>
-                    <td>{v}</td>
-                  </tr>
-                ))}
-            </tbody>
-          </table>
-
-          {products.length > 0 && (
-            <section>
-              <h3 class="sheet-h">Produkte</h3>
-              <ul class="mini-list">
-                {products.map((p) => (
-                  <li key={p.code}>
-                    <span class="code">{p.code.startsWith('TBA') ? 'neu' : p.code}</span>
-                    <span>{displayProductName(p, db)}</span>
-                    {p.kind !== 'stadium' && (
-                      <button
-                        type="button"
-                        class={`buy-q${ownedCount(p.code) ? ' have' : ''}`}
-                        onClick={() => openCheck(p.code)}
-                        aria-label={ownedCount(p.code) ? `${p.name}: hast du schon` : `Soll ich ${p.name} kaufen?`}
-                      >
-                        {ownedCount(p.code) ? <><Check aria-hidden="true" /> Hab ich</> : 'Kaufen?'}
-                      </button>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
-
-          {related.length > 0 && (
-            <section>
-              <h3 class="sheet-h">Termine</h3>
-              <ul class="mini-list">
-                {related.map((e) => (
-                  <li key={e.id}>
-                    <span class="code">{e.date.split('-').reverse().join('.')}</span>
-                    <span>
-                      {e.title}
-                      {e.place ? ` · ${e.place}` : ''}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
-
-          <div class="btn-row">
-            <button type="button" class="btn btn-primary" onClick={() => onUse(blade.id)}>
-              Im Kombo-Planer nutzen
-            </button>
-            {wiki && (
-              <a class="btn" href={wiki.page} target="_blank" rel="noopener noreferrer">
-                Im Beyblade Wiki <ArrowUpRight aria-hidden="true" />
-              </a>
+            {traits.length > 0 && (
+              <section aria-labelledby="traits-h">
+                <h3 id="traits-h" class="sheet-h">
+                  Besonderheiten
+                </h3>
+                <ul class="traits">
+                  {traits.map((t) => (
+                    <li key={t.title} class={`trait${t.strong ? ' strong' : ''}`}>
+                      <span class="trait-icon" aria-hidden="true">
+                        <TraitSymbol icon={t.icon} />
+                      </span>
+                      <span class="trait-text">
+                        <strong>{t.title}</strong>
+                        <span>{t.text}</span>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
             )}
+
+            <table class="infobox">
+              <caption>Steckbrief</caption>
+              <tbody>
+                {rows
+                  .filter(([, v]) => v)
+                  .map(([k, v]) => (
+                    <tr key={k}>
+                      <th scope="row">{k}</th>
+                      <td>{v}</td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+
+            {products.length > 0 && (
+              <section>
+                <h3 class="sheet-h">Produkte</h3>
+                <ul class="mini-list">
+                  {products.map((p) => (
+                    <li key={p.code}>
+                      <span class="code">{p.code.startsWith('TBA') ? 'neu' : p.code}</span>
+                      <span>{displayProductName(p, db)}</span>
+                      {p.kind !== 'stadium' && (
+                        <button
+                          type="button"
+                          class={`buy-q${ownedCount(p.code) ? ' have' : ''}`}
+                          onClick={() => openCheck(p.code)}
+                          aria-label={ownedCount(p.code) ? `${p.name}: hast du schon` : `Soll ich ${p.name} kaufen?`}
+                        >
+                          {ownedCount(p.code) ? <><Check aria-hidden="true" /> Hab ich</> : 'Kaufen?'}
+                        </button>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+
+            {related.length > 0 && (
+              <section>
+                <h3 class="sheet-h">Termine</h3>
+                <ul class="mini-list">
+                  {related.map((e) => (
+                    <li key={e.id}>
+                      <span class="code">{e.date.split('-').reverse().join('.')}</span>
+                      <span>
+                        {e.title}
+                        {e.place ? ` · ${e.place}` : ''}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+
+            <div class="btn-row">
+              <button type="button" class="btn btn-primary" onClick={() => onUse(blade.id)}>
+                Im Kombo-Planer nutzen
+              </button>
+              {wiki && (
+                <a class="btn" href={wiki.page} target="_blank" rel="noopener noreferrer">
+                  Im Beyblade Wiki <ArrowUpRight aria-hidden="true" />
+                </a>
+              )}
+            </div>
+            <ImageCredit bladeId={blade.id} />
           </div>
-          <ImageCredit bladeId={blade.id} />
         </div>
       </div>
     </div>

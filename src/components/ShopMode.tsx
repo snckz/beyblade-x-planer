@@ -35,7 +35,7 @@ export function ShopMode({ db, state, update, meta, onClose }: Props) {
   const [scan, setScan] = useState(false);
   const [photo, setPhoto] = useState(false);
   const [offline, setOffline] = useState<'idle' | 'busy' | 'ok' | 'fail' | 'nosw'>('idle');
-  useModal(ref, onClose);
+  const close = useModal(ref, onClose, { animate: true });
 
   const items = state.wishlist.map((c) => db.products.find((p) => p.code === c)).filter((p): p is Product => !!p);
   const sym = cur === 'THB' ? '฿' : '€';
@@ -74,7 +74,7 @@ export function ShopMode({ db, state, update, meta, onClose }: Props) {
   return (
     <div ref={ref} class="live shop" role="dialog" aria-modal="true" aria-label="Einkaufsmodus" tabIndex={-1}>
       <div class="live-bar">
-        <button type="button" class="btn btn-sm" onClick={onClose}>
+        <button type="button" class="btn btn-sm" onClick={close}>
           Schließen
         </button>
         <span class="live-title">Einkaufsmodus</span>

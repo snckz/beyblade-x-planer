@@ -19,7 +19,7 @@ type Filter = 'all' | BeyType;
 export function Showcase({ db, state, onClose }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const [filter, setFilter] = useState<Filter>('all');
-  useModal(ref, onClose);
+  const close = useModal(ref, onClose, { animate: true });
 
   const items = db.products
     .filter((p): p is Product & { bladeId: string } => (state.owned[p.code] ?? 0) > 0 && !!p.bladeId)
@@ -35,7 +35,7 @@ export function Showcase({ db, state, onClose }: Props) {
         <span class="live-title">
           Meine Kreisel <span class="muted">({total})</span>
         </span>
-        <button type="button" class="btn btn-sm btn-primary" onClick={onClose}>
+        <button type="button" class="btn btn-sm btn-primary" onClick={close}>
           Schließen
         </button>
       </div>

@@ -52,7 +52,7 @@ export function PhotoCheck({ db, state, update, meta, onClose, initialCode }: Pr
   const [cur, setCur] = useState<ShopPrice['cur']>(() => Object.values(state.shopPrices)[0]?.cur ?? 'THB');
   const [msg, setMsg] = useState('');
   const run = useRef(0);
-  useModal(ref, onClose);
+  const close = useModal(ref, onClose, { animate: true });
 
   const { opponents } = useMemo(() => metaOpponents(db, meta), [db, meta]);
   const cache = useMemo<ScoreCache>(() => new Map(), [db, opponents]);
@@ -118,7 +118,7 @@ export function PhotoCheck({ db, state, update, meta, onClose, initialCode }: Pr
   return (
     <div ref={ref} class="live shop" role="dialog" aria-modal="true" aria-label="Kauf-Check" tabIndex={-1}>
       <div class="live-bar">
-        <button type="button" class="btn btn-sm" onClick={onClose}>
+        <button type="button" class="btn btn-sm" onClick={close}>
           Schließen
         </button>
         <span class="live-title">Kauf-Check</span>

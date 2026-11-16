@@ -27,7 +27,7 @@ export function AddProducts({ db, state, update, onClose }: Props) {
   const [region, setRegion] = useState<Region>('all');
   const [onlyMine, setOnlyMine] = useState(false);
   const [limit, setLimit] = useState(PAGE);
-  useModal(ref, onClose);
+  const close = useModal(ref, onClose, { animate: true });
 
   const list = useMemo(() => {
     const base = db.products.filter((p) => p.bladeId && p.kind !== 'stadium');
@@ -49,7 +49,7 @@ export function AddProducts({ db, state, update, onClose }: Props) {
     <div ref={ref} class="live shop" role="dialog" aria-modal="true" aria-label="Produkte hinzufügen" tabIndex={-1}>
       <div class="live-bar">
         <span class="live-title">Meine Sammlung</span>
-        <button type="button" class="btn btn-sm btn-primary" onClick={onClose}>
+        <button type="button" class="btn btn-sm btn-primary" onClick={close}>
           Fertig{total ? ` (${total})` : ''}
         </button>
       </div>

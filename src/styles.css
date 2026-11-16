@@ -2256,3 +2256,182 @@ button.combo-part:active { transform: scale(.97); background: var(--surface-3); 
 .result { grid-template-columns: minmax(0, 1fr); }
 .result-actions-row .btn { min-width: 0; }
 @media (max-width: 360px) { .result-actions-row .btn { padding: 0 var(--s-2); gap: 6px; font-size: 14px; } }
+
+/* =========================================================================
+   Premium Dark – Designsystem und Fenster (Phase 1)
+   Graphit in festen Stufen, Rot als einziger Signalton, Magenta/Bordeaux nur als Verlauf und Kantenlicht.
+   Neue Regeln nutzen ausschließlich diese Tokens.
+   ========================================================================= */
+:root {
+  /* Flächen, von hinten nach vorn */
+  --night: #09090d;       /* App-Grund */
+  --surface: #121218;     /* Karte auf der Seite */
+  --window: #17171e;      /* Fenster und Bottom-Sheets */
+  --surface-2: #1f1f28;   /* Karte im Fenster, Element in einer Karte */
+  --surface-3: #2a2a35;   /* Element darin, gedrückt */
+  --surface-raise: linear-gradient(180deg, #1c1c24 0%, #131319 100%);
+  --hair: rgba(255, 255, 255, .07);
+  --hair-2: rgba(255, 255, 255, .12);
+  /* Akzente */
+  --x-red: #f32645;
+  --magenta: #b93a86;
+  --bordeaux: #5a1026;
+  --grad-primary: linear-gradient(100deg, #f32645 0%, #dc2a5a 58%, #b93a86 100%);
+  --glow-primary: 0 12px 26px -14px rgba(243, 38, 69, .85);
+  --tint-red: rgba(243, 38, 69, .16);
+  /* Text */
+  --text: #f5f5f7;
+  --muted: #a9abb5;
+  --faint: #8b8d98;
+  /* Form und Bewegung */
+  --r-win: 32px;
+  --r-card: 22px;
+  --dur-close: .18s;      /* passt zu CLOSE_MS in lib/useModal.ts */
+  --ease-out: cubic-bezier(.2, .9, .25, 1);
+}
+
+/* ---- Grund und Atmosphäre: Bordeaux statt reinem Rot, kein Blau ---- */
+html, .live { background-color: var(--night); }
+.bg { background: var(--night); }
+.bg-photo {
+  background:
+    radial-gradient(130% 44% at 50% -14%, rgba(243, 38, 69, .4), rgba(90, 16, 38, .34) 48%, rgba(90, 16, 38, 0) 80%),
+    radial-gradient(70% 26% at 100% 0%, rgba(185, 58, 134, .16), rgba(185, 58, 134, 0) 70%),
+    var(--night);
+}
+.tabbar::before { background: linear-gradient(180deg, rgba(9, 9, 13, 0), rgba(9, 9, 13, .9) 42%, var(--night) 64%); }
+@media (max-width: 859px) {
+  .app::before { background: linear-gradient(180deg, rgba(9, 9, 13, .96) calc(100% - var(--s-4)), rgba(9, 9, 13, 0)); }
+}
+
+/* ---- Typografie-Rollen: Titel und Überschriften kursiv-fett ---- */
+.page-title { font: 800 italic clamp(34px, 9.4vw, 48px)/1 var(--font); letter-spacing: -.035em; padding-right: .08em; }
+.section-head h2 { font: 800 italic 21px/1.15 var(--font); letter-spacing: -.025em; }
+.live-title { font: 800 italic 19px/1.1 var(--font); letter-spacing: -.02em; }
+.sheet-h, .block-h { font: 800 italic 18px/1.15 var(--font); letter-spacing: -.02em; color: var(--text); text-transform: none; }
+/* Roter Schrägstrich als Marke vor Fenster- und Kartenüberschriften */
+.sheet-h::before, .block-h::before {
+  content: ''; display: inline-block; width: 7px; height: .9em; margin-right: var(--s-2); border-radius: 2px;
+  background: var(--x-red); transform: skewX(-18deg); vertical-align: -.1em;
+}
+
+/* ---- Zustände und Bedienelemente ---- */
+.btn-primary, .btn-primary:hover:not(:disabled) { background: var(--grad-primary); color: #fff; border-color: transparent; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .22), var(--glow-primary); }
+.btn-primary:hover:not(:disabled) { filter: brightness(1.08); }
+.btn { transition: transform var(--dur-1) var(--ease), background-color var(--dur-2) var(--ease), filter var(--dur-2) var(--ease); }
+.segmented button.on, .tabs-top a.on, .chip-on:not([class*='type-chip-']), .chip-row .chip-on {
+  background: var(--grad-primary); color: #fff; border-color: transparent; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .2), var(--glow-primary);
+}
+.chip { border: 1px solid var(--hair); }
+.icon-btn { background: var(--surface-2); border: 1px solid var(--hair-2); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .07); }
+.tabbar a.on { background: var(--tint-red); color: #fff; box-shadow: inset 0 0 0 1px rgba(243, 38, 69, .28); }
+.tabbar a.on svg { stroke: #ff6b82; }
+.tab-icon .dot-count, .tabbar a.on .dot-count { background: var(--x-red); }
+.progress-track span { background: var(--grad-primary); }
+
+/* =========================================================================
+   Fenster
+   Ein System für alle: Bottom-Sheet (.sheet) und Vollbild (.live). Kopfzeile steht, Inhalt scrollt darunter.
+   ========================================================================= */
+.sheet-backdrop { background: rgba(4, 4, 8, .64); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); animation: fade var(--dur-2) ease-out; }
+.sheet {
+  display: flex; flex-direction: column; overflow: hidden; isolation: isolate; padding-bottom: 0;
+  max-height: calc(100dvh - var(--safe-t) - var(--s-3));
+  border-radius: var(--r-win) var(--r-win) 0 0; border: 1px solid transparent; border-bottom: 0;
+  background:
+    linear-gradient(var(--window), var(--window)) padding-box,
+    linear-gradient(180deg, rgba(255, 255, 255, .22), rgba(255, 255, 255, .06) 26%, rgba(243, 38, 69, .3) 100%) border-box;
+  box-shadow: 0 -30px 70px -30px #000;
+  animation: rise .34s var(--ease-out);
+}
+/* Kantenlicht: schwacher bordeauxroter Schein in den unteren Ecken */
+.sheet::after {
+  content: ''; position: absolute; z-index: -1; inset: auto 0 0 0; height: 46%; pointer-events: none;
+  background:
+    radial-gradient(60% 90% at 100% 100%, rgba(243, 38, 69, .13), transparent 70%),
+    radial-gradient(50% 80% at 0% 100%, rgba(185, 58, 134, .09), transparent 70%);
+}
+@media (min-width: 700px) { .sheet { border-radius: var(--r-win); border-bottom: 1px solid transparent; max-height: min(880px, calc(100dvh - 48px)); } }
+.sheet-grab { flex: none; width: 44px; height: 5px; margin: 10px auto 2px; border-radius: var(--r-pill); background: rgba(255, 255, 255, .22); }
+
+/* Kopfzeile */
+.win-head { flex: none; display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); padding: var(--s-2) var(--s-4) var(--s-3) var(--s-5); }
+.win-heading { display: grid; gap: 3px; min-width: 0; }
+.win-title { margin: 0; font: 800 italic 24px/1.1 var(--font); letter-spacing: -.025em; color: #fff; overflow-wrap: anywhere; }
+.win-sub { margin: 0; font-size: 11.5px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--faint); }
+.win-heading, .win-head > .win-title { position: relative; padding-left: 20px; }
+.win-heading::before, .win-head > .win-title::before {
+  content: ''; position: absolute; left: 2px; top: 4px; width: 8px; height: 20px; border-radius: 2px;
+  background: var(--x-red); transform: skewX(-18deg);
+}
+.win-close { flex: none; width: 44px; height: 44px; border-radius: 50%; color: var(--text); }
+.win-close .lucide { width: 20px; height: 20px; }
+
+/* Inhalt scrollt im Fenster, Kopfzeile bleibt */
+.win-scroll, .picker-body { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; padding-bottom: calc(var(--s-5) + var(--safe-b)); }
+.picker-tools { flex: none; border-bottom: 1px solid var(--hair); }
+.sheet-hero { padding: var(--s-2) var(--s-5) var(--s-4); }
+.sheet-body { padding: 0 var(--s-4); gap: var(--s-3); }
+.sheet-body > .lead { padding: 0 var(--s-1); color: var(--muted); }
+
+/* Schwebende Karten im Fenster */
+.sheet-body > section, .sheet .card {
+  padding: var(--s-4); border-radius: var(--r-card); border: 1px solid var(--hair); background: var(--surface-2);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .05), 0 18px 34px -26px #000;
+}
+.sheet-body > section > .sheet-h { margin: 0 0 var(--s-3); }
+.sheet .trait, .sheet .row, .sheet .improve-item { background: var(--surface-3); }
+.sheet .trait.strong { background: linear-gradient(135deg, rgba(243, 38, 69, .2), rgba(243, 38, 69, .06)), var(--surface-3); }
+.sheet .infobox { border-radius: var(--r-card); border: 1px solid var(--hair); background: var(--surface-2); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .05), 0 18px 34px -26px #000; }
+.sheet .infobox caption { padding: var(--s-4) var(--s-4) var(--s-2); font: 800 italic 18px/1.15 var(--font); letter-spacing: -.02em; }
+.sheet .infobox caption::before { content: ''; display: inline-block; width: 7px; height: .9em; margin-right: var(--s-2); border-radius: 2px; background: var(--x-red); transform: skewX(-18deg); vertical-align: -.1em; }
+/* Felder und Chips im Fenster: eingelassen statt aufgesetzt */
+.sheet input[type='text'], .sheet input[type='search'], .sheet select { background-color: rgba(0, 0, 0, .28); border: 1px solid var(--hair-2); }
+.sheet input[type='text']:focus, .sheet input[type='search']:focus { background-color: rgba(0, 0, 0, .38); border-color: rgba(255, 255, 255, .3); }
+.sheet .chip { background: var(--surface-2); }
+.sheet .tile { background: var(--surface-2); border-color: var(--hair); }
+.sheet .tile.selected { border-color: var(--x-red); background: linear-gradient(180deg, rgba(243, 38, 69, .18), rgba(243, 38, 69, .05)), var(--surface-2); box-shadow: inset 0 0 0 1px var(--x-red), var(--glow-primary); }
+
+/* Vollbild-Fenster: gleiche Sprache, kein blauer Verlauf */
+.live {
+  background:
+    radial-gradient(120% 46% at 50% 0%, rgba(90, 16, 38, .5), rgba(90, 16, 38, 0) 70%),
+    var(--night);
+  animation: fade var(--dur-2) ease-out;
+}
+.live-bar { min-height: 48px; padding-bottom: var(--s-1); }
+.live .card, .live .glass { background: var(--surface); }
+
+/* Schließen: kurz ausblenden und absenken (Klasse setzt lib/useModal.ts) */
+.sheet-backdrop.is-closing { animation: win-fade-out var(--dur-close) ease-in forwards; }
+.sheet-backdrop.is-closing .sheet { animation: win-sink var(--dur-close) ease-in forwards; }
+.live.is-closing { animation: win-fade-out var(--dur-close) ease-in forwards; }
+@keyframes win-fade-out { to { opacity: 0; } }
+@keyframes win-sink { to { transform: translateY(32px); } }
+@media (prefers-reduced-motion: reduce) {
+  .sheet, .sheet-backdrop, .live, .sheet-backdrop.is-closing, .sheet-backdrop.is-closing .sheet, .live.is-closing { animation: none; }
+}
+/* Der Fenstertitel sagt schon „Steckbrief“ – die Tabellen-Beschriftung bleibt nur für Screenreader */
+.sheet .infobox caption { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.sheet .infobox caption::before { content: none; }
+.sheet-body > .lead { margin-top: var(--s-1); }
+.scan-choice.primary { background: var(--grad-primary); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .22), var(--glow-primary); }
+.shop-input input::placeholder { text-overflow: ellipsis; }
+.shop-input input { text-overflow: ellipsis; }
+/* Querformat: wenig Höhe – Kopfzeile und Werkzeuge kompakter, damit die Liste Platz behält */
+@media (max-height: 480px) {
+  .sheet-grab { display: none; }
+  .win-head { padding-top: var(--s-3); padding-bottom: var(--s-2); }
+  .win-title { font-size: 20px; }
+  .win-sub { display: none; }
+  .picker-tools { display: flex; align-items: center; gap: var(--s-2); padding-top: 0; padding-bottom: var(--s-2); }
+  .picker-tools input { flex: 1; min-width: 0; min-height: 44px; }
+}
+/* Kursive Titel brauchen etwas mehr Zeilenhöhe, sonst schneiden Unterlängen die X-Schiene */
+.page-title { display: block; line-height: 1.12; }
+.x-rail { margin-top: var(--s-1); }
+/* Abschnittskopf: Überschrift, Hinweis und Aktion bleiben in einer Zeile; der Hinweis gibt zuerst nach */
+.section-head h2 { font-size: 20px; }
+.section-link { flex: 1 1 0; min-width: 0; }
+.section-link-hint { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.section-link { align-items: center; }

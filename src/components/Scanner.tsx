@@ -11,7 +11,7 @@ import { priceHint } from '../lib/price';
 import { BeyImage } from './BeyImage';
 import { recognizePhoto } from '../lib/photo';
 import { groupKey } from '../lib/price';
-import { Check, Heart } from 'lucide-preact';
+import { Check, Heart, X } from 'lucide-preact';
 
 interface Props {
   db: Database;
@@ -68,7 +68,7 @@ function ScannerInner({ db, state, update, onClose }: Props) {
   barcodes.current = state.barcodes;
 
   // Dialog-Grundverhalten: Fokus, Escape, Hintergrund nicht scrollen.
-  useModal(ref, () => closeRef.current());
+  const close = useModal(ref, () => closeRef.current(), { animate: true });
 
   // Live-Kamera sofort starten, wenn der Zugriff schon erlaubt ist.
   useEffect(() => {
@@ -241,150 +241,152 @@ function ScannerInner({ db, state, update, onClose }: Props) {
   const blade = product && db.blades.find((b) => b.id === product.bladeId);
 
   return (
-    <div class="sheet-backdrop" onClick={(e) => e.target === e.currentTarget && onClose()}>
+    <div class="sheet-backdrop" onClick={(e) => e.target === e.currentTarget && close()}>
       <div ref={ref} class="sheet glass scan-sheet" role="dialog" aria-modal="true" aria-label="Packung scannen" tabIndex={-1}>
         <div class="sheet-grab" aria-hidden="true" />
-        <div class="picker-head">
-          <h2 class="sheet-title">Packung scannen</h2>
-          <button type="button" class="icon-btn" onClick={onClose} aria-label="Schließen">
-            ×
+        <div class="win-head">
+          <h2 class="win-title">Packung scannen</h2>
+          <button type="button" class="icon-btn win-close" onClick={close} aria-label="Schließen">
+            <X aria-hidden="true" />
           </button>
         </div>
+        <div class="win-scroll">
 
-        <input ref={fileRef} type="file" accept="image/*" capture="environment" hidden onChange={(e) => onFile(e.currentTarget.files?.[0])} />
+          <input ref={fileRef} type="file" accept="image/*" capture="environment" hidden onChange={(e) => onFile(e.currentTarget.files?.[0])} />
 
-        {phase === 'choose' && (
+          {phase === 'choose' && (
+            <div class="scan-body">
+              <button type="button" class="scan-choice primary" onClick={() => fileRef.current?.click()}>
+                <span class="scan-choice-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24">
+                    <path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z" />
+                    <circle cx="12" cy="13" r="3.5" />
+                  </svg>
+                </span>
+                <span>
+                  <strong>Packung fotografieren</strong>
+                  <small>Rückseite mit Barcode und Produktnummer – ohne Kamera-Freigabe</small>
+                </span>
+              </button>
+              <button type="button" class="scan-choice" onClick={startLive}>
+                <span class="scan-choice-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24">
+                    <path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3M7 8v8M10 8v8M13 8v8M16 8v8" />
+                  </svg>
+                </span>
+                <span>
+                  <strong>Live scannen</strong>
+                  <small>Für viele Packungen hintereinander</small>
+                </span>
+              </button>
+            </div>
+          )}
+
+          {phase === 'reading' && (
+            <div class="scan-body scan-reading" role="status">
+              <span class="spinner" aria-hidden="true" />
+              <p class="muted">{readStep}</p>
+            </div>
+          )}
+
+          {camera && (
+            <div class="scan-cam">
+              <video ref={video} playsInline muted aria-label="Kamerabild" />
+              <span class="scan-frame" aria-hidden="true" />
+              <p class="scan-hint" role="status">
+                {phase === 'starting' ? 'Kamera wird gestartet …' : 'Barcode auf der Packungsrückseite in den Rahmen halten'}
+              </p>
+            </div>
+          )}
+
           <div class="scan-body">
-            <button type="button" class="scan-choice primary" onClick={() => fileRef.current?.click()}>
-              <span class="scan-choice-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24">
-                  <path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z" />
-                  <circle cx="12" cy="13" r="3.5" />
-                </svg>
-              </span>
-              <span>
-                <strong>Packung fotografieren</strong>
-                <small>Rückseite mit Barcode und Produktnummer – ohne Kamera-Freigabe</small>
-              </span>
-            </button>
-            <button type="button" class="scan-choice" onClick={startLive}>
-              <span class="scan-choice-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24">
-                  <path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3M7 8v8M10 8v8M13 8v8M16 8v8" />
-                </svg>
-              </span>
-              <span>
-                <strong>Live scannen</strong>
-                <small>Für viele Packungen hintereinander</small>
-              </span>
-            </button>
-          </div>
-        )}
-
-        {phase === 'reading' && (
-          <div class="scan-body scan-reading" role="status">
-            <span class="spinner" aria-hidden="true" />
-            <p class="muted">{readStep}</p>
-          </div>
-        )}
-
-        {camera && (
-          <div class="scan-cam">
-            <video ref={video} playsInline muted aria-label="Kamerabild" />
-            <span class="scan-frame" aria-hidden="true" />
-            <p class="scan-hint" role="status">
-              {phase === 'starting' ? 'Kamera wird gestartet …' : 'Barcode auf der Packungsrückseite in den Rahmen halten'}
-            </p>
-          </div>
-        )}
-
-        <div class="scan-body">
-          {phase === 'nocam' && (
-            <p class="muted">
-              Keine Kamera verfügbar oder Zugriff abgelehnt (Einstellungen → Safari → Kamera). Du kannst das Produkt auch hier suchen.{' '}
-              <button type="button" class="btn btn-ghost btn-sm" onClick={again}>
-                Erneut versuchen
-              </button>
-            </p>
-          )}
-          {phase === 'noreader' && (
-            <p class="muted">
-              Der Barcode-Leser konnte nicht geladen werden – bist du offline? Du kannst das Produkt auch hier suchen.{' '}
-              <button type="button" class="btn btn-ghost btn-sm" onClick={again}>
-                Erneut versuchen
-              </button>
-            </p>
-          )}
-          {phase === 'unknown' && (
-            <p class="muted">
-              {candidates.length
-                ? 'Welche Packung ist es?'
-                : code
-                  ? <>Barcode <strong class="mono">{code}</strong> kenne ich noch nicht. Welches Produkt ist das? Danach erkennt die App ihn sofort wieder.</>
-                  : 'Ich konnte die Packung nicht sicher erkennen. Tipp: Rückseite mit Produktnummer (z. B. G4568 oder BX-05) scharf fotografieren – oder hier suchen.'}
-            </p>
-          )}
-          {phase === 'unknown' && candidates.length > 0 && (
-            <ul class="list scan-results">
-              {candidates.map((p) => (
-                <li key={p.code}>
-                  <ProductRow db={db} product={p} onClick={() => (code ? assign(p) : (setProduct(p), setPhase('found')))} />
-                </li>
-              ))}
-            </ul>
-          )}
-
-          {(pick || phase === 'choose') && (
-            <>
-              <input type="search" placeholder="Name oder Code, z. B. BX-24 …" value={query} onInput={(e) => setQuery(e.currentTarget.value)} aria-label="Produkt suchen" />
+            {phase === 'nocam' && (
+              <p class="muted">
+                Keine Kamera verfügbar oder Zugriff abgelehnt (Einstellungen → Safari → Kamera). Du kannst das Produkt auch hier suchen.{' '}
+                <button type="button" class="btn btn-ghost btn-sm" onClick={again}>
+                  Erneut versuchen
+                </button>
+              </p>
+            )}
+            {phase === 'noreader' && (
+              <p class="muted">
+                Der Barcode-Leser konnte nicht geladen werden – bist du offline? Du kannst das Produkt auch hier suchen.{' '}
+                <button type="button" class="btn btn-ghost btn-sm" onClick={again}>
+                  Erneut versuchen
+                </button>
+              </p>
+            )}
+            {phase === 'unknown' && (
+              <p class="muted">
+                {candidates.length
+                  ? 'Welche Packung ist es?'
+                  : code
+                    ? <>Barcode <strong class="mono">{code}</strong> kenne ich noch nicht. Welches Produkt ist das? Danach erkennt die App ihn sofort wieder.</>
+                    : 'Ich konnte die Packung nicht sicher erkennen. Tipp: Rückseite mit Produktnummer (z. B. G4568 oder BX-05) scharf fotografieren – oder hier suchen.'}
+              </p>
+            )}
+            {phase === 'unknown' && candidates.length > 0 && (
               <ul class="list scan-results">
-                {results.map((p) => (
+                {candidates.map((p) => (
                   <li key={p.code}>
                     <ProductRow db={db} product={p} onClick={() => (code ? assign(p) : (setProduct(p), setPhase('found')))} />
                   </li>
                 ))}
               </ul>
-            </>
-          )}
+            )}
 
-          {phase === 'found' && product && (
-            <div class="scan-found">
-              {blade && <BeyImage bladeId={blade.id} type={blade.type} size="lg" alt={blade.name} />}
-              <div>
-                <p class="eyebrow">{product.code}</p>
-                <p class="row-title">{displayProductName(product, db)}</p>
-                {priceHint(product, rates) && <p class="muted">{priceHint(product, rates)}</p>}
-                <OwnStatus db={db} state={state} product={product} />
-              </div>
-              <div class="btn-row">
-                <button type="button" class="btn btn-primary" onClick={() => addOwned(product)}>
-                  In die Sammlung
-                </button>
-                <button type="button" class="btn" onClick={() => addWish(product)}>
-                  Auf Wunschliste
-                </button>
-              </div>
-              {code && (
-                <button type="button" class="btn btn-ghost btn-sm" onClick={forget}>
-                  Falsches Produkt? Neu zuordnen
-                </button>
-              )}
-            </div>
-          )}
+            {(pick || phase === 'choose') && (
+              <>
+                <input type="search" placeholder="Name oder Code, z. B. BX-24 …" value={query} onInput={(e) => setQuery(e.currentTarget.value)} aria-label="Produkt suchen" />
+                <ul class="list scan-results">
+                  {results.map((p) => (
+                    <li key={p.code}>
+                      <ProductRow db={db} product={p} onClick={() => (code ? assign(p) : (setProduct(p), setPhase('found')))} />
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
 
-          {phase === 'done' && (
-            <div class="scan-found">
-              <p role="status">{msg}</p>
-              <div class="btn-row">
-                <button type="button" class="btn btn-primary" onClick={again}>
-                  Nächste Packung
-                </button>
-                <button type="button" class="btn" onClick={onClose}>
-                  Fertig
-                </button>
+            {phase === 'found' && product && (
+              <div class="scan-found">
+                {blade && <BeyImage bladeId={blade.id} type={blade.type} size="lg" alt={blade.name} />}
+                <div>
+                  <p class="eyebrow">{product.code}</p>
+                  <p class="row-title">{displayProductName(product, db)}</p>
+                  {priceHint(product, rates) && <p class="muted">{priceHint(product, rates)}</p>}
+                  <OwnStatus db={db} state={state} product={product} />
+                </div>
+                <div class="btn-row">
+                  <button type="button" class="btn btn-primary" onClick={() => addOwned(product)}>
+                    In die Sammlung
+                  </button>
+                  <button type="button" class="btn" onClick={() => addWish(product)}>
+                    Auf Wunschliste
+                  </button>
+                </div>
+                {code && (
+                  <button type="button" class="btn btn-ghost btn-sm" onClick={forget}>
+                    Falsches Produkt? Neu zuordnen
+                  </button>
+                )}
               </div>
-            </div>
-          )}
+            )}
+
+            {phase === 'done' && (
+              <div class="scan-found">
+                <p role="status">{msg}</p>
+                <div class="btn-row">
+                  <button type="button" class="btn btn-primary" onClick={again}>
+                    Nächste Packung
+                  </button>
+                  <button type="button" class="btn" onClick={onClose}>
+                    Fertig
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

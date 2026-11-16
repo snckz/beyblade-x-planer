@@ -7,6 +7,7 @@ import { TYPE_LABEL } from '../lib/analysis';
 import { BeyImage } from './BeyImage';
 import { TypeBadge } from './ui';
 import { BitImage, RatchetImage } from './BitImage';
+import { X } from 'lucide-preact';
 
 type Kind = 'blade' | 'ratchet' | 'bit';
 
@@ -104,7 +105,7 @@ function PickerSheet({ kind, label, blades = [], ratchets = [], bits = [], value
   const closeRef = useRef(onClose);
   closeRef.current = onClose;
 
-  useModal(ref, () => closeRef.current());
+  const close = useModal(ref, () => closeRef.current(), { animate: true });
 
   const q = query.trim().toLowerCase().replace(/\s+/g, '');
   const match = (s: string) => !q || s.toLowerCase().replace(/\s+/g, '').includes(q);
@@ -115,13 +116,13 @@ function PickerSheet({ kind, label, blades = [], ratchets = [], bits = [], value
   const ratchetList = ratchets.filter((r) => match(r.id));
 
   return (
-    <div class="sheet-backdrop" onClick={(e) => e.target === e.currentTarget && onClose()}>
+    <div class="sheet-backdrop" onClick={(e) => e.target === e.currentTarget && close()}>
       <div ref={ref} class="sheet glass picker-sheet" role="dialog" aria-modal="true" aria-label={`${label} wählen`} tabIndex={-1}>
         <div class="sheet-grab" aria-hidden="true" />
-        <div class="picker-head">
-          <h2 class="sheet-title">{label} wählen</h2>
-          <button type="button" class="icon-btn" onClick={onClose} aria-label="Schließen">
-            ×
+        <div class="win-head">
+          <h2 class="win-title">{label} wählen</h2>
+          <button type="button" class="icon-btn win-close" onClick={close} aria-label="Schließen">
+            <X aria-hidden="true" />
           </button>
         </div>
         <div class="picker-tools">
