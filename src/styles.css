@@ -2013,3 +2013,63 @@ html { scroll-padding-bottom: calc(var(--nav-h) + var(--nav-gap) + var(--s-6)); 
 .tl-link, .section-link, .result .link-btn { min-height: 44px; }
 .result .link-btn { display: inline-flex; align-items: center; }
 .btn-sm { min-height: 40px; }
+
+/* ---- Tab-Leiste: schmaler und leiser – Inhalt hat Vorrang ---- */
+:root {
+  --nav-h: 56px;
+  --nav-gap: max(10px, calc(var(--safe-b) - 14px));
+  --surface-raise: linear-gradient(180deg, #1b1b20 0%, #121215 100%);
+  --shadow-raise: inset 0 1px 0 rgba(255, 255, 255, .09), 0 1px 0 rgba(0, 0, 0, .7), 0 26px 44px -30px #000;
+}
+.tabbar {
+  width: min(372px, calc(100% - 32px)); padding: 5px; gap: 2px;
+  background: linear-gradient(180deg, rgba(34, 34, 40, .74), rgba(18, 18, 22, .84)) padding-box, var(--glass-rim) border-box !important;
+  box-shadow: 0 14px 30px -14px rgba(0, 0, 0, .9);
+}
+.tabbar::before { top: -28px; background: linear-gradient(180deg, rgba(5, 5, 6, 0), rgba(5, 5, 6, .8) 60%, var(--night)); }
+.tabbar a { color: rgba(255, 255, 255, .62); gap: 2px; }
+.tabbar a.on { background: rgba(255, 255, 255, .13); color: #fff; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .14); }
+.tabbar a.on svg { stroke: #fff; }
+.tabbar a .tab-label, .tabbar a.on .tab-label { font-size: 10.5px; }
+.tab-icon svg { width: 20px; height: 20px; }
+.tab-icon .dot-count, .tabbar a.on .dot-count { top: -6px; right: -11px; min-width: 15px; height: 15px; font-size: 9.5px; box-shadow: 0 0 0 2px #1d1d22; }
+
+/* ---- Termine: strukturierte Zeitleiste auf erhöhter Fläche ---- */
+.chip-row { gap: var(--s-2); }
+.chip-row .chip { min-height: 36px; padding: 0 var(--s-4); font-size: 13.5px; }
+.timeline.card { padding: var(--s-1) var(--s-4); border-radius: var(--r-lg); border: var(--stroke-1); background: var(--surface-raise); box-shadow: var(--shadow-raise); }
+.tl-item { padding: var(--s-4) 0; gap: var(--s-3); }
+.tl-body { gap: var(--s-1); }
+.tl-body .event-kind { font-size: 12px; }
+.tl-body .row-title { font-size: 16px; letter-spacing: -.015em; }
+.tl-meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-1) var(--s-3); margin: 0; font-size: 12.5px; color: var(--text-2); }
+.tl-meta > span { display: inline-flex; align-items: center; gap: 5px; }
+.tl-meta .lucide { width: 13px; height: 13px; color: var(--text-3); }
+.tl-price { padding: 2px 8px; border-radius: var(--r-pill); background: rgba(255, 255, 255, .09); color: var(--text); font-variant-numeric: tabular-nums; font-weight: 600; }
+.tl-body .row-note { margin-top: 2px; font-size: 13.5px; line-height: 1.45; color: var(--text-2); }
+.tl-more { font-size: 13.5px; }
+.tl-more summary { display: inline-flex; align-items: center; min-height: 32px; list-style: none; cursor: pointer; font-weight: 600; color: var(--text-3); }
+.tl-more summary::-webkit-details-marker { display: none; }
+.tl-more summary::after { content: '›'; margin-left: 5px; transform: rotate(90deg); transition: transform var(--dur-2) var(--ease); }
+.tl-more[open] summary::after { transform: rotate(-90deg); }
+.tl-more[open] summary { color: var(--text-2); }
+.tl-more .row-note, .tl-more .hero-note { display: block; }
+.tl-date::after { opacity: .7; }
+
+/* Hero: gleiche Bausteine wie die Zeitleiste */
+.hero-meta { color: rgba(255, 255, 255, .88); margin-top: 2px; }
+.hero-meta .lucide { color: rgba(255, 255, 255, .7); }
+.hero-meta .tl-price { background: rgba(0, 0, 0, .28); color: #fff; }
+.hero-card .hero-note { display: block; -webkit-line-clamp: unset; overflow: visible; margin-top: var(--s-1); color: rgba(255, 255, 255, .86); }
+.hero-card .tl-more summary { color: rgba(255, 255, 255, .78); }
+.hero-count b { font-size: 56px; text-shadow: 0 6px 24px rgba(0, 0, 0, .35); }
+.tl-when { margin-left: var(--s-2); font-weight: 500; color: var(--text-2); }
+.tl-when::before { content: '·'; margin-right: var(--s-2); color: var(--text-3); }
+.tl-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0 var(--s-3); margin-top: 2px; }
+.tl-foot .tl-more[open] { flex: 1 0 100%; }
+.tl-foot .tl-link { margin: 0 0 0 auto; min-height: 36px; }
+.tl-more summary { min-height: 36px; }
+.tabbar { background: linear-gradient(180deg, rgba(36, 36, 42, .9), rgba(20, 20, 24, .95)) padding-box, var(--glass-rim) border-box !important; }
+.tabbar::before { background: linear-gradient(180deg, rgba(5, 5, 6, 0), rgba(5, 5, 6, .9) 42%, var(--night) 64%); }
+.chip-row .chip, .tl-foot .tl-link, .tl-more summary { min-height: 44px; }
+.tl-foot { margin-top: calc(-1 * var(--s-1)); margin-bottom: calc(-1 * var(--s-2)); }
