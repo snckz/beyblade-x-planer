@@ -2975,3 +2975,41 @@ html.phone-landscape .rotate-hint {
 
 /* Lang-Drücken soll das Bildmenü („Zu Fotos hinzufügen“) öffnen, nicht Text markieren (iOS Live Text) */
 .deck-preview, .deck-preview img { -webkit-user-select: none; user-select: none; }
+
+/* ---- Auswahlfenster: Kategorie per Wischen ----
+   Senkrecht scrollt der Browser selbst (und bricht die Wischgeste ab), waagrecht kommt bei lib/categorySwipe.ts an. */
+.picker-body { touch-action: pan-y; }
+
+/* ---- Bestätigung vor dem Löschen (ConfirmSheet) ---- */
+.confirm-sheet { max-width: 440px; }
+.confirm-body { display: grid; justify-items: center; gap: var(--s-3); padding: var(--s-2) var(--s-5) calc(var(--s-5) + var(--safe-b)); text-align: center; }
+.confirm-icon {
+  display: grid; place-items: center; width: 64px; height: 64px; margin-top: var(--s-1); border-radius: 22px;
+  border: 1px solid rgba(243, 38, 69, .45); color: #ff6b7d;
+  background: radial-gradient(circle at 50% 40%, rgba(243, 38, 69, .28), rgba(120, 18, 42, .18) 70%), var(--surface-2);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), 0 18px 34px -18px rgba(243, 38, 69, .7);
+}
+.confirm-icon .lucide { width: 28px; height: 28px; }
+.confirm-title { margin: 0; font: 800 italic 24px/1.1 var(--font); letter-spacing: -.025em; color: #fff; }
+.confirm-desc { display: grid; justify-items: center; gap: var(--s-2); width: 100%; }
+.confirm-desc p { margin: 0; }
+.confirm-item {
+  max-width: 100%; padding: var(--s-2) var(--s-4); border-radius: var(--r-md); border: 1px solid var(--hair); background: var(--surface-2);
+  font: 750 17px/1.25 var(--font); color: var(--text); overflow-wrap: anywhere;
+}
+.confirm-parts { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 10px; font-size: 14px; color: var(--text-2); }
+.confirm-parts > * + *::before { content: '·'; margin-right: 10px; color: var(--faint); }
+.confirm-note { font-size: 13.5px; color: var(--muted); }
+.confirm-actions { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-2); width: 100%; margin-top: var(--s-2); }
+.confirm-actions .btn { min-height: 52px; justify-content: center; font-size: 16px; font-weight: 700; }
+.confirm-cancel { background: var(--surface-3); }
+.confirm-danger {
+  color: #fff; border-color: transparent;
+  background: linear-gradient(135deg, #ff3b52, #d61f45 55%, #a3123a);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .22), 0 14px 28px -14px rgba(243, 38, 69, .85);
+}
+.confirm-danger .lucide { width: 18px; height: 18px; }
+.confirm-danger:active { transform: scale(.98); }
+@media (min-width: 700px) { .confirm-sheet { border-radius: var(--r-win); } }
+.confirm-parts .bit-name-code { font-weight: 700; color: var(--text); }
+.confirm-parts .bit-name-text { font-weight: 400; }

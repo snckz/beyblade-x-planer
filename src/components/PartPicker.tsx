@@ -8,6 +8,7 @@ import { BeyImage, BladePhoto } from './BeyImage';
 import { BitImage, RatchetImage } from './BitImage';
 import { BitName } from './ui';
 import { filterRatchets, heightLabel, ratchetHeights, teethGroups, type TeethGroup } from '../lib/ratchetFilter';
+import { attachCategorySwipe } from '../lib/categorySwipe';
 import { ChevronRight, Cog, Link2, MoveVertical, Plus, RotateCcw, Scale, Search, Shield, Swords, Timer, X } from 'lucide-preact';
 
 type Kind = 'blade' | 'ratchet' | 'bit';
@@ -175,6 +176,24 @@ function PickerSheet({ kind, label, blades = [], ratchets = [], bits = [], value
   const groups = kind === 'ratchet' ? teethGroups(ratchets) : [];
   const heights = kind === 'ratchet' ? ratchetHeights(ratchets) : [];
   const filtered = !!q || !!type || !!group || height != null;
+
+  // Kategorie per Wischen über die Karten wechseln – dieselben Setzfunktionen wie die Chips (Reihenfolge wie die Chips).
+  // Suche und Ratchet-Höhe bleiben, die Auswahl (value) bleibt; den Sprung nach oben übernimmt der Effekt oben.
+  const swipeStep = useRef<(step: 1 | -1) => void>(() => {});
+  swipeStep.current = (step) => {
+    const order: string[] = kind === 'ratchet' ? ['', ...groups.map((g) => g.id)] : ['', 'attack', 'defense', 'stamina', 'balance'];
+    const now = order.indexOf(kind === 'ratchet' ? group : type);
+    const next = Math.max(0, Math.min(order.length - 1, now + step));
+    if (next === now) return; // erste/letzte Kategorie: nicht darüber hinaus
+    if (kind === 'ratchet') setGroup(order[next] as TeethGroup);
+    else setType(order[next] as BeyType | '');
+    nudgeList(bodyRef.current, step);
+  };
+  useEffect(() => {
+    const el = bodyRef.current;
+    return el ? attachCategorySwipe(el, (step) => swipeStep.current(step)) : undefined;
+  }, []);
+
   const resetFilters = () => {
     setQuery('');
     setType('');
@@ -348,6 +367,14 @@ function PickerSheet({ kind, label, blades = [], ratchets = [], bits = [], value
       </div>
     </div>
   );
+}
+
+/** Dezenter Übergang nach einem Wisch: Liste gleitet ein Stück aus der Wischrichtung herein. Ohne Bewegung bei „reduzieren“. */
+function nudgeList(body: HTMLElement | null, step: 1 | -1) {
+  const grid = body?.querySelector<HTMLElement>('.grid');
+  if (!grid || typeof grid.animate !== 'function') return;
+  if (typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  grid.animate([{ transform: `translateX(${step * 22}px)`, opacity: 0.55 }, { transform: 'translateX(0)', opacity: 1 }], { duration: 200, easing: 'cubic-bezier(.2, .8, .2, 1)' });
 }
 
 /** Zacken eines Ratchets; Sonderformen (ohne Angabe in den Daten) bekommen keine erfundene Zahl. */
