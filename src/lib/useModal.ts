@@ -63,7 +63,20 @@ export function useModal(ref: RefObject<HTMLElement | null>, onClose: () => void
       }
     };
     document.addEventListener('keydown', onKey);
+    // Bildschirmtastatur: iOS verkleinert das Fenster nicht, die Tastatur liegt darüber. Ihre Höhe steht als
+    // --kb am Fenster, damit scrollbare Bereiche unten entsprechend Platz lassen (siehe styles.css).
+    const vv = window.visualViewport;
+    const onViewport = () => {
+      if (!vv) return;
+      const kb = Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop));
+      ref.current?.style.setProperty('--kb', `${kb > 80 ? kb : 0}px`);
+    };
+    vv?.addEventListener('resize', onViewport);
+    vv?.addEventListener('scroll', onViewport);
+    onViewport();
     return () => {
+      vv?.removeEventListener('resize', onViewport);
+      vv?.removeEventListener('scroll', onViewport);
       unlock();
       document.removeEventListener('keydown', onKey);
       prev?.focus?.();

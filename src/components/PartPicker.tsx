@@ -5,9 +5,8 @@ import { useRef, useState } from 'preact/hooks';
 import type { BeyType, Blade, Bit, Ratchet } from '../lib/types';
 import { TYPE_LABEL } from '../lib/analysis';
 import { BeyImage } from './BeyImage';
-import { TypeBadge } from './ui';
 import { BitImage, RatchetImage } from './BitImage';
-import { X } from 'lucide-preact';
+import { Check, ChevronRight, LayoutGrid, Link2, Plus, RotateCcw, Scale, Search, Shield, Swords, Timer, X } from 'lucide-preact';
 
 type Kind = 'blade' | 'ratchet' | 'bit';
 
@@ -37,51 +36,30 @@ export function PartField(props: FieldProps) {
   const ratchet = kind === 'ratchet' ? props.ratchets?.find((r) => r.id === value) : undefined;
 
   let main = `${label} wählen`;
+  let title = '';
   let sub = '';
   let type: BeyType | undefined;
   if (blade) {
     main = bothNames(blade);
     sub = `${blade.line}${blade.spin === 'left' ? ' · Linksdreher' : ''}${blade.integratedRatchet ? ' · Ratchet integriert' : ''}`;
+    title = displayName(blade);
     type = blade.type;
   } else if (bit) {
     main = `${bit.id} – ${bit.name}`;
+    title = bit.name && bit.name !== bit.id ? `${bit.id} ${bit.name}` : bit.id;
     type = bit.type;
   } else if (ratchet) {
     main = ratchet.id;
-    sub = `${ratchet.contacts ?? 0} Zacken · ${ratchet.heightMm?.toFixed(1)} mm`;
+    title = ratchet.id;
+    sub = `${teeth(ratchet.contacts)} · ${ratchet.heightMm?.toFixed(1)} mm`;
   }
   if (disabled) {
     main = disabledText ?? '—';
     sub = '';
   }
 
-  return (
-    <div class={`part-field${compact ? ' compact' : ''}`}>
-      {!compact && (
-        <span class="field-label">
-          <span class={`layer-dot ${DOT[kind]}`} />
-          {label}
-        </span>
-      )}
-      <button type="button" class={`part-btn${value ? ' has-value' : ''}`} onClick={() => setOpen(true)} disabled={disabled} aria-haspopup="dialog" aria-label={`${label}: ${main}`}>
-        {blade ? (
-          <BeyImage bladeId={blade.id} type={blade.type} size="sm" alt="" zoomable={false} />
-        ) : bit ? (
-          <BitImage bit={bit} />
-        ) : ratchet && !disabled ? (
-          <RatchetImage ratchet={ratchet} />
-        ) : (
-          <span class={`part-glyph ${DOT[kind]}`}>{kind === 'ratchet' ? (ratchet?.id ?? 'R') : (kind === 'bit' ? 'B' : '◎')}</span>
-        )}
-        <span class="part-text">
-          <span class={value || disabled ? 'part-main' : 'part-main placeholder'}>{main}</span>
-          {sub && <span class="part-sub">{sub}</span>}
-        </span>
-        {type && !compact && <TypeBadge type={type} small />}
-        <span class="part-chev" aria-hidden="true">›</span>
-      </button>
-      {open &&
-        createPortal(
+  const sheet = open
+    ? createPortal(
           <PickerSheet
             {...props}
             onClose={() => setOpen(false)}
@@ -91,7 +69,57 @@ export function PartField(props: FieldProps) {
             }}
           />,
           document.body,
+        )
+    : null;
+
+  const art = blade ? (
+    <BeyImage bladeId={blade.id} type={blade.type} size="sm" alt="" zoomable={false} />
+  ) : bit ? (
+    <BitImage bit={bit} />
+  ) : ratchet && !disabled ? (
+    <RatchetImage ratchet={ratchet} />
+  ) : null;
+
+  // Kompakte Variante (Vergleich, Deck): unverändert.
+  if (compact) {
+    return (
+      <div class="part-field compact">
+        <button type="button" class={`part-btn${value ? ' has-value' : ''}`} onClick={() => setOpen(true)} disabled={disabled} aria-haspopup="dialog" aria-label={`${label}: ${main}`}>
+          {art ?? <span class={`part-glyph ${DOT[kind]}`}>{kind === 'ratchet' ? (ratchet?.id ?? 'R') : kind === 'bit' ? 'B' : '◎'}</span>}
+          <span class="part-text">
+            <span class={value || disabled ? 'part-main' : 'part-main placeholder'}>{main}</span>
+            {sub && <span class="part-sub">{sub}</span>}
+          </span>
+          <span class="part-chev" aria-hidden="true">›</span>
+        </button>
+        {open && sheet}
+      </div>
+    );
+  }
+
+  // Konfigurator-Karte im Kombo-Planer: Bild, Art des Teils, Bezeichnung, Eckdaten.
+  const filled = !!value && !disabled;
+  return (
+    <div class={`part-field part-step${type ? ` aura-${type}` : ''}${filled ? ' is-filled' : ''}`}>
+      <button type="button" class="part-btn" onClick={() => setOpen(true)} disabled={disabled} aria-haspopup="dialog" aria-label={`${label}: ${main}`}>
+        <span class="part-art">{art ?? <span class="part-empty">{disabled ? <Link2 aria-hidden="true" /> : <Plus aria-hidden="true" />}</span>}</span>
+        <span class="part-text">
+          <span class="part-kind">{label}</span>
+          <span class={filled ? 'part-main' : 'part-main placeholder'}>{filled ? title : disabled ? (disabledText ?? '—') : `${label} wählen`}</span>
+          {filled && (type || sub) && (
+            <span class="part-sub">
+              {type && <span class={`part-type type-fg-${type}`}>{TYPE_LABEL[type]}</span>}
+              {sub && sub.split(' · ').map((t) => <span key={t}>{t}</span>)}
+            </span>
+          )}
+        </span>
+        {!disabled && (
+          <span class="part-chev" aria-hidden="true">
+            <ChevronRight />
+          </span>
         )}
+      </button>
+      {sheet}
     </div>
   );
 }
@@ -125,35 +153,52 @@ function PickerSheet({ kind, label, blades = [], ratchets = [], bits = [], value
             <X aria-hidden="true" />
           </button>
         </div>
-        <div class="picker-tools">
-          {kind !== 'ratchet' && (
-            <input type="search" placeholder={kind === 'blade' ? 'Blade suchen …' : 'Bit suchen (z. B. LF) …'} value={query} onInput={(e) => setQuery(e.currentTarget.value)} aria-label="Suchen" />
-          )}
-          {kind !== 'ratchet' && (
-            <div class="type-filter" role="group" aria-label="Nach Typ filtern">
-              {(['attack', 'defense', 'stamina', 'balance'] as const).map((t) => (
-                <button key={t} type="button" class={`chip type-chip-${t}${type === t ? ' chip-on' : ''}`} aria-pressed={type === t} onClick={() => setType(type === t ? '' : t)}>
-                  {TYPE_LABEL[t]}
+        {kind !== 'ratchet' && (
+          <div class="picker-tools">
+            <div class="search-field">
+              <Search aria-hidden="true" />
+              <input type="search" placeholder={kind === 'blade' ? 'Blade suchen …' : 'Bit suchen (z. B. LF) …'} value={query} onInput={(e) => setQuery(e.currentTarget.value)} aria-label="Suchen" enterkeyhint="search" autocomplete="off" autocorrect="off" spellcheck={false} />
+              {query && (
+                <button type="button" class="search-clear" onClick={() => setQuery('')} aria-label="Suche leeren">
+                  <X aria-hidden="true" />
                 </button>
-              ))}
+              )}
             </div>
-          )}
-        </div>
+            <div class="type-filter" role="group" aria-label="Nach Typ filtern">
+              <button type="button" class={`chip type-chip${type === '' ? ' chip-on' : ''}`} aria-pressed={type === ''} onClick={() => setType('')}>
+                <LayoutGrid aria-hidden="true" />
+                Alle
+              </button>
+              {(['attack', 'defense', 'stamina', 'balance'] as const).map((t) => {
+                const Icon = TYPE_ICON[t];
+                return (
+                  <button key={t} type="button" class={`chip type-chip type-chip-${t}${type === t ? ' chip-on' : ''}`} aria-pressed={type === t} onClick={() => setType(type === t ? '' : t)}>
+                    <Icon aria-hidden="true" />
+                    {TYPE_LABEL[t]}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         <div class="picker-body">
           {kind === 'blade' && (
             <div class="grid grid-blades">
               {bladeList.map((b) => (
-                <button key={b.id} type="button" class={`tile type-edge-${b.type}${b.id === value ? ' selected' : ''}`} onClick={() => onPick(b.id)} aria-pressed={b.id === value}>
-                  <BeyImage bladeId={b.id} type={b.type} size="md" alt="" zoomable={false} />
-                  <span class="tile-name">{displayName(b)}</span>
-                  {otherName(b) && <span class="tile-alt">{b.name}</span>}
-                  <span class="tile-meta">
-                    <span class={`type-dot dot-${b.type}`} />
-                    {TYPE_LABEL[b.type]}
-                    {b.spin === 'left' ? ' · ↺' : ''}
+                <button key={b.id} type="button" class={`tile pick aura-${b.type}${b.id === value ? ' selected' : ''}`} onClick={() => onPick(b.id)} aria-pressed={b.id === value}>
+                  <span class="pick-art">
+                    <BeyImage bladeId={b.id} type={b.type} size="md" alt="" zoomable={false} />
                   </span>
-                  {count(b.id) ? <span class="tile-count">{count(b.id)}×</span> : null}
+                  <span class="tile-name">{displayName(b)}</span>
+                  {/* Zweitname nur während der Suche – er erklärt, warum die Karte gefunden wurde */}
+                  {q && otherName(b) && <span class="pick-alt">{b.name}</span>}
+                  <span class="pick-meta">
+                    <span class="pick-line">{b.line}</span>
+                    <span class={`type-fg-${b.type}`}>{TYPE_LABEL[b.type]}</span>
+                    {b.spin === 'left' && <RotateCcw aria-label="Linksdreher" />}
+                  </span>
+                  <PickMarks count={count(b.id)} selected={b.id === value} />
                 </button>
               ))}
             </div>
@@ -162,16 +207,16 @@ function PickerSheet({ kind, label, blades = [], ratchets = [], bits = [], value
           {kind === 'ratchet' && (
             <div class="grid grid-ratchets">
               {ratchetList.map((r) => (
-                <button key={r.id} type="button" class={`tile tile-ratchet${r.id === value ? ' selected' : ''}`} onClick={() => onPick(r.id)} aria-pressed={r.id === value}>
-                  <RatchetImage ratchet={r} size="md" />
-                  <span class="tile-big">{r.id}</span>
-                  <span class="teeth" aria-hidden="true">
-                    {Array.from({ length: r.contacts ?? 0 }, (_, i) => (
-                      <i key={i} />
-                    ))}
+                <button key={r.id} type="button" class={`tile pick${r.id === value ? ' selected' : ''}`} onClick={() => onPick(r.id)} aria-pressed={r.id === value}>
+                  <span class="pick-art">
+                    <RatchetImage ratchet={r} size="md" />
                   </span>
-                  <span class="tile-meta">{r.heightMm?.toFixed(1)} mm</span>
-                  {count(r.id) ? <span class="tile-count">{count(r.id)}×</span> : null}
+                  <span class="tile-name pick-id">{r.id}</span>
+                  <span class="pick-meta">
+                    <span>{teeth(r.contacts)}</span>
+                    <span>{r.heightMm?.toFixed(1)} mm</span>
+                  </span>
+                  <PickMarks count={count(r.id)} selected={r.id === value} />
                 </button>
               ))}
             </div>
@@ -180,16 +225,16 @@ function PickerSheet({ kind, label, blades = [], ratchets = [], bits = [], value
           {kind === 'bit' && (
             <div class="grid grid-bits">
               {bitList.map((b) => (
-                <button key={b.id} type="button" class={`tile tile-bit type-edge-${b.type}${b.id === value ? ' selected' : ''}`} onClick={() => onPick(b.id)} aria-pressed={b.id === value}>
-                  <BitImage bit={b} size="md" />
-                  <span class="tile-name">
-                    <strong>{b.id}</strong> · {b.name}
+                <button key={b.id} type="button" class={`tile pick aura-${b.type}${b.id === value ? ' selected' : ''}`} onClick={() => onPick(b.id)} aria-pressed={b.id === value}>
+                  <span class="pick-art">
+                    <BitImage bit={b} size="md" />
                   </span>
-                  <span class="tile-meta">
-                    <span class={`type-dot dot-${b.type}`} />
-                    {TYPE_LABEL[b.type]}
+                  <span class="tile-name pick-id">{b.id}</span>
+                  <span class="pick-meta">
+                    <span class="pick-sub">{b.name}</span>
+                    <span class={`type-fg-${b.type}`}>{TYPE_LABEL[b.type]}</span>
                   </span>
-                  {count(b.id) ? <span class="tile-count">{count(b.id)}×</span> : null}
+                  <PickMarks count={count(b.id)} selected={b.id === value} />
                 </button>
               ))}
             </div>
@@ -201,5 +246,23 @@ function PickerSheet({ kind, label, blades = [], ratchets = [], bits = [], value
         </div>
       </div>
     </div>
+  );
+}
+
+const teeth = (n?: number | null) => (n === 1 ? '1 Zacke' : `${n ?? 0} Zacken`);
+
+const TYPE_ICON = { attack: Swords, defense: Shield, stamina: Timer, balance: Scale } as const;
+
+/** Ecken-Markierungen einer Auswahlkarte: Haken, wenn gewählt; Anzahl im Besitz. */
+function PickMarks({ count, selected }: { count?: number; selected: boolean }) {
+  return (
+    <>
+      {selected && (
+        <span class="pick-check" aria-hidden="true">
+          <Check />
+        </span>
+      )}
+      {count ? <span class="tile-count">{count}×</span> : null}
+    </>
   );
 }
