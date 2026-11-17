@@ -34,6 +34,17 @@ export function BeyEmblem() {
  * Ladezustand eines Wiki-Fotos: „loading“ bis das Bild wirklich da ist, „failed“ bei Fehler.
  * Je Bildadresse gemerkt – wechselt die Blade, beginnt es von vorn.
  */
+/**
+ * Freigestelltes Foto anzeigen (Auswahlkarten von Blade, Ratchet und Bit, Steckbrief).
+ * War das Wiki-Foto schon freigestellt, ist `cut` die Original-Adresse: Dann mit derselben Lesefreigabe laden wie
+ * beim Freistellen. Safari behandelt denselben Abruf mit und ohne `crossorigin` im Zwischenspeicher getrennt, ein
+ * zweiter, anderer Abruf kann dort scheitern. Scheitert die Anzeige trotzdem, meldet `onFail` es – der Aufrufer zeigt
+ * dann das unveränderte Foto statt eines Platzhalters für ein kaputtes Bild.
+ */
+export function CutImg({ cut, src, common, onFail }: { cut: string; src: string; common: { alt: string; decoding: 'async'; referrerpolicy: 'no-referrer' }; onFail: () => void }) {
+  return <img src={cut} {...common} crossorigin={cut === src ? 'anonymous' : undefined} onError={onFail} />;
+}
+
 export function usePhotoState(src: string | undefined) {
   const [state, setState] = useState<{ src: string; s: 'ok' | 'failed' } | null>(null);
   const status: 'loading' | 'ok' | 'failed' = src && state?.src === src ? state.s : 'loading';
@@ -154,6 +165,8 @@ export function BladePhoto({
   const src = img ? (sharp ? largeUrl(img.thumb) : img.thumb) : undefined;
   // Foto-Adresse, deren Laden mit Lesefreigabe gescheitert ist – dann normal laden.
   const [noAccess, setNoAccess] = useState<string | null>(null);
+  // Foto-Adresse, deren freigestelltes Bild nicht angezeigt werden konnte – dann der runde Ausschnitt.
+  const [cutFailed, setCutFailed] = useState<string | null>(null);
   const [, redraw] = useState(0);
   const alive = useRef(true);
   useEffect(() => () => void (alive.current = false), []);
@@ -168,12 +181,12 @@ export function BladePhoto({
     );
   }
 
-  const cut = cachedCutout(src);
+  const cut = cutFailed === src ? null : cachedCutout(src);
   const mode: 'cut' | 'round' | 'try' = cut ? 'cut' : cut === null || cutoutBlocked() || noAccess === src ? 'round' : 'try';
   const common = { alt, decoding: 'async' as const, referrerpolicy: 'no-referrer' as const };
   let pic;
   if (mode === 'cut') {
-    pic = <img key="cut" src={cut!} {...common} />;
+    pic = <CutImg key="cut" cut={cut!} src={src} common={common} onFail={() => setCutFailed(src)} />;
   } else if (mode === 'try') {
     pic = (
       <img

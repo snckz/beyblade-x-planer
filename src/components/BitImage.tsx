@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'preact/hooks';
 import type { Bit, Ratchet } from '../lib/types';
 import { cachedCutout, cutoutBlocked, cutoutFromImage, markCutoutBlocked, type CutoutOptions } from '../lib/cutout';
 import { useApp, type ImageKind } from '../lib/context';
-import { usePhotoState } from './BeyImage';
+import { CutImg, usePhotoState } from './BeyImage';
 
 /** `card`: großes Foto für die Auswahlkarte – freigestellt, wenn möglich (siehe CardPhoto). */
 type Size = 'sm' | 'md' | 'card';
@@ -56,6 +56,8 @@ const BIT_CUTOUT: CutoutOptions = { maxRemoved: 0.88, defringe: true, trim: true
 function CardPhoto({ src, kind, cutout, fallback }: { src?: string; kind: 'ratchet' | 'bit'; cutout: CutoutOptions; fallback: ComponentChildren }) {
   // Foto-Adresse, deren Laden mit Lesefreigabe gescheitert ist – dann normal laden.
   const [noAccess, setNoAccess] = useState<string | null>(null);
+  // Foto-Adresse, deren freigestelltes Bild nicht angezeigt werden konnte – dann das unveränderte Foto.
+  const [cutFailed, setCutFailed] = useState<string | null>(null);
   const [, redraw] = useState(0);
   const alive = useRef(true);
   useEffect(() => () => void (alive.current = false), []);
@@ -64,12 +66,12 @@ function CardPhoto({ src, kind, cutout, fallback }: { src?: string; kind: 'ratch
   const base = `part-photo part-photo-${kind}`;
   if (!src || plain.status === 'failed') return <span class={`${base} is-fallback`}>{fallback}</span>;
 
-  const cut = cachedCutout(src);
+  const cut = cutFailed === src ? null : cachedCutout(src);
   const mode: 'cut' | 'plate' | 'try' = cut ? 'cut' : cut === null || cutoutBlocked() || noAccess === src ? 'plate' : 'try';
   const common = { alt: '', decoding: 'async' as const, referrerpolicy: 'no-referrer' as const };
   let pic;
   if (mode === 'cut') {
-    pic = <img key="cut" src={cut!} {...common} />;
+    pic = <CutImg cut={cut!} src={src} common={common} onFail={() => setCutFailed(src)} />;
   } else if (mode === 'try') {
     pic = (
       <img
