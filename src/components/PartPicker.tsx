@@ -6,6 +6,7 @@ import type { BeyType, Blade, Bit, Ratchet } from '../lib/types';
 import { TYPE_LABEL } from '../lib/analysis';
 import { BeyImage, BladePhoto } from './BeyImage';
 import { BitImage, RatchetImage } from './BitImage';
+import { filterRatchets, heightLabel, ratchetHeights, teethGroups, type TeethGroup } from '../lib/ratchetFilter';
 import { ChevronRight, Cog, Link2, MoveVertical, Plus, RotateCcw, Scale, Search, Shield, Swords, Timer, X } from 'lucide-preact';
 
 type Kind = 'blade' | 'ratchet' | 'bit';
@@ -127,6 +128,9 @@ export function PartField(props: FieldProps) {
 function PickerSheet({ kind, label, blades = [], ratchets = [], bits = [], value, counts, onClose, onPick }: FieldProps & { onClose: () => void; onPick: (id: string) => void }) {
   const [query, setQuery] = useState('');
   const [type, setType] = useState<BeyType | ''>('');
+  // Ratchet: Zacken-Gruppe und Höhe (kombinierbar, zusammen mit der Suche)
+  const [group, setGroup] = useState<TeethGroup>('');
+  const [height, setHeight] = useState<number | null>(null);
   const ref = useRef<HTMLDivElement>(null);
   // onClose kommt bei jedem Render neu – per Ref, damit der Effekt nur beim Öffnen/Schließen läuft
   // (sonst springt der Fokus beim Tippen weg und die iOS-Tastatur klappt zu).
@@ -148,7 +152,7 @@ function PickerSheet({ kind, label, blades = [], ratchets = [], bits = [], value
       return;
     }
     if (bodyRef.current) bodyRef.current.scrollTop = 0;
-  }, [q, type]);
+  }, [q, type, group, height]);
   // Gescrollt: Kante unter Kopfzeile bzw. Filterleiste zeigen, damit klar ist, dass Karten darunter weiterlaufen.
   // Klasse direkt am Fenster wie `kb-open` aus useModal – kein Neuzeichnen beim Scrollen.
   const onListScroll = (e: Event) => ref.current?.classList.toggle('list-scrolled', (e.currentTarget as HTMLElement).scrollTop > 2);
@@ -156,7 +160,16 @@ function PickerSheet({ kind, label, blades = [], ratchets = [], bits = [], value
 
   const bladeList = blades.filter((b) => (!type || b.type === type) && match(`${b.name}${b.hasbroName ?? ''}${b.id}`)).sort((a, b) => displayName(a).localeCompare(displayName(b)));
   const bitList = bits.filter((b) => (!type || b.type === type) && match(`${b.id}${b.name}`));
-  const ratchetList = ratchets.filter((r) => match(r.id));
+  const ratchetList = kind === 'ratchet' ? filterRatchets(ratchets, { query, teeth: group, height }) : [];
+  const groups = kind === 'ratchet' ? teethGroups(ratchets) : [];
+  const heights = kind === 'ratchet' ? ratchetHeights(ratchets) : [];
+  const filtered = !!q || !!type || !!group || height != null;
+  const resetFilters = () => {
+    setQuery('');
+    setType('');
+    setGroup('');
+    setHeight(null);
+  };
 
   return (
     <div class="sheet-backdrop" onClick={(e) => e.target === e.currentTarget && close()}>
@@ -171,17 +184,41 @@ function PickerSheet({ kind, label, blades = [], ratchets = [], bits = [], value
             <X aria-hidden="true" />
           </button>
         </div>
-        {kind !== 'ratchet' && (
-          <div class="picker-tools">
-            <div class="search-field">
-              <Search aria-hidden="true" />
-              <input type="search" placeholder={kind === 'blade' ? 'Blade suchen …' : 'Bit suchen (z. B. LF) …'} value={query} onInput={(e) => setQuery(e.currentTarget.value)} aria-label="Suchen" enterkeyhint="search" autocomplete="off" autocorrect="off" spellcheck={false} />
-              {query && (
-                <button type="button" class="search-clear" onClick={() => setQuery('')} aria-label="Suche leeren">
-                  <X aria-hidden="true" />
+        <div class={`picker-tools${kind === 'ratchet' ? ' picker-tools-ratchet' : ''}`}>
+          <div class="search-field">
+            <Search aria-hidden="true" />
+            <input type="search" placeholder={SEARCH_HINT[kind]} value={query} onInput={(e) => setQuery(e.currentTarget.value)} aria-label="Suchen" enterkeyhint="search" autocomplete="off" autocorrect="off" spellcheck={false} />
+            {query && (
+              <button type="button" class="search-clear" onClick={() => setQuery('')} aria-label="Suche leeren">
+                <X aria-hidden="true" />
+              </button>
+            )}
+          </div>
+          {kind === 'ratchet' ? (
+            <>
+              <div class="type-filter teeth-filter" role="group" aria-label="Nach Zacken filtern">
+                <button type="button" class={`chip type-chip type-chip-all${group === '' ? ' chip-on' : ''}`} aria-pressed={group === ''} onClick={() => setGroup('')}>
+                  Alle
                 </button>
-              )}
-            </div>
+                {groups.map((g) => (
+                  <button key={g.id} type="button" class={`chip type-chip teeth-chip${group === g.id ? ' chip-on' : ''}`} aria-pressed={group === g.id} aria-label={`${g.value} ${g.caption}`} onClick={() => setGroup(group === g.id ? '' : g.id)}>
+                    <span class="teeth-chip-value">{g.value}</span>
+                    <span class="teeth-chip-caption">{g.caption}</span>
+                  </button>
+                ))}
+              </div>
+              <div class="height-filter" role="group" aria-label="Nach Höhe filtern">
+                <button type="button" class={`chip height-chip${height == null ? ' chip-on' : ''}`} aria-pressed={height == null} onClick={() => setHeight(null)}>
+                  Jede Höhe
+                </button>
+                {heights.map((h) => (
+                  <button key={h} type="button" class={`chip height-chip${height === h ? ' chip-on' : ''}`} aria-pressed={height === h} onClick={() => setHeight(height === h ? null : h)}>
+                    {heightLabel(h)}
+                  </button>
+                ))}
+              </div>
+            </>
+          ) : (
             <div class="type-filter" role="group" aria-label="Nach Typ filtern">
               <button type="button" class={`chip type-chip type-chip-all${type === '' ? ' chip-on' : ''}`} aria-pressed={type === ''} onClick={() => setType('')}>
                 Alle
@@ -196,8 +233,8 @@ function PickerSheet({ kind, label, blades = [], ratchets = [], bits = [], value
                 );
               })}
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
         <div ref={bodyRef} class="picker-body" onScroll={onListScroll}>
           {kind === 'blade' && (
@@ -280,8 +317,21 @@ function PickerSheet({ kind, label, blades = [], ratchets = [], bits = [], value
             </div>
           )}
 
-          {((kind === 'blade' && !bladeList.length) || (kind === 'bit' && !bitList.length) || (kind === 'ratchet' && !ratchetList.length)) && (
-            <p class="muted center">Nichts gefunden.</p>
+          {((kind === 'blade' && !bladeList.length) || (kind === 'bit' && !bitList.length)) && <p class="muted center">Nichts gefunden.</p>}
+
+          {kind === 'ratchet' && !ratchetList.length && (
+            <div class="picker-empty" role="status">
+              <p class="picker-empty-title">Kein Ratchet gefunden</p>
+              <p class="muted">
+                {query.trim() ? `Zu „${query.trim()}“ passt kein Ratchet` : 'Kein Ratchet passt'}
+                {group || height != null ? ' mit den gewählten Filtern.' : '.'}
+              </p>
+              {filtered && (
+                <button type="button" class="btn btn-sm" onClick={resetFilters}>
+                  Suche und Filter zurücksetzen
+                </button>
+              )}
+            </div>
           )}
         </div>
       </div>
@@ -292,9 +342,15 @@ function PickerSheet({ kind, label, blades = [], ratchets = [], bits = [], value
 /** Zacken eines Ratchets; Sonderformen (ohne Angabe in den Daten) bekommen keine erfundene Zahl. */
 const teeth = (n?: number | null) => (n == null ? 'Sonderform' : n === 1 ? '1 Zacke' : `${n} Zacken`);
 /** Höhe mit deutschem Komma, z. B. „6,0 mm“. */
-const heightMm = (mm?: number | null) => (mm == null ? '' : `${mm.toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} mm`);
+const heightMm = (mm?: number | null) => (mm == null ? '' : heightLabel(mm));
 
 const TYPE_ICON = { attack: Swords, defense: Shield, stamina: Timer, balance: Scale } as const;
+
+const SEARCH_HINT: Record<Kind, string> = {
+  blade: 'Blade suchen …',
+  ratchet: 'Ratchet suchen (z. B. 3-60) …',
+  bit: 'Bit suchen (z. B. LF) …',
+};
 
 const PICK_HINT: Record<Kind, string> = {
   blade: 'Wähle eine Blade für deine Kombo.',

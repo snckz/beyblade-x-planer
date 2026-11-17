@@ -2803,3 +2803,44 @@ button.blade-photo:active { transform: scale(.97); }
 .picker-sheet.list-scrolled:not(:has(.picker-tools)) > .win-head { border-bottom-color: var(--hair-2); box-shadow: 0 12px 18px -14px rgba(0, 0, 0, .95); }
 .picker-body { padding-top: var(--s-3); }
 @media (prefers-reduced-motion: reduce) { .picker-sheet > .win-head, .picker-tools { transition: none; } }
+
+/* ---- Ratchet-Auswahl: Suche, Zacken- und Höhenfilter ----
+   Dieselben Bausteine wie bei Blade und Bit (Suchfeld, Chip-Leiste in fünf Spalten). Ratchets haben keine Typen:
+   Zackengruppen und Höhen kommen aus den Daten, aktive Filter im Rot-Magenta-Verlauf. */
+.sheet .teeth-chip { gap: 1px; color: var(--text); }
+.teeth-chip-value { font: 750 15px/1.1 var(--font); letter-spacing: -.01em; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.teeth-chip-caption { font-size: 10.5px; font-weight: 600; color: var(--muted); }
+.sheet .teeth-chip.chip-on, .sheet .height-chip.chip-on {
+  color: #fff; border-color: transparent; background: var(--grad-primary);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .22), var(--glow-primary);
+}
+.sheet .teeth-chip.chip-on .teeth-chip-caption { color: rgba(255, 255, 255, .85); }
+/* Höhen: eine Zeile, seitlich wischbar, rechts weich ausgeblendet */
+.height-filter {
+  display: flex; gap: 6px; margin: 0 calc(var(--s-4) * -1); padding: 2px var(--s-4); overflow-x: auto; scrollbar-width: none;
+  overscroll-behavior-x: contain; -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent);
+}
+.height-filter::-webkit-scrollbar { display: none; }
+.sheet .height-chip {
+  flex: none; min-height: 36px; padding: 0 14px; border-radius: var(--r-pill); border: 1px solid var(--hair); background: var(--surface-2);
+  color: var(--text); font: 650 13px/1 var(--font); font-variant-numeric: tabular-nums; white-space: nowrap; box-shadow: none;
+}
+.height-filter .height-chip:last-child { margin-right: 18px; }
+/* Leerzustand */
+.picker-empty { display: grid; justify-items: center; gap: var(--s-2); padding: var(--s-7) var(--s-4); text-align: center; }
+.picker-empty p { margin: 0; }
+.picker-empty-title { font: 750 17px/1.2 var(--font); color: var(--text); }
+.picker-empty .btn { margin-top: var(--s-2); }
+/* Tastatur offen: Zacken-Chips flach wie die Typfilter, nur der Wert */
+.picker-sheet.kb-open .teeth-chip-caption { display: none; }
+/* … und die Höhenleiste nur, wenn eine Höhe gewählt ist – sonst gehört der Platz beim Tippen den Treffern */
+.picker-sheet.kb-open .height-filter:has(> .height-chip:first-child.chip-on) { display: none; }
+@media (max-width: 350px) { .teeth-chip-value { font-size: 14px; } .teeth-chip-caption { font-size: 9.5px; } }
+/* Querformat: Suche und Zacken nebeneinander, Höhen als eigene Zeile darunter */
+@media (max-height: 480px) {
+  .picker-tools-ratchet { flex-wrap: wrap; row-gap: var(--s-2); }
+  .picker-tools-ratchet .search-field { flex: 1 1 180px; min-width: 160px; }
+  .picker-tools-ratchet .height-filter { flex: 1 0 100%; }
+  .teeth-chip-caption { display: none; }
+  .sheet .height-chip { min-height: 32px; }
+}
