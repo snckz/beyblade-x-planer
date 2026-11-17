@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { cleanup, fireEvent, render, waitFor, within } from '@testing-library/preact';
@@ -24,6 +24,9 @@ function Shell({ children }: { children: ComponentChildren }) {
 }
 
 afterEach(cleanup);
+// Preact führt Effekte und deren Aufräumen leicht verzögert per Timer aus. Vor dem Abbau der Testumgebung abwarten,
+// sonst laufen sie danach ohne window/document (sporadischer „window is not defined“ beim Ende der Datei).
+afterAll(() => new Promise((resolve) => setTimeout(resolve, 150)));
 
 describe('Kombo-Tab: einheitliche Produktfotos', () => {
   it('Bühne und Teileleiste nutzen die Freistellung – kein weißer Rahmen (.stage-photo / .bit-img)', () => {
