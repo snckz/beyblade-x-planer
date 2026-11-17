@@ -2527,17 +2527,7 @@ html, .live { background-color: var(--night); }
   background: radial-gradient(closest-side, color-mix(in srgb, var(--aura, transparent) 22%, transparent), transparent 72%);
 }
 .tile.pick:active { transform: scale(.97); }
-.pick-art { display: grid; place-items: center; }
-.pick-art .bey-img-md, .pick-art .bit-img-md { width: 76px; height: 76px; }
-.pick-art .bey-img-md { box-shadow: 0 0 0 1px rgba(255, 255, 255, .1), 0 14px 22px -14px #000; }
 .tile.pick .tile-name { max-width: 100%; margin-top: 2px; }
-.tile.pick .pick-id { font: 750 19px/1.1 var(--font); letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
-.pick-meta { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 2px 6px; max-width: 100%; font-size: 11.5px; font-weight: 600; line-height: 1.3; color: var(--muted); }
-.pick-line { padding: 1px 6px; border-radius: 6px; background: rgba(255, 255, 255, .08); color: var(--text-2); letter-spacing: .02em; }
-.pick-sub { flex: 1 0 100%; font-weight: 500; text-align: center; overflow-wrap: break-word; text-wrap: balance; }
-.pick-meta .lucide { width: 12px; height: 12px; color: var(--muted); }
-.pick-check { position: absolute; top: 8px; left: 8px; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--x-red); color: #fff; box-shadow: 0 4px 10px -4px rgba(243, 38, 69, .9); }
-.pick-check .lucide { width: 14px; height: 14px; stroke-width: 3; }
 .tile.pick .tile-count { top: 8px; right: 8px; padding: 2px 6px; border-radius: var(--r-pill); background: rgba(255, 255, 255, .14); color: var(--text); font: 600 11px var(--font); }
 .picker-body .muted.center { padding: var(--s-7) 0; }
 
@@ -2600,13 +2590,14 @@ button.blade-photo:active { transform: scale(.97); }
 
 /* ---- Blade-Karte ---- */
 .grid-blades { grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: var(--s-3); }
-.sheet .tile.pick.blade-card {
-  gap: var(--s-2); padding: 10px var(--s-2) var(--s-3); border-radius: var(--r-card);
+.sheet .tile.pick.blade-card { gap: var(--s-2); padding: 10px var(--s-2) var(--s-3); border-radius: var(--r-card); }
+/* Oberfläche aller Auswahlkarten (Blade, Ratchet, Bit): abgestuftes Graphit mit Kantenlicht */
+.sheet .tile.pick.blade-card, .sheet .tile.pick.part-card {
   background: linear-gradient(155deg, var(--surface-3) 0%, var(--surface-2) 46%, var(--window) 100%);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), 0 18px 30px -24px #000;
 }
 /* Lichtreflex oben links */
-.blade-card::after {
+.blade-card::after, .part-card::after {
   content: ''; position: absolute; z-index: -1; inset: 0; pointer-events: none;
   background: linear-gradient(135deg, rgba(255, 255, 255, .07), rgba(255, 255, 255, 0) 34%);
 }
@@ -2632,20 +2623,66 @@ button.blade-photo:active { transform: scale(.97); }
 /* Typ-Badge: Schrift und Symbol in Typfarbe, Fläche und Rand davon abgeleitet */
 .mini-badge.mini-badge-type { color: var(--aura, var(--text)); border-color: color-mix(in srgb, currentColor 42%, transparent); background: color-mix(in srgb, currentColor 13%, transparent); letter-spacing: 0; }
 .mini-badge-icon { padding: 0; width: 24px; justify-content: center; color: var(--text-2); }
-.sheet .tile.pick.blade-card.selected {
+.sheet .tile.pick.blade-card.selected, .sheet .tile.pick.part-card.selected {
   border-color: var(--x-red);
   background:
     linear-gradient(155deg, rgba(243, 38, 69, .24) 0%, rgba(243, 38, 69, .05) 58%, rgba(243, 38, 69, 0) 100%),
     linear-gradient(155deg, var(--surface-3) 0%, var(--surface-2) 46%, var(--window) 100%);
   box-shadow: inset 0 0 0 1px rgba(243, 38, 69, .85), inset 0 1px 0 rgba(255, 255, 255, .12), 0 0 0 1px rgba(243, 38, 69, .22), 0 12px 30px -12px rgba(243, 38, 69, .55);
 }
-.blade-card .tile-count { z-index: 1; }
+.blade-card .tile-count, .part-card .tile-count { z-index: 1; }
 @media (max-width: 350px) {
   .mini-badge { height: 22px; padding: 0 7px; font-size: 11px; }
   .mini-badge-type .lucide { display: none; }
   .tile.pick.blade-card .tile-name { font-size: 14.5px; }
 }
 @media (max-height: 480px) { .grid-blades { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); } .blade-card-art { width: 52%; } }
+
+/* ---- Ratchet- und Bit-Karte: dieselbe Oberfläche wie die Blade-Karte, kompakt in drei Spalten ---- */
+.grid-ratchets, .grid-bits { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-2); }
+@media (min-width: 560px) { .grid-ratchets, .grid-bits { grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: var(--s-3); } }
+.sheet .tile.pick.part-card { gap: 5px; padding: 10px 6px 11px; border-radius: 18px; }
+.tile.pick.part-card::before { top: -6%; width: 124%; background: radial-gradient(closest-side, color-mix(in srgb, var(--aura, transparent) 18%, transparent), transparent 70%); }
+.part-card-art { position: relative; width: 76%; max-width: 104px; margin: 0 auto 1px; }
+/* Neutrales Licht hinter dem Teil – dunkle Ratchets und Bits heben sich so vom Graphit ab */
+.part-card-art::before {
+  content: ''; position: absolute; z-index: -1; inset: -14%; border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255, 255, 255, .18), rgba(255, 255, 255, .06) 58%, rgba(255, 255, 255, 0));
+}
+/* Schatten unter dem Teil */
+.part-card-art::after {
+  content: ''; position: absolute; z-index: -1; left: 16%; right: 16%; bottom: -5%; height: 14%; border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(0, 0, 0, .55), rgba(0, 0, 0, 0));
+}
+/* Foto: freigestellt (is-cut), sonst unverändert auf heller Lichtfläche (is-plate), ohne Foto Emblem oder Kürzel (is-fallback) */
+.part-photo { position: relative; display: grid; place-items: center; width: 100%; aspect-ratio: 1; }
+/* Bild absolut eingepasst: Hochformat-Fotos (Bits) dehnen den Rahmen sonst nach unten */
+.part-photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; transition: opacity var(--dur-3) var(--ease); }
+.part-photo.is-loading img { opacity: 0; }
+.part-photo.is-plate, .part-photo.is-fallback { overflow: hidden; border-radius: 50%; background: radial-gradient(circle at 35% 28%, #2a2a31, #111114 72%); box-shadow: 0 0 0 1px rgba(255, 255, 255, .1); }
+.part-photo.is-plate:not(.is-loading) { background: #fff; }
+.part-photo.is-plate img { inset: 14%; width: 72%; height: 72%; }
+/* Rand der Lichtfläche weich abdunkeln – liegt über Fläche und Foto, damit kein Bildrand sichtbar wird */
+.part-photo.is-plate:not(.is-loading)::after { content: ''; position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(closest-side, rgba(18, 18, 24, 0) 74%, rgba(18, 18, 24, .5)); }
+.part-photo.is-fallback svg { width: 64%; height: 64%; }
+.bit-plaque { font: 800 clamp(17px, 5.4vw, 22px)/1 var(--font); letter-spacing: -.02em; }
+.tile.pick.part-card .part-card-code { margin: 1px 0 0; font: 750 18px/1.1 var(--font); letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.part-card-name { max-width: 100%; font: 550 12.5px/1.25 var(--font); color: var(--text-2); text-align: center; overflow-wrap: break-word; text-wrap: balance; }
+.part-card-facts { display: grid; justify-items: center; gap: 1px; max-width: 100%; margin-top: 1px; font: 600 11.5px/1.35 var(--font); color: var(--text-2); font-variant-numeric: tabular-nums; }
+.part-card-facts > span { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+.part-card-facts .lucide { flex: none; width: 12px; height: 12px; color: var(--faint); }
+.bit-card .mini-badge { margin-top: auto; max-width: 100%; }
+.bit-card .part-card-name { margin-bottom: 3px; }
+@media (max-width: 374px) {
+  .sheet .tile.pick.part-card { padding-left: 4px; padding-right: 4px; }
+  .ratchet-card .part-card-facts .lucide { display: none; }
+  .bit-card .mini-badge { padding: 0 7px; }
+}
+/* Querformat: mehr, flachere Karten – sonst passt keine ganze Reihe unter Kopfzeile und Suche */
+@media (max-height: 480px) {
+  .grid-ratchets, .grid-bits { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: var(--s-2); }
+  .part-card-art { width: 52%; }
+}
 
 /* ---- Steckbrief ---- */
 .sb { display: grid; gap: var(--s-3); padding: var(--s-1) var(--s-4) 0; }
@@ -2752,6 +2789,6 @@ button.blade-photo:active { transform: scale(.97); }
 }
 /* Querformat: Hero-Foto kleiner, damit Text und Kennzahlen daneben Platz haben */
 @media (max-height: 480px) { .sb-hero { grid-template-columns: minmax(0, 150px) minmax(0, 1fr); } }
-@media (prefers-reduced-motion: reduce) { .sheet .tile.pick, .blade-photo img, button.blade-photo, .sb-cta, .sb-buy > span { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .sheet .tile.pick, .blade-photo img, .part-photo img, button.blade-photo, .sb-cta, .sb-buy > span { transition: none; } }
 .picker-sheet.kb-open .sheet-grab { display: none; }
 .picker-sheet.kb-open .win-head { padding-top: var(--s-3); padding-bottom: var(--s-2); }

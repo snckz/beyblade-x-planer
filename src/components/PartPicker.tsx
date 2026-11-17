@@ -6,7 +6,7 @@ import type { BeyType, Blade, Bit, Ratchet } from '../lib/types';
 import { TYPE_LABEL } from '../lib/analysis';
 import { BeyImage, BladePhoto } from './BeyImage';
 import { BitImage, RatchetImage } from './BitImage';
-import { Check, ChevronRight, Link2, Plus, RotateCcw, Scale, Search, Shield, Swords, Timer, X } from 'lucide-preact';
+import { ChevronRight, Cog, Link2, MoveVertical, Plus, RotateCcw, Scale, Search, Shield, Swords, Timer, X } from 'lucide-preact';
 
 type Kind = 'blade' | 'ratchet' | 'bit';
 
@@ -51,7 +51,7 @@ export function PartField(props: FieldProps) {
   } else if (ratchet) {
     main = ratchet.id;
     title = ratchet.id;
-    sub = `${teeth(ratchet.contacts)} · ${ratchet.heightMm?.toFixed(1)} mm`;
+    sub = [teeth(ratchet.contacts), heightMm(ratchet.heightMm)].filter(Boolean).join(' · ');
   }
   if (disabled) {
     main = disabledText ?? '—';
@@ -219,16 +219,25 @@ function PickerSheet({ kind, label, blades = [], ratchets = [], bits = [], value
           {kind === 'ratchet' && (
             <div class="grid grid-ratchets">
               {ratchetList.map((r) => (
-                <button key={r.id} type="button" class={`tile pick${r.id === value ? ' selected' : ''}`} onClick={() => onPick(r.id)} aria-pressed={r.id === value}>
-                  <span class="pick-art">
-                    <RatchetImage ratchet={r} size="md" />
+                <button key={r.id} type="button" class={`tile pick part-card ratchet-card${r.id === value ? ' selected' : ''}`} onClick={() => onPick(r.id)} aria-pressed={r.id === value}>
+                  <span class="part-card-art">
+                    <RatchetImage ratchet={r} size="card" />
                   </span>
-                  <span class="tile-name pick-id">{r.id}</span>
-                  <span class="pick-meta">
-                    <span>{teeth(r.contacts)}</span>
-                    <span>{r.heightMm?.toFixed(1)} mm</span>
+                  <span class="tile-name part-card-code">{r.id}</span>
+                  <span class="part-card-facts">
+                    <span>
+                      <Cog aria-hidden="true" />
+                      {teeth(r.contacts)}
+                    </span>
+                    {r.heightMm != null && (
+                      <span>
+                        <MoveVertical aria-hidden="true" />
+                        <span class="sr-only">Höhe </span>
+                        {heightMm(r.heightMm)}
+                      </span>
+                    )}
                   </span>
-                  <PickMarks count={count(r.id)} selected={r.id === value} />
+                  {count(r.id) ? <span class="tile-count">{count(r.id)}×</span> : null}
                 </button>
               ))}
             </div>
@@ -236,19 +245,23 @@ function PickerSheet({ kind, label, blades = [], ratchets = [], bits = [], value
 
           {kind === 'bit' && (
             <div class="grid grid-bits">
-              {bitList.map((b) => (
-                <button key={b.id} type="button" class={`tile pick aura-${b.type}${b.id === value ? ' selected' : ''}`} onClick={() => onPick(b.id)} aria-pressed={b.id === value}>
-                  <span class="pick-art">
-                    <BitImage bit={b} size="md" />
-                  </span>
-                  <span class="tile-name pick-id">{b.id}</span>
-                  <span class="pick-meta">
-                    <span class="pick-sub">{b.name}</span>
-                    <span class={`type-fg-${b.type}`}>{TYPE_LABEL[b.type]}</span>
-                  </span>
-                  <PickMarks count={count(b.id)} selected={b.id === value} />
-                </button>
-              ))}
+              {bitList.map((b) => {
+                const TypeIcon = TYPE_ICON[b.type];
+                return (
+                  <button key={b.id} type="button" class={`tile pick part-card bit-card aura-${b.type}${b.id === value ? ' selected' : ''}`} onClick={() => onPick(b.id)} aria-pressed={b.id === value}>
+                    <span class="part-card-art">
+                      <BitImage bit={b} size="card" />
+                    </span>
+                    <span class="tile-name part-card-code">{b.id}</span>
+                    <span class="part-card-name">{b.name}</span>
+                    <span class={`mini-badge mini-badge-type type-fg-${b.type}`}>
+                      <TypeIcon aria-hidden="true" />
+                      {TYPE_LABEL[b.type]}
+                    </span>
+                    {count(b.id) ? <span class="tile-count">{count(b.id)}×</span> : null}
+                  </button>
+                );
+              })}
             </div>
           )}
 
@@ -261,7 +274,10 @@ function PickerSheet({ kind, label, blades = [], ratchets = [], bits = [], value
   );
 }
 
-const teeth = (n?: number | null) => (n === 1 ? '1 Zacke' : `${n ?? 0} Zacken`);
+/** Zacken eines Ratchets; Sonderformen (ohne Angabe in den Daten) bekommen keine erfundene Zahl. */
+const teeth = (n?: number | null) => (n == null ? 'Sonderform' : n === 1 ? '1 Zacke' : `${n} Zacken`);
+/** Höhe mit deutschem Komma, z. B. „6,0 mm“. */
+const heightMm = (mm?: number | null) => (mm == null ? '' : `${mm.toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} mm`);
 
 const TYPE_ICON = { attack: Swords, defense: Shield, stamina: Timer, balance: Scale } as const;
 
@@ -270,17 +286,3 @@ const PICK_HINT: Record<Kind, string> = {
   ratchet: 'Wähle ein Ratchet für deine Kombo.',
   bit: 'Wähle ein Bit für deine Kombo.',
 };
-
-/** Ecken-Markierungen einer Auswahlkarte: Haken, wenn gewählt; Anzahl im Besitz. */
-function PickMarks({ count, selected }: { count?: number; selected: boolean }) {
-  return (
-    <>
-      {selected && (
-        <span class="pick-check" aria-hidden="true">
-          <Check />
-        </span>
-      )}
-      {count ? <span class="tile-count">{count}×</span> : null}
-    </>
-  );
-}

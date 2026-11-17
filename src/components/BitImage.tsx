@@ -1,15 +1,18 @@
 import type { ComponentChildren } from 'preact';
-import { useState } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
 import type { Bit, Ratchet } from '../lib/types';
+import { cachedCutout, cutoutBlocked, cutoutFromImage, markCutoutBlocked, type CutoutOptions } from '../lib/cutout';
 import { useApp, type ImageKind } from '../lib/context';
+import { usePhotoState } from './BeyImage';
 
-type Size = 'sm' | 'md';
+/** `card`: großes Foto für die Auswahlkarte – freigestellt, wenn möglich (siehe CardPhoto). */
+type Size = 'sm' | 'md' | 'card';
 
 /** Foto eines Teils vom Beyblade Wiki (verlinkt); bei Ladefehler greift der Fallback. */
 interface PhotoProps {
   src?: string;
   alt: string;
-  size: Size;
+  size: 'sm' | 'md';
   fallback: ComponentChildren;
   /** Wenn gesetzt: Antippen öffnet das Foto groß */
   zoom?: { id: string; kind: ImageKind };
@@ -40,9 +43,71 @@ function PartPhoto({ src, alt, size, fallback, zoom }: PhotoProps) {
   return <>{fallback}</>;
 }
 
+/** Ratchets sind Ringe: Auch der Hintergrund im Loch muss weg. Bits sind schlank und lassen viel Rand frei. */
+const RATCHET_CUTOUT: CutoutOptions = { holes: true, maxRemoved: 0.85, defringe: true, trim: true };
+const BIT_CUTOUT: CutoutOptions = { maxRemoved: 0.88, defringe: true, trim: true };
+
+/**
+ * Foto für die Auswahlkarte von Ratchet und Bit – derselbe Ablauf wie beim Blade-Foto (BladePhoto in BeyImage.tsx):
+ * Das Foto wird mit Lesefreigabe geladen und im Gerät freigestellt und auf das Teil zugeschnitten (lib/cutout).
+ * Erlaubt das Wiki das nicht oder ist der Hintergrund nicht hell und gleichmäßig, liegt das unveränderte Foto
+ * auf einer runden, hellen Lichtfläche. Ohne Foto oder bei Ladefehler greift der Fallback.
+ */
+function CardPhoto({ src, kind, cutout, fallback }: { src?: string; kind: 'ratchet' | 'bit'; cutout: CutoutOptions; fallback: ComponentChildren }) {
+  // Foto-Adresse, deren Laden mit Lesefreigabe gescheitert ist – dann normal laden.
+  const [noAccess, setNoAccess] = useState<string | null>(null);
+  const [, redraw] = useState(0);
+  const alive = useRef(true);
+  useEffect(() => () => void (alive.current = false), []);
+  const plain = usePhotoState(src);
+
+  const base = `part-photo part-photo-${kind}`;
+  if (!src || plain.status === 'failed') return <span class={`${base} is-fallback`}>{fallback}</span>;
+
+  const cut = cachedCutout(src);
+  const mode: 'cut' | 'plate' | 'try' = cut ? 'cut' : cut === null || cutoutBlocked() || noAccess === src ? 'plate' : 'try';
+  const common = { alt: '', decoding: 'async' as const, referrerpolicy: 'no-referrer' as const };
+  let pic;
+  if (mode === 'cut') {
+    pic = <img key="cut" src={cut!} {...common} />;
+  } else if (mode === 'try') {
+    pic = (
+      <img
+        key="try"
+        src={src}
+        {...common}
+        crossorigin="anonymous"
+        loading="lazy"
+        onLoad={(e) => void cutoutFromImage(e.currentTarget, src, cutout).then(() => alive.current && redraw((n) => n + 1))}
+        onError={() => setNoAccess(src)}
+      />
+    );
+  } else {
+    pic = (
+      <img
+        key="plate"
+        src={src}
+        {...common}
+        loading="lazy"
+        {...plain.imgProps}
+        onLoad={() => {
+          // Lädt normal, aber nicht mit Lesefreigabe: Das Wiki erlaubt das Freistellen nicht – für alle Fotos merken.
+          if (noAccess === src) markCutoutBlocked();
+          plain.imgProps.onLoad();
+        }}
+      />
+    );
+  }
+  const loading = mode === 'try' || (mode === 'plate' && plain.status === 'loading');
+  return <span class={`${base} is-${mode === 'try' ? 'plate' : mode}${loading ? ' is-loading' : ''}`}>{pic}</span>;
+}
+
 /** Foto eines Bits; ohne Foto das Kürzel als Plakette. */
 export function BitImage({ bit, size = 'sm', zoomable = false }: { bit: Bit; size?: Size; zoomable?: boolean }) {
   const { images } = useApp();
+  if (size === 'card') {
+    return <CardPhoto src={images.bits?.[bit.id]?.thumb} kind="bit" cutout={BIT_CUTOUT} fallback={<span class={`bit-plaque type-fg-${bit.type}`}>{bit.id}</span>} />;
+  }
   return (
     <PartPhoto
       src={images.bits?.[bit.id]?.thumb}
@@ -71,6 +136,9 @@ function RatchetEmblem({ contacts }: { contacts: number }) {
 /** Foto eines Ratchets; ohne Foto ein gezeichnetes Emblem. */
 export function RatchetImage({ ratchet, size = 'sm', zoomable = false }: { ratchet: Ratchet; size?: Size; zoomable?: boolean }) {
   const { images } = useApp();
+  if (size === 'card') {
+    return <CardPhoto src={images.ratchets?.[ratchet.id]?.thumb} kind="ratchet" cutout={RATCHET_CUTOUT} fallback={<RatchetEmblem contacts={ratchet.contacts ?? 0} />} />;
+  }
   return (
     <PartPhoto
       src={images.ratchets?.[ratchet.id]?.thumb}
