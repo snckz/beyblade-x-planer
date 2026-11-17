@@ -2972,3 +2972,6 @@ html.phone-landscape .rotate-hint {
 .deck-export.is-photo-mode .deck-export-actions .btn-primary { grid-column: 1 / -1; }
 /* Rahmen liegt eng ums Bild – auch bei schmalen Formaten (Story) keine leeren Ränder */
 .deck-preview:not(.is-zoomed) { justify-self: center; width: fit-content; max-width: 100%; }
+
+/* Lang-Drücken soll das Bildmenü („Zu Fotos hinzufügen“) öffnen, nicht Text markieren (iOS Live Text) */
+.deck-preview, .deck-preview img { -webkit-user-select: none; user-select: none; }

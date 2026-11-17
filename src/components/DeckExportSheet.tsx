@@ -120,7 +120,8 @@ function DeckExportSheetInner({ initial, make, onClose }: Props) {
             <p class="deck-photo-hint" role="status">
               <Hand aria-hidden="true" />
               <span>
-                <strong>Bild gedrückt halten</strong> und „Zu Fotos hinzufügen“ wählen.
+                <strong>Auf einen Kreisel oder eine freie Stelle drücken und halten</strong>, dann „Zu Fotos hinzufügen“ wählen. Auf Schrift
+                markiert iOS sonst nur den Text.
               </span>
             </p>
           )}

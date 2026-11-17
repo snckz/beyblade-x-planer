@@ -151,7 +151,8 @@ describe('Deck-Export', () => {
     fireEvent.click(sheet.getByRole('button', { name: /In Fotos sichern/ }));
     expect(nav.share).not.toHaveBeenCalled();
     const hint = sheet.getByRole('status');
-    expect(hint.textContent).toContain('Bild gedrückt halten');
+    expect(hint.textContent).toContain('drücken und halten');
+    expect(hint.textContent).toContain('Kreisel oder eine freie Stelle');
     expect(hint.textContent).toContain('Zu Fotos hinzufügen');
     expect(hint.textContent).not.toMatch(/gespeichert|erfolgreich/i);
     expect(document.querySelector('.deck-export')!.className).toContain('is-photo-mode');
