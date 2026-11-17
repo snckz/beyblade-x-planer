@@ -86,13 +86,16 @@ function drawDisc(ctx: CanvasRenderingContext2D, cx: number, cy: number, r: numb
   ctx.restore();
 }
 
-/** Kleines Markenzeichen unten mittig: schräger roter Strich und „X-PLANER“ in gesperrten Großbuchstaben, halbtransparent. */
+/** Signatur unten mittig: schräger roter Strich, „DESIGNED BY“ zurückhaltend, „SNCKZ“ etwas heller – gesperrte Großbuchstaben. */
 function drawMark(ctx: CanvasRenderingContext2D, cx: number, baseline: number) {
-  const text = 'X-PLANER';
+  const parts: [string, string][] = [
+    ['DESIGNED BY ', 'rgba(255,255,255,.32)'],
+    ['SNCKZ', 'rgba(255,255,255,.62)'],
+  ];
   ctx.font = `700 22px ${FONT}`;
   const spacing = 5; // Sperrung in px je Zeichen
-  const chars = [...text];
-  const textW = chars.reduce((w, c) => w + ctx.measureText(c).width, 0) + spacing * (chars.length - 1);
+  const chars = parts.flatMap(([t, color]) => [...t].map((c) => [c, color] as const));
+  const textW = chars.reduce((w, [c]) => w + ctx.measureText(c).width, 0) + spacing * (chars.length - 1);
   const barW = 7;
   const gap = 14;
   let x = cx - (barW + gap + textW) / 2;
@@ -107,8 +110,8 @@ function drawMark(ctx: CanvasRenderingContext2D, cx: number, baseline: number) {
   // Schriftzug
   x += barW + gap;
   ctx.textAlign = 'left';
-  ctx.fillStyle = 'rgba(255,255,255,.42)';
-  for (const c of chars) {
+  for (const [c, color] of chars) {
+    ctx.fillStyle = color;
     ctx.fillText(c, x, baseline);
     x += ctx.measureText(c).width + spacing;
   }
@@ -245,7 +248,7 @@ export async function renderDeckImage(db: Database, combos: Combo[], images: Ima
     });
   }
 
-  // Dezentes Erkennungszeichen statt Webadresse: roter Schrägstrich (wie vor den Fenstertiteln) + „X-PLANER“
+  // Dezente Signatur statt Webadresse: roter Schrägstrich (wie vor den Fenstertiteln) + „DESIGNED BY SNCKZ“
   drawMark(ctx, W / 2, H - 58);
   ctx.restore();
 
