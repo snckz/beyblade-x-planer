@@ -2101,7 +2101,7 @@
       "type": "attack",
       "imported": true,
       "note": "Ratchet Integrated Bit (Ratchet und Bit in einem Teil) von Pegasus Blast.",
-      "wikiTitle": "Ratchet Integrated Bit - Turbo"
+      "wikiTitle": "Ratchet-Integrated Bit - Turbo"
     },
     {
       "id": "TK",
@@ -2188,7 +2188,7 @@
       "name": "Operate",
       "type": "balance",
       "imported": true,
-      "wikiTitle": "Ratchet Integrated Bit - Operate",
+      "wikiTitle": "Ratchet-Integrated Bit - Operate",
       "note": "Ratchet Integrated Bit mit Angriffs- und Verteidigungsmodus (Emperor Might)."
     },
     {

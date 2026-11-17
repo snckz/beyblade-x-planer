@@ -54,20 +54,33 @@ export function pickBitPage(bit, pages) {
 }
 
 /**
- * Fallback, wenn eine Seite kein Vorschaubild hat (z. B. Ratchet Integrated Bits):
- * Dateien der Seite durchgehen und die nehmen, deren Name den Teile-Namen enthält.
+ * Ist die Datei ein Produktfoto des Bits? Das Wiki benennt sie nach festem Schema: „BitFlat.png“,
+ * „RatchetBitTurbo.png“, „RatchetIntegratedBitTurbo.png“, „RatchetBitOperate (Defense Mode).png“ oder
+ * „Elevate (BX-00).png“. Episodenbilder und Erklärgrafiken („BBX99 Turbo Bit retracts.png“) fallen heraus.
+ */
+export function isBitProductFile(fileTitle, name) {
+  const key = norm(name);
+  const base = norm(String(fileTitle).replace(/^file:/i, '').replace(/\.(png|jpe?g|webp)$/i, ''));
+  if (!key) return false;
+  return ['bit', 'ratchetbit', 'ratchetintegratedbit'].some((p) => base.startsWith(p + key)) || base === key || new RegExp(`^${key}(bx|cx|ux)\\d+$`).test(base);
+}
+
+const usableFile = (f) => /\.(png|jpe?g|webp)$/i.test(f.title ?? '') && f.imageinfo?.[0]?.thumburl && ALLOWED_HOST.test(f.imageinfo[0].thumburl);
+
+/**
+ * Fallback, wenn eine Seite kein Vorschaubild hat (z. B. Ratchet-Integrated Bits) oder nicht mehr existiert:
+ * Dateien der Seite, sonst die Dateisuche des Wikis – aber nur Produktfotos (siehe isBitProductFile).
+ * Lieber kein Bild als ein falsches: Ohne Treffer zeigt die App das Kürzel des Bits.
  */
 export async function findImageInPage(fetchFn, title, name) {
   const d = await query(fetchFn, { generator: 'images', titles: title, gimlimit: '50', prop: 'imageinfo', iiprop: 'url', iiurlwidth: '400', redirects: '1' });
-  const key = String(name).toLowerCase().replace(/[^a-z0-9]/g, '');
-  const files = (d?.query?.pages ?? []).filter((f) => /\.(png|jpe?g|webp)$/i.test(f.title ?? '') && f.imageinfo?.[0]?.thumburl && ALLOWED_HOST.test(f.imageinfo[0].thumburl));
-  const hit = files.find((f) => f.title.toLowerCase().replace(/[^a-z0-9]/g, '').includes(key));
+  const hit = (d?.query?.pages ?? []).filter(usableFile).find((f) => isBitProductFile(f.title, name));
   if (hit) return { thumb: hit.imageinfo[0].thumburl, page: wikiUrl(title), title };
   // Letzter Versuch: Dateisuche im Wiki (Namensraum 6 = Dateien).
   const s = await query(fetchFn, { generator: 'search', gsrsearch: `${name} Bit`, gsrnamespace: '6', gsrlimit: '20', prop: 'imageinfo', iiprop: 'url', iiurlwidth: '400' });
   const found = (s?.query?.pages ?? [])
-    .filter((f) => /\.(png|jpe?g|webp)$/i.test(f.title ?? '') && f.imageinfo?.[0]?.thumburl && ALLOWED_HOST.test(f.imageinfo[0].thumburl))
-    .filter((f) => f.title.toLowerCase().replace(/[^a-z0-9]/g, '').includes(key))
+    .filter(usableFile)
+    .filter((f) => isBitProductFile(f.title, name))
     .sort((a, b) => (a.index ?? 0) - (b.index ?? 0))[0];
   return found ? { thumb: found.imageinfo[0].thumburl, page: wikiUrl(title), title } : null;
 }
@@ -138,11 +151,17 @@ export async function run({ fetchFn = fetch, dataDir = new URL('../public/data/'
     ...(db.ratchets ?? []).map((x) => ({ x, store: ratchets, find: findRatchetImage })),
   ];
   for (const { x, store, find } of jobs) {
-    if (!refreshAll && store[x.id]) continue;
+    // Fest vorgegebene Wiki-Seite geändert (z. B. weil das Wiki eine Seite umbenannt hat): Bild neu holen.
+    const stale = !!(x.wikiTitle && store[x.id] && store[x.id].title !== x.wikiTitle);
+    if (!refreshAll && store[x.id] && !stale) continue;
     try {
       const img = await find(fetchFn, x);
       if (img && JSON.stringify(img) !== JSON.stringify(store[x.id])) {
         store[x.id] = img;
+        changed = true;
+      } else if (!img && stale) {
+        // Das alte Bild gehört zur alten Seite – lieber keins (die App zeigt dann das Kürzel) als ein falsches.
+        delete store[x.id];
         changed = true;
       }
     } catch (err) {

@@ -107,3 +107,57 @@ describe('findImageInPage', () => {
     expect(img?.page).toBe('https://beyblade.fandom.com/wiki/Ratchet_Integrated_Bit_-_Turbo');
   });
 });
+
+describe('Bit-Produktfotos', () => {
+  it('erkennt Produktfotos am Dateinamen, nicht Episoden- oder Erklärbilder', async () => {
+    // @ts-expect-error – JS-Modul ohne Typen
+    const { isBitProductFile } = await import('../scripts/update-images.mjs');
+    expect(isBitProductFile('File:BitFlat.png', 'Flat')).toBe(true);
+    expect(isBitProductFile('File:RatchetBitTurbo.png', 'Turbo')).toBe(true);
+    expect(isBitProductFile('File:RatchetIntegratedBitTurbo.png', 'Turbo')).toBe(true);
+    expect(isBitProductFile('File:RatchetBitOperate (Defense Mode).png', 'Operate')).toBe(true);
+    expect(isBitProductFile('File:Elevate (BX-00).png', 'Elevate')).toBe(true);
+    expect(isBitProductFile('File:Turbo (CX-00).png', 'Turbo')).toBe(true);
+    expect(isBitProductFile('File:BBX99 Turbo Bit retracts.png', 'Turbo')).toBe(false);
+    expect(isBitProductFile('File:Operate bit in Attack Mode.png', 'Operate')).toBe(false);
+    expect(isBitProductFile('File:Turbo - Heat Salamander S4 Info.png', 'Turbo')).toBe(false);
+    expect(isBitProductFile('File:BitFlatGear.png', 'Gear Flat')).toBe(false);
+  });
+
+  it('holt das Bild neu, wenn sich die Wiki-Seite geändert hat, und nimmt kein falsches Ersatzbild', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'img-'));
+    const old = { thumb: 'https://static.wikia.nocookie.net/beyblade/images/e/ea/BBX99_Turbo_Bit_retracts.png', page: 'https://beyblade.fandom.com/wiki/Ratchet_Integrated_Bit_-_Turbo', title: 'Ratchet Integrated Bit - Turbo' };
+    const keep = { thumb: 'https://static.wikia.nocookie.net/beyblade/images/b/b0/BitFlat.png', page: 'https://beyblade.fandom.com/wiki/Bit_-_Flat', title: 'Bit - Flat' };
+    const write = (bits: object[]) => {
+      writeFileSync(join(dir, 'db.json'), JSON.stringify({ blades: [], bits }));
+      writeFileSync(join(dir, 'images.json'), JSON.stringify({ blades: {}, bits: { ATr: old, F: keep }, ratchets: {} }));
+    };
+    const NEW = 'https://static.wikia.nocookie.net/beyblade/images/c/cf/RatchetBitTurbo.png';
+    const calls: string[] = [];
+    // Neue Seite hat ein Produktfoto als Seitenbild
+    write([{ id: 'ATr', name: 'Turbo', wikiTitle: 'Ratchet-Integrated Bit - Turbo' }, { id: 'F', name: 'Flat' }]);
+    await run({
+      dataDir: pathToFileURL(dir + '/'),
+      fetchFn: async (url: string) => {
+        calls.push(new URL(url).searchParams.get('titles') ?? '');
+        return { ok: true, status: 200, json: async () => ({ query: { pages: [{ title: 'Ratchet-Integrated Bit - Turbo', thumbnail: T(NEW) }] } }) };
+      },
+    });
+    let out = JSON.parse(readFileSync(join(dir, 'images.json'), 'utf8'));
+    expect(out.bits.ATr.thumb).toBe(NEW);
+    expect(out.bits.F).toEqual(keep); // unverändert, nicht neu abgefragt
+    expect(calls).toEqual(['Ratchet-Integrated Bit - Turbo']);
+    // Neue Seite ohne Bild, und im Wiki gibt es nur Episodenbilder: altes Bild raus, kein falsches rein
+    write([{ id: 'ATr', name: 'Turbo', wikiTitle: 'Ratchet-Integrated Bit - Turbo' }]);
+    await run({
+      dataDir: pathToFileURL(dir + '/'),
+      fetchFn: async () => ({
+        ok: true,
+        status: 200,
+        json: async () => ({ query: { pages: [{ title: 'File:BBX99 Turbo Bit retracts.png', imageinfo: [{ thumburl: old.thumb }] }] } }),
+      }),
+    });
+    out = JSON.parse(readFileSync(join(dir, 'images.json'), 'utf8'));
+    expect(out.bits.ATr).toBeUndefined();
+  });
+});
