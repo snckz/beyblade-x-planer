@@ -69,7 +69,8 @@ export function BitName({ bit }: { bit: { id: string; name?: string } }) {
   return (
     <span class="bit-name">
       <span class="bit-name-code">{bit.id}</span>
-      {bit.name && bit.name !== bit.id && <span class="bit-name-text">{bit.name}</span>}
+      {/* Leerzeichen: als Fließtext (kompakte Felder) „D Dot“, im Flex-Layout wird es ignoriert */}
+      {bit.name && bit.name !== bit.id && <>{' '}<span class="bit-name-text">{bit.name}</span></>}
     </span>
   );
 }

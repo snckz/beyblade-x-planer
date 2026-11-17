@@ -41,6 +41,7 @@ export function Deck({ db, state, update, goToBuilder }: Props) {
   // Schritt 1: Bild erzeugen (dauert kurz) und in der Vorschau zeigen. Schritt 2: „In Fotos sichern“/„Teilen“ in der
   // Vorschau rufen share() direkt im Tipp auf – sonst blockt iOS.
   const create = async () => {
+    if (sharing) return;
     setSharing(true);
     setShareMsg('');
     try {
@@ -154,7 +155,8 @@ export function Deck({ db, state, update, goToBuilder }: Props) {
         )}
         <p class="fineprint">Regeln können je nach Veranstalter abweichen – vor dem Turnier kurz nachfragen.</p>
       </div>
-      <button type="button" class="btn" onClick={create} disabled={sharing}>
+      {/* Nicht „disabled“: Der Knopf soll den Fokus behalten, damit er ihn nach dem Schließen der Vorschau zurückbekommt */}
+      <button type="button" class="btn" onClick={create} aria-busy={sharing}>
         {sharing ? 'Bild wird erstellt …' : <><Share aria-hidden="true" /> Deck als Bild teilen</>}
       </button>
       {img && <DeckExportSheet file={img.file} url={img.url} onClose={() => setImg(null)} />}

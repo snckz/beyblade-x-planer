@@ -32,17 +32,31 @@ function DeckExportSheetInner({ file, url, onClose }: Props) {
   const shareable = canShareFile(file);
   const android = inAndroidApp();
 
+  // Ein Teilen-Menü zur Zeit: Ein zweiter Tipp, solange es offen ist, würde mit InvalidStateError scheitern.
+  const busy = useRef(false);
   const share = async (forPhotos: boolean) => {
+    if (busy.current) return;
+    busy.current = true;
     setMsg('');
-    const res = await shareImageFile(file);
-    if (res === 'failed') setMsg(forPhotos ? 'Das Teilen-Menü ließ sich nicht öffnen. Halte das Bild gedrückt und wähle „Zu Fotos hinzufügen“.' : 'Teilen ging nicht. Halte das Bild gedrückt, um es zu sichern oder zu teilen.');
-    // 'done': iOS sagt nicht, welche Aktion gewählt wurde – daher kein „Gespeichert“.
-    else if (res === 'done' && forPhotos) setMsg('Falls du „Bild sichern“ gewählt hast, liegt das Bild jetzt in Fotos.');
+    try {
+      // Kein await davor: navigator.share muss direkt im Tipp starten, sonst blockt iOS.
+      const res = await shareImageFile(file);
+      if (res === 'failed') setMsg(forPhotos ? 'Das Teilen-Menü ließ sich nicht öffnen. Halte das Bild gedrückt und wähle „Zu Fotos hinzufügen“.' : 'Teilen ging nicht. Halte das Bild gedrückt, um es zu sichern oder zu teilen.');
+      // 'done': iOS sagt nicht, welche Aktion gewählt wurde – daher kein „Gespeichert“.
+      else if (res === 'done' && forPhotos) setMsg('Falls du „Bild sichern“ gewählt hast, liegt das Bild jetzt in Fotos.');
+    } finally {
+      busy.current = false;
+    }
   };
   const download = async () => {
     setMsg('');
-    const viaApp = await saveBlob(file, file.name);
-    setMsg(viaApp ? '' : 'Das Bild wurde heruntergeladen.');
+    try {
+      const viaApp = await saveBlob(file, file.name);
+      // Die Seite weiß nur, dass der Download angestoßen wurde – nicht, ob der Browser ihn ausgeführt hat.
+      setMsg(viaApp ? '' : 'Download gestartet.');
+    } catch {
+      setMsg('Speichern ging nicht. Halte das Bild gedrückt oder klicke es mit der rechten Maustaste an, um es zu sichern.');
+    }
   };
 
   // Hauptaktion je nach Gerät: iPhone/iPad → Teilen-Menü („Bild sichern“), Android-App → App, sonst Download
@@ -62,10 +76,10 @@ function DeckExportSheetInner({ file, url, onClose }: Props) {
         </div>
         <div class="win-scroll deck-export-body">
           <div class={`deck-preview${zoom ? ' is-zoomed' : ''}`}>
-            <div class="deck-preview-scroll">
+            <div class="deck-preview-scroll" tabIndex={zoom ? 0 : undefined} role={zoom ? 'region' : undefined} aria-label={zoom ? 'Vergrößertes Deck-Bild, verschiebbar' : undefined}>
               <img src={url} alt="Dein Deck als Bild" width={1080} height={1350} />
             </div>
-            <button type="button" class="icon-btn deck-preview-zoom" onClick={() => setZoom((z) => !z)} aria-pressed={zoom} aria-label={zoom ? 'Bild verkleinern' : 'Bild vergrößern'}>
+            <button type="button" class="icon-btn deck-preview-zoom" onClick={() => setZoom((z) => !z)} aria-pressed={zoom} aria-label="Bild vergrößern">
               {zoom ? <Minimize2 aria-hidden="true" /> : <Maximize2 aria-hidden="true" />}
             </button>
           </div>

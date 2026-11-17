@@ -910,7 +910,6 @@ input[type='text'], input[type='search'], select { border-radius: 16px; backgrou
 .verdict-inline.v-high { color: #ff7b72; }
 .link-btn { padding: 0; border: 0; background: none; color: var(--text); text-decoration: underline; font: inherit; cursor: pointer; text-align: left; }
 
-.deck-share img { width: 100%; height: auto; border-radius: 18px; display: block; }
 .price-input { flex: 1 1 160px; display: grid; gap: 4px; }
 .price-input .shop-input { flex: none; }
 .shop-input.bad { border-color: var(--attack); }
@@ -980,7 +979,6 @@ body { background: transparent; overscroll-behavior-y: none; -webkit-tap-highlig
 /* Langes Drücken auf Knöpfe/Bilder öffnet kein iOS-Menü und markiert keinen Text */
 button, .btn, .chip, .tab, nav a, .tile, .row-btn, .bey-img, .live-btns button { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
 img { -webkit-touch-callout: none; }
-.deck-share img { -webkit-touch-callout: default; } /* hier ist „Bild sichern“ per Lang-Drücken gewollt */
 /* Hinweis „Zum Home-Bildschirm“ */
 .ios-hint { display: grid; gap: 8px; }
 .ios-hint .share-ico { display: inline-grid; place-items: center; width: 22px; height: 22px; vertical-align: -5px; border-radius: 6px; background: rgba(255, 255, 255, .1); }
@@ -2857,10 +2855,13 @@ button.blade-photo:active { transform: scale(.97); }
 /* Name: erst als Ganzes in die nächste Zeile, nur wenn er allein nicht passt zwischen Wörtern – nie mitten im Wort */
 .bit-name-text { min-width: 0; font-weight: 550; color: var(--text-2); overflow-wrap: normal; -webkit-hyphens: manual; hyphens: manual; text-wrap: balance; }
 .combo-part-name .bit-name { justify-content: center; }
+/* Kompakte Felder (Vergleich, Deck): einzeilig mit Auslassungspunkten wie bisher – als Fließtext statt Flex */
+.part-field.compact .bit-name { display: inline; }
+.part-field.compact .bit-name-text { text-wrap: nowrap; }
 
 /* Neutrales Licht hinter freigestellten Teilen – dunkle Ratchets und Bits heben sich vom Graphit ab (wie in der Auswahl) */
 .part-step .part-art, .combo-part-art { position: relative; isolation: isolate; }
-.part-step .part-art::before, .combo-part-art::before {
+.part-step .part-art:has(> .blade-photo, > .part-photo)::before, .combo-part-art:has(> .blade-photo, > .part-photo)::before {
   content: ''; position: absolute; z-index: -1; inset: -10%; border-radius: 50%; pointer-events: none;
   background: radial-gradient(closest-side, rgba(255, 255, 255, .16), rgba(255, 255, 255, .05) 58%, rgba(255, 255, 255, 0));
 }
@@ -2912,6 +2913,7 @@ button.blade-photo:active { transform: scale(.97); }
 .deck-export-actions { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-2); }
 .deck-export-actions .btn-primary { grid-column: 1 / -1; min-height: 52px; font-size: 16px; }
 .deck-export-actions .btn { justify-content: center; }
+.deck-export-actions .btn-primary + .btn-ghost { grid-column: 1 / -1; }
 .deck-export-actions .btn .lucide { width: 18px; height: 18px; }
 .deck-export-msg { margin: 0; text-align: center; }
 @media (max-height: 480px) {
@@ -2919,3 +2921,24 @@ button.blade-photo:active { transform: scale(.97); }
   .deck-export-actions { grid-template-columns: repeat(3, auto); justify-content: center; }
   .deck-export-actions .btn-primary { grid-column: auto; min-height: 44px; }
 }
+
+/* ---- Handy nur im Hochformat ----
+   Klasse phone-landscape setzt src/lib/orientation.ts (echte Gerätedrehung, nicht die Tastatur). Der Hinweis steht in
+   index.html; App und Fenster darunter sind ausgeblendet und nicht bedienbar. */
+.rotate-hint { display: none; }
+html.phone-landscape { overflow: hidden; }
+html.phone-landscape body > :not(.rotate-hint) { visibility: hidden; }
+html.phone-landscape .rotate-hint {
+  position: fixed; inset: 0; z-index: 2147483000; display: grid; place-content: center; justify-items: center; gap: var(--s-2);
+  padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+  background: radial-gradient(60% 70% at 50% 40%, rgba(243, 38, 69, .16), transparent 70%), var(--night, #09090d); color: #fff; text-align: center;
+}
+.rotate-hint svg { width: 64px; height: 64px; margin-bottom: var(--s-2); fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.rotate-hint svg path:nth-of-type(2), .rotate-hint svg path:nth-of-type(3) { stroke: var(--x-red, #f32645); }
+.rotate-hint p { margin: 0; }
+.rotate-hint-title { font: 800 italic 22px/1.15 var(--font); letter-spacing: -.02em; }
+.rotate-hint-text { font-size: 14.5px; color: var(--text-2, rgba(255, 255, 255, .7)); }
+@media (prefers-reduced-motion: no-preference) {
+  html.phone-landscape .rotate-hint svg rect { transform-origin: 24px 22px; animation: rotate-hint 2.4s var(--ease, ease) infinite; }
+}
+@keyframes rotate-hint { 0%, 20% { transform: rotate(-90deg); } 55%, 100% { transform: rotate(0deg); } }

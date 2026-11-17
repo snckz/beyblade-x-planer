@@ -1,9 +1,13 @@
 import { render } from 'preact';
 import { App } from './App';
+import { watchPhoneOrientation } from './lib/orientation';
 import './fonts.css';
 import './styles.css';
 
 render(<App />, document.getElementById('app')!);
+
+// Handy nur im Hochformat (iOS ignoriert die Manifest-Vorgabe) – siehe lib/orientation.ts
+watchPhoneOrientation();
 
 // Nach erfolgreichem Start darf ein späterer Ladefehler wieder einmal neu laden.
 window.setTimeout(() => {
