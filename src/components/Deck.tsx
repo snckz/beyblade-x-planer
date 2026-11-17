@@ -7,8 +7,8 @@ import { DeckPicker, DEFAULT_DECK, type Part } from './DeckPicker';
 import { newId } from '../lib/storage';
 import { useEffect, useState } from 'preact/hooks';
 import { useApp } from '../lib/context';
-import { canShareFile, deckFile, renderDeckImage } from '../lib/deckImage';
-import { inAndroidApp, saveBlob } from '../lib/download';
+import { deckFile, renderDeckImage } from '../lib/deckImage';
+import { DeckExportSheet } from './DeckExportSheet';
 import { Check, ChevronDown, ChevronUp, Share } from 'lucide-preact';
 
 interface Props {
@@ -38,7 +38,8 @@ export function Deck({ db, state, update, goToBuilder }: Props) {
   // Deck geändert → altes Bild nicht mehr teilen
   const deckKey = combos.map((c) => `${c.bladeId}|${c.ratchetId ?? ''}|${c.bitId}`).join(',');
   useEffect(() => setImg(null), [deckKey]);
-  // Schritt 1: Bild erzeugen (dauert kurz). Schritt 2: „Teilen“ ruft share() direkt im Tipp auf – sonst blockt iOS.
+  // Schritt 1: Bild erzeugen (dauert kurz) und in der Vorschau zeigen. Schritt 2: „In Fotos sichern“/„Teilen“ in der
+  // Vorschau rufen share() direkt im Tipp auf – sonst blockt iOS.
   const create = async () => {
     setSharing(true);
     setShareMsg('');
@@ -50,12 +51,6 @@ export function Deck({ db, state, update, goToBuilder }: Props) {
     } finally {
       setSharing(false);
     }
-  };
-  const share = () => {
-    if (!img) return;
-    navigator.share({ files: [img.file], title: 'Mein Beyblade-X-Deck' }).catch((e: Error) => {
-      if (e.name !== 'AbortError') setShareMsg('Teilen ging nicht – halte das Bild gedrückt, um es zu sichern.');
-    });
   };
 
   const move = (i: number, dir: -1 | 1) =>
@@ -159,29 +154,10 @@ export function Deck({ db, state, update, goToBuilder }: Props) {
         )}
         <p class="fineprint">Regeln können je nach Veranstalter abweichen – vor dem Turnier kurz nachfragen.</p>
       </div>
-      {img ? (
-        <div class="card deck-share stack-sm">
-          <img src={img.url} alt="Dein Deck als Bild" width={1080} height={1350} />
-          <div class="btn-row">
-            {canShareFile(img.file) && (
-              <button type="button" class="btn btn-primary" onClick={share}>
-                <Share aria-hidden="true" /> Teilen
-              </button>
-            )}
-            <button type="button" class="btn" onClick={() => void saveBlob(img.file, 'beyblade-deck.png')}>
-              {inAndroidApp() ? 'Teilen / Speichern' : 'Speichern'}
-            </button>
-            <button type="button" class="btn btn-ghost" onClick={() => setImg(null)}>
-              Schließen
-            </button>
-          </div>
-          <p class="fineprint">Auf dem iPhone: Bild gedrückt halten → „Zu Fotos hinzufügen“.</p>
-        </div>
-      ) : (
-        <button type="button" class="btn" onClick={create} disabled={sharing}>
-          {sharing ? 'Bild wird erstellt …' : <><Share aria-hidden="true" /> Deck als Bild teilen</>}
-        </button>
-      )}
+      <button type="button" class="btn" onClick={create} disabled={sharing}>
+        {sharing ? 'Bild wird erstellt …' : <><Share aria-hidden="true" /> Deck als Bild teilen</>}
+      </button>
+      {img && <DeckExportSheet file={img.file} url={img.url} onClose={() => setImg(null)} />}
       {shareMsg && (
         <p class="muted" role="status">
           {shareMsg}

@@ -213,3 +213,25 @@ export function canShareFile(file: File): boolean {
   const nav = navigator as Navigator & { canShare?: (d: ShareData) => boolean };
   return !!nav.share && !!nav.canShare?.({ files: [file] });
 }
+
+/**
+ * Bild über das Teilen-Menü des Systems weitergeben – NUR die Datei, ohne Titel oder Text.
+ * iOS behandelt eine geteilte Datei mit Titel/Text wie ein Dokument (Dateikarte „beyblade-deck.png · PNG“) und
+ * bietet „Bild sichern“ nicht an; nur mit Bilddatei zeigt es die Vorschau und „Bild sichern“ (→ Fotos).
+ * Ergebnis: 'done' = Menü wurde mit einer Aktion beendet (welche, verrät das System nicht),
+ * 'cancelled' = abgebrochen, 'failed' = Teilen nicht möglich.
+ */
+export async function shareImageFile(file: File): Promise<'done' | 'cancelled' | 'failed'> {
+  try {
+    await navigator.share({ files: [file] });
+    return 'done';
+  } catch (e) {
+    return (e as Error)?.name === 'AbortError' ? 'cancelled' : 'failed';
+  }
+}
+
+/** iPhone/iPad (auch iPadOS, das sich als Mac ausgibt) – dort führt „In Fotos sichern“ über das Teilen-Menü. */
+export function isIOS(): boolean {
+  if (typeof navigator === 'undefined') return false;
+  return /iPhone|iPad|iPod/.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
+}

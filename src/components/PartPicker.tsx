@@ -6,6 +6,7 @@ import type { BeyType, Blade, Bit, Ratchet } from '../lib/types';
 import { TYPE_LABEL } from '../lib/analysis';
 import { BeyImage, BladePhoto } from './BeyImage';
 import { BitImage, RatchetImage } from './BitImage';
+import { BitName } from './ui';
 import { filterRatchets, heightLabel, ratchetHeights, teethGroups, type TeethGroup } from '../lib/ratchetFilter';
 import { ChevronRight, Cog, Link2, MoveVertical, Plus, RotateCcw, Scale, Search, Shield, Swords, Timer, X } from 'lucide-preact';
 
@@ -81,14 +82,24 @@ export function PartField(props: FieldProps) {
     <RatchetImage ratchet={ratchet} />
   ) : null;
 
-  // Kompakte Variante (Vergleich, Deck): unverändert.
+  // Konfigurator-Karte im Kombo-Planer: freigestellte Fotos wie in der Auswahl und im Kombo-Ergebnis
+  // (dieselben Komponenten), statt des kleinen Fotos auf weißem Rahmen.
+  const cardArt = blade ? (
+    <BladePhoto blade={blade} alt="" variant="card" />
+  ) : bit ? (
+    <BitImage bit={bit} size="card" />
+  ) : ratchet && !disabled ? (
+    <RatchetImage ratchet={ratchet} size="card" />
+  ) : null;
+
+  // Kompakte Variante (Vergleich, Deck): Bilder unverändert, Bit-Beschriftung wie überall.
   if (compact) {
     return (
       <div class="part-field compact">
         <button type="button" class={`part-btn${value ? ' has-value' : ''}`} onClick={() => setOpen(true)} disabled={disabled} aria-haspopup="dialog" aria-label={`${label}: ${main}`}>
           {art ?? <span class={`part-glyph ${DOT[kind]}`}>{kind === 'ratchet' ? (ratchet?.id ?? 'R') : kind === 'bit' ? 'B' : '◎'}</span>}
           <span class="part-text">
-            <span class={value || disabled ? 'part-main' : 'part-main placeholder'}>{main}</span>
+            <span class={value || disabled ? 'part-main' : 'part-main placeholder'}>{bit && !disabled ? <BitName bit={bit} /> : main}</span>
             {sub && <span class="part-sub">{sub}</span>}
           </span>
           <span class="part-chev" aria-hidden="true">›</span>
@@ -103,10 +114,10 @@ export function PartField(props: FieldProps) {
   return (
     <div class={`part-field part-step${type ? ` aura-${type}` : ''}${filled ? ' is-filled' : ''}`}>
       <button type="button" class="part-btn" onClick={() => setOpen(true)} disabled={disabled} aria-haspopup="dialog" aria-label={`${label}: ${main}`}>
-        <span class="part-art">{art ?? <span class="part-empty">{disabled ? <Link2 aria-hidden="true" /> : <Plus aria-hidden="true" />}</span>}</span>
+        <span class="part-art">{cardArt ?? <span class="part-empty">{disabled ? <Link2 aria-hidden="true" /> : <Plus aria-hidden="true" />}</span>}</span>
         <span class="part-text">
           <span class="part-kind">{label}</span>
-          <span class={filled ? 'part-main' : 'part-main placeholder'}>{filled ? title : disabled ? (disabledText ?? '—') : `${label} wählen`}</span>
+          <span class={filled ? 'part-main' : 'part-main placeholder'}>{filled ? bit ? <BitName bit={bit} /> : title : disabled ? (disabledText ?? '—') : `${label} wählen`}</span>
           {filled && (type || sub) && (
             <span class="part-sub">
               {type && <span class={`part-type type-fg-${type}`}>{TYPE_LABEL[type]}</span>}

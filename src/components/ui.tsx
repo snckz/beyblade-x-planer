@@ -60,3 +60,16 @@ export function Section({ title, aside, children }: { title: string; aside?: Com
     </section>
   );
 }
+
+/**
+ * Bit-Bezeichnung überall gleich: Kürzel betont, Name daneben („D Dot“, „LF Low Flat“).
+ * Kürzel und Name brechen nie in sich um – reicht die Breite nicht, rutscht der Name als Ganzes in die nächste Zeile.
+ */
+export function BitName({ bit }: { bit: { id: string; name?: string } }) {
+  return (
+    <span class="bit-name">
+      <span class="bit-name-code">{bit.id}</span>
+      {bit.name && bit.name !== bit.id && <span class="bit-name-text">{bit.name}</span>}
+    </span>
+  );
+}
