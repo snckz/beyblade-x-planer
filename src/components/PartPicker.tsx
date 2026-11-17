@@ -4,9 +4,9 @@ import { bothNames, displayName, otherName } from '../lib/names';
 import { useRef, useState } from 'preact/hooks';
 import type { BeyType, Blade, Bit, Ratchet } from '../lib/types';
 import { TYPE_LABEL } from '../lib/analysis';
-import { BeyImage } from './BeyImage';
+import { BeyImage, BladePhoto } from './BeyImage';
 import { BitImage, RatchetImage } from './BitImage';
-import { Check, ChevronRight, LayoutGrid, Link2, Plus, RotateCcw, Scale, Search, Shield, Swords, Timer, X } from 'lucide-preact';
+import { Check, ChevronRight, Link2, Plus, RotateCcw, Scale, Search, Shield, Swords, Timer, X } from 'lucide-preact';
 
 type Kind = 'blade' | 'ratchet' | 'bit';
 
@@ -145,10 +145,13 @@ function PickerSheet({ kind, label, blades = [], ratchets = [], bits = [], value
 
   return (
     <div class="sheet-backdrop" onClick={(e) => e.target === e.currentTarget && close()}>
-      <div ref={ref} class="sheet glass picker-sheet" role="dialog" aria-modal="true" aria-label={`${label} wählen`} tabIndex={-1}>
+      <div ref={ref} class="sheet glass picker-sheet" role="dialog" aria-modal="true" aria-label={`${label}-Auswahl`} tabIndex={-1}>
         <div class="sheet-grab" aria-hidden="true" />
         <div class="win-head">
-          <h2 class="win-title">{label} wählen</h2>
+          <div class="win-heading">
+            <h2 class="win-title">{label}-Auswahl</h2>
+            <p class="win-sub win-sub-plain">{PICK_HINT[kind]}</p>
+          </div>
           <button type="button" class="icon-btn win-close" onClick={close} aria-label="Schließen">
             <X aria-hidden="true" />
           </button>
@@ -165,8 +168,7 @@ function PickerSheet({ kind, label, blades = [], ratchets = [], bits = [], value
               )}
             </div>
             <div class="type-filter" role="group" aria-label="Nach Typ filtern">
-              <button type="button" class={`chip type-chip${type === '' ? ' chip-on' : ''}`} aria-pressed={type === ''} onClick={() => setType('')}>
-                <LayoutGrid aria-hidden="true" />
+              <button type="button" class={`chip type-chip type-chip-all${type === '' ? ' chip-on' : ''}`} aria-pressed={type === ''} onClick={() => setType('')}>
                 Alle
               </button>
               {(['attack', 'defense', 'stamina', 'balance'] as const).map((t) => {
@@ -185,22 +187,32 @@ function PickerSheet({ kind, label, blades = [], ratchets = [], bits = [], value
         <div class="picker-body">
           {kind === 'blade' && (
             <div class="grid grid-blades">
-              {bladeList.map((b) => (
-                <button key={b.id} type="button" class={`tile pick aura-${b.type}${b.id === value ? ' selected' : ''}`} onClick={() => onPick(b.id)} aria-pressed={b.id === value}>
-                  <span class="pick-art">
-                    <BeyImage bladeId={b.id} type={b.type} size="md" alt="" zoomable={false} />
-                  </span>
-                  <span class="tile-name">{displayName(b)}</span>
-                  {/* Zweitname nur während der Suche – er erklärt, warum die Karte gefunden wurde */}
-                  {q && otherName(b) && <span class="pick-alt">{b.name}</span>}
-                  <span class="pick-meta">
-                    <span class="pick-line">{b.line}</span>
-                    <span class={`type-fg-${b.type}`}>{TYPE_LABEL[b.type]}</span>
-                    {b.spin === 'left' && <RotateCcw aria-label="Linksdreher" />}
-                  </span>
-                  <PickMarks count={count(b.id)} selected={b.id === value} />
-                </button>
-              ))}
+              {bladeList.map((b) => {
+                const TypeIcon = TYPE_ICON[b.type];
+                return (
+                  <button key={b.id} type="button" class={`tile pick blade-card aura-${b.type}${b.id === value ? ' selected' : ''}`} onClick={() => onPick(b.id)} aria-pressed={b.id === value}>
+                    <span class="blade-card-art">
+                      <BladePhoto blade={b} alt="" variant="card" />
+                    </span>
+                    <span class="tile-name">{displayName(b)}</span>
+                    {/* Zweitname nur während der Suche – er erklärt, warum die Karte gefunden wurde */}
+                    {q && otherName(b) && <span class="pick-alt">{b.name}</span>}
+                    <span class="blade-card-badges">
+                      <span class="mini-badge">{b.line}</span>
+                      <span class={`mini-badge mini-badge-type type-fg-${b.type}`}>
+                        <TypeIcon aria-hidden="true" />
+                        {TYPE_LABEL[b.type]}
+                      </span>
+                      {b.spin === 'left' && (
+                        <span class="mini-badge mini-badge-icon" role="img" aria-label="Linksdreher">
+                          <RotateCcw aria-hidden="true" />
+                        </span>
+                      )}
+                    </span>
+                    {count(b.id) ? <span class="tile-count">{count(b.id)}×</span> : null}
+                  </button>
+                );
+              })}
             </div>
           )}
 
@@ -252,6 +264,12 @@ function PickerSheet({ kind, label, blades = [], ratchets = [], bits = [], value
 const teeth = (n?: number | null) => (n === 1 ? '1 Zacke' : `${n ?? 0} Zacken`);
 
 const TYPE_ICON = { attack: Swords, defense: Shield, stamina: Timer, balance: Scale } as const;
+
+const PICK_HINT: Record<Kind, string> = {
+  blade: 'Wähle eine Blade für deine Kombo.',
+  ratchet: 'Wähle ein Ratchet für deine Kombo.',
+  bit: 'Wähle ein Bit für deine Kombo.',
+};
 
 /** Ecken-Markierungen einer Auswahlkarte: Haken, wenn gewählt; Anzahl im Besitz. */
 function PickMarks({ count, selected }: { count?: number; selected: boolean }) {

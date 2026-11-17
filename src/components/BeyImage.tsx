@@ -1,6 +1,7 @@
-import { useState } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
 import type { BeyType, Blade } from '../lib/types';
 import { largeUrl } from '../lib/images';
+import { cachedCutout, cutoutBlocked, cutoutFromImage, markCutoutBlocked } from '../lib/cutout';
 import { useApp } from '../lib/context';
 import { ArrowUpRight } from 'lucide-preact';
 
@@ -124,6 +125,90 @@ export function BladeStage({
       </button>
       {note && <span class="stage-note">{note}</span>}
     </span>
+  );
+}
+
+/**
+ * Großes Blade-Foto für Auswahlkarte und Steckbrief: wenn möglich freigestellt (ohne Hintergrund), sonst als runder Ausschnitt.
+ *
+ * Ablauf: Das Foto wird mit Lesefreigabe geladen und im Gerät freigestellt (siehe lib/cutout). Erlaubt das Wiki das
+ * nicht oder hat das Foto keinen hellen, gleichmäßigen Hintergrund, erscheint es wie bisher rund beschnitten.
+ * Ohne Foto oder bei Ladefehler: Emblem in der Typ-Farbe.
+ * `sharp` nimmt die größere Fassung desselben Fotos; `zoomable` öffnet beim Antippen die Großansicht.
+ */
+export function BladePhoto({
+  blade,
+  alt,
+  variant,
+  sharp = false,
+  zoomable = false,
+}: {
+  blade: Pick<Blade, 'id' | 'type'>;
+  alt: string;
+  variant: 'card' | 'hero';
+  sharp?: boolean;
+  zoomable?: boolean;
+}) {
+  const { images, openImage } = useApp();
+  const img = images.blades[blade.id];
+  const src = img ? (sharp ? largeUrl(img.thumb) : img.thumb) : undefined;
+  // Foto-Adresse, deren Laden mit Lesefreigabe gescheitert ist – dann normal laden.
+  const [noAccess, setNoAccess] = useState<string | null>(null);
+  const [, redraw] = useState(0);
+  const alive = useRef(true);
+  useEffect(() => () => void (alive.current = false), []);
+  const plain = usePhotoState(src);
+
+  const base = `blade-photo blade-photo-${variant}`;
+  if (!src || plain.status === 'failed') {
+    return (
+      <span class={`${base} is-emblem type-fg-${blade.type}`} role="img" aria-label={alt || undefined} aria-hidden={alt ? undefined : 'true'}>
+        <BeyEmblem />
+      </span>
+    );
+  }
+
+  const cut = cachedCutout(src);
+  const mode: 'cut' | 'round' | 'try' = cut ? 'cut' : cut === null || cutoutBlocked() || noAccess === src ? 'round' : 'try';
+  const common = { alt, decoding: 'async' as const, referrerpolicy: 'no-referrer' as const };
+  let pic;
+  if (mode === 'cut') {
+    pic = <img key="cut" src={cut!} {...common} />;
+  } else if (mode === 'try') {
+    pic = (
+      <img
+        key="try"
+        src={src}
+        {...common}
+        crossorigin="anonymous"
+        loading="lazy"
+        onLoad={(e) => void cutoutFromImage(e.currentTarget, src).then(() => alive.current && redraw((n) => n + 1))}
+        onError={() => setNoAccess(src)}
+      />
+    );
+  } else {
+    pic = (
+      <img
+        key="round"
+        src={src}
+        {...common}
+        loading="lazy"
+        {...plain.imgProps}
+        onLoad={() => {
+          // Lädt normal, aber nicht mit Lesefreigabe: Das Wiki erlaubt das Freistellen nicht – für alle Fotos merken.
+          if (noAccess === src) markCutoutBlocked();
+          plain.imgProps.onLoad();
+        }}
+      />
+    );
+  }
+  const loading = mode === 'try' || (mode === 'round' && plain.status === 'loading');
+  const cls = `${base} is-${mode === 'try' ? 'round' : mode}${loading ? ' is-loading' : ''}`;
+  if (!zoomable) return <span class={cls}>{pic}</span>;
+  return (
+    <button type="button" class={`${cls} zoom`} onClick={() => openImage(blade.id)} aria-label={`${alt}: Bild vergrößern`}>
+      {pic}
+    </button>
   );
 }
 

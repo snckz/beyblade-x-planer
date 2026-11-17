@@ -70,6 +70,8 @@ export function useModal(ref: RefObject<HTMLElement | null>, onClose: () => void
       if (!vv) return;
       const kb = Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop));
       ref.current?.style.setProperty('--kb', `${kb > 80 ? kb : 0}px`);
+      // Für Layouts, die bei offener Tastatur enger werden (z. B. die Kopfzeile der Auswahl)
+      ref.current?.classList.toggle('kb-open', kb > 80);
     };
     vv?.addEventListener('resize', onViewport);
     vv?.addEventListener('scroll', onViewport);
