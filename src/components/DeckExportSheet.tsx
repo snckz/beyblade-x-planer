@@ -1,57 +1,88 @@
 import { createPortal } from 'preact/compat';
-import { useRef, useState } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
 import { useModal } from '../lib/useModal';
-import { canShareFile, isIOS, shareImageFile } from '../lib/deckImage';
+import { canShareFile, DECK_FORMATS, isIOS, shareImageFile, type DeckFormat } from '../lib/deckImage';
 import { inAndroidApp, saveBlob } from '../lib/download';
-import { Download, ImageDown, Maximize2, Minimize2, Share, X } from 'lucide-preact';
+import { Check, Download, Hand, ImageDown, Maximize2, Minimize2, Share, X } from 'lucide-preact';
 
 interface Props {
-  file: File;
-  /** Objekt-URL der Datei (gehört dem Aufrufer, der sie auch wieder freigibt) */
-  url: string;
+  /** Fertiges Bild im Hochformat (4:5) */
+  initial: File;
+  /** Erzeugt das Bild in einem anderen Format (gleicher Inhalt, andere Leinwand) */
+  make: (format: DeckFormat) => Promise<File>;
   onClose: () => void;
 }
 
+const ORDER: DeckFormat[] = ['post', 'square', 'story'];
+
 /**
- * Vorschau der fertigen Deck-Grafik mit „In Fotos sichern“, „Teilen“ und „Schließen“.
+ * Vorschau der Deck-Grafik: Seitenverhältnis wählen, dann „In Fotos sichern“, „Teilen“ oder „Schließen“.
  * Gleiches Fenster-System wie die Auswahl (useModal, Kopfzeile, Griff, Schließgesten).
  *
- * Was eine Website darf: Direkt in die Fotomediathek schreiben kann sie unter iOS nicht. Der kürzeste Weg ist das
- * Teilen-Menü mit der Bilddatei – dort „Bild sichern“. Ob der Nutzer das gewählt hat, meldet iOS nicht zurück,
- * deshalb gibt es keine „Gespeichert“-Bestätigung. Android-App: Speichern über die App. Sonst: Download.
+ * Was eine Website darf: Direkt in die Fotomediathek schreiben kann sie unter iOS nicht. Der direkteste Weg ist
+ * das Gedrückthalten des Bildes → „Zu Fotos hinzufügen“ (ohne Umweg über Dateien oder das Teilen-Menü).
+ * „In Fotos sichern“ zeigt deshalb das Bild groß mit genau diesem Hinweis. Ob gespeichert wurde, meldet iOS nicht –
+ * es gibt keine „Gespeichert“-Bestätigung. Android-App: Speichern über die App. Sonst: Download.
  */
-function DeckExportSheetInner({ file, url, onClose }: Props) {
+function DeckExportSheetInner({ initial, make, onClose }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const closeRef = useRef(onClose);
   closeRef.current = onClose;
   const close = useModal(ref, () => closeRef.current(), { animate: true });
   const [zoom, setZoom] = useState(false);
+  const [photoMode, setPhotoMode] = useState(false);
   const [msg, setMsg] = useState('');
 
+  // Bilder je Format: nur einmal erzeugen; Objekt-URLs gehören diesem Fenster und werden beim Schließen freigegeben.
+  const [format, setFormat] = useState<DeckFormat>('post');
+  const [images, setImages] = useState<Partial<Record<DeckFormat, { file: File; url: string }>>>(() => ({ post: { file: initial, url: URL.createObjectURL(initial) } }));
+  const [loading, setLoading] = useState<DeckFormat | null>(null);
+  const urls = useRef<string[]>([]);
+  urls.current = Object.values(images).map((i) => i!.url);
+  useEffect(() => () => urls.current.forEach((u) => URL.revokeObjectURL(u)), []);
+  const alive = useRef(true);
+  useEffect(() => () => void (alive.current = false), []);
+
+  const choose = async (f: DeckFormat) => {
+    setMsg('');
+    setFormat(f);
+    if (images[f] || loading === f) return;
+    setLoading(f);
+    try {
+      const file = await make(f);
+      if (!alive.current) return;
+      setImages((m) => (m[f] ? m : { ...m, [f]: { file, url: URL.createObjectURL(file) } }));
+    } catch {
+      if (alive.current) setMsg('Dieses Format konnte nicht erstellt werden.');
+    } finally {
+      if (alive.current) setLoading((l) => (l === f ? null : l));
+    }
+  };
+
+  const current = images[format];
   const ios = isIOS();
-  const shareable = canShareFile(file);
+  const shareable = !!current && canShareFile(current.file);
   const android = inAndroidApp();
 
   // Ein Teilen-Menü zur Zeit: Ein zweiter Tipp, solange es offen ist, würde mit InvalidStateError scheitern.
   const busy = useRef(false);
-  const share = async (forPhotos: boolean) => {
-    if (busy.current) return;
+  const share = async () => {
+    if (!current || busy.current) return;
     busy.current = true;
     setMsg('');
     try {
       // Kein await davor: navigator.share muss direkt im Tipp starten, sonst blockt iOS.
-      const res = await shareImageFile(file);
-      if (res === 'failed') setMsg(forPhotos ? 'Das Teilen-Menü ließ sich nicht öffnen. Halte das Bild gedrückt und wähle „Zu Fotos hinzufügen“.' : 'Teilen ging nicht. Halte das Bild gedrückt, um es zu sichern oder zu teilen.');
-      // 'done': iOS sagt nicht, welche Aktion gewählt wurde – daher kein „Gespeichert“.
-      else if (res === 'done' && forPhotos) setMsg('Falls du „Bild sichern“ gewählt hast, liegt das Bild jetzt in Fotos.');
+      const res = await shareImageFile(current.file);
+      if (res === 'failed') setMsg('Teilen ging nicht. Halte das Bild gedrückt, um es zu sichern oder zu teilen.');
     } finally {
       busy.current = false;
     }
   };
   const download = async () => {
+    if (!current) return;
     setMsg('');
     try {
-      const viaApp = await saveBlob(file, file.name);
+      const viaApp = await saveBlob(current.file, current.file.name);
       // Die Seite weiß nur, dass der Download angestoßen wurde – nicht, ob der Browser ihn ausgeführt hat.
       setMsg(viaApp ? '' : 'Download gestartet.');
     } catch {
@@ -59,55 +90,94 @@ function DeckExportSheetInner({ file, url, onClose }: Props) {
     }
   };
 
-  // Hauptaktion je nach Gerät: iPhone/iPad → Teilen-Menü („Bild sichern“), Android-App → App, sonst Download
-  const photos = ios && shareable;
+  const meta = DECK_FORMATS[format];
   return (
     <div class="sheet-backdrop" onClick={(e) => e.target === e.currentTarget && close()}>
-      <div ref={ref} class="sheet glass deck-export" role="dialog" aria-modal="true" aria-label="Deck-Bild" tabIndex={-1}>
+      <div ref={ref} class={`sheet glass deck-export${photoMode ? ' is-photo-mode' : ''}`} role="dialog" aria-modal="true" aria-label="Deck-Bild" tabIndex={-1}>
         <div class="sheet-grab" aria-hidden="true" />
         <div class="win-head">
           <div class="win-heading">
             <h2 class="win-title">Deck-Bild</h2>
-            <p class="win-sub win-sub-plain">Fertig zum Sichern und Teilen.</p>
+            <p class="win-sub win-sub-plain">{photoMode ? 'In Fotos sichern' : 'Format wählen, dann sichern oder teilen.'}</p>
           </div>
           <button type="button" class="icon-btn win-close" onClick={close} aria-label="Schließen">
             <X aria-hidden="true" />
           </button>
         </div>
         <div class="win-scroll deck-export-body">
-          <div class={`deck-preview${zoom ? ' is-zoomed' : ''}`}>
-            <div class="deck-preview-scroll" tabIndex={zoom ? 0 : undefined} role={zoom ? 'region' : undefined} aria-label={zoom ? 'Vergrößertes Deck-Bild, verschiebbar' : undefined}>
-              <img src={url} alt="Dein Deck als Bild" width={1080} height={1350} />
+          {!photoMode && (
+            <div class="deck-formats" role="group" aria-label="Format">
+              {ORDER.map((f) => (
+                <button key={f} type="button" class={`chip deck-format deck-format-${f}${format === f ? ' chip-on' : ''}`} aria-pressed={format === f} onClick={() => void choose(f)}>
+                  <span class="deck-format-shape" aria-hidden="true" />
+                  <span class="deck-format-label">{DECK_FORMATS[f].label}</span>
+                  <span class="deck-format-ratio">{DECK_FORMATS[f].ratio}</span>
+                </button>
+              ))}
             </div>
-            <button type="button" class="icon-btn deck-preview-zoom" onClick={() => setZoom((z) => !z)} aria-pressed={zoom} aria-label="Bild vergrößern">
-              {zoom ? <Minimize2 aria-hidden="true" /> : <Maximize2 aria-hidden="true" />}
-            </button>
+          )}
+          {photoMode && (
+            <p class="deck-photo-hint" role="status">
+              <Hand aria-hidden="true" />
+              <span>
+                <strong>Bild gedrückt halten</strong> und „Zu Fotos hinzufügen“ wählen.
+              </span>
+            </p>
+          )}
+          <div class={`deck-preview deck-preview-${format}${zoom ? ' is-zoomed' : ''}${current ? '' : ' is-loading'}`} style={current ? undefined : { aspectRatio: `${meta.w} / ${meta.h}` }}>
+            {current ? (
+              <div class="deck-preview-scroll" tabIndex={zoom ? 0 : undefined} role={zoom ? 'region' : undefined} aria-label={zoom ? 'Vergrößertes Deck-Bild, verschiebbar' : undefined}>
+                <img src={current.url} alt={`Dein Deck als Bild (${meta.label} ${meta.ratio})`} width={meta.w} height={meta.h} />
+              </div>
+            ) : (
+              <span class="deck-preview-wait" role="status">
+                <span class="spinner" aria-hidden="true" /> {meta.label} wird erstellt …
+              </span>
+            )}
+            {current && !photoMode && (
+              <button type="button" class="icon-btn deck-preview-zoom" onClick={() => setZoom((z) => !z)} aria-pressed={zoom} aria-label="Bild vergrößern">
+                {zoom ? <Minimize2 aria-hidden="true" /> : <Maximize2 aria-hidden="true" />}
+              </button>
+            )}
           </div>
           <div class="deck-export-actions">
-            {photos ? (
-              <button type="button" class="btn btn-primary" onClick={() => void share(true)}>
+            {photoMode ? (
+              <button type="button" class="btn btn-primary" onClick={() => setPhotoMode(false)}>
+                <Check aria-hidden="true" /> Fertig
+              </button>
+            ) : ios ? (
+              <button
+                type="button"
+                class="btn btn-primary"
+                disabled={!current}
+                onClick={() => {
+                  setMsg('');
+                  setZoom(false);
+                  setPhotoMode(true);
+                }}
+              >
                 <ImageDown aria-hidden="true" /> In Fotos sichern
               </button>
             ) : (
-              <button type="button" class="btn btn-primary" onClick={() => void download()}>
+              <button type="button" class="btn btn-primary" disabled={!current} onClick={() => void download()}>
                 <Download aria-hidden="true" /> {android ? 'Speichern' : 'Bild speichern'}
               </button>
             )}
-            {shareable && (
-              <button type="button" class="btn" onClick={() => void share(false)}>
+            {!photoMode && shareable && (
+              <button type="button" class="btn" onClick={() => void share()}>
                 <Share aria-hidden="true" /> Teilen
               </button>
             )}
-            <button type="button" class="btn btn-ghost" onClick={close}>
-              Schließen
-            </button>
+            {!photoMode && (
+              <button type="button" class="btn btn-ghost" onClick={close}>
+                Schließen
+              </button>
+            )}
           </div>
-          {msg ? (
+          {msg && (
             <p class="muted deck-export-msg" role="status">
               {msg}
             </p>
-          ) : (
-            photos && <p class="fineprint deck-export-msg">„In Fotos sichern“ öffnet das Teilen-Menü – dort „Bild sichern“ wählen. Alternativ: Bild gedrückt halten → „Zu Fotos hinzufügen“.</p>
           )}
         </div>
       </div>

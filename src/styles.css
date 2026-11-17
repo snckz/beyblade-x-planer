@@ -2942,3 +2942,33 @@ html.phone-landscape .rotate-hint {
   html.phone-landscape .rotate-hint svg rect { transform-origin: 24px 22px; animation: rotate-hint 2.4s var(--ease, ease) infinite; }
 }
 @keyframes rotate-hint { 0%, 20% { transform: rotate(-90deg); } 55%, 100% { transform: rotate(0deg); } }
+
+/* ---- Deck-Export: Formatwahl und „In Fotos sichern“ (Gedrückthalten) ---- */
+.deck-formats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-2); }
+.sheet .deck-format {
+  display: grid; justify-items: center; align-content: center; gap: 4px; min-height: 76px; padding: var(--s-2) var(--s-1);
+  border-radius: var(--r-md); border: 1px solid var(--hair); background: var(--surface-2); color: var(--text); box-shadow: none;
+}
+.sheet .deck-format.chip-on { color: #fff; border-color: transparent; background: var(--grad-primary); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .22), var(--glow-primary); }
+.deck-format-shape { display: block; border: 2px solid currentColor; border-radius: 4px; opacity: .9; }
+.deck-format-post .deck-format-shape { width: 18px; height: 22px; }
+.deck-format-square .deck-format-shape { width: 20px; height: 20px; }
+.deck-format-story .deck-format-shape { width: 14px; height: 25px; }
+.deck-format-label { font: 700 14px/1.1 var(--font); }
+.deck-format-ratio { font: 600 12px/1 var(--font); color: var(--text-2); font-variant-numeric: tabular-nums; }
+.deck-format.chip-on .deck-format-ratio { color: rgba(255, 255, 255, .85); }
+/* Ladeplatzhalter in der Form des gewählten Formats */
+.deck-preview.is-loading { width: auto; max-width: 100%; max-height: calc(100dvh - var(--safe-t) - 330px); min-height: 220px; margin: 0 auto; }
+.deck-preview-wait { display: inline-flex; align-items: center; gap: var(--s-2); padding: var(--s-4); font-size: 14px; color: var(--text-2); }
+.deck-preview-wait .spinner { width: 20px; height: 20px; border-width: 2px; }
+/* „In Fotos sichern“: Hinweis oben, Bild so groß wie möglich zum Gedrückthalten */
+.deck-photo-hint {
+  display: flex; align-items: center; gap: var(--s-3); margin: 0; padding: var(--s-3) var(--s-4); border-radius: var(--r-md);
+  border: 1px solid rgba(243, 38, 69, .45); background: linear-gradient(135deg, rgba(243, 38, 69, .2), rgba(243, 38, 69, .06)), var(--surface-2);
+  font-size: 15px; line-height: 1.35; color: var(--text);
+}
+.deck-photo-hint .lucide { flex: none; width: 26px; height: 26px; color: #fff; }
+.deck-export.is-photo-mode .deck-preview img { max-height: calc(100dvh - var(--safe-t) - 250px); }
+.deck-export.is-photo-mode .deck-export-actions .btn-primary { grid-column: 1 / -1; }
+/* Rahmen liegt eng ums Bild – auch bei schmalen Formaten (Story) keine leeren Ränder */
+.deck-preview:not(.is-zoomed) { justify-self: center; width: fit-content; max-width: 100%; }

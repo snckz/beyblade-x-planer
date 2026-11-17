@@ -75,106 +75,161 @@ describe('Bit-Beschriftung', () => {
 });
 
 describe('Deck-Export', () => {
-  const file = new File([new Uint8Array([137, 80, 78, 71])], 'beyblade-deck.png', { type: 'image/png' });
+  const IOS = 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1';
+  const png = (name: string) => new File([new Uint8Array([137, 80, 78, 71])], name, { type: 'image/png' });
+  const file = png('beyblade-deck.png');
   const nav = navigator as Navigator & { share?: unknown; canShare?: unknown };
   let shared: ShareData[] = [];
   let ua: PropertyDescriptor | undefined;
+  let urlN = 0;
+  const prevCreate = URL.createObjectURL;
+  const prevRevoke = URL.revokeObjectURL;
   const setUA = (v: string) => Object.defineProperty(navigator, 'userAgent', { value: v, configurable: true });
+  const make = vi.fn(async (f: string) => png(`beyblade-deck-${f}.png`));
+  const open = (onClose = () => {}) => {
+    render(<DeckExportSheet initial={file} make={make} onClose={onClose} />);
+    return within(document.querySelector<HTMLElement>('.deck-export')!);
+  };
   beforeEach(() => {
     shared = [];
+    urlN = 0;
+    make.mockClear();
     ua = Object.getOwnPropertyDescriptor(navigator, 'userAgent');
     nav.canShare = (d: ShareData) => !!d.files?.length;
     nav.share = vi.fn(async (d: ShareData) => void shared.push(d));
+    URL.createObjectURL = vi.fn(() => `blob:deck-${++urlN}`);
+    URL.revokeObjectURL = vi.fn();
   });
   afterEach(() => {
     Reflect.deleteProperty(navigator, 'share');
     Reflect.deleteProperty(navigator, 'canShare');
     if (ua) Object.defineProperty(navigator, 'userAgent', ua);
     else delete (navigator as { userAgent?: string }).userAgent;
+    URL.createObjectURL = prevCreate;
+    URL.revokeObjectURL = prevRevoke;
   });
 
-  it('teilt nur die Bilddatei – ohne Titel oder Text, damit iOS sie als Bild behandelt', async () => {
+  it('teilt nur die Bilddatei – ohne Titel oder Text', async () => {
     expect(await shareImageFile(file)).toBe('done');
-    expect(shared).toHaveLength(1);
     expect(Object.keys(shared[0]!)).toEqual(['files']);
     expect(shared[0]!.files![0]!.type).toBe('image/png');
     nav.share = vi.fn(async () => Promise.reject(Object.assign(new Error('x'), { name: 'AbortError' })));
     expect(await shareImageFile(file)).toBe('cancelled');
   });
 
-  it('iPhone: Vorschau mit „In Fotos sichern“, „Teilen“, „Schließen“ – und kein falsches „Gespeichert“', async () => {
-    setUA('Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1');
-    const onClose = vi.fn();
-    render(<DeckExportSheet file={file} url="blob:deck" onClose={onClose} />);
-    const sheet = within(document.querySelector<HTMLElement>('.deck-export')!);
-    expect(sheet.getByRole('img', { name: 'Dein Deck als Bild' }).getAttribute('src')).toBe('blob:deck');
-    expect(sheet.getAllByRole('button').map((b) => b.textContent?.trim()).filter(Boolean)).toEqual(['In Fotos sichern', 'Teilen', 'Schließen']);
+  it('Format wählen: Hochformat, Quadrat, Story – jedes nur einmal erzeugt, Hochformat ohne Neuberechnung', async () => {
+    const sheet = open();
+    const group = sheet.getByRole('group', { name: 'Format' });
+    const btn = (n: RegExp) => within(group).getByRole('button', { name: n });
+    expect(btn(/Hochformat/).getAttribute('aria-pressed')).toBe('true');
+    expect(sheet.getByRole('img', { name: /Hochformat 4:5/ }).getAttribute('src')).toBe('blob:deck-1');
+    fireEvent.click(btn(/Story/));
+    expect(await sheet.findByRole('img', { name: /Story 9:16/ })).toBeTruthy();
+    fireEvent.click(btn(/Quadrat/));
+    expect(await sheet.findByRole('img', { name: /Quadrat 1:1/ })).toBeTruthy();
+    fireEvent.click(btn(/Story/));
+    fireEvent.click(btn(/Hochformat/));
+    expect(make.mock.calls.map((c) => c[0])).toEqual(['story', 'square']); // keine doppelte Erzeugung, post kam fertig
+  });
+
+  it('gibt alle Bild-Adressen beim Schließen frei', async () => {
+    const sheet = open();
+    fireEvent.click(within(sheet.getByRole('group', { name: 'Format' })).getByRole('button', { name: /Story/ }));
+    await sheet.findByRole('img', { name: /Story/ });
+    cleanup();
+    expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:deck-1');
+    expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:deck-2');
+  });
+
+  it('iPhone: „In Fotos sichern“ zeigt das Bild groß mit „Gedrückt halten → Zu Fotos hinzufügen“ – ohne Teilen-Menü und ohne „Gespeichert“', () => {
+    setUA(IOS);
+    const sheet = open();
+    expect(sheet.getAllByRole('button').map((b) => b.textContent?.trim()).filter((t) => t && !/^(Hochformat|Quadrat|Story)/.test(t))).toEqual(['In Fotos sichern', 'Teilen', 'Schließen']);
     fireEvent.click(sheet.getByRole('button', { name: /In Fotos sichern/ }));
-    // Synchron im Tipp – ohne Warten: ein await vor navigator.share würde die iOS-Geste brechen
-    expect(nav.share).toHaveBeenCalledTimes(1);
-    expect(Object.keys(shared[0]!)).toEqual(['files']);
-    const msg = await sheet.findByRole('status');
-    expect(msg.textContent).toContain('Falls du „Bild sichern“ gewählt hast');
-    expect(msg.textContent).not.toMatch(/erfolgreich|gespeichert\./i);
+    expect(nav.share).not.toHaveBeenCalled();
+    const hint = sheet.getByRole('status');
+    expect(hint.textContent).toContain('Bild gedrückt halten');
+    expect(hint.textContent).toContain('Zu Fotos hinzufügen');
+    expect(hint.textContent).not.toMatch(/gespeichert|erfolgreich/i);
+    expect(document.querySelector('.deck-export')!.className).toContain('is-photo-mode');
+    expect(sheet.queryByRole('group', { name: 'Format' })).toBeNull();
+    fireEvent.click(sheet.getByRole('button', { name: /Fertig/ }));
+    expect(document.querySelector('.deck-export')!.className).not.toContain('is-photo-mode');
   });
 
-  it('meldet, wenn sich das Teilen-Menü nicht öffnen lässt, und öffnet es nicht doppelt', async () => {
-    setUA('Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1');
+  it('„Teilen“ startet synchron im Tipp, nur mit der Datei des gewählten Formats, nie doppelt', async () => {
+    setUA(IOS);
     let reject: (e: Error) => void = () => {};
-    nav.share = vi.fn(() => new Promise<void>((_, rej) => (reject = rej)));
-    render(<DeckExportSheet file={file} url="blob:deck" onClose={() => {}} />);
-    const sheet = within(document.querySelector<HTMLElement>('.deck-export')!);
-    const btn = sheet.getByRole('button', { name: /In Fotos sichern/ });
-    fireEvent.click(btn);
-    fireEvent.click(btn); // zweiter Tipp, solange das Menü offen ist
-    expect(nav.share).toHaveBeenCalledTimes(1);
+    const sheet = open();
+    fireEvent.click(within(sheet.getByRole('group', { name: 'Format' })).getByRole('button', { name: /Story/ }));
+    await sheet.findByRole('img', { name: /Story/ });
+    nav.share = vi.fn((d: ShareData) => {
+      shared.push(d);
+      return new Promise<void>((_, rej) => (reject = rej));
+    });
+    const teilen = sheet.getByRole('button', { name: /Teilen/ });
+    fireEvent.click(teilen);
+    fireEvent.click(teilen); // zweiter Tipp, solange das Menü offen ist
+    expect(nav.share).toHaveBeenCalledTimes(1); // ohne Warten: synchron im Tipp
+    expect(Object.keys(shared[0]!)).toEqual(['files']);
+    expect(shared[0]!.files![0]!.name).toBe('beyblade-deck-story.png');
     reject(Object.assign(new Error('nope'), { name: 'NotAllowedError' }));
-    expect((await sheet.findByRole('status')).textContent).toContain('ließ sich nicht öffnen');
+    expect((await sheet.findByRole('status')).textContent).toContain('Teilen ging nicht');
   });
 
-  it('ohne Teilen-Funktion (Desktop): „Bild speichern“ lädt herunter, kein „In Fotos sichern“', async () => {
+  it('ohne Teilen-Funktion (Desktop): „Bild speichern“ lädt die Datei des gewählten Formats herunter', async () => {
     Reflect.deleteProperty(navigator, 'share');
     Reflect.deleteProperty(navigator, 'canShare');
     const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {});
-    const createURL = vi.fn(() => 'blob:dl');
-    const prevCreate = URL.createObjectURL;
-    URL.createObjectURL = createURL;
     try {
-      render(<DeckExportSheet file={file} url="blob:deck" onClose={() => {}} />);
-      const sheet = within(document.querySelector<HTMLElement>('.deck-export')!);
+      const sheet = open();
       expect(sheet.queryByRole('button', { name: /In Fotos sichern/ })).toBeNull();
       expect(sheet.queryByRole('button', { name: /Teilen/ })).toBeNull();
+      fireEvent.click(within(sheet.getByRole('group', { name: 'Format' })).getByRole('button', { name: /Quadrat/ }));
+      await sheet.findByRole('img', { name: /Quadrat/ });
       fireEvent.click(sheet.getByRole('button', { name: /Bild speichern/ }));
       await waitFor(() => expect(click).toHaveBeenCalled());
-      expect(createURL).toHaveBeenCalledWith(file);
-      // Kein behaupteter Erfolg – nur, dass der Download angestoßen wurde
+      expect((URL.createObjectURL as ReturnType<typeof vi.fn>).mock.calls.at(-1)![0].name).toBe('beyblade-deck-square.png');
       expect((await sheet.findByRole('status')).textContent).toBe('Download gestartet.');
     } finally {
       click.mockRestore();
-      URL.createObjectURL = prevCreate;
     }
   });
 
   it('Schließen ruft onClose (über die Schließ-Animation)', async () => {
     const onClose = vi.fn();
-    render(<DeckExportSheet file={file} url="blob:deck" onClose={onClose} />);
-    const buttons = within(document.querySelector<HTMLElement>('.deck-export')!).getAllByRole('button', { name: 'Schließen' });
+    const buttons = open(onClose).getAllByRole('button', { name: 'Schließen' });
     expect(buttons).toHaveLength(2); // X in der Kopfzeile und Knopf unten
     fireEvent.click(buttons[1]!);
     await waitFor(() => expect(onClose).toHaveBeenCalledTimes(1));
   });
 
   it('Bild lässt sich vergrößern und wieder verkleinern', () => {
-    render(<DeckExportSheet file={file} url="blob:deck" onClose={() => {}} />);
-    const box = document.querySelector('.deck-preview')!;
-    const zoom = within(box as HTMLElement).getByRole('button', { name: 'Bild vergrößern' });
+    open();
+    const box = document.querySelector<HTMLElement>('.deck-preview')!;
+    const zoom = within(box).getByRole('button', { name: 'Bild vergrößern' });
     fireEvent.click(zoom);
     expect(box.className).toContain('is-zoomed');
     expect(zoom.getAttribute('aria-pressed')).toBe('true');
-    // Vergrößerte Fläche ist per Tastatur erreichbar und verschiebbar
-    expect(within(box as HTMLElement).getByRole('region', { name: /Vergrößertes Deck-Bild/ }).getAttribute('tabindex')).toBe('0');
+    expect(within(box).getByRole('region', { name: /Vergrößertes Deck-Bild/ }).getAttribute('tabindex')).toBe('0');
     fireEvent.click(zoom);
     expect(box.className).not.toContain('is-zoomed');
-    expect(zoom.getAttribute('aria-pressed')).toBe('false');
+  });
+});
+
+describe('Deck-Bild: Formate', () => {
+  it('jeder Aufbau passt ganz in seine Leinwand; Hochformat bleibt 1:1 der bisherige Aufbau', async () => {
+    const { DECK_FORMATS, deckFile } = await import('../src/lib/deckImage');
+    expect(DECK_FORMATS.post).toMatchObject({ w: 1080, h: 1350, scale: 1, dx: 0, dy: 0 });
+    expect(DECK_FORMATS.square).toMatchObject({ w: 1080, h: 1080 });
+    expect(DECK_FORMATS.story).toMatchObject({ w: 1080, h: 1920 });
+    for (const f of Object.values(DECK_FORMATS)) {
+      expect(f.dx).toBeGreaterThanOrEqual(0);
+      expect(f.dy).toBeGreaterThanOrEqual(0);
+      expect(f.dx * 2 + 1080 * f.scale).toBeCloseTo(f.w); // waagrecht mittig
+      expect(f.dy * 2 + 1350 * f.scale).toBeLessThanOrEqual(f.h + 0.001);
+    }
+    expect(deckFile(new Blob(), 'post').name).toBe('beyblade-deck.png');
+    expect(deckFile(new Blob(), 'story').name).toBe('beyblade-deck-story.png');
   });
 });

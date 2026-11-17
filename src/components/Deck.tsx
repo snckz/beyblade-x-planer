@@ -33,8 +33,8 @@ export function Deck({ db, state, update, goToBuilder }: Props) {
     });
   const [sharing, setSharing] = useState(false);
   const [shareMsg, setShareMsg] = useState('');
-  const [img, setImg] = useState<{ file: File; url: string } | null>(null);
-  useEffect(() => () => img && URL.revokeObjectURL(img.url), [img]);
+  // Fertiges Bild im Hochformat; weitere Formate erzeugt die Vorschau bei Bedarf über makeImage
+  const [img, setImg] = useState<File | null>(null);
   // Deck geändert → altes Bild nicht mehr teilen
   const deckKey = combos.map((c) => `${c.bladeId}|${c.ratchetId ?? ''}|${c.bitId}`).join(',');
   useEffect(() => setImg(null), [deckKey]);
@@ -46,7 +46,7 @@ export function Deck({ db, state, update, goToBuilder }: Props) {
     setShareMsg('');
     try {
       const file = deckFile(await renderDeckImage(db, combos, images));
-      setImg({ file, url: URL.createObjectURL(file) });
+      setImg(file);
     } catch {
       setShareMsg('Das Bild konnte nicht erstellt werden.');
     } finally {
@@ -159,7 +159,7 @@ export function Deck({ db, state, update, goToBuilder }: Props) {
       <button type="button" class="btn" onClick={create} aria-busy={sharing}>
         {sharing ? 'Bild wird erstellt …' : <><Share aria-hidden="true" /> Deck als Bild teilen</>}
       </button>
-      {img && <DeckExportSheet file={img.file} url={img.url} onClose={() => setImg(null)} />}
+      {img && <DeckExportSheet initial={img} make={async (format) => deckFile(await renderDeckImage(db, combos, images, undefined, format), format)} onClose={() => setImg(null)} />}
       {shareMsg && (
         <p class="muted" role="status">
           {shareMsg}

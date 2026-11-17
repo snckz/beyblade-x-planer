@@ -2,8 +2,23 @@ import type { BeyType, Combo, Database, ImageIndex } from './types';
 import { analyze, resolveCombo, TYPE_LABEL } from './analysis';
 import { displayName } from './names';
 
+// Aufbau der Grafik (Hochformat 4:5). Die anderen Formate legen genau diesen Aufbau in ihre Leinwand.
 const W = 1080;
 const H = 1350;
+
+export type DeckFormat = 'post' | 'square' | 'story';
+
+/**
+ * Seitenverhältnisse fürs Deck-Bild. Der Inhalt bleibt in allen gleich:
+ * - post: 1080×1350 (4:5, Feed) – der ursprüngliche Aufbau, unverändert
+ * - square: 1080×1080 (1:1) – Aufbau auf 80 % verkleinert, mittig
+ * - story: 1080×1920 (9:16) – Aufbau senkrecht mittig, liegt damit im sicheren Bereich von Instagram & Co.
+ */
+export const DECK_FORMATS: Record<DeckFormat, { label: string; ratio: string; w: number; h: number; scale: number; dx: number; dy: number }> = {
+  post: { label: 'Hochformat', ratio: '4:5', w: 1080, h: 1350, scale: 1, dx: 0, dy: 0 },
+  square: { label: 'Quadrat', ratio: '1:1', w: 1080, h: 1080, scale: 0.8, dx: (1080 - W * 0.8) / 2, dy: 0 },
+  story: { label: 'Story', ratio: '9:16', w: 1080, h: 1920, scale: 1, dx: 0, dy: (1920 - H) / 2 },
+};
 const TYPE_COLOR: Record<BeyType, string> = { attack: '#ff5a45', defense: '#4c8dff', stamina: '#36d37f', balance: '#f5c542' };
 const FONT = "'Inter Tight', ui-sans-serif, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif";
 
@@ -72,13 +87,14 @@ function drawDisc(ctx: CanvasRenderingContext2D, cx: number, cy: number, r: numb
 }
 
 /**
- * Zeichnet das Deck als teilbares Bild (1080×1350, Instagram/WhatsApp-Hochformat).
+ * Zeichnet das Deck als teilbares Bild – Standard 1080×1350 (Instagram/WhatsApp-Hochformat), sonst im gewählten Format.
  * Fotos der Blades kommen vom Wiki – erlaubt der Server keine Weiterverwendung im Canvas, gibt es eine gezeichnete Scheibe.
  */
-export async function renderDeckImage(db: Database, combos: Combo[], images: ImageIndex | null, title = 'Mein Deck'): Promise<Blob> {
+export async function renderDeckImage(db: Database, combos: Combo[], images: ImageIndex | null, title = 'Mein Deck', format: DeckFormat = 'post'): Promise<Blob> {
+  const f = DECK_FORMATS[format];
   const canvas = document.createElement('canvas');
-  canvas.width = W;
-  canvas.height = H;
+  canvas.width = f.w;
+  canvas.height = f.h;
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('Canvas nicht verfügbar');
   try {
@@ -87,17 +103,22 @@ export async function renderDeckImage(db: Database, combos: Combo[], images: Ima
     /* System-Schrift reicht */
   }
 
-  // Hintergrund
-  const bg = ctx.createLinearGradient(0, 0, 0, H);
+  // Hintergrund über die ganze Leinwand des Formats
+  const bg = ctx.createLinearGradient(0, 0, 0, f.h);
   bg.addColorStop(0, '#0c0e16');
   bg.addColorStop(1, '#05060a');
   ctx.fillStyle = bg;
-  ctx.fillRect(0, 0, W, H);
-  const glow = ctx.createRadialGradient(W / 2, H * 1.05, 50, W / 2, H * 1.05, W * 0.9);
+  ctx.fillRect(0, 0, f.w, f.h);
+  const glow = ctx.createRadialGradient(f.w / 2, f.h * 1.05, 50, f.w / 2, f.h * 1.05, f.w * 0.9);
   glow.addColorStop(0, 'rgba(255,59,48,.35)');
   glow.addColorStop(1, 'rgba(255,59,48,0)');
   ctx.fillStyle = glow;
-  ctx.fillRect(0, 0, W, H);
+  ctx.fillRect(0, 0, f.w, f.h);
+
+  // Ab hier der Aufbau in Hochformat-Koordinaten (W×H), ins Format gelegt
+  ctx.save();
+  ctx.translate(f.dx, f.dy);
+  ctx.scale(f.scale, f.scale);
 
   const logo = await loadImage(new URL('logo.webp', document.baseURI).href, false);
   if (logo) {
@@ -200,13 +221,14 @@ export async function renderDeckImage(db: Database, combos: Combo[], images: Ima
   ctx.fillStyle = 'rgba(255,255,255,.45)';
   ctx.font = `500 26px ${FONT}`;
   ctx.fillText('Erstellt mit X-Planer · snckz.github.io/beyblade-x-planer', W / 2, H - 50);
+  ctx.restore();
 
   return new Promise((resolve, reject) => canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('Bild konnte nicht erstellt werden'))), 'image/png'));
 }
 
 /** Teilen ist direkt im Tipp möglich (Bild muss schon fertig sein – Safari verlangt das). */
-export function deckFile(blob: Blob): File {
-  return new File([blob], 'beyblade-deck.png', { type: 'image/png' });
+export function deckFile(blob: Blob, format: DeckFormat = 'post'): File {
+  return new File([blob], format === 'post' ? 'beyblade-deck.png' : `beyblade-deck-${format}.png`, { type: 'image/png' });
 }
 
 export function canShareFile(file: File): boolean {
