@@ -2792,3 +2792,14 @@ button.blade-photo:active { transform: scale(.97); }
 @media (prefers-reduced-motion: reduce) { .sheet .tile.pick, .blade-photo img, .part-photo img, button.blade-photo, .sb-cta, .sb-buy > span { transition: none; } }
 .picker-sheet.kb-open .sheet-grab { display: none; }
 .picker-sheet.kb-open .win-head { padding-top: var(--s-3); padding-bottom: var(--s-2); }
+
+/* ---- Auswahlfenster: Kante beim Scrollen ----
+   Kopfzeile und Filterleiste stehen, die Liste scrollt darunter. Ist sie gescrollt, zeigt ein Schatten unter der
+   stehenden Leiste, dass Karten darunter weiterlaufen (Klasse list-scrolled setzt PartPicker beim Scrollen).
+   Ohne Filterleiste (Ratchet) übernimmt die Kopfzeile die Kante. Etwas Luft über der ersten Reihe. */
+.picker-sheet > .win-head, .picker-tools { position: relative; z-index: 1; border-bottom: 1px solid transparent; transition: box-shadow var(--dur-2) var(--ease), border-color var(--dur-2) var(--ease); }
+.picker-tools { border-bottom-color: var(--hair); }
+.picker-sheet.list-scrolled .picker-tools,
+.picker-sheet.list-scrolled:not(:has(.picker-tools)) > .win-head { border-bottom-color: var(--hair-2); box-shadow: 0 12px 18px -14px rgba(0, 0, 0, .95); }
+.picker-body { padding-top: var(--s-3); }
+@media (prefers-reduced-motion: reduce) { .picker-sheet > .win-head, .picker-tools { transition: none; } }

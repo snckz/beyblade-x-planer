@@ -1,7 +1,7 @@
 import { createPortal } from 'preact/compat';
 import { useModal } from '../lib/useModal';
 import { bothNames, displayName, otherName } from '../lib/names';
-import { useRef, useState } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
 import type { BeyType, Blade, Bit, Ratchet } from '../lib/types';
 import { TYPE_LABEL } from '../lib/analysis';
 import { BeyImage, BladePhoto } from './BeyImage';
@@ -137,6 +137,21 @@ function PickerSheet({ kind, label, blades = [], ratchets = [], bits = [], value
 
   const q = query.trim().toLowerCase().replace(/\s+/g, '');
   const match = (s: string) => !q || s.toLowerCase().replace(/\s+/g, '').includes(q);
+
+  // Neue Suche oder neuer Typfilter: Die Liste beginnt wieder oben. Sonst bliebe die alte Scrollposition stehen
+  // (bei einer kürzeren Liste auf deren Maximum) und die erste Kartenreihe stünde halb unter der Filterleiste.
+  const bodyRef = useRef<HTMLDivElement>(null);
+  const firstRun = useRef(true);
+  useEffect(() => {
+    if (firstRun.current) {
+      firstRun.current = false;
+      return;
+    }
+    if (bodyRef.current) bodyRef.current.scrollTop = 0;
+  }, [q, type]);
+  // Gescrollt: Kante unter Kopfzeile bzw. Filterleiste zeigen, damit klar ist, dass Karten darunter weiterlaufen.
+  // Klasse direkt am Fenster wie `kb-open` aus useModal – kein Neuzeichnen beim Scrollen.
+  const onListScroll = (e: Event) => ref.current?.classList.toggle('list-scrolled', (e.currentTarget as HTMLElement).scrollTop > 2);
   const count = (id: string) => counts?.get(id);
 
   const bladeList = blades.filter((b) => (!type || b.type === type) && match(`${b.name}${b.hasbroName ?? ''}${b.id}`)).sort((a, b) => displayName(a).localeCompare(displayName(b)));
@@ -184,7 +199,7 @@ function PickerSheet({ kind, label, blades = [], ratchets = [], bits = [], value
           </div>
         )}
 
-        <div class="picker-body">
+        <div ref={bodyRef} class="picker-body" onScroll={onListScroll}>
           {kind === 'blade' && (
             <div class="grid grid-blades">
               {bladeList.map((b) => {
