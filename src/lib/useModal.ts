@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef } from 'preact/hooks';
 import type { RefObject } from 'preact';
 import { lockScroll } from './scrollLock';
+import { attachSheetDrag, resetSheetDrag } from './sheetDrag';
 
 /** Dauer der Schließ-Animation – muss zu `--dur-close` in styles.css passen. */
 const CLOSE_MS = 180;
@@ -13,6 +14,9 @@ const CLOSE_MS = 180;
  * Gibt `close` zurück: schließt mit kurzer Animation (Klasse `is-closing` am Fenster bzw. seinem Hintergrund)
  * und ruft erst danach `onClose`. Mit „Bewegung reduzieren“ schließt es sofort.
  * `animate: true` lässt auch Escape so schließen – nicht für Fenster, deren `onClose` erst nachfragt.
+ *
+ * Fenster mit Griff (.sheet-grab) lassen sich daran nach unten ziehen und schließen – über dasselbe `close`
+ * wie der Schließen-Knopf (siehe lib/sheetDrag.ts). Vollbild-Fenster haben keinen Griff und keine Geste.
  */
 export function useModal(ref: RefObject<HTMLElement | null>, onClose: () => void, { animate = false }: { animate?: boolean } = {}) {
   const closeRef = useRef(onClose);
@@ -21,7 +25,12 @@ export function useModal(ref: RefObject<HTMLElement | null>, onClose: () => void
   const close = useCallback(() => {
     const root = ref.current;
     const reduce = typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (!root || reduce) return closeRef.current();
+    if (!root || reduce) {
+      closeRef.current();
+      // Bleibt das Fenster doch offen, steht es nach einer Ziehgeste wieder an seinem Platz.
+      if (root) requestAnimationFrame(() => root.isConnected && resetSheetDrag(root));
+      return;
+    }
     if (closing.current) return;
     closing.current = true;
     const host = (root.closest('.sheet-backdrop') as HTMLElement | null) ?? root;
@@ -30,7 +39,11 @@ export function useModal(ref: RefObject<HTMLElement | null>, onClose: () => void
       closing.current = false;
       closeRef.current();
       // Bleibt das Fenster doch offen, soll es nicht ausgeblendet hängen bleiben.
-      requestAnimationFrame(() => host.isConnected && host.classList.remove('is-closing'));
+      requestAnimationFrame(() => {
+        if (!host.isConnected) return;
+        host.classList.remove('is-closing');
+        resetSheetDrag(root);
+      });
     }, CLOSE_MS);
   }, []);
   const escRef = useRef(close);
@@ -63,6 +76,7 @@ export function useModal(ref: RefObject<HTMLElement | null>, onClose: () => void
       }
     };
     document.addEventListener('keydown', onKey);
+    const undrag = ref.current ? attachSheetDrag(ref.current, close) : () => {};
     // Bildschirmtastatur: iOS verkleinert das Fenster nicht, die Tastatur liegt darüber. Ihre Höhe steht als
     // --kb am Fenster, damit scrollbare Bereiche unten entsprechend Platz lassen (siehe styles.css).
     const vv = window.visualViewport;
@@ -80,6 +94,7 @@ export function useModal(ref: RefObject<HTMLElement | null>, onClose: () => void
       vv?.removeEventListener('resize', onViewport);
       vv?.removeEventListener('scroll', onViewport);
       unlock();
+      undrag();
       document.removeEventListener('keydown', onKey);
       prev?.focus?.();
     };

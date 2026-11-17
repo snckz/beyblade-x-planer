@@ -2407,9 +2407,17 @@ html, .live { background-color: var(--night); }
 .sheet-backdrop.is-closing .sheet { animation: win-sink var(--dur-close) ease-in forwards; }
 .live.is-closing { animation: win-fade-out var(--dur-close) ease-in forwards; }
 @keyframes win-fade-out { to { opacity: 0; } }
-@keyframes win-sink { to { transform: translateY(32px); } }
+/* --sink setzt lib/sheetDrag.ts nach dem Ziehen auf 100 %: das Fenster gleitet dann von dort ganz hinaus. */
+@keyframes win-sink { to { transform: translateY(var(--sink, 32px)); } }
+/* Ziehen zum Schließen: Griff und Kopfzeile sind die Zugfläche, der Inhalt darunter scrollt wie gewohnt. */
+.sheet-grab, .sheet > .win-head { touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+.sheet-grab { position: relative; }
+.sheet-grab::before { content: ''; position: absolute; inset: -10px -50vw -2px; } /* Tippfläche über die ganze Breite, unsichtbar */
+.sheet.is-dragging { will-change: transform; }
+.sheet.is-settling { transition: transform .26s var(--ease-out); } /* passt zu SETTLE_MS in lib/sheetDrag.ts */
 @media (prefers-reduced-motion: reduce) {
   .sheet, .sheet-backdrop, .live, .sheet-backdrop.is-closing, .sheet-backdrop.is-closing .sheet, .live.is-closing { animation: none; }
+  .sheet.is-settling { transition: none; }
 }
 /* Der Fenstertitel sagt schon „Steckbrief“ – die Tabellen-Beschriftung bleibt nur für Screenreader */
 .sheet .infobox caption { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
