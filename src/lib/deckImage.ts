@@ -86,6 +86,34 @@ function drawDisc(ctx: CanvasRenderingContext2D, cx: number, cy: number, r: numb
   ctx.restore();
 }
 
+/** Kleines Markenzeichen unten mittig: schräger roter Strich und „X-PLANER“ in gesperrten Großbuchstaben, halbtransparent. */
+function drawMark(ctx: CanvasRenderingContext2D, cx: number, baseline: number) {
+  const text = 'X-PLANER';
+  ctx.font = `700 22px ${FONT}`;
+  const spacing = 5; // Sperrung in px je Zeichen
+  const chars = [...text];
+  const textW = chars.reduce((w, c) => w + ctx.measureText(c).width, 0) + spacing * (chars.length - 1);
+  const barW = 7;
+  const gap = 14;
+  let x = cx - (barW + gap + textW) / 2;
+  // Schrägstrich
+  ctx.save();
+  ctx.translate(x + barW / 2, baseline - 8);
+  ctx.transform(1, 0, -0.32, 1, 0, 0);
+  roundRect(ctx, -barW / 2, -12, barW, 24, 2);
+  ctx.fillStyle = 'rgba(243,38,69,.85)';
+  ctx.fill();
+  ctx.restore();
+  // Schriftzug
+  x += barW + gap;
+  ctx.textAlign = 'left';
+  ctx.fillStyle = 'rgba(255,255,255,.42)';
+  for (const c of chars) {
+    ctx.fillText(c, x, baseline);
+    x += ctx.measureText(c).width + spacing;
+  }
+}
+
 /**
  * Zeichnet das Deck als teilbares Bild – Standard 1080×1350 (Instagram/WhatsApp-Hochformat), sonst im gewählten Format.
  * Fotos der Blades kommen vom Wiki – erlaubt der Server keine Weiterverwendung im Canvas, gibt es eine gezeichnete Scheibe.
@@ -217,10 +245,8 @@ export async function renderDeckImage(db: Database, combos: Combo[], images: Ima
     });
   }
 
-  ctx.textAlign = 'center';
-  ctx.fillStyle = 'rgba(255,255,255,.45)';
-  ctx.font = `500 26px ${FONT}`;
-  ctx.fillText('Erstellt mit X-Planer · snckz.github.io/beyblade-x-planer', W / 2, H - 50);
+  // Dezentes Erkennungszeichen statt Webadresse: roter Schrägstrich (wie vor den Fenstertiteln) + „X-PLANER“
+  drawMark(ctx, W / 2, H - 58);
   ctx.restore();
 
   return new Promise((resolve, reject) => canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('Bild konnte nicht erstellt werden'))), 'image/png'));
