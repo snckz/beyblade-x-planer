@@ -1113,10 +1113,11 @@
       "line": "BX",
       "type": "stamina",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "Stun Medusa 9-60GB",
-      "note": "Aus der Hasbro-Produktliste übernommen."
+      "note": "Aus der Hasbro-Produktliste übernommen.",
+      "weightG": null
     },
     {
       "id": "AntlerStag",
@@ -1124,10 +1125,11 @@
       "line": "CX",
       "type": "defense",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "Antler Stag B 2-60HN",
-      "note": "Aus der Hasbro-Produktliste übernommen."
+      "note": "Aus der Hasbro-Produktliste übernommen.",
+      "weightG": null
     },
     {
       "id": "HurricaneEnlil",
@@ -1135,10 +1137,11 @@
       "line": "CX",
       "type": "balance",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "Hurricane Enlil IS 7-55T",
-      "note": "Aus der Hasbro-Produktliste übernommen."
+      "note": "Aus der Hasbro-Produktliste übernommen.",
+      "weightG": null
     },
     {
       "id": "ValorBison",
@@ -1146,11 +1149,12 @@
       "line": "BX",
       "type": "stamina",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "Valor Bison FB",
       "note": "Aus der Hasbro-Produktliste übernommen.",
-      "integratedRatchet": true
+      "integratedRatchet": true,
+      "weightG": null
     },
     {
       "id": "GlareCyclops",
@@ -1158,10 +1162,11 @@
       "line": "BX",
       "type": "stamina",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "Glare Cyclops 7-55FB",
-      "note": "Aus der Hasbro-Produktliste übernommen."
+      "note": "Aus der Hasbro-Produktliste übernommen.",
+      "weightG": null
     },
     {
       "id": "SeizeJaguar",
@@ -1169,11 +1174,12 @@
       "line": "BX",
       "type": "defense",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "Seize Jaguar HN",
       "note": "Aus der Hasbro-Produktliste übernommen.",
-      "integratedRatchet": true
+      "integratedRatchet": true,
+      "weightG": null
     },
     {
       "id": "SteelSamurai",
@@ -1181,10 +1187,11 @@
       "line": "BX",
       "type": "balance",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "Steel Samurai 4-80T",
-      "note": "Aus der Hasbro-Produktliste übernommen."
+      "note": "Aus der Hasbro-Produktliste übernommen.",
+      "weightG": null
     },
     {
       "id": "TalonPtera",
@@ -1192,10 +1199,11 @@
       "line": "BX",
       "type": "stamina",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "Talon Ptera 3-80B",
-      "note": "Aus der Hasbro-Produktliste übernommen."
+      "note": "Aus der Hasbro-Produktliste übernommen.",
+      "weightG": null
     },
     {
       "id": "RoarTyranno",
@@ -1203,10 +1211,11 @@
       "line": "BX",
       "type": "attack",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "Roar Tyranno 9-60GF",
-      "note": "Aus der Hasbro-Produktliste übernommen."
+      "note": "Aus der Hasbro-Produktliste übernommen.",
+      "weightG": null
     },
     {
       "id": "SavageBear",
@@ -1214,10 +1223,11 @@
       "line": "BX",
       "type": "defense",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "Savage Bear 3-60S",
-      "note": "Aus der Hasbro-Produktliste übernommen."
+      "note": "Aus der Hasbro-Produktliste übernommen.",
+      "weightG": null
     },
     {
       "id": "YellKong",
@@ -1225,10 +1235,11 @@
       "line": "BX",
       "type": "stamina",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "Yell Kong 3-60GB",
-      "note": "Aus der Hasbro-Produktliste übernommen."
+      "note": "Aus der Hasbro-Produktliste übernommen.",
+      "weightG": null
     },
     {
       "id": "GustBat",
@@ -1236,10 +1247,11 @@
       "line": "BX",
       "type": "balance",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "Gust Bat 3-85GP",
-      "note": "Aus der Hasbro-Produktliste übernommen."
+      "note": "Aus der Hasbro-Produktliste übernommen.",
+      "weightG": null
     },
     {
       "id": "RidgeTriceratops",
@@ -1247,10 +1259,11 @@
       "line": "BX",
       "type": "defense",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "Ridge Triceratops 9-80GN",
-      "note": "Aus der Hasbro-Produktliste übernommen."
+      "note": "Aus der Hasbro-Produktliste übernommen.",
+      "weightG": null
     },
     {
       "id": "KnifeShinobi",
@@ -1258,10 +1271,11 @@
       "line": "BX",
       "type": "defense",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "Knife Shinobi 4-80HN",
-      "note": "Aus der Hasbro-Produktliste übernommen."
+      "note": "Aus der Hasbro-Produktliste übernommen.",
+      "weightG": null
     },
     {
       "id": "BiteCroc",
@@ -1269,10 +1283,11 @@
       "line": "BX",
       "type": "attack",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "Bite Croc 3-60LF",
-      "note": "Aus der Hasbro-Produktliste übernommen."
+      "note": "Aus der Hasbro-Produktliste übernommen.",
+      "weightG": null
     },
     {
       "id": "HackViking",
@@ -1280,10 +1295,11 @@
       "line": "BX",
       "type": "stamina",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "Hack Viking 4-55O",
-      "note": "Aus der Hasbro-Produktliste übernommen."
+      "note": "Aus der Hasbro-Produktliste übernommen.",
+      "weightG": null
     },
     {
       "id": "ClampCrab",
@@ -1291,23 +1307,25 @@
       "line": "BX",
       "type": "defense",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "Clamp Crab 9-65S",
-      "note": "Aus der Hasbro-Produktliste übernommen."
+      "note": "Aus der Hasbro-Produktliste übernommen.",
+      "weightG": null
     },
     {
       "id": "OrochiCluster",
       "name": "Orochi Cluster",
-      "hasbroName": "Coil Orochi",
-      "hasbroNameAuto": true,
       "line": "BX",
       "type": "attack",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "OrochiCluster 6-60LF",
-      "note": "Aus der Hasbro-Produktliste übernommen."
+      "note": "Aus der Hasbro-Produktliste übernommen.",
+      "weightG": 36.6,
+      "hasbroName": "Coil Orochi",
+      "hasbroNameAuto": true
     },
     {
       "id": "DragoonStorm",
@@ -1315,10 +1333,11 @@
       "line": "BX",
       "type": "attack",
       "spin": "left",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "DragoonStorm 4-60RA",
-      "note": "Aus der Hasbro-Produktliste übernommen."
+      "note": "Aus der Hasbro-Produktliste übernommen.",
+      "weightG": 25.1
     },
     {
       "id": "VictoryValkyrie",
@@ -1326,10 +1345,11 @@
       "line": "BX",
       "type": "attack",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "VictoryValkyrie 2-60RA",
-      "note": "Aus der Hasbro-Produktliste übernommen."
+      "note": "Aus der Hasbro-Produktliste übernommen.",
+      "weightG": 33.2
     },
     {
       "id": "AFC",
@@ -1337,10 +1357,11 @@
       "line": "BX",
       "type": "balance",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "AFC 6-70H",
-      "note": "Aus der Hasbro-Produktliste übernommen."
+      "note": "Aus der Hasbro-Produktliste übernommen.",
+      "weightG": null
     },
     {
       "id": "NFC",
@@ -1348,10 +1369,11 @@
       "line": "BX",
       "type": "stamina",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "NFC 9-60LO",
-      "note": "Aus der Hasbro-Produktliste übernommen."
+      "note": "Aus der Hasbro-Produktliste übernommen.",
+      "weightG": null
     },
     {
       "id": "TheMandalorian",
@@ -1359,10 +1381,11 @@
       "line": "BX",
       "type": "attack",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "The Mandalorian 3-60F",
-      "note": "Aus der Hasbro-Produktliste übernommen."
+      "note": "Aus der Hasbro-Produktliste übernommen.",
+      "weightG": null
     },
     {
       "id": "MoffGideon",
@@ -1370,10 +1393,11 @@
       "line": "BX",
       "type": "defense",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "Moff Gideon 3-80N",
-      "note": "Aus der Hasbro-Produktliste übernommen."
+      "note": "Aus der Hasbro-Produktliste übernommen.",
+      "weightG": null
     },
     {
       "id": "IronMan",
@@ -1381,10 +1405,11 @@
       "line": "BX",
       "type": "stamina",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "Iron Man 4-80B",
-      "note": "Aus der Hasbro-Produktliste übernommen."
+      "note": "Aus der Hasbro-Produktliste übernommen.",
+      "weightG": null
     },
     {
       "id": "SpiderMan",
@@ -1392,10 +1417,11 @@
       "line": "BX",
       "type": "attack",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "Spider-Man 3-60F",
-      "note": "Aus der Hasbro-Produktliste übernommen."
+      "note": "Aus der Hasbro-Produktliste übernommen.",
+      "weightG": null
     },
     {
       "id": "Venom",
@@ -1403,10 +1429,11 @@
       "line": "BX",
       "type": "defense",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "Venom 3-80N",
-      "note": "Aus der Hasbro-Produktliste übernommen."
+      "note": "Aus der Hasbro-Produktliste übernommen.",
+      "weightG": 34.3
     },
     {
       "id": "LukeSkywalker",
@@ -1414,10 +1441,11 @@
       "line": "BX",
       "type": "stamina",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "Luke Skywalker 4-80B",
-      "note": "Aus der Hasbro-Produktliste übernommen."
+      "note": "Aus der Hasbro-Produktliste übernommen.",
+      "weightG": null
     },
     {
       "id": "DarthVader",
@@ -1425,10 +1453,11 @@
       "line": "BX",
       "type": "balance",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "Darth Vader 4-60P",
-      "note": "Aus der Hasbro-Produktliste übernommen."
+      "note": "Aus der Hasbro-Produktliste übernommen.",
+      "weightG": null
     },
     {
       "id": "OptimusPrimal",
@@ -1436,10 +1465,11 @@
       "line": "BX",
       "type": "attack",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "Optimus Primal 3-60F",
-      "note": "Aus der Hasbro-Produktliste übernommen."
+      "note": "Aus der Hasbro-Produktliste übernommen.",
+      "weightG": null
     },
     {
       "id": "OptimusPrime",
@@ -1447,10 +1477,11 @@
       "line": "BX",
       "type": "balance",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "Optimus Prime 4-60P",
-      "note": "Aus der Hasbro-Produktliste übernommen."
+      "note": "Aus der Hasbro-Produktliste übernommen.",
+      "weightG": null
     },
     {
       "id": "CaptainAmerica",
@@ -1458,10 +1489,11 @@
       "line": "BX",
       "type": "stamina",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "Captain America 4-70GB",
-      "note": "Aus der Hasbro-Produktliste übernommen."
+      "note": "Aus der Hasbro-Produktliste übernommen.",
+      "weightG": null
     },
     {
       "id": "RedHulk",
@@ -1469,10 +1501,11 @@
       "line": "BX",
       "type": "attack",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "Red Hulk 1-80R",
-      "note": "Aus der Hasbro-Produktliste übernommen."
+      "note": "Aus der Hasbro-Produktliste übernommen.",
+      "weightG": null
     },
     {
       "id": "MilesMorales",
@@ -1480,10 +1513,11 @@
       "line": "BX",
       "type": "defense",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "Miles Morales 1-60GN",
-      "note": "Aus der Hasbro-Produktliste übernommen."
+      "note": "Aus der Hasbro-Produktliste übernommen.",
+      "weightG": null
     },
     {
       "id": "GreenGoblin",
@@ -1491,10 +1525,11 @@
       "line": "BX",
       "type": "balance",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "Green Goblin 9-80HT",
-      "note": "Aus der Hasbro-Produktliste übernommen."
+      "note": "Aus der Hasbro-Produktliste übernommen.",
+      "weightG": null
     },
     {
       "id": "Bumblebee",
@@ -1502,10 +1537,11 @@
       "line": "BX",
       "type": "balance",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "Bumblebee 3-60GP",
-      "note": "Aus der Hasbro-Produktliste übernommen."
+      "note": "Aus der Hasbro-Produktliste übernommen.",
+      "weightG": 31.8
     },
     {
       "id": "Shockwave",
@@ -1513,10 +1549,11 @@
       "line": "BX",
       "type": "balance",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "Shockwave 5-80O",
-      "note": "Aus der Hasbro-Produktliste übernommen."
+      "note": "Aus der Hasbro-Produktliste übernommen.",
+      "weightG": 32.3
     },
     {
       "id": "GeneralGrievous",
@@ -1524,10 +1561,11 @@
       "line": "BX",
       "type": "defense",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "General Grievous 3-80HN",
-      "note": "Aus der Hasbro-Produktliste übernommen."
+      "note": "Aus der Hasbro-Produktliste übernommen.",
+      "weightG": null
     },
     {
       "id": "Chewbacca",
@@ -1535,10 +1573,11 @@
       "line": "BX",
       "type": "attack",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "Chewbacca 4-80LF",
-      "note": "Aus der Hasbro-Produktliste übernommen."
+      "note": "Aus der Hasbro-Produktliste übernommen.",
+      "weightG": 31.8
     },
     {
       "id": "Stormtrooper",
@@ -1546,10 +1585,11 @@
       "line": "BX",
       "type": "balance",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "Stormtrooper 5-70B",
-      "note": "Aus der Hasbro-Produktliste übernommen."
+      "note": "Aus der Hasbro-Produktliste übernommen.",
+      "weightG": 33.3
     },
     {
       "id": "Mosasaurus",
@@ -1557,10 +1597,11 @@
       "line": "BX",
       "type": "balance",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "Mosasaurus 9-60U",
-      "note": "Aus der Hasbro-Produktliste übernommen."
+      "note": "Aus der Hasbro-Produktliste übernommen.",
+      "weightG": 29.9
     },
     {
       "id": "Spinosaurus",
@@ -1568,10 +1609,11 @@
       "line": "BX",
       "type": "attack",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "Spinosaurus 3-85A",
-      "note": "Aus der Hasbro-Produktliste übernommen."
+      "note": "Aus der Hasbro-Produktliste übernommen.",
+      "weightG": 36
     },
     {
       "id": "Quetzalcoatlus",
@@ -1579,10 +1621,11 @@
       "line": "BX",
       "type": "defense",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "Quetzalcoatlus 4-55D",
-      "note": "Aus der Hasbro-Produktliste übernommen."
+      "note": "Aus der Hasbro-Produktliste übernommen.",
+      "weightG": 34.3
     },
     {
       "id": "Grogu",
@@ -1590,10 +1633,11 @@
       "line": "BX",
       "type": "balance",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "Grogu 3-85E",
-      "note": "Aus der Hasbro-Produktliste übernommen."
+      "note": "Aus der Hasbro-Produktliste übernommen.",
+      "weightG": 33.5
     },
     {
       "id": "Snowtrooper",
@@ -1601,10 +1645,11 @@
       "line": "BX",
       "type": "stamina",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "Snowtrooper 7-60O",
-      "note": "Aus der Hasbro-Produktliste übernommen."
+      "note": "Aus der Hasbro-Produktliste übernommen.",
+      "weightG": 33.3
     },
     {
       "id": "MisterFantastic",
@@ -1612,10 +1657,11 @@
       "line": "BX",
       "type": "attack",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "Mister Fantastic 9-65A",
-      "note": "Aus der Hasbro-Produktliste übernommen."
+      "note": "Aus der Hasbro-Produktliste übernommen.",
+      "weightG": null
     },
     {
       "id": "DoctorDoom",
@@ -1623,10 +1669,11 @@
       "line": "BX",
       "type": "stamina",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "Doctor Doom 0-80LO",
-      "note": "Aus der Hasbro-Produktliste übernommen."
+      "note": "Aus der Hasbro-Produktliste übernommen.",
+      "weightG": null
     },
     {
       "id": "Hulk",
@@ -1634,10 +1681,11 @@
       "line": "BX",
       "type": "defense",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "Hulk 3-85N",
-      "note": "Aus der Hasbro-Produktliste übernommen."
+      "note": "Aus der Hasbro-Produktliste übernommen.",
+      "weightG": 33
     },
     {
       "id": "DranzerSpiral",
@@ -1645,10 +1693,11 @@
       "line": "BX",
       "type": "balance",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "DranzerSpiral 3-80T",
-      "note": "Aus der Hasbro-Produktliste übernommen."
+      "note": "Aus der Hasbro-Produktliste übernommen.",
+      "weightG": 27.7
     },
     {
       "id": "DrigerSlash",
@@ -1656,10 +1705,11 @@
       "line": "BX",
       "type": "balance",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "DrigerSlash 4-80P",
-      "note": "Aus der Hasbro-Produktliste übernommen."
+      "note": "Aus der Hasbro-Produktliste übernommen.",
+      "weightG": 28.6
     },
     {
       "id": "DracielShield",
@@ -1667,10 +1717,11 @@
       "line": "BX",
       "type": "defense",
       "spin": "right",
-      "verified": false,
+      "verified": true,
       "imported": true,
       "wikiTitle": "DracielShield 7-60D",
-      "note": "Aus der Hasbro-Produktliste übernommen."
+      "note": "Aus der Hasbro-Produktliste übernommen.",
+      "weightG": 28
     }
   ],
   "ratchets": [
@@ -4304,7 +4355,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 9.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Sword_Dran_3-60F"
     },
@@ -4320,7 +4371,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 9.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Helm_Knight_3-80N"
     },
@@ -4335,7 +4386,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 9.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Arrow_Wizard_4-80B"
     },
@@ -4350,7 +4401,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 9.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Scythe_Incendio_4-60T"
     },
@@ -4365,7 +4416,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 9.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Lance_Knight_4-80HN"
     },
@@ -4380,7 +4431,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 9.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Claw_Leon_5-60P"
     },
@@ -4395,7 +4446,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 9.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Buster_Dran_1-60A"
     },
@@ -4410,7 +4461,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 9.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Wand_Wizard_5-70DB"
     },
@@ -4425,7 +4476,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 9.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Wand_Wizard_1-60R"
     },
@@ -4440,7 +4491,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 9.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Shadow_Shinobi_1-80MN"
     },
@@ -4455,7 +4506,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 9.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Scarlet_Garuda_4-70TP"
     },
@@ -4470,7 +4521,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 9.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Sterling_Wolf_3-80FB"
     },
@@ -4485,7 +4536,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 9.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Shelter_Drake_7-80GP"
     },
@@ -4500,7 +4551,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 9.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Rock_Golem_1-60UN"
     },
@@ -4515,7 +4566,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 9.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Buster_Dran_5-70DB"
     },
@@ -4530,7 +4581,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 9.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Hammer_Incendio_3-70H"
     },
@@ -4545,7 +4596,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 12.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Stun_Medusa_9-60GB"
     },
@@ -4560,7 +4611,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 12.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Rudder_Phoenix_4-70LF"
     },
@@ -4576,7 +4627,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 12.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Feather_Phoenix_2-60N"
     },
@@ -4592,7 +4643,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 12.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Courage_Dran_S_6-60V"
     },
@@ -4608,7 +4659,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 12.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Reaper_Incendio_T_4-70K"
     },
@@ -4623,7 +4674,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 12.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Arc_Wizard_R_4-55LO"
     },
@@ -4638,7 +4689,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 12.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Dark_Perseus_B_6-80W"
     },
@@ -4653,7 +4704,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 12.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Brush_Fox_J_9-70GR"
     },
@@ -4668,7 +4719,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 12.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Fort_Hornet_R_7-60T"
     },
@@ -4683,7 +4734,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 12.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Wriggle_Kraken_S_3-85O"
     },
@@ -4698,7 +4749,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 12.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Antler_Stag_B_2-60HN"
     },
@@ -4713,7 +4764,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 14.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Reaper_Rhino_C_4-55D"
     },
@@ -4728,7 +4779,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 14.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Flame_Cerberus_W_5-80WB"
     },
@@ -4744,7 +4795,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 14.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Fang_Leon_T_4-60U"
     },
@@ -4760,7 +4811,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 14.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Strike_Dran_4-50FF"
     },
@@ -4791,7 +4842,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 14.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Hurricane_Enlil_IS_7-55T"
     },
@@ -4806,7 +4857,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 14.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Delta_Unicorn_PO_3-60GU"
     },
@@ -4820,7 +4871,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 14.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Valor_Bison_FB"
     },
@@ -4834,7 +4885,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 14.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Rocket_Griffon_H"
     },
@@ -4849,7 +4900,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 14.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Rage_Ragna_FE_4-55Y"
     },
@@ -4864,7 +4915,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 14.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Armor_Knight_GV_8-70UN"
     },
@@ -4878,7 +4929,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 14.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Nether_Incendio_Z"
     },
@@ -4893,7 +4944,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 14.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Tread_Croc_TQ_5-50GN"
     },
@@ -4908,7 +4959,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 14.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Whip_Brachio_OW_5-70Nr"
     },
@@ -4923,7 +4974,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 14.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Shatter_Horus_9-65GB"
     },
@@ -4937,7 +4988,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 14.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Glory_Valkerion_LF"
     },
@@ -4952,7 +5003,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 14.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Glare_Cyclops_7-55FB"
     },
@@ -4966,7 +5017,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 14.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Seize_Jaguar_HN"
     },
@@ -4981,7 +5032,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 14.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Ring_Aether_0-80DS"
     },
@@ -4996,7 +5047,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 14.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Blitz_Bahamut_BK_1-50I"
     },
@@ -5011,7 +5062,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 7.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Steel_Samurai_4-80T"
     },
@@ -5026,7 +5077,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 7.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Horn_Rhino_3-80S"
     },
@@ -5041,7 +5092,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 7.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Keel_Shark_3-60LF"
     },
@@ -5056,7 +5107,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 7.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Talon_Ptera_3-80B"
     },
@@ -5071,7 +5122,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 7.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Sting_Unicorn_5-60GP"
     },
@@ -5086,7 +5137,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 7.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Roar_Tyranno_9-60GF"
     },
@@ -5101,7 +5152,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 7.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Scythe_Incendio_3-80B"
     },
@@ -5116,7 +5167,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 7.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Savage_Bear_3-60S"
     },
@@ -5131,7 +5182,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 7.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Cowl_Sphinx_9-80GN"
     },
@@ -5146,7 +5197,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 7.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Arrow_Wizard_4-80GB"
     },
@@ -5161,7 +5212,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 7.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Obsidian_Shell_4-60D"
     },
@@ -5176,7 +5227,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 7.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Keel_Shark_1-60Q"
     },
@@ -5191,7 +5242,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 7.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Tide_Whale_5-80E"
     },
@@ -5206,7 +5257,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 7.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Dagger_Dran_4-70Q"
     },
@@ -5221,7 +5272,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 7.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Lance_Knight_3-60LF"
     },
@@ -5236,7 +5287,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 7.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Yell_Kong_3-60GB"
     },
@@ -5251,7 +5302,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 7.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Arrow_Wizard_4-80O"
     },
@@ -5266,7 +5317,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 7.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Soar_Phoenix_5-80H"
     },
@@ -5281,7 +5332,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 9.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Scale_Shark_4-50UF"
     },
@@ -5296,7 +5347,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 9.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Shelter_Drake_5-70O"
     },
@@ -5311,7 +5362,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 9.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Gust_Bat_3-85GP"
     },
@@ -5326,7 +5377,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 9.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Curse_Mummy_7-55W"
     },
@@ -5341,7 +5392,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 9.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Savage_Bear_5-60F"
     },
@@ -5356,7 +5407,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 9.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Cobalt_Drake_4-60F"
     },
@@ -5371,7 +5422,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 9.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Mirage_Clock_9-65B"
     },
@@ -5386,7 +5437,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 9.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Ridge_Triceratops_9-80GN"
     },
@@ -5401,7 +5452,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 9.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Buster_Dran_5-70DB"
     },
@@ -5416,7 +5467,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 14.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Knife_Shinobi_4-80HN"
     },
@@ -5431,7 +5482,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 14.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Keel_Shark_3-80F"
     },
@@ -5446,7 +5497,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 14.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Chain_Incendio_5-60HT"
     },
@@ -5461,7 +5512,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 14.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Arrow_Wizard_4-60N"
     },
@@ -5476,7 +5527,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 14.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Tail_Viper_5-80O"
     },
@@ -5491,7 +5542,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 14.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Sword_Dran_3-60F"
     },
@@ -5506,7 +5557,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 14.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Yell_Kong_3-60GB"
     },
@@ -5521,7 +5572,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 14.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Helm_Knight_5-80T"
     },
@@ -5536,7 +5587,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 14.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Bite_Croc_3-60LF"
     },
@@ -5551,7 +5602,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 14.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Sting_Unicorn_4-60P"
     },
@@ -5566,7 +5617,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 14.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Gale_Wyvern_5-80GB"
     },
@@ -5581,7 +5632,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 14.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Tail_Viper_3-80HN"
     },
@@ -5596,7 +5647,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 14.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Beat_Tyranno_4-70Q"
     },
@@ -5611,7 +5662,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 14.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Knife_Shinobi_4-80HN"
     },
@@ -5626,7 +5677,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 14.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Gale_Wyvern_3-60T"
     },
@@ -5641,7 +5692,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 14.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Sword_Dran_3-80B"
     },
@@ -5656,7 +5707,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 14.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Cowl_Sphinx_1-80GF"
     },
@@ -5671,7 +5722,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 14.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Crest_Leon_7-60GN"
     },
@@ -5686,7 +5737,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 14.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Pearl_Tiger_3-60U"
     },
@@ -5701,7 +5752,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 14.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Gill_Shark_4-70O"
     },
@@ -5716,7 +5767,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 14.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Circle_Ghost_0-80GB"
     },
@@ -5731,7 +5782,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 14.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Chain_Incendio_5-60HT"
     },
@@ -5746,7 +5797,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 14.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Tackle_Goat_2-70N"
     },
@@ -5761,7 +5812,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 14.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Sword_Dran_3-60F"
     },
@@ -5776,7 +5827,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 17.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Calibur_Samurai_6-70M"
     },
@@ -5791,7 +5842,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 17.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Obsidian_Shell_3-85S"
     },
@@ -5806,7 +5857,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 17.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Circle_Ghost_4-60LR"
     },
@@ -5821,7 +5872,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 17.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Hack_Viking_4-55O"
     },
@@ -5836,7 +5887,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 17.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Spear_Scorpio_0-70Z"
     },
@@ -5851,7 +5902,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 17.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Tail_Viper_3-85LO"
     },
@@ -5866,7 +5917,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 17.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Clamp_Crab_9-65S"
     },
@@ -5881,7 +5932,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 17.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Crest_Leon_4-55A"
     },
@@ -5896,9 +5947,10 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 17.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/Coil_Orochi_6-60LF"
+      "source": "https://beyblade.fandom.com/wiki/Coil_Orochi_6-60LF",
+      "releaseJp": "2025-11-15"
     },
     {
       "code": "G2762-02",
@@ -5911,7 +5963,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 17.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Pearl_Tiger_3-85WB"
     },
@@ -5926,7 +5978,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 17.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Brace_Triceratops_M-85BS"
     },
@@ -5941,7 +5993,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 17.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Dagger_Dran_7-55K"
     },
@@ -5956,9 +6008,10 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 79.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/DragoonStorm_4-60RA"
+      "source": "https://beyblade.fandom.com/wiki/DragoonStorm_4-60RA",
+      "releaseJp": "2025-03-21"
     },
     {
       "code": "G1844-02",
@@ -5971,7 +6024,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 79.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/StormPegasis_3-70RA"
     },
@@ -5986,9 +6039,10 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 79.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/VictoryValkyrie_2-60RA"
+      "source": "https://beyblade.fandom.com/wiki/VictoryValkyrie_2-60RA",
+      "releaseJp": "2025-03-21"
     },
     {
       "code": "G1844-04",
@@ -6001,7 +6055,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 79.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/DranSword_3-60F"
     },
@@ -6014,7 +6068,7 @@
       "bitId": "HOp",
       "region": "hasbro",
       "priceJpy": null,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/EmperorMight_HOp"
     },
@@ -6028,7 +6082,7 @@
       "bitId": "HN",
       "region": "hasbro",
       "priceJpy": null,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/GolemRock_M-85HN"
     },
@@ -6042,7 +6096,7 @@
       "bitId": "FB",
       "region": "hasbro",
       "priceJpy": null,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/SharkGill_5-60FB"
     },
@@ -6057,7 +6111,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 29.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Mail_Knight_3-85BS"
     },
@@ -6072,7 +6126,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 34.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/AFC_6-70H"
     },
@@ -6087,7 +6141,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 34.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/NFC_9-60LO"
     },
@@ -6102,9 +6156,10 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 24.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/The_Mandalorian_3-60F"
+      "source": "https://beyblade.fandom.com/wiki/The_Mandalorian_3-60F",
+      "releaseJp": "2025-04-26"
     },
     {
       "code": "F9589-02",
@@ -6117,9 +6172,10 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 24.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/Moff_Gideon_3-80N"
+      "source": "https://beyblade.fandom.com/wiki/Moff_Gideon_3-80N",
+      "releaseJp": "2025-04-26"
     },
     {
       "code": "G0287",
@@ -6132,9 +6188,10 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 24.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/Iron_Man_4-80B"
+      "source": "https://beyblade.fandom.com/wiki/Iron_Man_4-80B",
+      "releaseJp": "2025-04-26"
     },
     {
       "code": "G0288-01",
@@ -6147,9 +6204,10 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 24.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/Spider-Man_3-60F"
+      "source": "https://beyblade.fandom.com/wiki/Spider-Man_3-60F",
+      "releaseJp": "2025-04-26"
     },
     {
       "code": "G0288-02",
@@ -6162,9 +6220,10 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 24.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/Venom_3-80N"
+      "source": "https://beyblade.fandom.com/wiki/Venom_3-80N",
+      "releaseJp": "2025-04-26"
     },
     {
       "code": "G0290-01",
@@ -6177,9 +6236,10 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 24.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/Luke_Skywalker_4-80B"
+      "source": "https://beyblade.fandom.com/wiki/Luke_Skywalker_4-80B",
+      "releaseJp": "2025-04-26"
     },
     {
       "code": "G0290-02",
@@ -6192,9 +6252,10 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 24.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/Darth_Vader_4-60P"
+      "source": "https://beyblade.fandom.com/wiki/Darth_Vader_4-60P",
+      "releaseJp": "2025-04-26"
     },
     {
       "code": "G0352",
@@ -6207,9 +6268,10 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 24.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/Optimus_Primal_3-60F"
+      "source": "https://beyblade.fandom.com/wiki/Optimus_Primal_3-60F",
+      "releaseJp": "2025-05-17"
     },
     {
       "code": "G0353",
@@ -6222,9 +6284,10 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 24.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/Optimus_Prime_4-60P"
+      "source": "https://beyblade.fandom.com/wiki/Optimus_Prime_4-60P",
+      "releaseJp": "2025-05-17"
     },
     {
       "code": "G1690-01",
@@ -6237,7 +6300,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 24.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Captain_America_4-70GB"
     },
@@ -6252,7 +6315,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 24.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Red_Hulk_1-80R"
     },
@@ -6267,7 +6330,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 29.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Miles_Morales_1-60GN"
     },
@@ -6282,7 +6345,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 29.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Green_Goblin_9-80HT"
     },
@@ -6297,7 +6360,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 29.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Bumblebee_3-60GP"
     },
@@ -6312,7 +6375,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 29.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Shockwave_5-80O"
     },
@@ -6327,7 +6390,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 24.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/General_Grievous_3-80HN"
     },
@@ -6342,7 +6405,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 29.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Chewbacca_4-80LF"
     },
@@ -6357,7 +6420,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 29.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Stormtrooper_5-70B"
     },
@@ -6372,9 +6435,10 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 24.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/Mosasaurus_9-60U"
+      "source": "https://beyblade.fandom.com/wiki/Mosasaurus_9-60U",
+      "releaseJp": "2025-07-19"
     },
     {
       "code": "G1899-01",
@@ -6387,9 +6451,10 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 24.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/Spinosaurus_3-85A"
+      "source": "https://beyblade.fandom.com/wiki/Spinosaurus_3-85A",
+      "releaseJp": "2025-07-19"
     },
     {
       "code": "G1899-02",
@@ -6402,9 +6467,10 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 24.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/Quetzalcoatlus_4-55D"
+      "source": "https://beyblade.fandom.com/wiki/Quetzalcoatlus_4-55D",
+      "releaseJp": "2025-07-19"
     },
     {
       "code": "G3061-01",
@@ -6417,7 +6483,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 29.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Grogu_3-85E"
     },
@@ -6432,7 +6498,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 29.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Snowtrooper_7-60O"
     },
@@ -6447,7 +6513,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 29.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Mister_Fantastic_9-65A"
     },
@@ -6462,7 +6528,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 29.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Doctor_Doom_0-80LO"
     },
@@ -6477,7 +6543,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 29.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Spider-Man_6-60R"
     },
@@ -6492,7 +6558,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 29.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Hulk_3-85N"
     },
@@ -6507,7 +6573,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 29.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Optimus_Prime_7-70L"
     },
@@ -6522,9 +6588,10 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 12.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/Dranzer_Spiral_3-80T"
+      "source": "https://beyblade.fandom.com/wiki/Dranzer_Spiral_3-80T",
+      "releaseJp": "2023-07-15"
     },
     {
       "code": "F9585",
@@ -6536,9 +6603,10 @@
       "bitId": "T",
       "region": "hasbro",
       "priceJpy": null,
-      "verified": false,
+      "verified": true,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/Dranzer_Spiral_3-80T"
+      "source": "https://beyblade.fandom.com/wiki/Dranzer_Spiral_3-80T",
+      "releaseJp": "2023-07-15"
     },
     {
       "code": "G1842",
@@ -6551,9 +6619,10 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 12.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/Dranzer_Spiral_3-80T"
+      "source": "https://beyblade.fandom.com/wiki/Dranzer_Spiral_3-80T",
+      "releaseJp": "2023-07-15"
     },
     {
       "code": "G1843",
@@ -6566,9 +6635,10 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 12.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/Driger_Slash_4-80P"
+      "source": "https://beyblade.fandom.com/wiki/Driger_Slash_4-80P",
+      "releaseJp": "2024-04-27"
     },
     {
       "code": "G2218",
@@ -6581,9 +6651,10 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 12.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
-      "source": "https://beyblade.fandom.com/wiki/Draciel_Shield_7-60D"
+      "source": "https://beyblade.fandom.com/wiki/Draciel_Shield_7-60D",
+      "releaseJp": "2024-12-28"
     },
     {
       "code": "F9588-01",
@@ -6596,7 +6667,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 49.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Dagger_Dran_4-60R"
     },
@@ -6611,7 +6682,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 49.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Tusk_Mammoth_3-60T"
     },
@@ -6627,7 +6698,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 19.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Soar_Phoenix_9-60GF"
     },
@@ -6643,7 +6714,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 19.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Cobalt_Dragoon_2-60C"
     },
@@ -6659,7 +6730,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 24.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/SamuraiSteel_5-70GF"
     },
@@ -6675,7 +6746,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 24.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/SamuraiCalibur_6-70M"
     },
@@ -6691,7 +6762,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 24.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Saber_Samurai_2-70L"
     },
@@ -6705,7 +6776,7 @@
       "bitId": "C",
       "region": "hasbro",
       "priceJpy": null,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Cobalt_Dragoon_2-60C"
     },
@@ -6719,7 +6790,7 @@
       "bitId": "GF",
       "region": "hasbro",
       "priceJpy": null,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Soar_Phoenix_9-60GF"
     },
@@ -6734,7 +6805,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 29.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Bite_Croc_2-60Q"
     },
@@ -6750,7 +6821,7 @@
       "region": "hasbro",
       "priceJpy": null,
       "priceUsd": 24.99,
-      "verified": false,
+      "verified": true,
       "imported": true,
       "source": "https://beyblade.fandom.com/wiki/Meteoroid_Dragoon_3-70J"
     }
