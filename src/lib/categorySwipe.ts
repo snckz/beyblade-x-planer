@@ -31,8 +31,8 @@ const MAX_MS = 1000;
 const VELOCITY_MS = 100;
 /** Nach einem Wisch so lange Klicks auf Karten verwerfen (ms) – der Finger landet beim Loslassen auf einer Karte. */
 const CLICK_GUARD_MS = 400;
-/** Am Rand (keine weitere Kategorie) gibt die Seite nur gebremst nach. */
-const FOLLOW_EDGE = 0.2;
+/** Gummiband am Rand (keine weitere Kategorie): Stärke wie bei iOS (UIScrollView) */
+const RUBBER = 0.55;
 /** Abstand zwischen zwei Seiten beim Blättern (px) */
 const PAGE_GAP = 24;
 /** Zurückfedern bzw. Einrasten (ms): Rest der Strecke mit dem Tempo des Fingers, in diesen Grenzen */
@@ -40,6 +40,8 @@ const SPRING_MS = 220;
 const SETTLE_MIN_MS = 160;
 const SETTLE_MAX_MS = 320;
 const EASE = 'cubic-bezier(.2, .8, .2, 1)';
+/** Feder fürs Einrasten: Eigenfrequenz (1/s) – kritisch gedämpft, also ohne Überschwingen, wie das Blättern in iOS */
+const SPRING_OMEGA = 19;
 
 /** Ausnahmen: Felder und eigene waagrechte Leisten (z. B. Ratchet-Höhen) wechseln nie die Kategorie. */
 const IGNORE = 'input, textarea, select, .height-filter, [data-no-swipe]';
@@ -56,10 +58,36 @@ export function swipeStep(dx: number, dy: number, ms: number, velocity?: number)
   return dx < 0 ? 1 : -1;
 }
 
-/** Mitgehen der Seite: 1:1 mit dem Finger, am Rand (keine weitere Kategorie) deutlich gebremst. */
-export function followOffset(dx: number, canMove: boolean): number {
-  return canMove ? Math.round(dx) : Math.round(dx * FOLLOW_EDGE);
+/**
+ * Mitgehen der Seite: 1:1 mit dem Finger. Am Rand (keine weitere Kategorie) wie ein Gummiband: anfangs spürbar,
+ * dann immer zäher – nie weiter als ein Bruchteil der Breite (Formel wie UIScrollView).
+ */
+export function followOffset(dx: number, canMove: boolean, width = 375): number {
+  if (canMove) return Math.round(dx);
+  const d = Math.max(1, width);
+  return Math.round(Math.sign(dx) * (1 - 1 / ((Math.abs(dx) * RUBBER) / d + 1)) * d);
 }
+
+/**
+ * Federkurve fürs Einrasten als CSS `linear()`: startet mit dem Tempo des Fingers (`v0`, Strecke je Sekunde relativ
+ * zur ganzen Strecke) und läuft kritisch gedämpft aus. Rückgabe: Kurve und Dauer (ms) – oder `null`, wenn der Browser
+ * `linear()` nicht kennt (dann die feste Kurve).
+ */
+export function springEasing(v0: number, omega = SPRING_OMEGA): { easing: string; ms: number } | null {
+  if (!supportsLinear()) return null;
+  // x(t) = 1 − e^(−ωt)·(1 + (ω − v0)·t): x(0) = 0, x'(0) = v0, Ziel 1
+  const v = Math.max(0, Math.min(v0, 3 * omega));
+  const x = (t: number) => Math.min(1, 1 - Math.exp(-omega * t) * (1 + (omega - v) * t));
+  let end = 0.05;
+  while (end < 1.2 && 1 - x(end) > 0.003) end += 0.01;
+  const n = 24;
+  const points = Array.from({ length: n + 1 }, (_, i) => (i === n ? 1 : x((end * i) / n)).toFixed(4));
+  return { easing: `linear(${points.join(', ')})`, ms: Math.round(end * 1000) };
+}
+
+let linearSupport: boolean | undefined;
+const supportsLinear = () =>
+  (linearSupport ??= typeof CSS !== 'undefined' && typeof CSS.supports === 'function' && CSS.supports('transition-timing-function', 'linear(0, 1)'));
 
 /**
  * Die Seiten des Blätterns: eine Spur, auf der die aktuelle Kategorie und ihre Nachbarn (links = vorherige,
@@ -133,7 +161,7 @@ export function attachCategorySwipe(el: HTMLElement, onStep: (step: 1 | -1) => v
     if (pages) pages.track.style.transform = `translate3d(${offset}px, 0, 0)`;
   };
 
-  /** Loslassen: zur neuen Seite einrasten (`step`) oder zurückfedern (0). */
+  /** Loslassen: zur neuen Seite einrasten (`step`) oder zurückfedern (0). `velocity`: Tempo zuletzt (px/ms, rechts +). */
   const settle = (step: 1 | -1 | 0, offset: number, velocity: number) => {
     const p = pages;
     pages = null;
@@ -151,8 +179,11 @@ export function attachCategorySwipe(el: HTMLElement, onStep: (step: 1 | -1) => v
       all.forEach(clear);
       return commit();
     }
-    const ms = step ? Math.min(SETTLE_MAX_MS, Math.max(SETTLE_MIN_MS, distance / Math.max(velocity, 0.8))) : SPRING_MS;
-    p.track.style.transition = `transform ${Math.round(ms)}ms ${EASE}`;
+    // Tempo des Fingers in Richtung Ziel, bezogen auf die Reststrecke – die Feder übernimmt es nahtlos
+    const toward = (velocity * Math.sign(target - offset) * 1000) / distance;
+    const spring = springEasing(toward);
+    const ms = spring?.ms ?? (step ? Math.min(SETTLE_MAX_MS, Math.max(SETTLE_MIN_MS, distance / Math.max(Math.abs(velocity), 0.8))) : SPRING_MS);
+    p.track.style.transition = `transform ${ms}ms ${spring?.easing ?? EASE}`;
     p.track.style.transform = `translate3d(${target}px, 0, 0)`;
     settling = {
       timer: window.setTimeout(finishSettling, ms + 20),
@@ -201,7 +232,7 @@ export function attachCategorySwipe(el: HTMLElement, onStep: (step: 1 | -1) => v
     if (e.cancelable) e.preventDefault();
     g.samples.push([e.timeStamp, t.clientX]);
     if (g.samples.length > 12) g.samples.shift();
-    lastOffset = followOffset(dx, canStep(dx < 0 ? 1 : -1));
+    lastOffset = followOffset(dx, canStep(dx < 0 ? 1 : -1), pages ? pages.width : undefined);
     move(lastOffset);
   };
 
@@ -224,7 +255,7 @@ export function attachCategorySwipe(el: HTMLElement, onStep: (step: 1 | -1) => v
     // Auch ein zu kurzer waagrechter Wisch soll keine Karte auswählen
     guardUntil = e.timeStamp + CLICK_GUARD_MS;
     const ok = step && canStep(step) ? step : 0;
-    settle(ok, lastOffset, Math.abs(signed ?? 0));
+    settle(ok, lastOffset, signed ?? 0);
   };
 
   const onCancel = () => {
