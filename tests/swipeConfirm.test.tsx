@@ -53,12 +53,14 @@ function openPicker(kind: 'blade' | 'bit' | 'ratchet', value = '') {
 }
 
 describe('Wischgeste: Entscheidung', () => {
-  it('wechselt nur bei klar waagrechtem Wisch', () => {
+  it('wechselt bei waagrechtem Wisch – auch mit leichtem Daumenbogen', () => {
     expect(swipeStep(-80, 5, 200)).toBe(1); // nach links → nächste
     expect(swipeStep(80, -5, 200)).toBe(-1); // nach rechts → vorherige
-    expect(swipeStep(-40, 0, 60)).toBe(1); // kurzer, schneller Wisch
-    expect(swipeStep(-40, 0, 400)).toBe(0); // kurz und langsam
-    expect(swipeStep(-80, 60, 200)).toBe(0); // zu schräg
+    expect(swipeStep(-90, 50, 250)).toBe(1); // Bogen: waagrecht überwiegt
+    expect(swipeStep(-42, 0, 400)).toBe(1); // ab 40 px auch langsam
+    expect(swipeStep(-28, 0, 60)).toBe(1); // kurzer, schneller Wisch
+    expect(swipeStep(-28, 0, 400)).toBe(0); // kurz und langsam
+    expect(swipeStep(-60, 70, 200)).toBe(0); // eher senkrecht
     expect(swipeStep(-80, 0, 1200)).toBe(0); // zu langsam (Herumschieben)
     expect(swipeStep(0, 200, 200)).toBe(0); // senkrecht
   });
@@ -90,6 +92,27 @@ describe('Kategorie per Wischen (Blade/Bit)', () => {
     swipe(body, -30, -260);
     swipe(body, 20, 300);
     expect(active()).toEqual(['Alle']);
+  });
+
+  it('blockiert das Mitscrollen nur, wenn die Geste waagrecht ist', () => {
+    const { body } = openPicker('bit');
+    const touchMove = () => {
+      const e = new Event('touchmove', { bubbles: true, cancelable: true });
+      body.dispatchEvent(e);
+      return e.defaultPrevented;
+    };
+    t += 1000;
+    pointer(body, 'pointerdown', 200, 300);
+    t += 16;
+    pointer(body, 'pointermove', 188, 304); // waagrecht entschieden
+    expect(touchMove()).toBe(true);
+    pointer(body, 'pointerup', 120, 310);
+    t += 1000;
+    pointer(body, 'pointerdown', 200, 300);
+    t += 16;
+    pointer(body, 'pointermove', 203, 312); // senkrecht → Browser scrollt
+    expect(touchMove()).toBe(false);
+    pointer(body, 'pointerup', 205, 420);
   });
 
   it('springt beim Wechsel an den Listenanfang', () => {
