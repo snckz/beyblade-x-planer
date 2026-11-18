@@ -1,4 +1,5 @@
 {
+  "status": "ok",
   "ok": true,
   "listTitle": "List of Beyblade X products (Hasbro)",
   "codes": 139,
@@ -149,19 +150,17 @@
       "text": "  G1688\n| Tackle Goat and Sword Dran Dual Pack \n| File:Flag of United States.png  July 2025\n| File:Flag of Canada.png  $22.99<br> File:Flag of United States.png"
     }
   ],
-  "fetched": 108,
+  "fetched": 7,
   "added": {
     "blades": [],
     "ratchets": [],
     "bits": [],
     "products": []
   },
-  "names": [
-    "Hells Chain → Chain Incendio",
-    "Weiss Tiger → Pearl Tiger",
-    "Tricera Press → Brace Triceratops",
-    "Meteor Dragoon → Meteoroid Dragoon"
-  ],
+  "existing": 164,
+  "updated": [],
+  "conflicts": [],
+  "names": [],
   "skipped": [],
   "unresolved": [
     {
@@ -249,5 +248,6 @@
       ]
     }
   ],
-  "kept": []
+  "missingFromSource": [],
+  "summary": "0 neue Produkte, 0 neue Blades, 0 neue Ratchets, 0 neue Bits, 164 vorhandene wiedererkannt, 14 Nummern ohne erkennbaren Kreisel"
 }
