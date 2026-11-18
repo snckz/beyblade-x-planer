@@ -4,11 +4,12 @@
 // - Bit: Typ steht auf der Bit-Seite („… is an Attack Type Bit“) → Typ übernehmen, uncertain entfällt.
 // - Produkt: Blade geprüft und Produkt laut Wiki erschienen → verified: true.
 // Bei Netzwerkfehlern bleibt alles, wie es ist. Läuft im Neuheiten-Radar.
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { API } from './update-data.mjs';
 import { parseBeyPage } from './import-catalog.mjs';
 import { validateDb } from './validate-data.mjs';
+import { DataSafetyError, writeDbSafely, writeFileAtomic } from './data-safety.mjs';
 
 const MAX_PAGES = 260;
 const MONTHS = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
@@ -177,8 +178,8 @@ export async function run({ fetchFn = fetch, dataDir = new URL('../public/data/'
     const res = await verifyCatalog(db, (t) => wikitextOf(fetchFn, t), now);
     const errors = validateDb(res.db);
     if (errors.length) throw new Error('ungültige Daten: ' + errors.slice(0, 3).join('; '));
-    const changed = JSON.stringify(res.db) !== JSON.stringify(db);
-    if (changed) writeFileSync(dbPath, JSON.stringify(res.db, null, 2) + '\n');
+    // Übergangsprüfung + atomares Schreiben (wirft DataSafetyError bei verdächtigen Änderungen)
+    const changed = writeDbSafely(dataDir, db, res.db);
     const r = res.report;
     const reportPath = new URL('verify-report.json', dataDir);
     const next = JSON.stringify({ ...r, fetched: res.fetched }, null, 2) + '\n';
@@ -188,14 +189,20 @@ export async function run({ fetchFn = fetch, dataDir = new URL('../public/data/'
     } catch {
       /* neu */
     }
-    if (prev !== next) writeFileSync(reportPath, next);
+    if (prev !== next) writeFileAtomic(reportPath, next);
     console.log(`Prüfung: ${r.blades.length} Blades, ${r.bits.length} Bits, ${r.products} Produkte bestätigt; ${r.mismatches.length} Abweichungen, ${r.unreleased.length} noch nicht erschienen, ${r.notFound.length} ohne Wiki-Seite.`);
     return { changed, report: r };
   } catch (err) {
+    if (err instanceof DataSafetyError) throw err; // verdächtig: laut scheitern
     console.warn(`⚠️ Prüfung abgebrochen, db.json bleibt unverändert: ${err.message}`);
     return { changed: false, report: null };
   }
 }
 
 const isMain = !!process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
-if (isMain) void run();
+if (isMain) {
+  run().catch((err) => {
+    console.error(err.message ?? err);
+    process.exit(1);
+  });
+}

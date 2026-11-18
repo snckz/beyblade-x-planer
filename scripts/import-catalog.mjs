@@ -3,10 +3,11 @@
 // holt zu jedem neuen Kreisel Typ, Drehrichtung und Bit-Namen von seiner Wiki-Seite und ergänzt db.json.
 // Alles Importierte ist „ungeprüft“ (verified: false, imported: true). Von Hand gepflegte Einträge bleiben unangetastet.
 // Läuft im Neuheiten-Radar-Workflow. Bei Netzwerkfehlern bleibt db.json unverändert.
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { API, wikiUrl } from './update-data.mjs';
-import { validateDb } from './validate-data.mjs';
+import { validateDb, EMPTY_RETIRED, normalizeRetired } from './validate-data.mjs';
+import { DataSafetyError, loadRetired, writeDbSafely, writeFileAtomic } from './data-safety.mjs';
 
 export const LIST_TITLES = ['List of Beyblade X products (Takara Tomy)', 'List of Beyblade X Products (Takara Tomy)'];
 const CODE_RE = /\b(BX|UX|CX)-(\d{2,3})\b/g;
@@ -125,14 +126,20 @@ async function api(fetchFn, params) {
   return res.json();
 }
 
+/** Wikitext einer Seite; null = Seite gibt es nicht. Abruf- und Wiki-Fehler werfen (gelten nie als „fehlt“). */
 export async function wikitextOf(fetchFn, title) {
   const d = await api(fetchFn, { action: 'parse', page: title, prop: 'wikitext', redirects: '1' });
+  if (d?.error && d.error.code !== 'missingtitle') throw new Error(`Wiki-Fehler ${d.error.code} für „${title}“`);
   return d?.parse?.wikitext ?? null;
 }
 
-/** Ergänzt db um die Einträge der Liste. Reine Funktion (bis auf fetchPage) – gut testbar. */
-export async function mergeCatalog(db, entries, fetchPage) {
+/**
+ * Ergänzt db um die Einträge der Liste. Reine Funktion (bis auf fetchPage) – gut testbar.
+ * Nur Hinzufügen, nie Löschen. In retired.json Stillgelegtes wird nicht wieder angelegt (`retired`).
+ */
+export async function mergeCatalog(db, entries, fetchPage, { retired = EMPTY_RETIRED } = {}) {
   const out = structuredClone(db);
+  const stillgelegt = normalizeRetired(retired);
   const report = { added: { blades: [], ratchets: [], bits: [], products: [] }, skipped: [] };
   const bladeByNorm = new Map();
   for (const b of out.blades) {
@@ -145,7 +152,8 @@ export async function mergeCatalog(db, entries, fetchPage) {
   const baseCodes = new Set(out.products.map((p) => /^([A-Z]{2,3}-\d{2,3})/.exec(p.code)?.[1]).filter(Boolean));
   const combos = new Set(out.products.map((p) => `${p.bladeId}|${p.ratchetId ?? ''}|${p.bitId}`));
   const lookAt = (b) => {
-    const alias = BLADE_ALIASES[b.bladeId];
+    const renamed = stillgelegt.blades[b.bladeId];
+    const alias = typeof renamed === 'string' ? renamed : BLADE_ALIASES[b.bladeId];
     return bladeByNorm.get(norm(alias ?? b.bladeId));
   };
   let fetched = 0;
@@ -174,7 +182,12 @@ export async function mergeCatalog(db, entries, fetchPage) {
     for (const bey of entry.beys) {
       n++;
       const code = multi ? `${entry.code}-${String(n).padStart(2, '0')}` : entry.code;
+      if (code in stillgelegt.products) continue; // bewusst entfernt bzw. umbenannt
       let blade = lookAt(bey);
+      if (!blade && stillgelegt.blades[bey.bladeId] === null) {
+        report.skipped.push({ code, title: bey.title, reason: 'Blade stillgelegt (retired.json)' });
+        continue;
+      }
       let info = null;
       const needsInfo = !blade || !bitIds.has(bey.bit);
       if (needsInfo) {
@@ -317,23 +330,26 @@ export async function run({ fetchFn = fetch, dataDir = new URL('../public/data/'
     report.codes = entries.length;
     report.listLength = wikitext.length;
     if (!entries.length) report.sample = wikitext.slice(0, 1500);
-    const res = await mergeCatalog(db, entries, (title) => wikitextOf(fetchFn, title));
+    const res = await mergeCatalog(db, entries, (title) => wikitextOf(fetchFn, title), { retired: loadRetired(dataDir) });
     const errors = validateDb(res.db);
     if (errors.length) throw new Error('Import ergäbe ungültige Daten: ' + errors.slice(0, 5).join('; '));
     Object.assign(report, { ok: true, fetched: res.fetched, ...res.report });
     const changed = Object.values(res.report.added).some((a) => a.length) || JSON.stringify(res.db.products) !== JSON.stringify(db.products);
     if (changed) {
       res.db.updatedAt = now.slice(0, 10);
-      writeFileSync(dbPath, JSON.stringify(res.db, null, 2) + '\n');
+      // Übergangsprüfung + atomares Schreiben (wirft DataSafetyError bei verdächtigen Änderungen)
+      writeDbSafely(dataDir, db, res.db);
     }
     writeReport(dataDir, report);
     const a = res.report.added;
     console.log(`Katalog: ${entries.length} Nummern gelesen, neu: ${a.products.length} Produkte, ${a.blades.length} Blades, ${a.bits.length} Bits, ${a.ratchets.length} Ratchets, ${res.report.prices} Preise, übersprungen: ${res.report.skipped.length}.`);
     return { changed, report };
   } catch (err) {
+    report.ok = false;
     report.error = err.message;
-    console.warn(`⚠️ Katalog-Import abgebrochen, db.json bleibt unverändert: ${err.message}`);
     writeReport(dataDir, report);
+    if (err instanceof DataSafetyError) throw err; // verdächtig: laut scheitern
+    console.warn(`⚠️ Katalog-Import abgebrochen, db.json bleibt unverändert: ${err.message}`);
     return { changed: false, report };
   }
 }
@@ -348,7 +364,7 @@ function writeReport(dataDir, report) {
   } catch {
     /* noch kein Bericht */
   }
-  if (prev !== next) writeFileSync(path, next);
+  if (prev !== next) writeFileAtomic(path, next);
 }
 
 const isMain = !!process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;

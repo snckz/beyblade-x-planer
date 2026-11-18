@@ -5,9 +5,10 @@
 //     („Helm Knight 3-80N“ ↔ Knight Shield 3-80N)
 // Von Hand gepflegte hasbroName-Werte werden nie überschrieben. Automatisch gefundene tragen
 // hasbroNameAuto: true und werden bei jedem Lauf neu berechnet (Fehlzuordnungen korrigieren sich so).
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { API } from './update-data.mjs';
+import { DataSafetyError, writeDbSafely } from './data-safety.mjs';
 
 export const LIST_TITLES = ['List of Beyblade X products (Hasbro)', 'List of Beyblade X Products (Hasbro)'];
 
@@ -80,6 +81,7 @@ export function matchHasbro(db, candidates) {
 export async function run({ fetchFn = fetch, dataDir = new URL('../public/data/', import.meta.url) } = {}) {
   const path = new URL('db.json', dataDir);
   const db = JSON.parse(readFileSync(path, 'utf8'));
+  const before = structuredClone(db); // Stand beim Lesen (db wird unten direkt geändert)
   try {
     let wikitext = null;
     for (const t of LIST_TITLES) {
@@ -105,14 +107,21 @@ export async function run({ fetchFn = fetch, dataDir = new URL('../public/data/'
       }
       changed++;
     }
-    if (changed) writeFileSync(path, JSON.stringify(db, null, 2) + '\n');
+    // Übergangsprüfung + atomares Schreiben (wirft DataSafetyError bei verdächtigen Änderungen)
+    if (changed) writeDbSafely(dataDir, before, db);
     console.log(`Hasbro-Namen: ${changed} geändert (${Object.keys(names).length} erkannt).`);
     return { changed: changed > 0, names };
   } catch (err) {
+    if (err instanceof DataSafetyError) throw err; // verdächtig: laut scheitern
     console.warn(`⚠️ Hasbro-Namen nicht aktualisiert: ${err.message}`);
     return { changed: false, names: {} };
   }
 }
 
 const isMain = !!process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
-if (isMain) void run();
+if (isMain) {
+  run().catch((err) => {
+    console.error(err.message ?? err);
+    process.exit(1);
+  });
+}

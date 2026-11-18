@@ -1,9 +1,10 @@
 // Echte Blade-Gewichte aus dem Beyblade Wiki („Blade - SharkScale“ … „weighs 35.6 grams“ oder Infobox „| weight = 35.6 g“).
 // Die Kombo-Analyse nutzt sie: schwere Blades halten länger durch und stehen stabiler.
 // Pro Blade nur ein Versuch: null = kein Gewicht gefunden. Netzwerkfehler → nächster Lauf.
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { API } from './update-data.mjs';
+import { writeDbSafely } from './data-safety.mjs';
 
 const MAX_PAGES = 120;
 
@@ -55,11 +56,16 @@ export async function run({ fetchFn = fetch, dataDir = new URL('../public/data/'
   const path = new URL('db.json', dataDir);
   const db = JSON.parse(readFileSync(path, 'utf8'));
   const res = await updateWeights(db, (t) => wikitextOf(fetchFn, t), { retryMissing: now.getUTCDay() === 0 });
-  const changed = JSON.stringify(res.db) !== JSON.stringify(db);
-  if (changed) writeFileSync(path, JSON.stringify(res.db, null, 2) + '\n');
+  // Übergangsprüfung + atomares Schreiben (wirft DataSafetyError bei verdächtigen Änderungen)
+  const changed = writeDbSafely(dataDir, db, res.db);
   console.log(`Gewichte: ${res.found.length} gefunden (${res.fetched} Seiten).`);
   return { changed, found: res.found };
 }
 
 const isMain = !!process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
-if (isMain) void run();
+if (isMain) {
+  run().catch((err) => {
+    console.error(err.message ?? err);
+    process.exit(1);
+  });
+}

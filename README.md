@@ -31,6 +31,8 @@ npm run check      # Typecheck, Lint, Datenprüfung, Tests, Build
 - `public/data/images.json` – Bild-Links aus dem Beyblade Wiki (`node scripts/update-images.mjs`, läuft im Radar-Workflow mit).
 - `public/data/events.json` – Releases und Turniere.
 - `npm run validate-data` prüft Verweise, IDs und Formate.
+- **Datenverlust-Schutz:** Alle Skripte, die `db.json` schreiben, gehen über `scripts/data-safety.mjs`. Ein Update, das ein Blade, Ratchet, Bit oder Produkt entfernt oder einer Produktnummer andere Teile gibt, wird abgelehnt (Skript und Workflow schlagen fehl, nichts wird committet). Abruffehler im Wiki gelten nie als „Seite fehlt“. Im Workflow prüft zusätzlich `validate-data.mjs --previous` gegen den letzten Stand auf `main`.
+- `public/data/retired.json` – gewollte Löschungen (`"alteId": null`), Umbenennungen (`"alteId": "neueId"`) und Korrekturen von Produktnummern (`reassigned`). Nur was hier steht, darf verschwinden oder sich ändern; Importe legen Stillgelegtes nicht wieder an.
 
 ## Veröffentlichung (GitHub Pages)
 

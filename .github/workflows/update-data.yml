@@ -17,6 +17,8 @@ on:
       - 'scripts/update-hasbro.mjs'
       - 'scripts/import-hasbro.mjs'
       - 'scripts/seed-db.mjs'
+      - 'scripts/data-safety.mjs'
+      - 'scripts/validate-data.mjs'
 
 permissions:
   contents: write
@@ -53,8 +55,13 @@ jobs:
       - name: Wiki-Bilder verknüpfen (neue Blades; sonntags alle neu prüfen)
         run: |
           if [ "$(date -u +%u)" = "7" ]; then node scripts/update-images.mjs --all; else node scripts/update-images.mjs; fi
-      - name: Daten prüfen
-        run: node scripts/validate-data.mjs
+      # Letzte Schranke vor dem Commit: gültig und kein Datenverlust gegenüber dem letzten Stand auf main
+      # (kein Blade/Ratchet/Bit/Produkt verschwindet, keine Produktnummer bekommt andere Teile – außer laut retired.json).
+      # Schlägt ein Schritt fehl, wird nichts committet: main bleibt beim letzten gültigen Stand.
+      - name: Daten prüfen (inkl. Datenverlust-Schutz)
+        run: |
+          git show HEAD:public/data/db.json > "$RUNNER_TEMP/db-vorher.json"
+          node scripts/validate-data.mjs --previous "$RUNNER_TEMP/db-vorher.json"
       - name: Änderungen committen
         id: commit
         run: |

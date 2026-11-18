@@ -115,17 +115,101 @@ export function validateImages(index) {
   return errors;
 }
 
+// ---- Übergangsprüfung: kein unbeabsichtigter Datenverlust bei automatischen Updates -----------------------------------
+// Gespeicherte Kombos (Blade-/Ratchet-/Bit-IDs), Sammlungen und Wunschlisten (Produktnummern) verweisen auf db.json.
+// Verschwindet eine ID oder bekommt eine Produktnummer andere Teile, gehen Nutzerdaten still kaputt. Deshalb gilt:
+// Bestehendes bleibt – Löschen, Umbenennen und Umbelegen nur ausdrücklich über public/data/retired.json.
+
+const PART_KINDS = [
+  ['blades', 'id', 'Blade'],
+  ['ratchets', 'id', 'Ratchet'],
+  ['bits', 'id', 'Bit'],
+  ['products', 'code', 'Produkt'],
+];
+
+/** Leere, gültige Liste stillgelegter Einträge (Form von retired.json). */
+export const EMPTY_RETIRED = Object.freeze({ blades: {}, ratchets: {}, bits: {}, products: {}, reassigned: {} });
+
+/** retired.json in die volle Form bringen (fehlende Abschnitte = leer). */
+export function normalizeRetired(raw) {
+  const r = raw && typeof raw === 'object' ? raw : {};
+  const obj = (v) => (v && typeof v === 'object' && !Array.isArray(v) ? v : {});
+  return { blades: obj(r.blades), ratchets: obj(r.ratchets), bits: obj(r.bits), products: obj(r.products), reassigned: obj(r.reassigned) };
+}
+
+/**
+ * retired.json prüfen:
+ * - `blades|ratchets|bits|products`: { alteId: neueId | null } – null = bewusst entfernt, sonst umbenannt nach neueId.
+ * - `reassigned`: { produktnummer: "Grund" } – Produktnummer darf ausnahmsweise andere Teile bekommen (Korrektur).
+ * Stillgelegte IDs dürfen nicht mehr in db.json stehen; Umleitungen müssen auf vorhandene Einträge zeigen.
+ */
+export function validateRetired(retired, db) {
+  const errors = [];
+  const r = normalizeRetired(retired);
+  for (const [kind, key, label] of PART_KINDS) {
+    const ids = new Set((db[kind] ?? []).map((x) => x[key]));
+    for (const [old, target] of Object.entries(r[kind])) {
+      if (target !== null && typeof target !== 'string') errors.push(`retired.json ${label} ${old}: Ziel muss eine ID oder null sein`);
+      if (ids.has(old)) errors.push(`retired.json: ${label} ${old} ist stillgelegt, steht aber noch in db.json`);
+      if (typeof target === 'string' && !ids.has(target)) errors.push(`retired.json: ${label} ${old} → ${target}, aber ${target} gibt es nicht`);
+    }
+  }
+  for (const [code, why] of Object.entries(r.reassigned)) {
+    if (typeof why !== 'string' || !why.trim()) errors.push(`retired.json reassigned ${code}: Grund fehlt`);
+  }
+  return errors;
+}
+
+/**
+ * Vergleicht den bisherigen mit dem neuen Datenstand. Gibt Fehler zurück, wenn
+ * - ein Blade, Ratchet, Bit oder Produkt verschwindet, ohne in retired.json zu stehen,
+ * - eine bestehende Produktnummer andere Teile (Blade/Ratchet/Bit) bekommt, ohne in `reassigned` zu stehen.
+ * Neue Einträge und geänderte Zusatzangaben (Namen, Preise, Prüfstatus …) sind erlaubt.
+ */
+export function validateTransition(prev, next, retired = EMPTY_RETIRED) {
+  const errors = [];
+  const r = normalizeRetired(retired);
+  for (const [kind, key, label] of PART_KINDS) {
+    const nextIds = new Set((next[kind] ?? []).map((x) => x[key]));
+    const missing = (prev[kind] ?? []).map((x) => x[key]).filter((id) => !nextIds.has(id) && !(id in r[kind]));
+    if (missing.length) {
+      errors.push(`${missing.length} ${label}${missing.length === 1 ? '' : 'e'} würde${missing.length === 1 ? '' : 'n'} verschwinden: ${missing.slice(0, 12).join(', ')}${missing.length > 12 ? ' …' : ''}`);
+    }
+  }
+  const nextProducts = new Map((next.products ?? []).map((p) => [p.code, p]));
+  const parts = (p) => `${p.bladeId ?? '–'} | ${p.ratchetId ?? '–'} | ${p.bitId ?? '–'}`;
+  for (const old of prev.products ?? []) {
+    const now = nextProducts.get(old.code);
+    if (!now || old.code in r.reassigned) continue;
+    if (parts(now) !== parts(old)) errors.push(`Produkt ${old.code} bekäme andere Teile: ${parts(old)} → ${parts(now)}`);
+  }
+  return errors;
+}
+
 const isMain = !!process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
 if (isMain) {
   const read = (f) => JSON.parse(readFileSync(new URL(`../public/data/${f}`, import.meta.url), 'utf8'));
   const db = read('db.json');
+  let retired = EMPTY_RETIRED;
+  try {
+    retired = normalizeRetired(read('retired.json'));
+  } catch {
+    /* keine retired.json: nichts stillgelegt */
+  }
   const errors = [
     ...validateDb(db),
+    ...validateRetired(retired, db),
     ...validateNews(read('news.json')),
     ...validateEvents(read('events.json'), new Set(db.blades.map((b) => b.id))),
     ...validateImages(read('images.json')),
     ...validateMeta(read('meta.json'), db),
   ];
+  // --previous <datei>: zusätzlich gegen den vorigen Stand prüfen (im Workflow: db.json aus dem letzten Commit)
+  const i = process.argv.indexOf('--previous');
+  if (i > 0 && process.argv[i + 1]) {
+    const prev = JSON.parse(readFileSync(process.argv[i + 1], 'utf8'));
+    errors.push(...validateTransition(prev, db, retired).map((e) => `Datenverlust-Schutz: ${e}`));
+  }
   if (errors.length) {
     console.error(`❌ ${errors.length} Fehler:\n- ` + errors.join('\n- '));
     process.exit(1);

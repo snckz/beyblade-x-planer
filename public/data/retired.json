@@ -1,0 +1,8 @@
+{
+  "_hinweis": "Gewollte Änderungen an bestehenden Einträgen. Ohne Eintrag hier lehnt der Datenverlust-Schutz (scripts/data-safety.mjs) jedes Update ab, das ein Blade, Ratchet, Bit oder Produkt entfernt oder einer Produktnummer andere Teile gibt. Form: blades|ratchets|bits|products = { \"alteId\": \"neueId\" (umbenannt) oder null (entfernt) }; reassigned = { \"Produktnummer\": \"Grund der Korrektur\" }. Importe legen hier Stillgelegtes nicht wieder an.",
+  "blades": {},
+  "ratchets": {},
+  "bits": {},
+  "products": {},
+  "reassigned": {}
+}
