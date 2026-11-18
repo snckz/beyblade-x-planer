@@ -137,7 +137,7 @@ export function parseHasbroList(wikitext) {
  * - Was die Quelle diesmal nicht liefert, bleibt erhalten (Bericht: `missingFromSource`).
  * - Gewollt entfernen/umbenennen nur über retired.json (`retired`).
  */
-export async function mergeHasbro(db, entries, fetchPage, { retired = EMPTY_RETIRED } = {}) {
+export async function mergeHasbro(db, entries, fetchPage, { retired = EMPTY_RETIRED, maxPages = MAX_PAGES } = {}) {
   const out = structuredClone(db);
   const stillgelegt = normalizeRetired(retired);
   const report = {
@@ -174,7 +174,7 @@ export async function mergeHasbro(db, entries, fetchPage, { retired = EMPTY_RETI
   const pages = new Map();
   const page = async (title) => {
     if (pages.has(title)) return pages.get(title);
-    if (fetched >= MAX_PAGES) return undefined;
+    if (fetched >= maxPages) return undefined;
     fetched++;
     // Kein .catch: Ein Abruffehler ist kein „Seite fehlt“ – er bricht den ganzen Import ab (Bestand bleibt).
     const r = await fetchPage(title);
@@ -210,11 +210,19 @@ export async function mergeHasbro(db, entries, fetchPage, { retired = EMPTY_RETI
     // Schon bekannte Produkte dieser Artikelnummer (einzeln oder als -01, -02 …)
     const known = out.products.filter((p) => p.region === 'hasbro' && (p.code === entry.code || p.code.startsWith(`${entry.code}-`)));
     if (!entry.beys.length && known.length) {
-      // Packung längst erfasst: Inhalt nicht erneut von der Produktseite holen
-      for (const p of known) confirmExisting(p, entry);
-      continue;
+      // Packung schon erfasst: Inhalt nicht erneut von der Produktseite holen. Stehen die Kreisel im Namen der
+      // Produktseite (ohne Abruf lesbar) und sind es mehr als bekannt, fehlt einer → wie neu auflösen (Lücke nachholen).
+      const direct = [];
+      for (const l of entry.links.filter((x) => /pack|set|booster|collection|bundle/i.test(x)).slice(0, 2)) {
+        for (const b of beysInLinkName(l)) if (!direct.some((x) => x.title === b.title)) direct.push(b);
+      }
+      if (direct.length <= known.length) {
+        for (const p of known) confirmExisting(p, entry);
+        continue;
+      }
     }
     // Dual Packs/Sets: Inhalt steht auf der verlinkten Produktseite
+    let limited = false;
     if (!entry.beys.length) {
       for (const l of entry.links.filter((x) => /pack|set|booster|collection|bundle/i.test(x)).slice(0, 2)) {
         entry.text += ' ' + l;
@@ -228,6 +236,11 @@ export async function mergeHasbro(db, entries, fetchPage, { retired = EMPTY_RETI
         //    Ohne Namen („Xtreme Battle Set“): nur Kreisel aus der Einleitung – weiter unten stehen oft fremde.
         const names = namesInLinkName(l).map(wkey);
         const pg = await page(l);
+        if (pg === undefined) {
+          report.skipped.push({ code: entry.code, title: l, reason: 'Seitenlimit erreicht' });
+          limited = true;
+          continue;
+        }
         const wt = String(pg?.wikitext ?? '');
         // Produktseiten haben einen Abschnitt „==Contents==“ mit genau dem Packungsinhalt – der ist maßgeblich.
         const contents = /\n==\s*Contents\s*==([\s\S]*?)(?=\n==[^=]|$)/i.exec(wt)?.[1];
@@ -249,7 +262,7 @@ export async function mergeHasbro(db, entries, fetchPage, { retired = EMPTY_RETI
         if (!contents && !names.length && entry.beys.length > 4) entry.beys.length = 0; // unklar → lieber nichts als falsch
       }
       if (!entry.beys.length) {
-        report.unresolved.push({ code: entry.code, links: entry.links.slice(0, 5) });
+        if (!limited) report.unresolved.push({ code: entry.code, links: entry.links.slice(0, 5) });
         continue;
       }
     }
@@ -258,7 +271,9 @@ export async function mergeHasbro(db, entries, fetchPage, { retired = EMPTY_RETI
     if (/launcher set/i.test(entry.text)) kind = 'starter';
     const multi = entry.beys.length > 1 || known.some((p) => p.code !== entry.code);
     const claimed = new Set();
-    let nextNo = Math.max(0, ...known.map((p) => Number(/-(\d{2})$/.exec(p.code)?.[1] ?? 0))) + 1;
+    // Stillgelegte Plätze dieser Packung zählen mit: Ihre Nummer wird nie neu vergeben
+    const retiredSlots = Object.keys(stillgelegt.products).filter((c) => c.startsWith(`${entry.code}-`));
+    let nextNo = Math.max(0, ...[...known.map((p) => p.code), ...retiredSlots].map((c) => Number(/-(\d{2})$/.exec(c)?.[1] ?? 0))) + 1;
     /** Bekanntes Produkt dieses Eintrags mit genau diesen Teilen */
     const match = (key) => known.find((p) => !claimed.has(p.code) && partsKey(p.bladeId, p.ratchetId, p.bitId) === key);
 
@@ -306,6 +321,21 @@ export async function mergeHasbro(db, entries, fetchPage, { retired = EMPTY_RETI
           confirmExisting(late, entry);
           continue;
         }
+      }
+      // Einzelprodukt, dessen Nummer schon belegt ist (Kreisel erst jetzt oder gar nicht wiedererkannt):
+      // nie ein zweites Produkt unter derselben Nummer – Bestand behalten, Abweichung melden
+      if (!multi && byCode.has(entry.code)) {
+        const p = byCode.get(entry.code);
+        report.conflicts.push({ code: p.code, db: partsKey(p.bladeId, p.ratchetId, p.bitId), quelle: blade ? partsOf(blade, bey) : `${real.bladeId} (unbekannt)|${bey.ratchet ?? ''}|${bey.bit}` });
+        claimed.add(p.code);
+        confirmExisting(p, entry);
+        continue;
+      }
+      // Packung mit stillgelegten Plätzen: Ein nicht wiedererkannter Kreisel könnte genau der stillgelegte sein –
+      // nicht automatisch wieder anlegen, sondern melden
+      if (multi && retiredSlots.length) {
+        report.skipped.push({ code: entry.code, title: bey.title, reason: 'Packung hat stillgelegte Einträge (retired.json) – bitte prüfen' });
+        continue;
       }
       // Neues Produkt: nächste freie Nummer (bei Einzelprodukten die Artikelnummer selbst)
       let code = multi ? `${entry.code}-${String(nextNo).padStart(2, '0')}` : entry.code;
@@ -396,7 +426,10 @@ export async function run({ fetchFn = fetch, dataDir = new URL('../public/data/'
   const report = { status: 'error', ok: false, listTitle: null, codes: 0 };
   let previousCodes = 0;
   try {
-    previousCodes = Number(JSON.parse(readFileSync(new URL('hasbro-report.json', dataDir), 'utf8')).codes) || 0;
+    // Vergleichswert nur aus erfolgreichen Läufen (ein Fehlerbericht darf die Schranke nicht aufweichen)
+    const prev = JSON.parse(readFileSync(new URL('hasbro-report.json', dataDir), 'utf8'));
+    const usable = prev.status ? prev.status === 'ok' || prev.status === 'partial' : prev.ok === true;
+    previousCodes = usable ? Number(prev.codes) || 0 : Number(prev.baselineCodes) || 0;
   } catch {
     /* noch kein Bericht */
   }
@@ -421,12 +454,12 @@ export async function run({ fetchFn = fetch, dataDir = new URL('../public/data/'
     }
     if (!wikitext) throw new Error('Hasbro-Produktliste im Wiki nicht gefunden');
     const entries = parseHasbroList(wikitext);
-    report.codes = entries.length;
     report.listLength = wikitext.length;
     // Leere oder stark geschrumpfte Liste: Quelle kaputt oder Format geändert – nicht als „nichts Neues“ werten
     if (!entries.length || (previousCodes && entries.length < previousCodes * MIN_LIST_SHARE)) {
       throw new Error(`Hasbro-Liste unvollständig: ${entries.length} Artikelnummern gelesen, zuletzt ${previousCodes}`);
     }
+    report.codes = entries.length;
     // Zum Nachjustieren des Parsers: Ausschnitte der Seite
     report.sample = wikitext.slice(0, 2500);
     report.sampleMid = wikitext.slice(Math.floor(wikitext.length / 2), Math.floor(wikitext.length / 2) + 1500);
@@ -447,6 +480,7 @@ export async function run({ fetchFn = fetch, dataDir = new URL('../public/data/'
     report.status = 'error';
     report.ok = false;
     report.error = err.message;
+    report.baselineCodes = previousCodes; // Vergleichswert für den nächsten Lauf bleibt erhalten
     writeReport(dataDir, report);
     console.error(`❌ Hasbro-Import abgebrochen, db.json bleibt unverändert: ${err.message}`);
     // Verdächtige Änderung: weiterreichen (das Skript scheitert, nichts wird committet)

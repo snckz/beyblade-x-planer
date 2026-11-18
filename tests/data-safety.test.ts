@@ -102,7 +102,7 @@ describe('Importquelle leer, unvollständig oder fehlerhaft', () => {
   });
 
   it('leere oder stark geschrumpfte Liste ist ein Fehler, kein „nichts Neues“', async () => {
-    const d = dataDir({ 'hasbro-report.json': { codes: 139 } });
+    const d = dataDir({ 'hasbro-report.json': { status: 'ok', codes: 139 } });
     const before = d.db();
     const list = `|-\n|${savage.code}\n|[[${savageTitle}]]\n`;
     const fetchFn = async () => json({ parse: { title: 'List', wikitext: list } });
@@ -399,6 +399,57 @@ describe('Phase 2: Hasbro-Namen (Heuristik) verschlechtern nichts', () => {
     expect(res.status).toBe('error');
     expect(res.error).toContain('HTTP 503');
     expect(d.db()).toBe(before);
+  });
+});
+
+describe('Phase 2: Befunde aus dem Review', () => {
+  it('Einzelprodukt mit belegter Nummer und unbekanntem Kreisel: kein zweites Produkt, Abweichung gemeldet', async () => {
+    const res = await mergeHasbro(clone(), parseHasbroList('|-\n|F9580\n|[[Comet Owl 3-60F]]\n'), async (t: string) => ({ title: t, wikitext: beyPage('Stamina', 'Flat') }));
+    expect(res.report.added.products).toEqual([]);
+    expect(res.report.added.blades).toEqual([]);
+    expect(res.report.conflicts[0]).toMatchObject({ code: 'F9580' });
+    expect(res.db.products.filter((p: { code: string }) => p.code === 'F9580')).toHaveLength(1);
+  });
+
+  it('stillgelegter Set-Platz kommt nicht unter neuer Nummer zurück', async () => {
+    const setCode = realDb.products.find((p) => p.region === 'hasbro' && /-02$/.test(p.code))!.code.slice(0, -3);
+    const members = realDb.products.filter((p) => p.code.startsWith(`${setCode}-`));
+    const db = clone();
+    db.products = db.products.filter((p) => p.code !== members[0]!.code);
+    const list = `|-\n|${setCode}\n|Dual Pack ${members.map((p) => `[[${decodeURIComponent(p.source!.split('/wiki/')[1]!).replace(/_/g, ' ')}]]`).join(' ')}\n`;
+    const res = await mergeHasbro(db, parseHasbroList(list), async (t: string) => ({ title: t, wikitext: beyPage('Balance', 'Flat') }), { retired: { products: { [members[0]!.code]: null } } });
+    expect(res.report.added.products).toEqual([]);
+    expect(res.report.skipped[0]?.reason).toContain('stillgelegte');
+  });
+
+  it('Lücke in einer bekannten Packung wird nachgeholt, wenn die Kreisel im Produktnamen stehen (ohne Abruf)', async () => {
+    const db = clone();
+    const known = db.products.find((p) => p.code === 'F9580')!;
+    db.products.push({ ...known, code: 'G8888-01', name: 'Set Sword Dran 3-60F' });
+    const list = '|-\n|G8888\n|[[Sword Dran 3-60F and Helm Knight 3-80N Dual Pack]]\n';
+    const res = await mergeHasbro(db, parseHasbroList(list), async () => {
+      throw new Error('kein Abruf erwartet');
+    });
+    expect(res.report.added.products).toEqual(['G8888-02']);
+    expect(res.db.products.find((p: { code: string }) => p.code === 'G8888-02').bladeId).toBe('KnightShield');
+  });
+
+  it('Seitenlimit bei einer Produktseite zählt als „nicht übernommen“ (partial), nicht als ok', async () => {
+    const entries = parseHasbroList('|-\n|G8889\n|[[Xtreme Battle Set]]\n');
+    const res = await mergeHasbro(clone(), entries, async () => null, { maxPages: 0 });
+    expect(res.report.skipped[0]).toMatchObject({ code: 'G8889', reason: 'Seitenlimit erreicht' });
+    expect(res.report.unresolved).toEqual([]);
+  });
+
+  it('Fehlerbericht weicht die Schranke nicht auf: Vergleichswert bleibt für den nächsten Lauf', async () => {
+    const d = dataDir({ 'hasbro-report.json': { status: 'ok', codes: 139 } });
+    const one = `|-\n|${savage.code}\n|[[${savageTitle}]]\n`;
+    const fetchFn = async () => json({ parse: { title: 'List', wikitext: one } });
+    expect((await runHasbro({ fetchFn: fetchFn as typeof fetch, dataDir: d.url })).status).toBe('error');
+    const report = JSON.parse(readFileSync(join(d.dir, 'hasbro-report.json'), 'utf8'));
+    expect(report.baselineCodes).toBe(139);
+    // zweiter Lauf mit derselben geschrumpften Liste: weiterhin Fehler
+    expect((await runHasbro({ fetchFn: fetchFn as typeof fetch, dataDir: d.url })).status).toBe('error');
   });
 });
 
