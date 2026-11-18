@@ -853,6 +853,23 @@ input[type='text'], input[type='search'], select { border-radius: 16px; backgrou
 
 /* Einkaufsmodus */
 .shop-body { max-width: 640px; width: 100%; margin: 0 auto; }
+/* Kauf-Check als Navigationsstapel: aktuelle Ebene über der vorigen (die nur beim Zurückwischen sichtbar wird) */
+.live.shop { overflow-x: hidden; touch-action: pan-y; }
+.shop-stack { display: grid; grid-template: 1fr / 1fr; flex: 1 0 auto; }
+.shop-stack > .kc-page { grid-area: 1 / 1; min-width: 0; }
+.kc-under { visibility: hidden; pointer-events: none; opacity: calc(1 - var(--edge-dim, 1) * .55); }
+.kc-under.is-peek { visibility: visible; }
+.shop-stack:has(.kc-under.is-peek) > .kc-page:not(.kc-under) {
+  position: relative; z-index: 1; background: #07080d;
+  box-shadow: -14px 0 28px rgba(0, 0, 0, calc(.5 * var(--edge-shadow, 1)));
+}
+.kc-in { animation: kc-push .34s cubic-bezier(.2, .8, .2, 1) backwards; }
+@keyframes kc-push { from { transform: translate3d(34%, 0, 0); opacity: 0; } to { transform: none; opacity: 1; } }
+.nav-back { display: inline-flex; align-items: center; gap: 2px; padding-left: 8px; }
+.nav-back svg { width: 18px; height: 18px; margin-left: -2px; }
+.barcode-note .mono { word-break: break-all; }
+.shop .scan-cam { margin: 0; }
+.photo-start .btn svg { width: 18px; height: 18px; vertical-align: -3px; margin-right: 4px; }
 .shop-head { display: grid; gap: 6px; }
 .shop-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
 .shop-item { display: grid; gap: 10px; border-left: 4px solid var(--card-line); }
@@ -2414,7 +2431,7 @@ html, .live { background-color: var(--night); }
 .sheet.is-dragging { will-change: transform; }
 .sheet.is-settling { transition: transform .26s var(--ease-out); } /* passt zu SETTLE_MS in lib/sheetDrag.ts */
 @media (prefers-reduced-motion: reduce) {
-  .sheet, .sheet-backdrop, .live, .sheet-backdrop.is-closing, .sheet-backdrop.is-closing .sheet, .live.is-closing { animation: none; }
+  .sheet, .sheet-backdrop, .live, .sheet-backdrop.is-closing, .sheet-backdrop.is-closing .sheet, .live.is-closing, .kc-in { animation: none; }
   .sheet.is-settling { transition: none; }
 }
 /* Der Fenstertitel sagt schon „Steckbrief“ – die Tabellen-Beschriftung bleibt nur für Screenreader */

@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from 'preact/hooks';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'preact/hooks';
 import type { Database, MetaFeed, Product } from '../lib/types';
 import type { ShopPrice, UserState } from '../lib/storage';
 import { findByCode, findByName, recognizePhoto } from '../lib/photo';
@@ -14,7 +14,9 @@ import { nb } from '../lib/analysis';
 import { useApp } from '../lib/context';
 import { useModal } from '../lib/useModal';
 import { BeyImage } from './BeyImage';
-import { Camera, Heart } from 'lucide-preact';
+import { Camera, ChevronLeft, Heart, ScanBarcode } from 'lucide-preact';
+import { useBarcodeCamera } from '../lib/barcodeCamera';
+import { attachEdgeBack, slideBack } from '../lib/edgeBack';
 
 interface Props {
   db: Database;
@@ -26,72 +28,132 @@ interface Props {
   onClose: () => void;
 }
 
-type Phase =
+/** Eine Ebene des Kauf-Checks. Wie ein iOS-Navigationsstapel: „Zurück“ geht genau eine Ebene zurück. */
+type Level =
   | { k: 'idle' }
+  | { k: 'live'; ready: boolean }
   | { k: 'working'; step: string; p?: number }
-  | { k: 'pick'; list: Product[]; barcode: string | null }
+  | { k: 'pick'; list: Product[]; barcode: string | null; learn: boolean; sure: boolean }
+  | { k: 'none'; barcode: string | null; learn: boolean }
   | { k: 'result'; product: Product }
-  | { k: 'none'; text: string; barcode: string | null }
-  | { k: 'error' };
+  | { k: 'error'; why?: 'nocam' | 'noreader' };
+
+/** Zwischenstände: Sie werden ersetzt statt gestapelt – „Zurück“ landet nie in einer Ladeanzeige oder Fehlermeldung. */
+const TRANSIENT = new Set<Level['k']>(['live', 'working', 'none', 'error']);
 
 const fmt = (n: number) => new Intl.NumberFormat('de-DE', { maximumFractionDigits: 0 }).format(n);
+const nextFrame = () => new Promise<void>((r) => requestAnimationFrame(() => r()));
 
-/** Packung fotografieren → erkennen → bewerten (schon da? wie viel fürs Deck? Preis okay?). */
+/**
+ * Kauf-Check: Packung fotografieren, live scannen oder suchen → erkennen → bewerten (schon da? wie viel fürs Deck? Preis okay?).
+ * Alle drei Wege enden im selben Ergebnis. Zurück (Knopf oben links oder vom linken Rand wischen) geht eine Ebene zurück,
+ * „Neuer Check“ beginnt von vorn, nur „Schließen“ auf der Startseite verlässt den Kauf-Check.
+ */
 export function PhotoCheck({ db, state, update, meta, onClose, initialCode }: Props) {
   const ref = useRef<HTMLDivElement>(null);
+  const pageRef = useRef<HTMLDivElement>(null);
+  const underRef = useRef<HTMLDivElement>(null);
+  const video = useRef<HTMLVideoElement>(null);
   const camRef = useRef<HTMLInputElement>(null);
   const galRef = useRef<HTMLInputElement>(null);
-  const { rates, barcodes: shipped } = useApp();
-  const [phase, setPhase] = useState<Phase>(() => {
+  const { rates, barcodes: shipped, register } = useApp();
+  const [stack, setStack] = useState<Level[]>(() => {
     const p = initialCode ? db.products.find((x) => x.code === initialCode) : undefined;
-    if (!p) return { k: 'idle' };
+    if (!p) return [{ k: 'idle' }];
     const first = db.products.find((x) => x.kind === p.kind && groupKey(x) === groupKey(p)) ?? p;
-    return { k: 'result', product: first };
+    return [{ k: 'result', product: first }];
   });
+  const level = stack[stack.length - 1]!;
+  const under = stack.length > 1 ? stack[stack.length - 2]! : null;
   const [query, setQuery] = useState('');
   const [cur, setCur] = useState<ShopPrice['cur']>(() => Object.values(state.shopPrices)[0]?.cur ?? 'THB');
   const [msg, setMsg] = useState('');
+  const [round, setRound] = useState(0);
   const run = useRef(0);
+  /** Richtung des letzten Wechsels: vorwärts gleitet die neue Ebene von rechts herein (wie iOS) */
+  const dir = useRef<'fwd' | 'none'>('none');
   const close = useModal(ref, onClose, { animate: true });
+  // Mitgelieferte Barcodes, überschrieben von selbst zugeordneten
+  const known = useMemo(() => ({ ...shipped, ...state.barcodes }), [shipped, state.barcodes]);
 
   const { opponents } = useMemo(() => metaOpponents(db, meta), [db, meta]);
   const cache = useMemo<ScoreCache>(() => new Map(), [db, opponents]);
   // Neu, sobald Sammlung, Gegner oder Kurse (laden asynchron) sich ändern – damit die Bewertung mitzieht.
   const rate = useCallback((p: Product | Product[], price: ShopPrice | null) => rateProduct(db, state.owned, opponents, p, price, rates, cache, meta ?? null), [db, state.owned, opponents, rates, cache, meta]);
 
-  const onFile = async (file: File | undefined) => {
-    if (!file) return;
-    const id = ++run.current;
+  /** Vorwärts: neue Ebene oben drauf (ein Zwischenstand oben wird dabei ersetzt). */
+  const go = (next: Level) => {
+    dir.current = 'fwd';
     setMsg('');
-    setPhase({ k: 'working', step: 'Suche Barcode …' });
-    try {
-      // Mitgelieferte Barcodes, überschrieben von selbst zugeordneten
-      const res = await recognizePhoto(file, db, { ...shipped, ...state.barcodes }, (step, p) => {
-        if (run.current !== id) return;
-        setPhase({ k: 'working', step: step === 'barcode' ? 'Suche Barcode …' : p !== undefined && p < 1 ? 'Lade Texterkennung (nur beim ersten Mal) …' : 'Lese die Packung …', p });
-      });
-      if (run.current !== id) return;
-      if (!res.products.length) return setPhase({ k: 'none', text: res.text, barcode: res.barcode });
-      // Mehrere Treffer aus demselben Set bzw. Random Booster sind ein Kauf → direkt als Ganzes bewerten.
-      const first = res.products[0]!;
-      const oneBuy = res.products.every((p) => p.kind === first.kind && groupKey(p) === groupKey(first));
-      if (oneBuy) {
-        // Barcode nur bei eindeutigem Produktcode merken – ein unsicherer Namens-Treffer soll keinen Barcode „festnageln“.
-        if (res.barcode && res.via === 'code') learn(res.barcode, head(first));
-        return setPhase({ k: 'result', product: head(first) });
-      }
-      // Gleiche Käufe (z. B. drei Kreisel eines Sets) nur einmal anbieten
-      const list = res.products.filter((p, i, a) => a.findIndex((q) => q.kind === p.kind && groupKey(q) === groupKey(p)) === i).map(head);
-      setPhase({ k: 'pick', list: list.slice(0, 12), barcode: res.barcode });
-    } catch {
-      if (run.current === id) setPhase({ k: 'error' });
-    }
+    setStack((s) => [...(TRANSIENT.has(s[s.length - 1]!.k) ? s.slice(0, -1) : s), next]);
   };
-  // Barcode merken, damit das nächste Foto/der Live-Scan die Packung sofort erkennt.
-  const learn = (barcode: string, p: Product) => update((s) => ({ ...s, barcodes: { ...s.barcodes, [barcode]: p.code } }));
 
   // Vertreter eines Kaufs: erstes Produkt des Sets/Random Boosters (gleicher Schlüssel für Preis und Wunschliste wie im Kaufberater)
   const head = (p: Product) => db.products.find((x) => x.kind === p.kind && groupKey(x) === groupKey(p)) ?? p;
+  // Barcode merken, damit das nächste Foto/der Live-Scan die Packung sofort erkennt.
+  const learn = (barcode: string, p: Product) => update((s) => ({ ...s, barcodes: { ...s.barcodes, [barcode]: p.code } }));
+
+  /** Foto oder Kamerabild auswerten. `liveCode` = vom Live-Scan sicher gelesener Barcode. */
+  const analyze = async (img: Blob, liveCode: string | null = null) => {
+    const id = ++run.current;
+    go({ k: 'working', step: 'Suche Barcode …' });
+    try {
+      const res = await recognizePhoto(
+        img,
+        db,
+        known,
+        (step, p) => {
+          if (run.current !== id) return;
+          const text = step === 'barcode' ? 'Suche Barcode …' : p !== undefined && p < 1 ? 'Lade Texterkennung (nur beim ersten Mal) …' : 'Lese die Packung …';
+          setStack((s) => (s[s.length - 1]!.k === 'working' ? [...s.slice(0, -1), { k: 'working', step: text, p }] : s));
+        },
+        register,
+      );
+      if (run.current !== id) return;
+      // Zuordnen (lernen) nur mit einem vom Barcode-Leser gelesenen Code – aus dem Text gelesene Ziffern dienen nur zum Nachschlagen.
+      const barcode = liveCode ?? res.barcode;
+      const learnable = !!liveCode || res.barcodeFrom === 'scan';
+      if (!res.products.length) return go({ k: 'none', barcode, learn: learnable });
+      // Mehrere Treffer aus demselben Set bzw. Random Booster sind ein Kauf → direkt als Ganzes bewerten.
+      const first = res.products[0]!;
+      const oneBuy = res.products.every((p) => p.kind === first.kind && groupKey(p) === groupKey(first));
+      if (oneBuy && res.sure) {
+        // Barcode nur bei eindeutigem Produktcode merken – ein Namens-Treffer soll keinen Barcode „festnageln“.
+        if (barcode && learnable && res.via === 'code') learn(barcode, head(first));
+        return go({ k: 'result', product: head(first) });
+      }
+      // Gleiche Käufe (z. B. drei Kreisel eines Sets) nur einmal anbieten
+      const list = res.products.filter((p, i, a) => a.findIndex((q) => q.kind === p.kind && groupKey(q) === groupKey(p)) === i).map(head);
+      go({ k: 'pick', list: list.slice(0, 12), barcode, learn: learnable, sure: res.sure });
+    } catch {
+      if (run.current === id) go({ k: 'error' });
+    }
+  };
+
+  const onFile = (el: HTMLInputElement) => {
+    const file = el.files?.[0];
+    // Feld leeren, damit dasselbe Foto erneut gewählt werden kann
+    el.value = '';
+    if (file) void analyze(file);
+  };
+
+  // Live-Scan: dieselbe Kamera-Logik wie „Packung scannen“
+  useBarcodeCamera(video, level.k === 'live', round, {
+    onReady: () => setStack((s) => (s[s.length - 1]!.k === 'live' ? [...s.slice(0, -1), { k: 'live', ready: true }] : s)),
+    onCode: (gtin, frame) => {
+      const p = db.products.find((x) => x.code === known[gtin]);
+      if (p) return go({ k: 'result', product: head(p) });
+      // Unbekannter Barcode: Packung auf demselben Bild per Texterkennung bestimmen
+      if (frame) void analyze(frame, gtin);
+      else go({ k: 'none', barcode: gtin, learn: true });
+    },
+    onFail: (why) => go({ k: 'error', why }),
+  });
+  const startLive = () => {
+    run.current++;
+    setRound((r) => r + 1);
+    go({ k: 'live', ready: false });
+  };
 
   // Eingetippter Text: Produktcode („bx05“), ganzer Name in beliebiger Reihenfolge („Sword Dran“) oder Teil davon.
   // Ein Set oder Random Booster erscheint nur einmal.
@@ -105,25 +167,192 @@ export function PhotoCheck({ db, state, update, meta, onClose, initialCode }: Pr
 
   // Vom Nutzer bestätigt → Barcode darf gelernt werden
   const choose = (p: Product) => {
-    if ((phase.k === 'none' || phase.k === 'pick') && phase.barcode) learn(phase.barcode, head(p));
-    setPhase({ k: 'result', product: head(p) });
+    if ((level.k === 'none' || level.k === 'pick') && level.barcode && level.learn) learn(level.barcode, head(p));
+    go({ k: 'result', product: head(p) });
   };
 
+  /** Neuer Check: zurück zur Startseite, alles leer */
   const reset = () => {
     run.current++;
-    setPhase({ k: 'idle' });
+    dir.current = 'none';
+    setStack([{ k: 'idle' }]);
     setQuery('');
     setMsg('');
   };
 
+  /** Eine Ebene zurück (bricht eine laufende Erkennung bzw. die Kamera ab). Auf der Startseite: schließen. */
+  const pop = () => {
+    run.current++;
+    dir.current = 'none';
+    setMsg('');
+    setStack((s) => (s.length > 1 ? s.slice(0, -1) : s));
+  };
+  const back = () => {
+    if (stack.length <= 1) return close();
+    void slideBack(async () => {
+      underRef.current?.classList.add('is-peek');
+      await nextFrame();
+      return pageRef.current ? { page: pageRef.current, under: underRef.current } : null;
+    }, pop);
+  };
+  // Randgeste: nur mit einer Ebene darunter und nicht, solange die Kamera läuft
+  const canSwipe = useRef(false);
+  canSwipe.current = stack.length > 1 && level.k !== 'live';
+  const popRef = useRef(pop);
+  popRef.current = pop;
+  useEffect(() => {
+    const root = ref.current;
+    if (!root) return;
+    return attachEdgeBack(root, {
+      canBack: () => canSwipe.current,
+      start: () => {
+        if (!pageRef.current) return null;
+        underRef.current?.classList.add('is-peek');
+        return { page: pageRef.current, under: underRef.current };
+      },
+      back: () => popRef.current(),
+      cancel: () => underRef.current?.classList.remove('is-peek'),
+    });
+  }, []);
+  // Nach jedem Ebenenwechsel: untere Ebene wieder verstecken, nach oben scrollen
+  useLayoutEffect(() => {
+    underRef.current?.classList.remove('is-peek');
+    ref.current?.scrollTo?.({ top: 0 });
+  }, [stack.length, level.k]);
+
+  const renderLevel = (l: Level) => {
+    switch (l.k) {
+      case 'idle':
+        return (
+          <>
+            <div class="card glass stack-sm">
+              <label class="shop-input">
+                <span class="sr-only">Packung eintippen</span>
+                <input
+                  type="search"
+                  value={query}
+                  onInput={(e) => setQuery(e.currentTarget.value)}
+                  placeholder="Code oder Name eintippen, z. B. BX-05"
+                  enterKeyHint="search"
+                  autoComplete="off"
+                  autoCapitalize="off"
+                  spellcheck={false}
+                />
+              </label>
+              {query.trim().length >= 2 ? (
+                <ProductList db={db} list={textMatches(query)} onPick={choose} />
+              ) : (
+                <p class="fineprint">Japanischer oder Hasbro-Name, Produktcode – du bekommst dieselbe Bewertung wie beim Foto.</p>
+              )}
+            </div>
+            {!query.trim() && (
+              <div class="card glass stack-sm photo-start">
+                <span class="photo-icon" aria-hidden="true">
+                  <Camera />
+                </span>
+                <p>
+                  <strong>Packung fotografieren</strong>
+                </p>
+                <p class="muted">Am besten die Rückseite mit dem Barcode – oder die Vorderseite mit Code (z. B. „BX-05“) bzw. Namen, gerade und gut beleuchtet. Die Erkennung läuft auf deinem Handy.</p>
+                <button type="button" class="btn btn-primary" onClick={() => camRef.current?.click()}>
+                  Foto machen
+                </button>
+                <button type="button" class="btn" onClick={() => galRef.current?.click()}>
+                  Aus der Galerie wählen
+                </button>
+                <button type="button" class="btn btn-ghost" onClick={startLive}>
+                  <ScanBarcode aria-hidden="true" /> Barcode live scannen
+                </button>
+              </div>
+            )}
+          </>
+        );
+      case 'live':
+        return (
+          <div class="scan-cam" data-no-swipe>
+            <video ref={video} playsInline muted aria-label="Kamerabild" />
+            <span class="scan-frame" aria-hidden="true" />
+            <p class="scan-hint" role="status">
+              {l.ready ? 'Barcode auf der Packungsrückseite in den Rahmen halten' : 'Kamera wird gestartet …'}
+            </p>
+          </div>
+        );
+      case 'working':
+        return (
+          <div class="card glass stack-sm" role="status">
+            <p>
+              <strong>{l.step}</strong>
+            </p>
+            <div class="progress">
+              <span style={{ width: `${Math.round((l.p ?? 0.15) * 100)}%` }} />
+            </div>
+          </div>
+        );
+      case 'pick':
+        return (
+          <div class="card glass stack-sm">
+            <p>
+              <strong>{l.sure ? 'Mehrere Treffer – welche ist es?' : 'Ist es eine dieser Packungen?'}</strong>
+            </p>
+            {l.barcode && <BarcodeNote code={l.barcode} learn={l.learn} />}
+            <ProductList db={db} list={l.list} onPick={choose} />
+          </div>
+        );
+      case 'none':
+      case 'error':
+        return (
+          <div class="card glass stack-sm">
+            <p>
+              <strong>
+                {l.k === 'error'
+                  ? l.why === 'nocam'
+                    ? 'Keine Kamera verfügbar oder Zugriff abgelehnt.'
+                    : l.why === 'noreader'
+                      ? 'Der Barcode-Leser konnte nicht geladen werden – bist du offline?'
+                      : 'Das Foto konnte nicht gelesen werden.'
+                  : l.barcode
+                    ? 'Barcode gelesen – aber noch keinem Produkt zugeordnet.'
+                    : 'Keine Packung erkannt.'}
+              </strong>
+            </p>
+            {l.k === 'none' && l.barcode ? (
+              <BarcodeNote code={l.barcode} learn={l.learn} />
+            ) : (
+              <p class="muted">
+                {l.k === 'error' && l.why === 'nocam'
+                  ? 'Kamera-Zugriff erlauben (Einstellungen → Safari → Kamera) oder ein Foto machen.'
+                  : 'Weder Barcode noch Produktnummer oder Name waren lesbar. Probier ein schärferes Foto der Rückseite mit dem Barcode.'}
+              </p>
+            )}
+            <p class="muted">Oder tipp Code bzw. Namen ein:</p>
+            <label class="shop-input">
+              <span class="sr-only">Packung suchen</span>
+              <input value={query} onInput={(e) => setQuery(e.currentTarget.value)} placeholder="Name oder Code, z. B. BX-05" />
+            </label>
+            {query.trim() && <ProductList db={db} list={textMatches(query)} onPick={choose} />}
+          </div>
+        );
+      case 'result':
+        return <Result db={db} state={state} update={update} product={l.product} rate={rate} cur={cur} setCur={setCur} msg={msg} setMsg={setMsg} />;
+    }
+  };
+
+  const nested = stack.length > 1;
   return (
     <div ref={ref} class="live shop" role="dialog" aria-modal="true" aria-label="Kauf-Check" tabIndex={-1}>
       <div class="live-bar">
-        <button type="button" class="btn btn-sm" onClick={close}>
-          Schließen
-        </button>
+        {nested ? (
+          <button type="button" class="btn btn-sm nav-back" onClick={back} aria-label="Zurück">
+            <ChevronLeft aria-hidden="true" />
+            Zurück
+          </button>
+        ) : (
+          <button type="button" class="btn btn-sm" onClick={close}>
+            Schließen
+          </button>
+        )}
         <span class="live-title">Kauf-Check</span>
-        {phase.k !== 'idle' ? (
+        {level.k !== 'idle' ? (
           <button type="button" class="btn btn-sm btn-primary" onClick={reset}>
             Neuer Check
           </button>
@@ -131,108 +360,29 @@ export function PhotoCheck({ db, state, update, meta, onClose, initialCode }: Pr
           <span class="btn-sm" aria-hidden="true" />
         )}
       </div>
-      <input
-        ref={camRef}
-        type="file"
-        accept="image/*"
-        capture="environment"
-        hidden
-        onChange={(e) => {
-          const el = e.currentTarget;
-          // Feld leeren, damit dasselbe Foto erneut gewählt werden kann
-          void onFile(el.files?.[0]).finally(() => (el.value = ''));
-        }}
-      />
-      <input
-        ref={galRef}
-        type="file"
-        accept="image/*"
-        hidden
-        onChange={(e) => {
-          const el = e.currentTarget;
-          // Feld leeren, damit dasselbe Foto erneut gewählt werden kann
-          void onFile(el.files?.[0]).finally(() => (el.value = ''));
-        }}
-      />
+      <input ref={camRef} type="file" accept="image/*" capture="environment" hidden onChange={(e) => onFile(e.currentTarget)} />
+      <input ref={galRef} type="file" accept="image/*" hidden onChange={(e) => onFile(e.currentTarget)} />
 
-      <div class="shop-body stack-sm">
-        {phase.k === 'idle' && (
-          <div class="card glass stack-sm">
-            <label class="shop-input">
-              <span class="sr-only">Packung eintippen</span>
-              <input
-                type="search"
-                value={query}
-                onInput={(e) => setQuery(e.currentTarget.value)}
-                placeholder="Code oder Name eintippen, z. B. BX-05"
-                enterKeyHint="search"
-                autoComplete="off"
-                autoCapitalize="off"
-                spellcheck={false}
-              />
-            </label>
-            {query.trim().length >= 2 ? (
-              <ProductList db={db} list={textMatches(query)} onPick={choose} />
-            ) : (
-              <p class="fineprint">Japanischer oder Hasbro-Name, Produktcode – du bekommst dieselbe Bewertung wie beim Foto.</p>
-            )}
+      <div class="shop-stack">
+        {under && (
+          <div ref={underRef} class="shop-body stack-sm kc-page kc-under" aria-hidden="true" inert key={`u${stack.length - 2}`}>
+            {renderLevel(under)}
           </div>
         )}
-        {phase.k === 'idle' && !query.trim() && (
-          <div class="card glass stack-sm photo-start">
-            <span class="photo-icon" aria-hidden="true">
-              <Camera />
-            </span>
-            <p>
-              <strong>Packung fotografieren</strong>
-            </p>
-            <p class="muted">Am besten die Vorderseite mit dem Code (z. B. „BX-05“) oder dem Namen, gerade und gut beleuchtet. Die Erkennung läuft auf deinem Handy.</p>
-            <button type="button" class="btn btn-primary" onClick={() => camRef.current?.click()}>
-              Foto machen
-            </button>
-            <button type="button" class="btn" onClick={() => galRef.current?.click()}>
-              Aus der Galerie wählen
-            </button>
-          </div>
-        )}
-
-        {phase.k === 'working' && (
-          <div class="card glass stack-sm" role="status">
-            <p>
-              <strong>{phase.step}</strong>
-            </p>
-            <div class="progress">
-              <span style={{ width: `${Math.round((phase.p ?? 0.15) * 100)}%` }} />
-            </div>
-          </div>
-        )}
-
-        {phase.k === 'pick' && (
-          <div class="card glass stack-sm">
-            <p>
-              <strong>Mehrere Treffer – welche ist es?</strong>
-            </p>
-            <ProductList db={db} list={phase.list} onPick={choose} />
-          </div>
-        )}
-
-        {(phase.k === 'none' || phase.k === 'error') && (
-          <div class="card glass stack-sm">
-            <p>
-              <strong>{phase.k === 'error' ? 'Das Foto konnte nicht gelesen werden.' : 'Auf dem Foto habe ich keine Packung erkannt.'}</strong>
-            </p>
-            <p class="muted">Probier ein schärferes Foto der Vorderseite – oder tipp Code bzw. Namen ein:</p>
-            <label class="shop-input">
-              <span class="sr-only">Packung suchen</span>
-              <input value={query} onInput={(e) => setQuery(e.currentTarget.value)} placeholder="Name oder Code, z. B. BX-05" />
-            </label>
-            {query.trim() && <ProductList db={db} list={textMatches(query)} onPick={choose} />}
-          </div>
-        )}
-
-        {phase.k === 'result' && <Result db={db} state={state} update={update} product={phase.product} rate={rate} cur={cur} setCur={setCur} msg={msg} setMsg={setMsg} />}
+        <div ref={pageRef} class={`shop-body stack-sm kc-page${dir.current === 'fwd' ? ' kc-in' : ''}`} key={`p${stack.length - 1}${level.k}`}>
+          {renderLevel(level)}
+        </div>
       </div>
     </div>
+  );
+}
+
+/** Gelesener, aber noch unbekannter Barcode – sichtbar, damit klar ist: lesbar, nur nicht zugeordnet. */
+function BarcodeNote({ code, learn }: { code: string; learn: boolean }) {
+  return (
+    <p class="muted barcode-note">
+      Barcode <strong class="mono">{code}</strong> {learn ? 'ist noch keinem Produkt zugeordnet. Wähl die Packung aus – danach erkennt die App ihn sofort.' : '(aus den Ziffern gelesen) ist noch keinem Produkt zugeordnet.'}
+    </p>
   );
 }
 

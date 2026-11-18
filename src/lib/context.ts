@@ -1,6 +1,7 @@
 import { createContext } from 'preact';
 import { useContext } from 'preact/hooks';
 import type { Blade, ImageIndex, Rates } from './types';
+import type { IdRegister } from './idRegister';
 
 export interface AppCtx {
   images: ImageIndex;
@@ -19,10 +20,12 @@ export interface AppCtx {
   ownedCount: (code: string) => number;
   /** mitgelieferte Barcodes: Barcode → Produktcode (leer, solange nicht geladen) */
   barcodes: Record<string, string>;
+  /** zentrales ID-Register (andere Schreibweisen, alte IDs) – null, solange nicht geladen */
+  register: IdRegister | null;
 }
 
 export type ImageKind = 'blade' | 'bit' | 'ratchet';
 
-export const AppContext = createContext<AppCtx>({ images: { source: '', blades: {} }, rates: null, bladeName: (b) => b.name, hasbroNames: false, openBlade: () => {}, openImage: () => {}, openCheck: () => {}, ownedCount: () => 0, barcodes: {} });
+export const AppContext = createContext<AppCtx>({ images: { source: '', blades: {} }, rates: null, bladeName: (b) => b.name, hasbroNames: false, openBlade: () => {}, openImage: () => {}, openCheck: () => {}, ownedCount: () => 0, barcodes: {}, register: null });
 
 export const useApp = () => useContext(AppContext);

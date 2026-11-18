@@ -243,8 +243,8 @@ export function App() {
   // Mitgelieferte Barcodes, auf die Produkte der Datenbank aufgelöst (Scanner und Kauf-Check erkennen Packungen damit sofort)
   const barcodes = useMemo(() => (db ? knownBarcodes(barcodeFeed, db.products) : {}), [barcodeFeed, db]);
   const ctx = useMemo(
-    () => ({ images, rates, openBlade, openImage, openCheck, ownedCount, bladeName, hasbroNames, barcodes }),
-    [images, rates, openBlade, openImage, openCheck, ownedCount, bladeName, hasbroNames, barcodes],
+    () => ({ images, rates, openBlade, openImage, openCheck, ownedCount, bladeName, hasbroNames, barcodes, register }),
+    [images, rates, openBlade, openImage, openCheck, ownedCount, bladeName, hasbroNames, barcodes, register],
   );
 
   const unread = news.items.filter((n) => !state.seenNews.includes(n.id)).length;

@@ -4,7 +4,7 @@ import { displayProductName } from '../lib/names';
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import type { Database, Product } from '../lib/types';
 import type { UserState } from '../lib/storage';
-import { createDetector, normalizeGtin, validGtin } from '../lib/barcode';
+import { cameraGranted, useBarcodeCamera } from '../lib/barcodeCamera';
 import { contentLabel, ownedParts, purchaseProducts, searchProducts } from '../lib/data';
 import { useApp } from '../lib/context';
 import { priceHint } from '../lib/price';
@@ -22,33 +22,13 @@ interface Props {
 
 type Phase = 'choose' | 'starting' | 'scanning' | 'reading' | 'nocam' | 'noreader' | 'unknown' | 'found' | 'done';
 
-/** Kamera schon freigegeben? Dann direkt live scannen, sonst erst fragen (iPhone fragt sonst bei jedem App-Start). */
-async function cameraGranted(): Promise<boolean> {
-  try {
-    const st = await navigator.permissions?.query({ name: 'camera' as PermissionName });
-    return st?.state === 'granted';
-  } catch {
-    return false;
-  }
-}
-
-/** Aktuelles Kamerabild als JPEG – für die Texterkennung, wenn der Barcode noch unbekannt ist. */
-function grabFrame(v: HTMLVideoElement): Promise<Blob | null> {
-  const c = document.createElement('canvas');
-  c.width = v.videoWidth;
-  c.height = v.videoHeight;
-  if (!c.width || !c.height) return Promise.resolve(null);
-  c.getContext('2d')!.drawImage(v, 0, 0);
-  return new Promise((res) => c.toBlob(res, 'image/jpeg', 0.92));
-}
-
 /**
  * Scan-Modus: Barcode der Packung mit der Kamera lesen.
  * Ein Barcode, der noch unbekannt ist, wird einmal einem Produkt zugeordnet und danach wiedererkannt.
  * Ohne Kamera (oder abgelehnt) bleibt die Produktsuche.
  */
 function ScannerInner({ db, state, update, onClose }: Props) {
-  const { rates, barcodes: shipped } = useApp();
+  const { rates, barcodes: shipped, register } = useApp();
   const ref = useRef<HTMLDivElement>(null);
   const video = useRef<HTMLVideoElement>(null);
   const closeRef = useRef(onClose);
@@ -91,11 +71,18 @@ function ScannerInner({ db, state, update, onClose }: Props) {
     setPhase('reading');
     setReadStep('Suche Barcode …');
     try {
-      const res = await recognizePhoto(img, db, barcodes.current, (step, p) => {
-        if (run.current === id) setReadStep(step === 'barcode' ? 'Suche Barcode …' : p !== undefined && p < 1 ? 'Lade Texterkennung (nur beim ersten Mal) …' : 'Lese die Packung …');
-      });
+      const res = await recognizePhoto(
+        img,
+        db,
+        barcodes.current,
+        (step, p) => {
+          if (run.current === id) setReadStep(step === 'barcode' ? 'Suche Barcode …' : p !== undefined && p < 1 ? 'Lade Texterkennung (nur beim ersten Mal) …' : 'Lese die Packung …');
+        },
+        register,
+      );
       if (run.current !== id) return;
-      const gtin = liveCode ?? res.barcode;
+      // Nur einen vom Barcode-Leser gelesenen Code zuordnen – aus dem Text gelesene Ziffern dienen nur zum Nachschlagen.
+      const gtin = liveCode ?? (res.barcodeFrom === 'scan' ? res.barcode : null);
       setCode(gtin);
       const list = res.products.map(head).filter((p, i, a) => a.findIndex((x) => x.code === p.code) === i);
       // Eindeutig über Barcode oder Produktcode → direkt übernehmen und Barcode merken.
@@ -128,74 +115,22 @@ function ScannerInner({ db, state, update, onClose }: Props) {
   };
 
   // Kamera + Erkennung. Läuft pro „round“ neu (nach „Nächste Packung“), nur im Live-Modus.
-  useEffect(() => {
-    if (!live) return;
-    let stream: MediaStream | null = null;
-    let stopped = false;
-    let timer = 0;
-    let last = '';
-    const stop = () => {
-      stopped = true;
-      window.clearTimeout(timer);
-      stream?.getTracks().forEach((t) => t.stop());
-    };
-    (async () => {
-      if (!navigator.mediaDevices?.getUserMedia) throw new Error('nocam');
-      stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment', width: { ideal: 1280 } }, audio: false });
-      if (stopped) return stop();
-      const v = video.current!;
-      v.srcObject = stream;
-      await v.play();
-      let detector;
-      try {
-        detector = await createDetector();
-      } catch {
-        throw new Error('noreader');
+  useBarcodeCamera(video, live && (phase === 'starting' || phase === 'scanning'), round, {
+    onReady: () => setPhase('scanning'),
+    onCode: (gtin, frame) => {
+      setCode(gtin);
+      const known = db.products.find((p) => p.code === barcodes.current[gtin]);
+      if (known) {
+        setProduct(known);
+        setPhase('found');
+        return;
       }
-      if (stopped) return;
-      setPhase('scanning');
-      const tick = async () => {
-        if (stopped) return;
-        try {
-          if (v.readyState >= 2) {
-            const found = (await detector.detect(v)).map((r) => r.rawValue.trim()).find(validGtin);
-            if (found) {
-              // Erst übernehmen, wenn derselbe Code zweimal hintereinander gelesen wurde.
-              if (found === last) {
-                const gtin = normalizeGtin(found);
-                navigator.vibrate?.(60);
-                const known = db.products.find((p) => p.code === barcodes.current[gtin]);
-                if (known) {
-                  stop();
-                  setCode(gtin);
-                  setProduct(known);
-                  setPhase('found');
-                  return;
-                }
-                // Unbekannter Barcode: Packung auf demselben Bild per Texterkennung bestimmen.
-                const frame = await grabFrame(v);
-                stop();
-                setCode(gtin);
-                if (frame) void identify(frame, gtin);
-                else setPhase('unknown');
-                return;
-              }
-              last = found;
-            }
-          }
-        } catch {
-          /* einzelner Fehlversuch, weiter scannen */
-        }
-        timer = window.setTimeout(tick, 180);
-      };
-      void tick();
-    })().catch((err: unknown) => {
-      if (stopped) return;
-      stop();
-      setPhase(err instanceof Error && err.message === 'noreader' ? 'noreader' : 'nocam');
-    });
-    return stop;
-  }, [round, db, live]);
+      // Unbekannter Barcode: Packung auf demselben Bild per Texterkennung bestimmen.
+      if (frame) void identify(frame, gtin);
+      else setPhase('unknown');
+    },
+    onFail: (why) => setPhase(why),
+  });
 
   const assign = (p: Product) => {
     if (code) update((s) => ({ ...s, barcodes: { ...s.barcodes, [code]: p.code } }));
