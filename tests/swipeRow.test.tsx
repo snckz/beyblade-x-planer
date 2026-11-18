@@ -95,6 +95,36 @@ describe('Wischen zum Löschen (wie iOS)', () => {
     await waitFor(() => expect(state().combos.map((c) => c.id)).toEqual(['a', 'b']));
   });
 
+  it('eine Berührung während des Hinausgleitens bricht das Löschen nicht ab', async () => {
+    const { row, state } = combos();
+    const r = row('Dritte');
+    swipe(r, -320); // ganz durchgewischt – gleitet hinaus
+    act(() => touch(r, 'touchstart', 200, 300)); // sofort wieder angefasst
+    act(() => touch(r, 'touchend', 200, 300));
+    await waitFor(() => expect(state().combos.map((c) => c.id)).toEqual(['a', 'b']));
+  });
+
+  it('Tipp auf einen anderen Eintrag schließt den offenen nur und löst dort nichts aus', () => {
+    const { row, state } = combos();
+    swipe(row('Erste'), -120);
+    const other = within(row('Zweite')).getByRole('button', { name: 'Im Deck' });
+    t += 1000;
+    act(() => {
+      touch(other, 'touchstart', 200, 400);
+      t += 60;
+      touch(other, 'touchend', 200, 400);
+    });
+    fireEvent.click(other);
+    expect(row('Erste').classList.contains('is-open')).toBe(false);
+    expect(state().deck).toEqual(['a', 'b']); // nicht umgeschaltet
+    // Der nächste, eigene Tipp wirkt wieder
+    t += 1000;
+    act(() => touch(other, 'touchstart', 200, 400));
+    act(() => touch(other, 'touchend', 200, 400));
+    fireEvent.click(other);
+    expect(state().deck).toEqual(['a']);
+  });
+
   it('kurz oder senkrecht wischen löscht nichts und öffnet nichts; nach rechts schließt wieder', () => {
     const { row, state } = combos();
     const r = row('Erste');

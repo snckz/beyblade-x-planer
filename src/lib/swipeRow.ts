@@ -41,6 +41,26 @@ export function closeOpenSwipeRow(): void {
   openRow?.close();
 }
 
+/** Den nächsten Klick irgendwo in einer Liste verwerfen (Tipp, der nur einen offenen Eintrag schließen soll) */
+let globalSwallowTimer = 0;
+const swallowClick = (e: MouseEvent) => {
+  e.preventDefault();
+  e.stopPropagation();
+  releaseGlobalClick();
+};
+const releaseGlobalClick = () => {
+  window.clearTimeout(globalSwallowTimer);
+  document.removeEventListener('click', swallowClick, true);
+  document.removeEventListener('touchstart', releaseGlobalClick, true);
+};
+function swallowGlobalClick(): void {
+  releaseGlobalClick();
+  document.addEventListener('click', swallowClick, true);
+  // Nur der Klick dieser Berührung: Beginnt eine neue (oder wurde gescrollt), gilt es nicht mehr
+  document.addEventListener('touchstart', releaseGlobalClick, { capture: true, once: true, passive: true });
+  globalSwallowTimer = window.setTimeout(releaseGlobalClick, 500);
+}
+
 const reducedMotion = () => typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /** Position (px, ≤ 0) → Anteil, um den der Papierkorb sichtbar ist (0–1) */
@@ -59,6 +79,8 @@ export function attachSwipeRow(el: HTMLElement, { content, action, onDelete, onO
     swallowTimer = window.setTimeout(() => (swallow = false), CLICK_GUARD_MS);
   };
   let timer = 0;
+  /** Löschen läuft (Inhalt gleitet hinaus): keine weiteren Gesten, das Löschen wird nicht mehr abgebrochen */
+  let removing = false;
 
   const paint = (px: number, ms = 0) => {
     x = px;
@@ -67,6 +89,7 @@ export function attachSwipeRow(el: HTMLElement, { content, action, onDelete, onO
     // In Ruhe ohne eigene Übergänge (sonst gingen die Drück-Effekte der Karte verloren)
     content.style.transition = ms ? `transform ${ms}ms ${EASE}` : px ? 'none' : '';
     content.style.transform = px ? `translate3d(${px}px, 0, 0)` : '';
+    if (!removing) content.style.opacity = '';
     // Papierkorb wächst mit hinein; beim Durchwischen wandert er mit der Kante des Inhalts
     const r = reveal(px);
     const follow = Math.min(0, px + ACTION_WIDTH);
@@ -102,12 +125,20 @@ export function attachSwipeRow(el: HTMLElement, { content, action, onDelete, onO
   const handle = { close, el };
 
   const remove = () => {
+    if (removing) return;
     setOpen(false);
     const width = el.offsetWidth || 400;
     if (reducedMotion()) return onDelete();
+    removing = true;
     paint(-width, 200);
     content.style.opacity = '0';
-    timer = window.setTimeout(onDelete, 190);
+    timer = window.setTimeout(finishRemove, 190);
+  };
+  const finishRemove = () => {
+    if (!removing) return;
+    removing = false;
+    window.clearTimeout(timer);
+    onDelete();
   };
 
   const onAnyScroll = (e: Event) => {
@@ -115,12 +146,20 @@ export function attachSwipeRow(el: HTMLElement, { content, action, onDelete, onO
     if (!g && !(e.target instanceof Element && el.contains(e.target))) close();
   };
   const onOutside = (e: TouchEvent) => {
-    if (!el.contains(e.target as Node)) close();
+    if (el.contains(e.target as Node)) return;
+    close();
+    // Wie iOS: Ein Tipp auf einen anderen Eintrag schließt nur und löst dort nichts aus
+    if ((e.target as Element | null)?.closest?.('.swipe-row')) swallowGlobalClick();
   };
 
   const touchOf = (list: TouchList, id: number) => [...list].find((t) => t.identifier === id) ?? null;
 
   const onStart = (e: TouchEvent) => {
+    swallow = false; // neue Berührung: ein alter, nie gekommener Klick zählt nicht mehr
+    if (removing) {
+      g = null;
+      return;
+    }
     if (e.touches.length !== 1) {
       g = null;
       return;
@@ -217,6 +256,8 @@ export function attachSwipeRow(el: HTMLElement, { content, action, onDelete, onO
   content.addEventListener('click', onClick, true);
   action.addEventListener('click', onAction);
   return () => {
+    // Eintrag verschwindet mitten im Hinausgleiten: das Löschen trotzdem ausführen
+    if (removing) finishRemove();
     window.clearTimeout(timer);
     window.clearTimeout(swallowTimer);
     setOpen(false);

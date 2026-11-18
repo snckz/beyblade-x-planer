@@ -2981,6 +2981,8 @@ html.phone-landscape .rotate-hint {
 .picker-body { touch-action: pan-y; }
 
 /* ---- Bestätigung vor dem Löschen (ConfirmSheet) ---- */
+/* Rückfragen liegen immer ganz vorn – auch über Vollbild-Ansichten wie Zähler und Live-Match (.live, Ebene 80) */
+.sheet-backdrop.confirm-backdrop { z-index: 95; }
 .confirm-sheet { max-width: 440px; }
 .confirm-body { display: grid; justify-items: center; gap: var(--s-3); padding: var(--s-2) var(--s-5) calc(var(--s-5) + var(--safe-b)); text-align: center; }
 .confirm-icon {
@@ -3053,7 +3055,8 @@ html.phone-landscape .rotate-hint {
 
 /* ---- Rückgängig nach dem Löschen (components/UndoToast.tsx) ---- */
 .undo-toast {
-  position: fixed; z-index: 60; left: 50%; bottom: calc(var(--tabbar-h) + var(--safe-b) + 14px); transform: translateX(-50%);
+  /* Über der Tab-Leiste (10), aber unter Fenstern (50) – nie über deren Knöpfen */
+  position: fixed; z-index: 40; left: 50%; bottom: calc(var(--tabbar-h) + var(--safe-b) + 14px); transform: translateX(-50%);
   display: flex; align-items: center; gap: var(--s-3); width: min(calc(100vw - 32px), 460px); padding: 10px 10px 10px 18px;
   border: 1px solid var(--hair-2); border-radius: 22px; background: rgba(28, 28, 32, .94); color: var(--text);
   box-shadow: 0 18px 40px -16px rgba(0, 0, 0, .9); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px);
