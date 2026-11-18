@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from 'preact/hooks';
 import type { Database, Product } from '../lib/types';
 import type { UserState } from '../lib/storage';
 import { createDetector, normalizeGtin, validGtin } from '../lib/barcode';
-import { ownedParts, purchaseCodes, searchProducts } from '../lib/data';
+import { contentLabel, ownedParts, purchaseProducts, searchProducts } from '../lib/data';
 import { useApp } from '../lib/context';
 import { priceHint } from '../lib/price';
 import { BeyImage } from './BeyImage';
@@ -202,14 +202,15 @@ function ScannerInner({ db, state, update, onClose }: Props) {
     setMsg('');
   };
   const addOwned = (p: Product) => {
-    // Sets: alle Kreisel der Packung eintragen, nicht nur den ersten
-    const codes = purchaseCodes(db.products, p);
+    // Sets: alle Kreisel und losen Teile der Packung eintragen, nicht nur den ersten
+    const items = purchaseProducts(db.products, p);
+    const codes = items.map((x) => x.code);
     update((s) => {
       const owned = { ...s.owned };
       for (const c of codes) owned[c] = (owned[c] ?? 0) + 1;
       return { ...s, owned, wishlist: s.wishlist.filter((c) => !codes.includes(c)) };
     });
-    setMsg(codes.length > 1 ? `${codes.length} Kreisel aus ${p.code} sind jetzt in deiner Sammlung.` : `${p.code} ist jetzt in deiner Sammlung (${(state.owned[p.code] ?? 0) + 1}×).`);
+    setMsg(codes.length > 1 ? `${contentLabel(items)} aus ${groupKey(p)} sind jetzt in deiner Sammlung.` : `${p.code} ist jetzt in deiner Sammlung (${(state.owned[p.code] ?? 0) + 1}×).`);
     setPhase('done');
   };
   const addWish = (p: Product) => {
@@ -237,7 +238,13 @@ function ScannerInner({ db, state, update, onClose }: Props) {
 
   const camera = phase === 'starting' || phase === 'scanning';
   const pick = phase === 'unknown' || phase === 'nocam' || phase === 'noreader';
-  const results = pick || (phase === 'choose' && query.trim()) ? searchProducts(db.products, query, db.blades).slice(0, 30) : [];
+  // Lose Teile aus Sets (Einträge ohne Blade) nicht einzeln anbieten – die Packung findet man über ihre Kreisel
+  const results =
+    pick || (phase === 'choose' && query.trim())
+      ? searchProducts(db.products, query, db.blades)
+          .filter((p) => p.bladeId || p.kind !== 'set')
+          .slice(0, 30)
+      : [];
   const blade = product && db.blades.find((b) => b.id === product.bladeId);
 
   return (
@@ -412,11 +419,12 @@ function OwnStatus({ db, state, product }: { db: Database; state: UserState; pro
   const n = state.owned[product.code] ?? 0;
   if (n > 0) return <p class="scan-status have"><Check aria-hidden="true" /> Hast du schon ({n}×)</p>;
   const parts = ownedParts(db, state.owned);
-  const fresh = [
-    product.bladeId && !parts.blades.has(product.bladeId),
-    product.ratchetId && !parts.ratchets.has(product.ratchetId),
-    product.bitId && !parts.bits.has(product.bitId),
-  ].filter(Boolean).length;
+  // Sets zählen als ganze Packung: jedes neue Teil einmal, auch wenn es mehrfach drin ist
+  const items = purchaseProducts(db.products, product);
+  const fresh =
+    new Set(items.map((x) => x.bladeId).filter((id) => id && !parts.blades.has(id))).size +
+    new Set(items.map((x) => x.ratchetId).filter((id) => id && !parts.ratchets.has(id))).size +
+    new Set(items.map((x) => x.bitId).filter((id) => id && !parts.bits.has(id))).size;
   return (
     <>
       {state.wishlist.includes(product.code) && <p class="scan-status wish"><Heart aria-hidden="true" fill="currentColor" /> Steht auf deiner Wunschliste</p>}

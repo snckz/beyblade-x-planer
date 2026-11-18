@@ -30,7 +30,8 @@ export function AddProducts({ db, state, update, onClose }: Props) {
   const close = useModal(ref, onClose, { animate: true });
 
   const list = useMemo(() => {
-    const base = db.products.filter((p) => p.bladeId && p.kind !== 'stadium');
+    // Auch lose Teile aus Sets (Einträge ohne Blade) lassen sich einzeln eintragen
+    const base = db.products.filter((p) => (p.bladeId || (p.kind === 'set' && (p.ratchetId || p.bitId))) && p.kind !== 'stadium');
     return searchProducts(base, query, db.blades).filter((p) => (region === 'all' || (region === 'hasbro') === (p.region === 'hasbro')) && (!onlyMine || (state.owned[p.code] ?? 0) > 0));
   }, [db, query, region, onlyMine, state.owned]);
   const total = Object.values(state.owned).reduce((s, n) => s + n, 0);

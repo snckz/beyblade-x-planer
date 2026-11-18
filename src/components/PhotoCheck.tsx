@@ -6,7 +6,7 @@ import { judgeWithMeta, rateProduct, OVERALL_LABEL, type Rating } from '../lib/r
 import { META_TOP, pct } from '../lib/metaUsage';
 import { metaOpponents } from '../lib/battle';
 import type { ScoreCache } from '../lib/optimizer';
-import { purchaseCodes, searchProducts } from '../lib/data';
+import { contentLabel, purchaseCodes, searchProducts } from '../lib/data';
 import { groupKey, refPrice, VERDICT_LABEL, yen } from '../lib/price';
 import { PriceInput } from './PriceInput';
 import { displayName, displayProductName, regionLabel } from '../lib/names';
@@ -243,11 +243,13 @@ function ProductList({ db, list, onPick }: { db: Database; list: Product[]; onPi
     if (p.kind !== 'set') return nb(displayProductName(p, db));
     const members = db.products.filter((x) => x.kind === 'set' && groupKey(x) === groupKey(p));
     if (members.length < 2) return nb(displayProductName(p, db));
-    const names = members.map((x) => {
+    // Kreisel beim Namen nennen, lose Ratchets/Bits (Einträge ohne Blade) nur zählen
+    const names = members.flatMap((x) => {
       const b = db.blades.find((bl) => bl.id === x.bladeId);
-      return b ? displayName(b) : x.name;
+      return b ? [displayName(b)] : [];
     });
-    return `${groupKey(p)} Set: ${names.join(' + ')}`;
+    const loose = contentLabel(members.filter((x) => !x.bladeId));
+    return `${groupKey(p)} Set: ${[...names, ...(loose ? [loose] : [])].join(' + ')}`;
   };
   return (
     <ul class="list">
@@ -315,7 +317,7 @@ function Result({ db, state, update, product, rate, cur, setCur, msg, setMsg }: 
           <div class="row-main">
             <span class="eyebrow">{isRandom ? `${groupKey(product)} · Random Booster` : product.code}</span>
             <span class="row-title">
-              {isRandom ? product.name.replace(/\s*\(.*?\)\s*$/, '') : group.length > 1 ? `${groupKey(product)} Set (${group.length} Kreisel)` : nb(displayProductName(product, db))}
+              {isRandom ? product.name.replace(/\s*\(.*?\)\s*$/, '') : group.length > 1 ? `${groupKey(product)} Set (${contentLabel(group)})` : nb(displayProductName(product, db))}
             </span>
           </div>
         </div>

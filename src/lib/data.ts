@@ -101,10 +101,24 @@ export function searchProducts(products: Product[], query: string, blades: Blade
   );
 }
 
-/** Was man mit einem Kauf bekommt: bei Sets alle Kreisel des Sets, sonst nur das eine Produkt. */
-export function purchaseCodes(products: Product[], p: Product): string[] {
-  if (p.kind !== 'set') return [p.code];
+/** Alle Einträge eines Kaufs: bei Sets jeder Kreisel und jedes lose Teil der Packung, sonst nur das eine Produkt. */
+export function purchaseProducts(products: Product[], p: Product): Product[] {
+  if (p.kind !== 'set') return [p];
   const k = groupKey(p);
-  const list = products.filter((x) => x.kind === 'set' && groupKey(x) === k).map((x) => x.code);
-  return list.length ? list : [p.code];
+  const list = products.filter((x) => x.kind === 'set' && groupKey(x) === k);
+  return list.length ? list : [p];
+}
+
+/** Was man mit einem Kauf bekommt: bei Sets alle Einträge des Sets, sonst nur das eine Produkt. */
+export const purchaseCodes = (products: Product[], p: Product): string[] => purchaseProducts(products, p).map((x) => x.code);
+
+/**
+ * Inhalt einer Packung in Worten: „2 Kreisel“ – oder „3 Kreisel + 3 Teile“, wenn ein Set neben den Kreiseln
+ * auch lose Ratchets und Bits enthält (Einträge ohne Blade).
+ */
+export function contentLabel(items: Pick<Product, 'bladeId' | 'ratchetId' | 'bitId'>[]): string {
+  const beys = items.filter((p) => p.bladeId).length;
+  const loose = items.filter((p) => !p.bladeId).reduce((n, p) => n + (p.ratchetId ? 1 : 0) + (p.bitId ? 1 : 0), 0);
+  const parts = [beys ? `${beys} Kreisel` : '', loose ? `${loose} ${loose === 1 ? 'Teil' : 'Teile'}` : ''].filter(Boolean);
+  return parts.join(' + ');
 }

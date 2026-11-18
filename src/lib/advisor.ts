@@ -2,7 +2,7 @@ import type { Database, MetaFeed, Product } from './types';
 import { META_SEEN, metaUsage } from './metaUsage';
 import type { Bey } from './battle';
 import { deckValue, type Candidate, type PartPool, type ScoreCache } from './optimizer';
-import { ownedParts } from './data';
+import { contentLabel, ownedParts } from './data';
 import { groupKey } from './price';
 
 export interface Offer {
@@ -83,7 +83,8 @@ export async function advise(
   for (const p of db.products) {
     if (single(p) && p.bladeId && preferred.get(combo(p)) !== p) continue;
     // Besitz hier nicht filtern: schon gezogene Random-Booster-Varianten zählen im Mittel mit 0 Gewinn.
-    if (!BUYABLE.includes(p.kind) || !p.bladeId) continue;
+    // Lose Teile aus Sets (Einträge ohne Blade) gehören zum Kauf und zählen mit
+    if (!BUYABLE.includes(p.kind) || !(p.bladeId || (p.kind === 'set' && (p.ratchetId || p.bitId)))) continue;
     const k = groupKey(p);
     groups.set(k, [...(groups.get(k) ?? []), p]);
   }
@@ -141,7 +142,7 @@ export async function advise(
       offers.push({
         code: first.code,
         codes: items.map((p) => p.code),
-        name: items.length > 1 ? `${groupKey(first)} Set (${items.length} Kreisel)` : first.name,
+        name: items.length > 1 ? `${groupKey(first)} Set (${contentLabel(items)})` : first.name,
         kind: first.kind,
         priceJpy: items.find((p) => p.priceJpy)?.priceJpy ?? null,
         gain,
