@@ -11,12 +11,12 @@
  */
 
 /** Ab dieser Strecke (px) ist die Richtung entschieden – früh, bevor der Browser zu scrollen beginnt. */
-const SLOP = 8;
+const SLOP = 6;
 /** Mindeststrecke für einen Wechsel … */
-const MIN_DX = 40;
+const MIN_DX = 30;
 /** … oder ein schneller Wisch (px/ms) ab dieser kürzeren Strecke. */
-const FLICK = 0.3;
-const FLICK_MIN_DX = 24;
+const FLICK = 0.25;
+const FLICK_MIN_DX = 18;
 /** Beim Loslassen muss waagrecht überwiegen (Daumen ziehen leichte Bögen – nicht strenger). */
 const DOMINANCE = 1;
 /** Längere Bewegungen sind eher Herumschieben als ein Wisch. */

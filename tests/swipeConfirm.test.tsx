@@ -57,9 +57,10 @@ describe('Wischgeste: Entscheidung', () => {
     expect(swipeStep(-80, 5, 200)).toBe(1); // nach links → nächste
     expect(swipeStep(80, -5, 200)).toBe(-1); // nach rechts → vorherige
     expect(swipeStep(-90, 50, 250)).toBe(1); // Bogen: waagrecht überwiegt
-    expect(swipeStep(-42, 0, 400)).toBe(1); // ab 40 px auch langsam
-    expect(swipeStep(-28, 0, 60)).toBe(1); // kurzer, schneller Wisch
-    expect(swipeStep(-28, 0, 400)).toBe(0); // kurz und langsam
+    expect(swipeStep(-32, 0, 400)).toBe(1); // ab 30 px auch langsam
+    expect(swipeStep(-20, 0, 60)).toBe(1); // kurzer, schneller Wisch
+    expect(swipeStep(-24, 0, 400)).toBe(0); // kurz und langsam
+    expect(swipeStep(-5, 0, 40)).toBe(0); // Tipp mit leichtem Verrutschen
     expect(swipeStep(-60, 70, 200)).toBe(0); // eher senkrecht
     expect(swipeStep(-80, 0, 1200)).toBe(0); // zu langsam (Herumschieben)
     expect(swipeStep(0, 200, 200)).toBe(0); // senkrecht
