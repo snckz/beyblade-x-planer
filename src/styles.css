@@ -3014,10 +3014,18 @@ html.phone-landscape .rotate-hint {
 .confirm-parts .bit-name-code { font-weight: 700; color: var(--text); }
 .confirm-parts .bit-name-text { font-weight: 400; }
 
-/* Auswahl: Kategorien als Seiten zum Blättern (lib/categorySwipe.ts). Die aktuelle Seite steht im Fluss; die Nachbarn
-   liegen fertig gebaut, aber unsichtbar und ohne Höhe daneben – beim Wischen bekommen sie Platz und kommen herein.
-   Weitere einmal besuchte Seiten bleiben geparkt (ohne Neuaufbau, Fotos bleiben geladen). */
+/* Auswahl: Kategorien als Seiten zum Blättern (lib/categorySwipe.ts). Alle gebauten Seiten liegen fertig angeordnet
+   übereinander; sichtbar ist nur die aktuelle. Beim Wechsel ändert sich nur die Sichtbarkeit – nichts wird neu angeordnet.
+   Der Pager ist so hoch wie die aktuelle Seite (PartPicker misst sie) und schneidet senkrecht ab, damit längere,
+   unsichtbare Seiten die Liste nicht verlängern; waagrecht dürfen die Nachbarn beim Wischen hereinragen. */
 .picker-body { overflow-x: hidden; }
-.picker-pager { position: relative; }
-.picker-page.is-side { position: absolute; top: 0; left: 0; right: 0; height: 0; overflow: hidden; visibility: hidden; pointer-events: none; }
-.picker-page.is-parked { display: none; }
+.picker-pager { position: relative; overflow-x: visible; overflow-y: clip; }
+.picker-page { position: absolute; top: 0; left: 0; right: 0; }
+.picker-page:not(.is-current) { visibility: hidden; pointer-events: none; }
+/* Aktuelle Seite und Nachbarn als eigene Ebenen bereithalten: Das Wischen startet ohne Aufbau-Ruck. */
+.picker-page.is-current, .picker-page.is-side { will-change: transform; }
+/* Karten außerhalb des sichtbaren Bereichs überspringt der Browser beim Zeichnen – beim Blättern und Scrollen wird so
+   nur gemalt, was zu sehen ist. Höhe bis zum ersten Zeichnen geschätzt, danach gemerkt (`auto`), damit nichts springt. */
+.picker-page .tile.pick { content-visibility: auto; contain-intrinsic-size: auto 120px auto 181px; }
+.picker-page .grid-ratchets .tile.pick { contain-intrinsic-size: auto 90px auto 140px; }
+.picker-page .grid-bits .tile.pick { contain-intrinsic-size: auto 110px auto 155px; }

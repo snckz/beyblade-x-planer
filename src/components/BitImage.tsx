@@ -44,8 +44,8 @@ function PartPhoto({ src, alt, size, fallback, zoom }: PhotoProps) {
 }
 
 /** Ratchets sind Ringe: Auch der Hintergrund im Loch muss weg. Bits sind schlank und lassen viel Rand frei. */
-const RATCHET_CUTOUT: CutoutOptions = { holes: true, maxRemoved: 0.85, defringe: true, trim: true };
-const BIT_CUTOUT: CutoutOptions = { maxRemoved: 0.88, defringe: true, trim: true };
+export const RATCHET_CUTOUT: CutoutOptions = { holes: true, maxRemoved: 0.85, defringe: true, trim: true };
+export const BIT_CUTOUT: CutoutOptions = { maxRemoved: 0.88, defringe: true, trim: true };
 
 /**
  * Foto für die Auswahlkarte von Ratchet und Bit – derselbe Ablauf wie beim Blade-Foto (BladePhoto in BeyImage.tsx):

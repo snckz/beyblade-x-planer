@@ -344,7 +344,80 @@ const MAX_SIDE = 720;
  * Rückgabe: Adresse des freigestellten Bildes; `null`, wenn es nicht freistellbar ist oder der Browser es nicht zulässt.
  * Das Ergebnis wird je Foto-Adresse gemerkt – dieselbe Adresse also immer mit denselben Optionen freistellen.
  */
-export async function cutoutFromImage(img: HTMLImageElement, src: string, options: CutoutOptions = {}): Promise<string | null> {
+export function cutoutFromImage(img: HTMLImageElement, src: string, options: CutoutOptions = {}): Promise<string | null> {
+  const known = cache.get(src);
+  if (known !== undefined) return Promise.resolve(known);
+  // Dasselbe Foto nur einmal rechnen (Karte und Vorladen können gleichzeitig fragen)
+  let job = pending.get(src);
+  if (!job) {
+    job = queued(() => computeCutout(img, src, options)).finally(() => pending.delete(src));
+    pending.set(src, job);
+  }
+  return job;
+}
+
+// ---- Warteschlange: Freistellen kostet Rechenzeit im Hauptthread ----------------------------------------------------
+// Immer nur ein Foto zur Zeit, mit einer Pause dazwischen (der Browser kann zeichnen und auf Finger reagieren).
+// Während einer Geste (Wischen, Einrasten) ruht die Schlange ganz – sonst ruckelt die Bewegung.
+
+const pending = new Map<string, Promise<string | null>>();
+const waiting: (() => void)[] = [];
+let busy = false;
+let paused = false;
+
+function pump() {
+  if (busy || paused || !waiting.length) return;
+  busy = true;
+  // Pause vor jedem Foto: Zeichnen und Eingaben gehen vor
+  setTimeout(() => {
+    if (paused) {
+      busy = false;
+      return;
+    }
+    waiting.shift()!();
+  }, 0);
+}
+
+function queued<T>(work: () => Promise<T>): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    waiting.push(() => {
+      work()
+        .then(resolve, reject)
+        .finally(() => {
+          busy = false;
+          pump();
+        });
+    });
+    pump();
+  });
+}
+
+/** Freistellen anhalten (`true`) oder fortsetzen (`false`) – z. B. solange eine Wischgeste läuft. */
+export function pauseCutouts(on: boolean): void {
+  paused = on;
+  if (!on) pump();
+}
+
+/**
+ * Foto im Hintergrund laden und freistellen, damit es später sofort fertig dasteht (z. B. die Nachbarseite beim
+ * Blättern). Dieselbe Abrufart wie die Karte (mit Lesefreigabe, ohne Referrer) – so teilen sie sich den Zwischenspeicher.
+ * Nichts tun, wenn das Ergebnis schon bekannt ist oder das Wiki das Freistellen nicht erlaubt.
+ */
+export function prefetchCutout(src: string, options: CutoutOptions = {}): void {
+  if (cache.has(src) || pending.has(src) || prefetching.has(src) || cutoutBlocked() || typeof Image === 'undefined') return;
+  prefetching.add(src);
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.referrerPolicy = 'no-referrer';
+  img.decoding = 'async';
+  img.onload = () => void cutoutFromImage(img, src, options).finally(() => prefetching.delete(src));
+  // Fehler: Die Karte entscheidet beim eigenen Laden selbst (normales Foto statt freigestellt)
+  img.onerror = () => prefetching.delete(src);
+  img.src = src;
+}
+const prefetching = new Set<string>();
+
+async function computeCutout(img: HTMLImageElement, src: string, options: CutoutOptions): Promise<string | null> {
   const known = cache.get(src);
   if (known !== undefined) return known;
   let result: string | null = null;

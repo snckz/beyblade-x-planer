@@ -118,12 +118,13 @@ describe('Kategorie per Wischen (Blade/Bit)', () => {
     pointer(body, 'pointerup', 205, 420);
   });
 
-  it('blättert: die Seite folgt dem Finger, die nächste Kategorie kommt daneben herein; am Rand nur gebremst', () => {
+  it('blättert: die Seite folgt dem Finger, die nächste Kategorie kommt daneben herein; am Rand nur gebremst', async () => {
     const { body } = openPicker('bit');
     const page = () => body.querySelector<HTMLElement>('.picker-page.is-current')!;
     const next = () => body.querySelector<HTMLElement>('.picker-page[data-page="1"]')!;
-    const offset = (el: HTMLElement) => Number(/-?\d+/.exec(el.style.transform)?.[0] ?? 0);
-    expect(next().classList.contains('is-side')).toBe(true); // Nachbar liegt schon bereit
+    const offset = (el: HTMLElement) => Number(/translate(?:3d|X)\((-?[\d.]+)px/.exec(el.style.transform)?.[1] ?? 0);
+    // Nachbar wird kurz nach dem Öffnen gebaut und liegt dann bereit
+    await waitFor(() => expect(next()?.classList.contains('is-side')).toBe(true));
     t += 1000;
     pointer(body, 'pointerdown', 200, 300);
     t += 50;
