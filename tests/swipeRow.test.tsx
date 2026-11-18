@@ -193,6 +193,26 @@ describe('Sammlung: Entfernen im eigenen Fenster und per Wischen', () => {
     expect(state().owned[code]).toBeUndefined();
   });
 
+  it('Wunschliste: kein × mehr – Papierkorb erst nach dem Wischen, ohne Geste per Tastatur erreichbar', async () => {
+    const wish = db.products.filter((p) => p.bladeId).slice(1, 3).map((p) => p.code);
+    let current: UserState = { ...EMPTY_STATE, owned: { [code]: 1 }, wishlist: wish };
+    function Harness() {
+      const [s, set] = useState(current);
+      current = s;
+      return <Collection db={db} state={s} update={(fn) => set((x) => (current = fn(x)))} />;
+    }
+    const view = render(<Harness />);
+    const rows = [...view.container.querySelectorAll<HTMLElement>('.wish-card .swipe-row')];
+    expect(rows).toHaveLength(2);
+    expect(rows.every((r) => !r.textContent?.includes('×') && !r.querySelector('.icon-btn'))).toBe(true);
+    const name = db.products.find((p) => p.code === wish[0])!.name;
+    const trash = view.getByRole('button', { name: `${name} von der Wunschliste nehmen` });
+    act(() => trash.focus());
+    expect(rows[0]!.classList.contains('is-open')).toBe(true);
+    fireEvent.click(trash);
+    await waitFor(() => expect(current.wishlist).toEqual([wish[1]]));
+  });
+
   it('Produkt wegwischen entfernt alle Exemplare; „Rückgängig“ bringt sie zurück', async () => {
     const { view, state } = collection({ [code]: 2 });
     const tile = view.container.querySelector<HTMLElement>('.tiles .swipe-row')!;

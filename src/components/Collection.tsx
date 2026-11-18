@@ -287,7 +287,7 @@ export function Collection({ db, state, update, events = [], meta }: Props) {
                 const price = priceHint(p, rates);
                 const rel = releaseOf(p.code);
                 return (
-                  <SwipeRow key={p.code} class="row" deleteLabel={`${p.name} von der Wunschliste nehmen`} onDelete={() => swipeUnwish(p.code)}>
+                  <SwipeRow key={p.code} class="row" deleteLabel={`${p.name} von der Wunschliste nehmen`} onlyDelete onDelete={() => swipeUnwish(p.code)}>
                     <div class="row-main">
                       <span class="row-title">{nb(displayProductName(p, db))}</span>
                       <span class="row-sub">
@@ -304,9 +304,6 @@ export function Collection({ db, state, update, events = [], meta }: Props) {
                     </button>
                     <button type="button" class="btn btn-ghost btn-sm" onClick={() => gotIt(p.code)} aria-label={`${p.name} gekauft: in die Sammlung`}>
                       Gekauft
-                    </button>
-                    <button type="button" class="icon-btn" onClick={() => unwish(p.code)} aria-label={`${p.name} von der Wunschliste nehmen`}>
-                      ×
                     </button>
                   </SwipeRow>
                 );
