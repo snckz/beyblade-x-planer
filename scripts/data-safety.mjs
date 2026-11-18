@@ -1,30 +1,34 @@
 // Datenverlust-Schutz für alle Skripte, die public/data/db.json schreiben.
 // - Vor dem Schreiben: Gültigkeit (validateDb, validateRetired) und Übergang gegen den bisherigen Stand
-//   (validateTransition): Nichts Bestehendes verschwindet oder wird umbelegt, außer ausdrücklich in retired.json.
+//   (validateTransition): Nichts Bestehendes verschwindet oder wird umbelegt, außer ausdrücklich im ID-Register
+//   public/data/aliases.json (src/lib/idRegister.js).
 // - Schreiben atomar (temporäre Datei + Umbenennen): Ein Abbruch mitten im Schreiben hinterlässt keine halbe Datei.
 // Verdächtige Änderungen werfen DataSafetyError – das Skript bricht mit klarem Fehler ab, db.json bleibt unverändert.
 import { readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { EMPTY_RETIRED, normalizeRetired, validateDb, validateRetired, validateTransition } from './validate-data.mjs';
+import { EMPTY_RETIRED, validateDb, validateRetired, validateTransition } from './validate-data.mjs';
+import { normalizeRegister } from '../src/lib/idRegister.js';
 
 export class DataSafetyError extends Error {
   constructor(errors) {
-    super(`Datenverlust-Schutz: Update abgelehnt, db.json bleibt unverändert.\n- ${errors.join('\n- ')}\n` + 'Gewollte Löschungen, Umbenennungen oder Korrekturen in public/data/retired.json eintragen.');
+    super(`Datenverlust-Schutz: Update abgelehnt, db.json bleibt unverändert.\n- ${errors.join('\n- ')}\n` + 'Gewollte Löschungen, Umbenennungen oder Korrekturen im ID-Register public/data/aliases.json eintragen.');
     this.name = 'DataSafetyError';
     this.errors = errors;
   }
 }
 
-/** retired.json lesen (fehlt die Datei: nichts stillgelegt). Kaputtes JSON ist ein Fehler, kein „leer“. */
-export function loadRetired(dataDir) {
+/** ID-Register lesen (fehlt die Datei: nichts eingetragen). Kaputtes JSON ist ein Fehler, kein „leer“. */
+export function loadRegister(dataDir) {
   let text;
   try {
-    text = readFileSync(new URL('retired.json', dataDir), 'utf8');
+    text = readFileSync(new URL('aliases.json', dataDir), 'utf8');
   } catch {
-    return normalizeRetired(EMPTY_RETIRED);
+    return normalizeRegister({});
   }
-  return normalizeRetired(JSON.parse(text));
+  return normalizeRegister(JSON.parse(text));
 }
+/** Frühere Bezeichnung (Phase 1): liefert dasselbe Register */
+export const loadRetired = loadRegister;
 
 /** Datei atomar ersetzen: erst vollständig daneben schreiben, dann in einem Schritt umbenennen. */
 export function writeFileAtomic(url, text) {

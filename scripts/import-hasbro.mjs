@@ -5,21 +5,17 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { API, wikiUrl } from './update-data.mjs';
-import { LINK_RE, MAX_PAGES, norm, parseBeyPage, parseBeyTitle } from './import-catalog.mjs';
-import { validateDb, EMPTY_RETIRED, MISSING_PAGE_CODES, normalizeRetired } from './validate-data.mjs';
-import { DataSafetyError, loadRetired, writeDbSafely, writeFileAtomic } from './data-safety.mjs';
+import { LINK_RE, MAX_PAGES, parseBeyPage, parseBeyTitle } from './import-catalog.mjs';
+import { validateDb, EMPTY_RETIRED, MISSING_PAGE_CODES } from './validate-data.mjs';
+import { createBladeIndex, normalizeRegister, wordKey } from '../src/lib/idRegister.js';
+import { DataSafetyError, loadRegister, writeDbSafely, writeFileAtomic } from './data-safety.mjs';
 
 export const LIST_TITLES = ['List of Beyblade X products (Hasbro)', 'List of Beyblade X Products (Hasbro)', 'Beyblade X (Hasbro)'];
 // Hasbro-Artikelnummern: Buchstabe + 4 Ziffern (F9580, G1670 …)
 const CODE_RE = /\b([A-Z]\d{4})\b/g;
 
-const words = (s) =>
-  String(s)
-    .replace(/([a-z])([A-Z])/g, '$1 $2')
-    .toLowerCase()
-    .split(/[^a-z0-9]+/)
-    .filter(Boolean);
-const wkey = (s) => words(s).sort().join(' ');
+/** Wortmenge unabhängig von der Reihenfolge – zentral im ID-Register */
+const wkey = wordKey;
 
 export function kindOfHasbro(text) {
   const t = String(text).toLowerCase();
@@ -135,11 +131,13 @@ export function parseHasbroList(wikitext) {
  * - Wiedererkennung: Produktnummer; bei Packungen mit mehreren Kreiseln (Nummer-01, -02 …) über die Teile
  *   (Blade, Ratchet, Bit) – nicht über die Reihenfolge in der Liste. Neue Kreisel bekommen die nächste freie Nummer.
  * - Was die Quelle diesmal nicht liefert, bleibt erhalten (Bericht: `missingFromSource`).
- * - Gewollt entfernen/umbenennen nur über retired.json (`retired`).
+ * - Gewollt entfernen/umbenennen nur über das ID-Register aliases.json (`retired`).
  */
 export async function mergeHasbro(db, entries, fetchPage, { retired = EMPTY_RETIRED, maxPages = MAX_PAGES } = {}) {
   const out = structuredClone(db);
-  const stillgelegt = normalizeRetired(retired);
+  // `retired`: das ID-Register (volle Form aus aliases.json oder alte flache Form) – Schreibweisen und Stillgelegtes
+  const register = normalizeRegister(retired);
+  const stillgelegt = register.retired;
   const report = {
     added: { blades: [], ratchets: [], bits: [], products: [] },
     existing: 0,
@@ -150,21 +148,11 @@ export async function mergeHasbro(db, entries, fetchPage, { retired = EMPTY_RETI
     unresolved: [],
     missingFromSource: [],
   };
-  const byKey = new Map();
-  const index = (b) => {
-    for (const n of [b.id, b.name, b.hasbroName].filter(Boolean)) {
-      byKey.set(norm(n), b);
-      byKey.set(wkey(n), b); // Reihenfolge egal: „Sword Dran“ = „Dran Sword“
-    }
-  };
-  out.blades.forEach(index);
-  // Schreibvarianten im Wiki für schon gepflegte Blades
-  const ALIASES = { StormPegasis: 'StormPegasus' }; // alte ID beibehalten (gespeicherte Kombos), Name ist „Storm Pegasis“
-  const findBlade = (bey) => {
-    const renamed = stillgelegt.blades[bey.bladeId];
-    if (typeof renamed === 'string') return byKey.get(norm(renamed));
-    return (ALIASES[bey.bladeId] ? byKey.get(norm(ALIASES[bey.bladeId])) : undefined) ?? byKey.get(norm(bey.bladeId)) ?? byKey.get(wkey(bey.blade)) ?? (bey.hasbro ? byKey.get(wkey(bey.hasbro)) : undefined);
-  };
+  // Zentraler Namensindex (auch vertauschte Wortreihenfolge: „Sword Dran“ = Dran Sword). Register-Schreibweisen und
+  // Umbenennungen inklusive; mehrdeutige Namen werden nicht zugeordnet.
+  const blades = createBladeIndex(out.blades, register, { wordOrder: true });
+  const index = (b) => blades.add(b);
+  const findBlade = (bey) => blades.find(bey.bladeId, bey.blade, bey.hasbro);
   const ratchetIds = new Set(out.ratchets.map((r) => r.id));
   const bitIds = new Set(out.bits.map((b) => b.id));
   const byCode = new Map(out.products.map((p) => [p.code, p]));
@@ -279,6 +267,11 @@ export async function mergeHasbro(db, entries, fetchPage, { retired = EMPTY_RETI
 
     for (const bey of entry.beys) {
       let blade = findBlade(bey);
+      // Name passt zu mehreren Blades: nicht raten (sonst Duplikat oder falsche Zuordnung) – melden
+      if (!blade && blades.ambiguous(bey.bladeId, bey.blade, bey.hasbro)) {
+        report.skipped.push({ code: entry.code, title: bey.title, reason: 'Name mehrdeutig (passt zu mehreren Blades) – im ID-Register eintragen' });
+        continue;
+      }
       let existing = blade ? match(partsOf(blade, bey)) : undefined;
       // Einzelner Kreisel unter derselben Nummer, aber andere Teile laut Quelle: Bestand behalten, Abweichung melden
       if (!existing && !multi && byCode.has(entry.code) && blade) {
@@ -311,7 +304,7 @@ export async function mergeHasbro(db, entries, fetchPage, { retired = EMPTY_RETI
         if (target) {
           realTitle = pg.title;
           real = { ...bey, blade: target.blade, bladeId: target.bladeId };
-          blade ??= byKey.get(norm(ALIASES[target.bladeId] ?? target.bladeId)) ?? byKey.get(wkey(target.blade));
+          blade ??= blades.find(target.bladeId, target.blade);
         }
         // Erst nach der Weiterleitung erkannt: doch ein bekanntes Produkt
         const late = blade ? match(partsOf(blade, bey)) : undefined;
@@ -334,7 +327,7 @@ export async function mergeHasbro(db, entries, fetchPage, { retired = EMPTY_RETI
       // Packung mit stillgelegten Plätzen: Ein nicht wiedererkannter Kreisel könnte genau der stillgelegte sein –
       // nicht automatisch wieder anlegen, sondern melden
       if (multi && retiredSlots.length) {
-        report.skipped.push({ code: entry.code, title: bey.title, reason: 'Packung hat stillgelegte Einträge (retired.json) – bitte prüfen' });
+        report.skipped.push({ code: entry.code, title: bey.title, reason: 'Packung hat stillgelegte Einträge (aliases.json) – bitte prüfen' });
         continue;
       }
       // Neues Produkt: nächste freie Nummer (bei Einzelprodukten die Artikelnummer selbst)
@@ -342,7 +335,7 @@ export async function mergeHasbro(db, entries, fetchPage, { retired = EMPTY_RETI
       while (multi && byCode.has(code)) code = `${entry.code}-${String(++nextNo).padStart(2, '0')}`;
       if (Object.hasOwn(stillgelegt.products, code)) continue; // bewusst entfernt bzw. umbenannt
       if (!blade && stillgelegt.blades[real.bladeId] === null) {
-        report.skipped.push({ code, title: bey.title, reason: 'Blade stillgelegt (retired.json)' });
+        report.skipped.push({ code, title: bey.title, reason: 'Blade stillgelegt (aliases.json)' });
         continue;
       }
       if (!blade) {
@@ -465,7 +458,7 @@ export async function run({ fetchFn = fetch, dataDir = new URL('../public/data/'
     report.sampleMid = wikitext.slice(Math.floor(wikitext.length / 2), Math.floor(wikitext.length / 2) + 1500);
     report.firstEntries = entries.slice(0, 8).map((e) => ({ code: e.code, beys: e.beys.map((b) => `${b.title} | ${b.hasbro}`), usd: e.usd }));
     report.linkOnly = entries.filter((e) => !e.beys.length).slice(0, 12).map((e) => ({ code: e.code, links: e.links.slice(0, 4), text: e.text.slice(0, 160) }));
-    const res = await mergeHasbro(db, entries, fetchPage, { retired: loadRetired(dataDir) });
+    const res = await mergeHasbro(db, entries, fetchPage, { retired: loadRegister(dataDir) });
     const errors = validateDb(res.db);
     if (errors.length) throw new Error('Import ergäbe ungültige Daten: ' + errors.slice(0, 5).join('; '));
     const status = res.report.skipped.length ? 'partial' : 'ok';

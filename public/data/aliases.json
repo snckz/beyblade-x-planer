@@ -1,0 +1,16 @@
+{
+  "_hinweis": "Zentrales ID-Register (src/lib/idRegister.js), genutzt von App und Datenpipeline. aliases: andere Schreibweisen BESTEHENDER IDs ({\"Schreibweise\": \"kanonischeId\"}). retired: IDs, die es nicht mehr gibt – umbenannt ({\"alteId\": \"neueId\"}), bei Produkten auch aufgeteilt ([\"neu1\", \"neu2\"]), oder bewusst entfernt (null). reassigned: Produktnummer darf ausnahmsweise andere Teile bekommen ({\"Nummer\": \"Grund\"}). Nur ausdrücklich Eingetragenes wird umgeleitet; der Datenverlust-Schutz (scripts/data-safety.mjs) lässt Löschen und Umbelegen nur hierüber zu.",
+  "aliases": {
+    "blades": { "StormPegasis": "StormPegasus" },
+    "ratchets": {},
+    "bits": {},
+    "products": {}
+  },
+  "retired": {
+    "blades": {},
+    "ratchets": {},
+    "bits": {},
+    "products": { "HAS-XBS": ["F9588-01", "F9588-02"] }
+  },
+  "reassigned": {}
+}

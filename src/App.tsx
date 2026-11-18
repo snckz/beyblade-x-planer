@@ -1,7 +1,8 @@
 import { displayName } from './lib/names';
 import { useCallback, useEffect, useMemo, useState } from 'preact/hooks';
 import type { Database, EventFeed, ImageIndex, MetaFeed, NewsFeed, Rates } from './lib/types';
-import { daysUntil, loadDatabase, loadEvents, loadImages, loadMeta, loadNews, loadRates } from './lib/data';
+import { daysUntil, loadDatabase, loadEvents, loadIdRegister, loadImages, loadMeta, loadNews, loadRates } from './lib/data';
+import { migrateUserState, type IdRegister } from './lib/idRegister';
 import { loadState, saveState, STORAGE_KEY, type UserState } from './lib/storage';
 import { AppContext, type ImageKind } from './lib/context';
 import { preloadImages } from './lib/images';
@@ -112,6 +113,7 @@ export function App() {
     events: [],
   });
   const [rates, setRates] = useState<Rates | null>(null);
+  const [register, setRegister] = useState<IdRegister | null>(null);
   const [meta, setMeta] = useState<MetaFeed | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [state, setState] = useState<UserState>(loadState);
@@ -136,7 +138,17 @@ export function App() {
     void loadEvents().then(setEvents);
     void loadRates().then(setRates);
     void loadMeta().then(setMeta);
+    void loadIdRegister().then(setRegister);
   }, []);
+
+  // Gespeicherte Kombos, Sammlung, Wunschliste … mit veralteten IDs (umbenannt, alte Produktcodes) auf die aktuellen
+  // umstellen – nur ausdrücklich im ID-Register Eingetragenes, Unbekanntes bleibt unverändert (nichts geht verloren).
+  // Läuft auch nach einem Import; ohne Änderung bleibt der Stand derselbe (kein erneutes Speichern).
+  useEffect(() => {
+    if (!db || !register) return;
+    const res = migrateUserState(state, register, db);
+    if (res.changes.length) setState(res.state);
+  }, [db, register, state]);
 
   useEffect(load, [load]);
   // Große Fotos vorladen, sobald der Bilder-Index da ist – dann öffnet die Großansicht sofort.

@@ -1,5 +1,8 @@
 import { describe, expect, it, beforeEach } from 'vitest';
 import { exportState, importState, loadState, sanitize, saveState } from '../src/lib/storage';
+import { migrateUserState } from '../src/lib/idRegister';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 
 describe('storage', () => {
   beforeEach(() => localStorage.clear());
@@ -27,8 +30,10 @@ describe('storage', () => {
     expect(s.barcodes).toEqual({ '4904810000000': 'BX-01' });
     expect(s.shopPrices).toEqual({});
   });
-  it('ersetzt den alten Battle-Set-Eintrag durch beide Kreisel', () => {
-    const s = sanitize({ owned: { 'HAS-XBS': 1, 'BX-01': 2 }, wishlist: ['HAS-XBS'] });
+  it('ersetzt den alten Battle-Set-Eintrag durch beide Kreisel (über das zentrale ID-Register)', () => {
+    const db = JSON.parse(readFileSync(join(process.cwd(), 'public/data/db.json'), 'utf8'));
+    const register = JSON.parse(readFileSync(join(process.cwd(), 'public/data/aliases.json'), 'utf8'));
+    const { state: s } = migrateUserState(sanitize({ owned: { 'HAS-XBS': 1, 'BX-01': 2 }, wishlist: ['HAS-XBS'] }), register, db);
     expect(s.owned).toEqual({ 'BX-01': 2, 'F9588-01': 1, 'F9588-02': 1 });
     expect(s.wishlist).toEqual(['F9588-01', 'F9588-02']);
   });

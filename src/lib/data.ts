@@ -1,5 +1,6 @@
 import { groupKey } from './price';
 import type { Blade, Database, EventFeed, ImageIndex, MetaFeed, NewsFeed, Product, Rates } from './types';
+import { normalizeRegister, type IdRegister } from './idRegister';
 
 const base = import.meta.env.BASE_URL;
 
@@ -27,6 +28,15 @@ export async function loadImages(): Promise<ImageIndex> {
     return await getJson<ImageIndex>('images.json');
   } catch {
     return { source: '', blades: {} };
+  }
+}
+
+/** Zentrales ID-Register (Schreibweisen, umbenannte und alte IDs). Fehlt es: nichts umzuleiten. */
+export async function loadIdRegister(): Promise<IdRegister> {
+  try {
+    return normalizeRegister(await getJson<unknown>('aliases.json'));
+  } catch {
+    return normalizeRegister({});
   }
 }
 

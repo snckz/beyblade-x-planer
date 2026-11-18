@@ -6,18 +6,17 @@
 import { readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { API, wikiUrl } from './update-data.mjs';
-import { validateDb, EMPTY_RETIRED, MISSING_PAGE_CODES, normalizeRetired } from './validate-data.mjs';
-import { DataSafetyError, loadRetired, writeDbSafely, writeFileAtomic } from './data-safety.mjs';
+import { validateDb, EMPTY_RETIRED, MISSING_PAGE_CODES } from './validate-data.mjs';
+import { createBladeIndex, normalizeRegister } from '../src/lib/idRegister.js';
+import { DataSafetyError, loadRegister, writeDbSafely, writeFileAtomic } from './data-safety.mjs';
 
 export const LIST_TITLES = ['List of Beyblade X products (Takara Tomy)', 'List of Beyblade X Products (Takara Tomy)'];
 const CODE_RE = /\b(BX|UX|CX)-(\d{2,3})\b/g;
 export const LINK_RE = /\[\[([^\]|#]+)(?:#[^\]|]*)?(?:\|[^\]]*)?\]\]/g;
 export const MAX_PAGES = 320;
 
-/** Schreibweisen im Wiki, die zu bereits gepflegten Blades gehören. */
-const BLADE_ALIASES = { StormPegasis: 'StormPegasus' };
-
-export const norm = (s) => String(s).toLowerCase().replace(/[^a-z0-9]/g, '');
+// Schreibweisen und Normalisierung: zentrales ID-Register (src/lib/idRegister.js, public/data/aliases.json)
+export { norm } from '../src/lib/idRegister.js';
 
 /**
  * Zerlegt einen Kreisel-Seitentitel. Gibt null zurück, wenn der Titel kein Kreisel ist.
@@ -135,27 +134,21 @@ export async function wikitextOf(fetchFn, title) {
 
 /**
  * Ergänzt db um die Einträge der Liste. Reine Funktion (bis auf fetchPage) – gut testbar.
- * Nur Hinzufügen, nie Löschen. In retired.json Stillgelegtes wird nicht wieder angelegt (`retired`).
+ * Nur Hinzufügen, nie Löschen. Im ID-Register (aliases.json) Stillgelegtes wird nicht wieder angelegt (`retired`).
  */
 export async function mergeCatalog(db, entries, fetchPage, { retired = EMPTY_RETIRED } = {}) {
   const out = structuredClone(db);
-  const stillgelegt = normalizeRetired(retired);
+  // `retired`: das ID-Register (volle Form aus aliases.json oder alte flache Form) – Schreibweisen und Stillgelegtes
+  const register = normalizeRegister(retired);
+  const stillgelegt = register.retired;
   const report = { added: { blades: [], ratchets: [], bits: [], products: [] }, skipped: [] };
-  const bladeByNorm = new Map();
-  for (const b of out.blades) {
-    bladeByNorm.set(norm(b.id), b);
-    bladeByNorm.set(norm(b.name), b);
-    if (b.hasbroName) bladeByNorm.set(norm(b.hasbroName), b);
-  }
+  // Zentraler Namensindex: ID, Name, Hasbro-Name, Register-Schreibweisen; mehrdeutige Namen werden nicht zugeordnet
+  const blades = createBladeIndex(out.blades, register);
   const ratchetIds = new Set(out.ratchets.map((r) => r.id));
   const bitIds = new Set(out.bits.map((b) => b.id));
   const baseCodes = new Set(out.products.map((p) => /^([A-Z]{2,3}-\d{2,3})/.exec(p.code)?.[1]).filter(Boolean));
   const combos = new Set(out.products.map((p) => `${p.bladeId}|${p.ratchetId ?? ''}|${p.bitId}`));
-  const lookAt = (b) => {
-    const renamed = stillgelegt.blades[b.bladeId];
-    const alias = typeof renamed === 'string' ? renamed : BLADE_ALIASES[b.bladeId];
-    return bladeByNorm.get(norm(alias ?? b.bladeId));
-  };
+  const lookAt = (b) => blades.find(b.bladeId, b.blade);
   let fetched = 0;
 
   report.unresolved = [];
@@ -184,8 +177,12 @@ export async function mergeCatalog(db, entries, fetchPage, { retired = EMPTY_RET
       const code = multi ? `${entry.code}-${String(n).padStart(2, '0')}` : entry.code;
       if (Object.hasOwn(stillgelegt.products, code)) continue; // bewusst entfernt bzw. umbenannt
       let blade = lookAt(bey);
+      if (!blade && blades.ambiguous(bey.bladeId, bey.blade)) {
+        report.skipped.push({ code, title: bey.title, reason: 'Name mehrdeutig (passt zu mehreren Blades) – im ID-Register eintragen' });
+        continue;
+      }
       if (!blade && stillgelegt.blades[bey.bladeId] === null) {
-        report.skipped.push({ code, title: bey.title, reason: 'Blade stillgelegt (retired.json)' });
+        report.skipped.push({ code, title: bey.title, reason: 'Blade stillgelegt (aliases.json)' });
         continue;
       }
       let info = null;
@@ -221,7 +218,7 @@ export async function mergeCatalog(db, entries, fetchPage, { retired = EMPTY_RET
           ...(bey.assist ? { note: `CX: Assist Blade (${bey.assist}).` } : {}),
         };
         out.blades.push(blade);
-        bladeByNorm.set(norm(blade.id), blade);
+        blades.add(blade);
         report.added.blades.push(blade.id);
       }
       if (bey.ratchet && !ratchetIds.has(bey.ratchet)) {
@@ -330,7 +327,7 @@ export async function run({ fetchFn = fetch, dataDir = new URL('../public/data/'
     report.codes = entries.length;
     report.listLength = wikitext.length;
     if (!entries.length) report.sample = wikitext.slice(0, 1500);
-    const res = await mergeCatalog(db, entries, (title) => wikitextOf(fetchFn, title), { retired: loadRetired(dataDir) });
+    const res = await mergeCatalog(db, entries, (title) => wikitextOf(fetchFn, title), { retired: loadRegister(dataDir) });
     const errors = validateDb(res.db);
     if (errors.length) throw new Error('Import ergäbe ungültige Daten: ' + errors.slice(0, 5).join('; '));
     Object.assign(report, { ok: true, fetched: res.fetched, ...res.report });

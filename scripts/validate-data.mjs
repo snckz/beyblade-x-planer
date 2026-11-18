@@ -2,6 +2,7 @@
 // Wird lokal (npm run validate-data) und im Auto-Update-Workflow ausgeführt.
 import { pathToFileURL } from 'node:url';
 import { existsSync, readFileSync } from 'node:fs';
+import { normalizeRegister, validateRegister } from '../src/lib/idRegister.js';
 
 const TYPES = new Set(['attack', 'defense', 'stamina', 'balance']);
 const SPINS = new Set(['right', 'left', 'both']);
@@ -118,7 +119,7 @@ export function validateImages(index) {
 // ---- Übergangsprüfung: kein unbeabsichtigter Datenverlust bei automatischen Updates -----------------------------------
 // Gespeicherte Kombos (Blade-/Ratchet-/Bit-IDs), Sammlungen und Wunschlisten (Produktnummern) verweisen auf db.json.
 // Verschwindet eine ID oder bekommt eine Produktnummer andere Teile, gehen Nutzerdaten still kaputt. Deshalb gilt:
-// Bestehendes bleibt – Löschen, Umbenennen und Umbelegen nur ausdrücklich über public/data/retired.json.
+// Bestehendes bleibt – Löschen, Umbenennen und Umbelegen nur ausdrücklich über das ID-Register public/data/aliases.json.
 
 const PART_KINDS = [
   ['blades', 'id', 'Blade'],
@@ -133,42 +134,27 @@ const PART_KINDS = [
  */
 export const MISSING_PAGE_CODES = new Set(['missingtitle', 'invalidtitle', 'pagecannotexist', 'nosuchpageid']);
 
-/** Leere, gültige Liste stillgelegter Einträge (Form von retired.json). */
-export const EMPTY_RETIRED = Object.freeze({ blades: {}, ratchets: {}, bits: {}, products: {}, reassigned: {} });
-
-/** retired.json in die volle Form bringen (fehlende Abschnitte = leer). */
+/**
+ * Sicht der Übergangsprüfung auf das zentrale ID-Register (public/data/aliases.json, src/lib/idRegister.js):
+ * stillgelegte bzw. umbenannte IDs je Art (`retired`) plus `reassigned`. Nimmt die volle Register-Form
+ * ({ aliases, retired, reassigned }) wie die alte flache Form von retired.json.
+ */
 export function normalizeRetired(raw) {
-  const r = raw && typeof raw === 'object' ? raw : {};
-  const obj = (v) => (v && typeof v === 'object' && !Array.isArray(v) ? v : {});
-  return { blades: obj(r.blades), ratchets: obj(r.ratchets), bits: obj(r.bits), products: obj(r.products), reassigned: obj(r.reassigned) };
+  const r = normalizeRegister(raw);
+  return { ...r.retired, reassigned: r.reassigned };
 }
 
-/**
- * retired.json prüfen:
- * - `blades|ratchets|bits|products`: { alteId: neueId | null } – null = bewusst entfernt, sonst umbenannt nach neueId.
- * - `reassigned`: { produktnummer: "Grund" } – Produktnummer darf ausnahmsweise andere Teile bekommen (Korrektur).
- * Stillgelegte IDs dürfen nicht mehr in db.json stehen; Umleitungen müssen auf vorhandene Einträge zeigen.
- */
-export function validateRetired(retired, db) {
-  const errors = [];
-  const r = normalizeRetired(retired);
-  for (const [kind, key, label] of PART_KINDS) {
-    const ids = new Set((db[kind] ?? []).map((x) => x[key]));
-    for (const [old, target] of Object.entries(r[kind])) {
-      if (target !== null && typeof target !== 'string') errors.push(`retired.json ${label} ${old}: Ziel muss eine ID oder null sein`);
-      if (ids.has(old)) errors.push(`retired.json: ${label} ${old} ist stillgelegt, steht aber noch in db.json`);
-      if (typeof target === 'string' && !ids.has(target)) errors.push(`retired.json: ${label} ${old} → ${target}, aber ${target} gibt es nicht`);
-    }
-  }
-  for (const [code, why] of Object.entries(r.reassigned)) {
-    if (typeof why !== 'string' || !why.trim()) errors.push(`retired.json reassigned ${code}: Grund fehlt`);
-  }
-  return errors;
+/** Leere Sicht (nichts stillgelegt, nichts umbelegt). */
+export const EMPTY_RETIRED = Object.freeze(normalizeRetired({}));
+
+/** Register gegen db.json prüfen (Ziele, Kreise, Konflikte, Gründe) – siehe validateRegister in src/lib/idRegister.js. */
+export function validateRetired(register, db) {
+  return validateRegister(register, db);
 }
 
 /**
  * Vergleicht den bisherigen mit dem neuen Datenstand. Gibt Fehler zurück, wenn
- * - ein Blade, Ratchet, Bit oder Produkt verschwindet, ohne in retired.json zu stehen,
+ * - ein Blade, Ratchet, Bit oder Produkt verschwindet, ohne in aliases.json unter `retired` zu stehen,
  * - eine bestehende Produktnummer andere Teile (Blade/Ratchet/Bit) bekommt, ohne in `reassigned` zu stehen.
  * Neue Einträge und geänderte Zusatzangaben (Namen, Preise, Prüfstatus …) sind erlaubt.
  */
@@ -184,7 +170,7 @@ export function validateTransition(prev, next, retired = EMPTY_RETIRED) {
   }
   const nextProducts = new Map((next.products ?? []).map((p) => [p.code, p]));
   const parts = (p) => `${p.bladeId ?? '–'} | ${p.ratchetId ?? '–'} | ${p.bitId ?? '–'}`;
-  // Umbenennungen aus retired.json gelten auch hier: Blade A → B macht aus „A | 3-60 | F“ erlaubt „B | 3-60 | F“.
+  // Umbenennungen aus dem Register gelten auch hier: Blade A → B macht aus „A | 3-60 | F“ erlaubt „B | 3-60 | F“.
   const renamed = (kind, id) => (id !== undefined && typeof r[kind][id] === 'string' ? r[kind][id] : id);
   const expected = (p) => ({ bladeId: renamed('blades', p.bladeId), ratchetId: renamed('ratchets', p.ratchetId), bitId: renamed('bits', p.bitId) });
   for (const old of prev.products ?? []) {
@@ -199,9 +185,9 @@ const isMain = !!process.argv[1] && import.meta.url === pathToFileURL(process.ar
 if (isMain) {
   const read = (f) => JSON.parse(readFileSync(new URL(`../public/data/${f}`, import.meta.url), 'utf8'));
   const db = read('db.json');
-  // Fehlt retired.json: nichts stillgelegt. Kaputtes JSON ist ein Fehler (wie in data-safety.mjs).
-  let retired = EMPTY_RETIRED;
-  if (existsSync(new URL('../public/data/retired.json', import.meta.url))) retired = normalizeRetired(read('retired.json'));
+  // ID-Register: fehlt die Datei, ist nichts eingetragen. Kaputtes JSON ist ein Fehler (wie in data-safety.mjs).
+  let retired = normalizeRegister({});
+  if (existsSync(new URL('../public/data/aliases.json', import.meta.url))) retired = normalizeRegister(read('aliases.json'));
   const errors = [
     ...validateDb(db),
     ...validateRetired(retired, db),
