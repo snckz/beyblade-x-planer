@@ -1,13 +1,13 @@
 import type { Combo, Database } from '../lib/types';
 import { PartField } from './PartPicker';
-import { playableParts } from '../lib/useRelease';
+import { useRelease } from '../lib/useRelease';
 
 /** Kompakte Auswahl Blade + Ratchet + Bit (Gegner-Deck, Battle-Tagebuch). */
 export function ComboPicker({ db, value, onChange, label }: { db: Database; value: Combo; onChange: (c: Combo) => void; label: string }) {
   const blade = db.blades.find((b) => b.id === value.bladeId);
   const integrated = !!blade?.integratedRatchet;
   // Nur freigegebene Teile wählbar; ein schon eingetragenes (inzwischen gesperrtes) Teil bleibt sichtbar, damit nichts verloren geht.
-  const play = playableParts(db);
+  const { play } = useRelease(db);
   const keep = <T extends { id: string }>(list: T[], all: T[], id?: string) => (id && !list.some((x) => x.id === id) ? [...list, ...all.filter((x) => x.id === id)] : list);
   const blades = keep(play.blades, db.blades, value.bladeId);
   const ratchets = keep(play.ratchets, db.ratchets, value.ratchetId);

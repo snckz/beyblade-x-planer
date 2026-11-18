@@ -9,7 +9,7 @@ import { nb } from '../lib/analysis';
 import { BeyImage } from './BeyImage';
 import { Section, TypeBadge } from './ui';
 import { useApp } from '../lib/context';
-import { playableParts, releaseOf } from '../lib/useRelease';
+import { useRelease } from '../lib/useRelease';
 
 interface Props {
   db: Database;
@@ -32,6 +32,7 @@ export function DeckOptimizer({ db, state, update, meta }: Props) {
   // Altes Ergebnis verwerfen, sobald sich Teile oder Gegner ändern – sonst ließe sich ein veraltetes Deck übernehmen.
   useEffect(() => setResult(undefined), [parts, opponents, onlyOwned]);
 
+  const { rel, play } = useRelease(db);
   const run = () => {
     setBusy(true);
     setMsg('');
@@ -39,8 +40,6 @@ export function DeckOptimizer({ db, state, update, meta }: Props) {
     window.setTimeout(() => {
       const useOwned = onlyOwned && hasParts;
       // Nur freigegebene Teile (zentraler Freigabestatus) – auch aus der Sammlung, falls dort schon Angekündigtes steht
-      const rel = releaseOf(db);
-      const play = playableParts(db);
       const pool = useOwned
         ? {
             blades: [...parts.blades.keys()].filter((id) => rel.selectable('blades', id)),

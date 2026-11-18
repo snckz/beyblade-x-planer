@@ -3,7 +3,7 @@ import type { Combo, Database, MetaFeed } from '../lib/types';
 import type { UserState } from '../lib/storage';
 import { newId } from '../lib/storage';
 import { nb } from '../lib/analysis';
-import { playableParts, releaseOf } from '../lib/useRelease';
+import { useRelease } from '../lib/useRelease';
 
 /** Zweizeilig: Blade oben, Ratchet+Bit unten – kein Umbruch mitten im Namen. */
 function TwoLine({ name, label }: { name?: string; label: string }) {
@@ -45,6 +45,7 @@ export function Battle(props: Props) {
   const [onlyOwned, setOnlyOwned] = useState(true);
   const [live, setLive] = useState(false);
   const parts = useMemo(() => ownedParts(db, state.owned), [db, state.owned]);
+  const { rel, play } = useRelease(db);
   const hasParts = parts.bits.size > 0;
 
   const deckCombos = state.deck.map((id) => state.combos.find((c) => c.id === id)).filter((c): c is Combo => !!c);
@@ -55,10 +56,9 @@ export function Battle(props: Props) {
   const duel = mine.length ? deckDuel(mine, opponents) : null;
 
   // Tausch-Vorschläge nur mit freigegebenen Teilen (zentraler Freigabestatus)
-  const rel = releaseOf(db);
   const pool = onlyOwned && hasParts
     ? { bits: [...parts.bits.keys()].filter((id) => rel.selectable('bits', id)), ratchets: [...parts.ratchets.keys()].filter((id) => rel.selectable('ratchets', id)) }
-    : { bits: playableParts(db).bits.map((b) => b.id), ratchets: playableParts(db).ratchets.map((r) => r.id) };
+    : { bits: play.bits.map((b) => b.id), ratchets: play.ratchets.map((r) => r.id) };
   const suggestions = mine.length ? suggestImprovements(db, mine.map((b) => b.combo), opponents, pool) : [];
 
   const setOpp = (i: number, c: Combo) =>

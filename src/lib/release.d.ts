@@ -1,5 +1,5 @@
 // Typen zu release.js (gemeinsam für App und Datenpipeline)
-import type { Database, Product } from './types';
+import type { Database, MetaFeed, Product } from './types';
 
 export type PartKind = 'blades' | 'ratchets' | 'bits';
 export type ReleaseStatus = 'announced' | 'unchecked' | 'confirmed';
@@ -27,5 +27,6 @@ export interface ReleaseIndex {
 export const STATUS_LABEL: Record<ReleaseStatus, string>;
 export function isoDay(d?: Date): string;
 export function productRelease(p: Product, today?: string): ProductRelease;
-export function buildReleaseIndex(db: Pick<Database, 'blades' | 'ratchets' | 'bits' | 'products'>, today?: string): ReleaseIndex;
+export function playedParts(meta: Partial<MetaFeed> | null | undefined): Record<PartKind, Set<string>>;
+export function buildReleaseIndex(db: Pick<Database, 'blades' | 'ratchets' | 'bits' | 'products'>, today?: string, meta?: Partial<MetaFeed> | null): ReleaseIndex;
 export function lockedParts(index: ReleaseIndex, combo: { bladeId?: string; ratchetId?: string; bitId?: string }): { kind: PartKind; id: string }[];

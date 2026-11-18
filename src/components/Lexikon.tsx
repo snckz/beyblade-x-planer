@@ -4,7 +4,7 @@ import type { BeyType, Database } from '../lib/types';
 import type { UserState } from '../lib/storage';
 import { TYPE_LABEL } from '../lib/analysis';
 import { AnnouncedMark, Empty, SpinBadge, TypeBadge, UnverifiedMark } from './ui';
-import { releaseOf } from '../lib/useRelease';
+import { useRelease } from '../lib/useRelease';
 import { BeyImage } from './BeyImage';
 import { useApp } from '../lib/context';
 import { bitText, ratchetText, TERMS } from '../lib/lexicon';
@@ -26,7 +26,7 @@ export function Lexikon({ db, state, update }: Props) {
 
   const q = query.trim().toLowerCase();
   // Freigabestatus (zentral): Angekündigtes bleibt im Lexikon sichtbar, nur gekennzeichnet
-  const rel = releaseOf(db);
+  const { rel } = useRelease(db);
 
   const blades = db.blades.filter(
     (b) => (!type || b.type === type) && (!q || `${b.name} ${b.hasbroName ?? ''}`.toLowerCase().includes(q)),

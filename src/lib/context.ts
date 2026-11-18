@@ -1,6 +1,6 @@
 import { createContext } from 'preact';
 import { useContext } from 'preact/hooks';
-import type { Blade, ImageIndex, Rates } from './types';
+import type { Blade, ImageIndex, MetaFeed, Rates } from './types';
 import type { IdRegister } from './idRegister';
 
 export interface AppCtx {
@@ -22,10 +22,12 @@ export interface AppCtx {
   barcodes: Record<string, string>;
   /** zentrales ID-Register (andere Schreibweisen, alte IDs) – null, solange nicht geladen */
   register: IdRegister | null;
+  /** Turnier-Meta (Siegerdecks) – null, solange nicht geladen */
+  meta: MetaFeed | null;
 }
 
 export type ImageKind = 'blade' | 'bit' | 'ratchet';
 
-export const AppContext = createContext<AppCtx>({ images: { source: '', blades: {} }, rates: null, bladeName: (b) => b.name, hasbroNames: false, openBlade: () => {}, openImage: () => {}, openCheck: () => {}, ownedCount: () => 0, barcodes: {}, register: null });
+export const AppContext = createContext<AppCtx>({ images: { source: '', blades: {} }, rates: null, bladeName: (b) => b.name, hasbroNames: false, openBlade: () => {}, openImage: () => {}, openCheck: () => {}, ownedCount: () => 0, barcodes: {}, register: null, meta: null });
 
 export const useApp = () => useContext(AppContext);

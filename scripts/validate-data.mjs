@@ -220,12 +220,13 @@ export function validateTransition(prev, next, retired = EMPTY_RETIRED) {
   }
   const nextBlades = new Map((next.blades ?? []).map((b) => [b.id, b]));
   for (const old of prev.blades ?? []) {
-    const now = nextBlades.get(renamed('blades', old.id));
+    // Über das ID-Register umbenannt/zusammengeführt: Status gehört zum Ziel, kein Rücksetzen
+    const now = renamed('blades', old.id) === old.id ? nextBlades.get(old.id) : undefined;
     if (now && old.verified === true && now.verified !== true) errors.push(`Blade ${old.id}: Bestätigung (verified) würde zurückgesetzt`);
   }
   const nextBits = new Map((next.bits ?? []).map((b) => [b.id, b]));
   for (const old of prev.bits ?? []) {
-    const now = nextBits.get(renamed('bits', old.id));
+    const now = renamed('bits', old.id) === old.id ? nextBits.get(old.id) : undefined;
     if (now && !old.uncertain && now.uncertain) errors.push(`Bit ${old.id}: geprüfter Typ würde wieder „unsicher“`);
   }
   return errors;
@@ -259,7 +260,7 @@ if (isMain) {
     process.exit(1);
   }
   // Freigabestatus: Übersicht und Widersprüche (Hinweis, kein Abbruch – gesperrt bleibt im Zweifel gesperrt)
-  const rel = buildReleaseIndex(db);
+  const rel = buildReleaseIndex(db, undefined, read('meta.json'));
   const c = rel.counts();
   console.log(`Freigabe: Blades ${c.blades.confirmed}/${db.blades.length}, Ratchets ${c.ratchets.confirmed}/${db.ratchets.length}, Bits ${c.bits.confirmed}/${db.bits.length} im Kombo-Planer wählbar.`);
   for (const w of rel.conflicts) console.warn(`::warning::Freigabestatus widersprüchlich: ${w}`);

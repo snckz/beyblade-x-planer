@@ -14,6 +14,7 @@ import { verifyCatalog } from '../scripts/verify-catalog.mjs';
 
 const TODAY = '2026-11-18';
 const real = JSON.parse(readFileSync(new URL('../public/data/db.json', import.meta.url), 'utf8')) as Database;
+const realMeta = JSON.parse(readFileSync(new URL('../public/data/meta.json', import.meta.url), 'utf8'));
 
 /** Kleine Datenbank: ein altes Teil-Set (BX-01) und ein neues, angekündigtes Produkt mit neuem Blade/Ratchet/Bit. */
 function mini(over: Record<string, unknown> = {}): Database {
@@ -108,6 +109,16 @@ describe('Freigaberegel', () => {
     db.products.push({ code: 'G9999', name: 'Starter New (Hasbro)', kind: 'starter', verified: true, imported: true, region: 'hasbro', bladeId: 'New', ratchetId: '9-90', bitId: 'NB' } as never);
     expect(buildReleaseIndex(db, TODAY).selectable('blades', 'New')).toBe(true);
   });
+  it('in Turnier-Siegerdecks gespielt = erschienen (z. B. Hasbro vor dem Japan-Release); Teiledaten trotzdem nötig', () => {
+    const db = mini();
+    const meta = { counts: { 'New|9-90|NB': 3 } };
+    const r = buildReleaseIndex(db, TODAY, meta);
+    expect(r.part('blades', 'New')).toMatchObject({ status: 'confirmed', reason: 'in Turnier-Siegerdecks gespielt' });
+    expect(r.selectable('bits', 'NB') && r.selectable('ratchets', '9-90')).toBe(true);
+    expect(r.product('BX-99').released).toBe(false); // das Produkt selbst bleibt angekündigt
+    db.blades.find((b) => b.id === 'New')!.verified = false;
+    expect(buildReleaseIndex(db, TODAY, meta).part('blades', 'New').status).toBe('unchecked');
+  });
   it('Teil ohne Produkt: von Hand gepflegt frei, importiert gesperrt', () => {
     const db = mini();
     db.ratchets.push({ id: '1-70', contacts: 1, heightMm: 7 } as never, { id: '2-70', contacts: 2, heightMm: 7, imported: true } as never);
@@ -124,13 +135,13 @@ describe('Freigaberegel', () => {
 });
 
 describe('Migration des echten Datenbestands (11: keine Massensperre)', () => {
-  const r = buildReleaseIndex(real, TODAY);
+  const r = buildReleaseIndex(real, TODAY, realMeta);
   const locked = (k: 'blades' | 'ratchets' | 'bits') => real[k].filter((x) => !r.selectable(k, x.id)).map((x) => x.id).sort();
   it('vorher alles wählbar (144/38/56) – nachher nur Teile mit Release in der Zukunft gesperrt', () => {
     expect([real.blades.length, real.ratchets.length, real.bits.length]).toEqual([144, 38, 56]);
-    expect(locked('blades')).toEqual(['FoxBlast', 'PhoenixForce', 'SiegSuperion', 'VanishLucifer']);
+    expect(locked('blades')).toEqual(['FoxBlast', 'PhoenixForce', 'VanishLucifer']);
     expect(locked('ratchets')).toEqual(['M-65']);
-    expect(locked('bits')).toEqual(['LP', 'MO', 'MT']);
+    expect(locked('bits')).toEqual(['MO', 'MT']);
     for (const k of ['blades', 'ratchets', 'bits'] as const) for (const id of locked(k)) expect(r.part(k, id).date! > TODAY).toBe(true);
   });
   it('kein Teil aus der Turnier-Meta oder einem erschienenen Produkt wird gesperrt', () => {
@@ -152,7 +163,9 @@ describe('Migration des echten Datenbestands (11: keine Massensperre)', () => {
     const reg = normalizeRegister(JSON.parse(readFileSync(new URL('../public/data/aliases.json', import.meta.url), 'utf8')));
     const res = migrateUserState(state, reg, real);
     expect(JSON.stringify(res.state)).toBe(before);
-    expect(lockedParts(r, state.combos[1]!).map((x) => x.id)).toEqual(['SiegSuperion', 'LP']); // 0-70 gibt es schon in anderen Packungen
+    expect(lockedParts(r, state.combos[1]!)).toEqual([]); // Superion/LP: in Turnieren gespielt (Hasbro schon erschienen)
+    const noMeta = buildReleaseIndex(real, TODAY);
+    expect(lockedParts(noMeta, state.combos[1]!).map((x) => x.id)).toEqual(['SiegSuperion', 'LP']); // ohne Beleg gesperrt
     expect(lockedParts(r, state.combos[0]!)).toHaveLength(0);
     // Sammlung zählt weiter alles, was man hat – auch Vorbestelltes
     expect(ownedParts(real, state.owned).blades.has('SiegSuperion')).toBe(true);
@@ -201,5 +214,23 @@ describe('Datenpipeline: Status bleibt erhalten (Datenverlust-Schutz)', () => {
     expect(JSON.stringify(second.db)).toBe(JSON.stringify(first.db));
     expect(second.report.releaseConfirmed).toEqual([]);
     expect(validateTransition(first.db, second.db)).toEqual([]);
+  });
+  it('Release-Bestätigung nur über die eigene Seite (nie über die Seite eines anderen Produkts)', async () => {
+    const db = mini();
+    // ohne Quelle, und ein anderes Produkt hat dieselbe Kombo → keine Seite eindeutig → bleibt unbestätigt
+    set(db, 'BX-99', { imported: false, verified: true, releaseJp: '2026-11-10' });
+    db.products.push({ code: 'BX-97', name: 'Old reissue', kind: 'booster', verified: true, bladeId: 'New', ratchetId: '9-90', bitId: 'NB' } as never);
+    const res = await verifyCatalog(db, async () => 'It was released in Japan on July 1st, 2024.', new Date(`${TODAY}T12:00:00Z`));
+    expect(res.report.releasePending).toContain('BX-99');
+    expect(res.db.products.find((p: { code: string }) => p.code === 'BX-99').released).toBeUndefined();
+  });
+  it('Zusammenführen über das ID-Register gilt nicht als Rücksetzen', () => {
+    const prev = mini();
+    const next = structuredClone(prev);
+    next.blades = next.blades.filter((b) => b.id !== 'Old');
+    next.blades.find((b) => b.id === 'New')!.verified = false;
+    for (const p of next.products) if (p.bladeId === 'Old') p.bladeId = 'New';
+    const reg = normalizeRegister({ retired: { blades: { Old: 'New' } } });
+    expect(validateTransition(prev, next, reg).join(' ')).not.toContain('Blade Old');
   });
 });

@@ -171,8 +171,11 @@ export async function verifyCatalog(db, fetchPage, today = new Date()) {
   for (const p of out.products) {
     if (!p.releaseJp || p.released === true || (p.imported && p.verified)) continue;
     if (p.releaseJp > day) continue; // noch angekündigt
-    const blade = out.blades.find((b) => b.id === p.bladeId);
-    const titles = [titleFromUrl(p.source), blade?.wikiTitle, p.bladeId && `${p.bladeId} ${p.ratchetId ?? ''}${p.bitId ?? ''}`.trim()].filter((x, i, a) => x && a.indexOf(x) === i);
+    // Nur die eigene Seite des Produkts: die Quelle oder – ohne Quelle – die Kombo-Seite, sofern kein anderes Produkt
+    // dieselbe Kombo hat (sonst könnte die Seite eines älteren, längst erschienenen Produkts „erschienen“ melden).
+    const combo = p.bladeId && `${p.bladeId} ${p.ratchetId ?? ''}${p.bitId ?? ''}`.trim();
+    const sameCombo = out.products.some((x) => x !== p && x.bladeId === p.bladeId && x.ratchetId === p.ratchetId && x.bitId === p.bitId);
+    const titles = p.source ? [titleFromUrl(p.source)] : combo && !sameCombo ? [combo] : [];
     let released = false;
     for (const title of titles) {
       const wt = await page(title);

@@ -13,7 +13,7 @@ import { Check, Scale, Sparkles } from 'lucide-preact';
 import { ComboParts, ComboStage } from './ComboStage';
 import { SwipeRow } from './SwipeRow';
 import { showUndo } from '../lib/undo';
-import { playableParts, releaseOf } from '../lib/useRelease';
+import { useRelease } from '../lib/useRelease';
 import { lockedParts } from '../lib/release';
 
 interface Props {
@@ -55,18 +55,17 @@ export function ComboBuilder({ db, state, update, presetBladeId, presetRatchetId
 
   const useOwned = onlyOwned && hasCollection;
   // Wählbar sind nur freigegebene Teile (zentraler Freigabestatus, lib/release.js) – Angekündigtes steht im Lexikon.
-  const play = playableParts(db);
+  const { rel, play } = useRelease(db);
   const blades = useMemo(
     () => play.blades.filter((b) => !useOwned || parts.blades.has(b.id)).sort((a, b) => a.name.localeCompare(b.name)),
-    [db, useOwned, parts.blades],
+    [play, useOwned, parts.blades],
   );
   const ratchets = play.ratchets.filter((r) => !useOwned || parts.ratchets.has(r.id));
   const bits = useMemo(
     () => play.bits.filter((b) => !useOwned || parts.bits.has(b.id)).sort((a, b) => a.id.localeCompare(b.id)),
-    [db, useOwned, parts.bits],
+    [play, useOwned, parts.bits],
   );
   // Vorgabe (z. B. „Im Planer verwenden“, Direktlink) mit gesperrtem Teil: nicht übernehmen, sondern sagen warum
-  const rel = releaseOf(db);
   const blocked = lockedParts(rel, start).map((x) => {
     const item = x.kind === 'blades' ? db.blades.find((b) => b.id === x.id) : null;
     return `${item ? item.name : x.id} (${rel.part(x.kind, x.id).reason})`;
@@ -100,7 +99,8 @@ export function ComboBuilder({ db, state, update, presetBladeId, presetRatchetId
           owned: hasCollection ? { ratchets: new Set(parts.ratchets.keys()), bits: new Set(parts.bits.keys()) } : undefined,
         };
     // Abhängigkeit über comboKey (Kombo + Filter), damit nicht bei jedem Rendern neu gerechnet wird
-    return improveCombo(db, combo, opponents, pool, meta);
+    // Vorschläge aus der Turnier-Meta können andere Teile enthalten – nur Freigegebenes anbieten
+    return improveCombo(db, combo, opponents, pool, meta).filter((s) => lockedParts(rel, s.combo).length === 0);
   }, [improveOpen, comboKey, db, meta, parts]);
   const apply = (c: Combo) => {
     setRatchetId(c.ratchetId ?? '');
@@ -274,6 +274,7 @@ export function ComboBuilder({ db, state, update, presetBladeId, presetRatchetId
 }
 
 function SavedCombos({ db, state, update }: Props) {
+  const { rel } = useRelease(db);
   if (!state.combos.length) return null;
   const toggleDeck = (id: string) =>
     update((s) => {
@@ -305,7 +306,7 @@ function SavedCombos({ db, state, update }: Props) {
           const a = r ? analyze(r) : null;
           const inDeck = state.deck.includes(c.id);
           // Gespeichert bleibt gespeichert – enthält die Kombo inzwischen gesperrte Teile, nur kennzeichnen
-          const locked = lockedParts(releaseOf(db), c).length > 0;
+          const locked = lockedParts(rel, c).length > 0;
           return (
             <SwipeRow key={c.id} class="row" deleteLabel={`Kombo ${c.name ?? (a ? a.label : '')} löschen`.replace(/\s+/g, ' ')} onlyDelete onDelete={() => swipeRemove(c, c.name ?? (a ? a.label : 'Unbekannte Teile'))}>
               <div class="row-main">

@@ -7,7 +7,7 @@ import { TYPE_HINT, TYPE_LABEL } from '../lib/analysis';
 import { useApp } from '../lib/context';
 import { BladePhoto, ImageCredit } from './BeyImage';
 import { UnverifiedMark } from './ui';
-import { releaseOf } from '../lib/useRelease';
+import { useRelease } from '../lib/useRelease';
 import { ArrowLeftRight, ArrowUpRight, BadgeCheck, BookOpen, Check, ChevronRight, CircleAlert, Cog, Feather, Globe, Languages, Layers, Package, Puzzle, RotateCcw, RotateCw, Scale, Shield, Shuffle, Swords, Timer, Trophy, Weight, Wrench, X } from 'lucide-preact';
 
 interface Props {
@@ -29,6 +29,7 @@ export function DetailSheet({ db, events, bladeId, onClose, onUse, meta = null }
   const { images, openCheck, ownedCount } = useApp();
   const closeRef = useRef<HTMLButtonElement>(null);
   const blade = db.blades.find((b) => b.id === bladeId);
+  const { rel } = useRelease(db);
 
   const sheetRef = useRef<HTMLDivElement>(null);
   const close = useModal(sheetRef, onClose, { animate: true });
@@ -36,7 +37,7 @@ export function DetailSheet({ db, events, bladeId, onClose, onUse, meta = null }
 
   if (!blade) return null;
   // Zentraler Freigabestatus: nur Freigegebenes lässt sich in den Kombo-Planer übernehmen
-  const release = releaseOf(db).part('blades', blade.id);
+  const release = rel.part('blades', blade.id);
   const products = db.products.filter((p) => p.bladeId === blade.id);
   const related = events.filter((e) => e.bladeId === blade.id);
   const weight = products.find((p) => p.weightG)?.weightG;

@@ -137,6 +137,7 @@ if (existsSync(dbUrl)) {
   for (const p of products) if (!p.verified && old.products?.find((x) => x.code === p.code)?.verified) p.verified = true;
   for (const p of products) {
     const o = old.products?.find((x) => x.code === p.code);
+    if (o?.released === true) p.released = true; // Release-Bestätigung (Freigabestatus) nie verlieren
     if (o?.releaseJp && !p.releaseJp) p.releaseJp = o.releaseJp;
   }
   // Vom Import ermittelte Japan-Preise auch bei gepflegten Produkten behalten.
