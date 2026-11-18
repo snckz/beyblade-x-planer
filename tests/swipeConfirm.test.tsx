@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { act, cleanup, fireEvent, render, waitFor, within } from '@testing-library/preact';
 import { useState } from 'preact/hooks';
-import { PartField } from '../src/components/PartPicker';
+import { PartField, setProgressiveForTests } from '../src/components/PartPicker';
 import { ComboBuilder } from '../src/components/ComboBuilder';
 import { swipeStep } from '../src/lib/categorySwipe';
 import { EMPTY_STATE, type UserState } from '../src/lib/storage';
@@ -118,33 +118,32 @@ describe('Kategorie per Wischen (Blade/Bit)', () => {
     pointer(body, 'pointerup', 205, 420);
   });
 
-  it('blättert: die Seite folgt dem Finger, die nächste Kategorie kommt daneben herein; am Rand nur gebremst', async () => {
+  it('blättert: die Spur folgt dem Finger, die nächste Kategorie liegt fertig daneben; am Rand nur gebremst', async () => {
     const { body } = openPicker('bit');
-    const page = () => body.querySelector<HTMLElement>('.picker-page.is-current')!;
+    const track = () => body.querySelector<HTMLElement>('.picker-track')!;
     const next = () => body.querySelector<HTMLElement>('.picker-page[data-page="1"]')!;
     const offset = (el: HTMLElement) => Number(/translate(?:3d|X)\((-?[\d.]+)px/.exec(el.style.transform)?.[1] ?? 0);
-    // Nachbar wird kurz nach dem Öffnen gebaut und liegt dann bereit
+    // Nachbar wird kurz nach dem Öffnen gebaut und liegt dann rechts daneben bereit
     await waitFor(() => expect(next()?.classList.contains('is-side')).toBe(true));
+    expect(next().dataset.dir).toBe('1');
+    expect(next().getAttribute('aria-hidden')).toBe('true');
     t += 1000;
     pointer(body, 'pointerdown', 200, 300);
     t += 50;
     pointer(body, 'pointermove', 140, 302); // 60 px nach links: es gibt eine nächste Kategorie
-    const normal = offset(page());
+    const normal = offset(track());
     expect(normal).toBe(-60); // 1:1 mit dem Finger
-    expect(next().style.visibility).toBe('visible');
-    expect(offset(next())).toBeGreaterThan(normal); // rechts daneben, wandert mit
     t += 50;
     act(() => void pointer(body, 'pointerup', 190, 302)); // zurückgezogen: kein Wechsel
-    expect(page().style.transform).toBe('');
-    expect(next().style.visibility).toBe('');
+    expect(track().style.transform).toBe('');
     t += 1000;
     pointer(body, 'pointerdown', 200, 300);
     t += 50;
     pointer(body, 'pointermove', 260, 302); // 60 px nach rechts bei „Alle“: Rand
-    expect(Math.abs(offset(page()))).toBeLessThan(Math.abs(normal));
-    expect(offset(page())).toBeGreaterThan(0);
+    expect(Math.abs(offset(track()))).toBeLessThan(Math.abs(normal));
+    expect(offset(track())).toBeGreaterThan(0);
     act(() => void pointer(body, 'pointerup', 260, 302));
-    expect(page().style.transform).toBe('');
+    expect(track().style.transform).toBe('');
   });
 
   it('Chip schaltet beim Loslassen sofort um, die Seite nach dem Einrasten; ein Chip-Tipp dabei hat Vorrang', async () => {
@@ -164,8 +163,8 @@ describe('Kategorie per Wischen (Blade/Bit)', () => {
       swipe(body, -120); // → Defense, rastet ein …
       expect(active()).toEqual(['Defense']);
       fireEvent.click(ui.getByRole('button', { name: /Stamina/ })); // … Tipp auf Stamina hat Vorrang
-      // Einrasten sofort beendet: keine Seite gleitet mehr über die neue
-      expect([...sheet.querySelectorAll<HTMLElement>('.picker-page')].every((p) => !p.style.transform && !p.style.visibility)).toBe(true);
+      // Einrasten sofort beendet: nichts gleitet mehr über die neue Seite
+      expect(sheet.querySelector<HTMLElement>('.picker-track')!.style.transform).toBe('');
       await new Promise((r) => setTimeout(r, 400));
       expect(active()).toEqual(['Stamina']);
       expect(sheet.querySelector('.picker-page.is-current .mini-badge-type')?.textContent).toBe('Stamina');
@@ -181,13 +180,24 @@ describe('Kategorie per Wischen (Blade/Bit)', () => {
     pointer(body, 'pointerdown', 200, 300);
     t += 50;
     pointer(body, 'pointermove', 120, 301); // waagrecht gezogen – das Ende kommt nie an
-    expect(body.querySelector<HTMLElement>('.picker-page.is-current')!.style.transform).not.toBe('');
+    expect(body.querySelector<HTMLElement>('.picker-track')!.style.transform).not.toBe('');
     t += 500;
     act(() => void pointer(body, 'pointerdown', 200, 300)); // neue Berührung
-    expect(body.querySelector<HTMLElement>('.picker-page.is-current')!.style.transform).toBe('');
-    expect(body.querySelector<HTMLElement>('.picker-page[data-page="1"]')!.style.visibility).toBe('');
+    expect(body.querySelector<HTMLElement>('.picker-track')!.style.transform).toBe('');
     expect(active()).toEqual(['Alle']);
     act(() => void pointer(body, 'pointerup', 200, 300));
+  });
+
+  it('baut lange Listen in Häppchen auf: sofort die sichtbaren Karten, dann nach und nach alle', async () => {
+    setProgressiveForTests(6, 20);
+    try {
+      const { sheet } = openPicker('blade');
+      const cards = () => sheet.querySelectorAll('.picker-page.is-current .tile.pick').length;
+      expect(cards()).toBe(6);
+      await waitFor(() => expect(cards()).toBe(db.blades.length), { timeout: 2000 });
+    } finally {
+      setProgressiveForTests(null);
+    }
   });
 
   it('bricht ab, wenn der Finger zum Schluss deutlich zurückzieht', () => {

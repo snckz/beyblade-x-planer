@@ -176,7 +176,12 @@ function PickerSheet({ kind, label, blades = NO_BLADES, ratchets = NO_RATCHETS, 
   }, [q, type, group, height]);
   // Gescrollt: Kante unter Kopfzeile bzw. Filterleiste zeigen, damit klar ist, dass Karten darunter weiterlaufen.
   // Klasse direkt am Fenster wie `kb-open` aus useModal – kein Neuzeichnen beim Scrollen.
-  const onListScroll = (e: Event) => ref.current?.classList.toggle('list-scrolled', (e.currentTarget as HTMLElement).scrollTop > 2);
+  const onListScroll = (e: Event) => {
+    const el = e.currentTarget as HTMLElement;
+    ref.current?.classList.toggle('list-scrolled', el.scrollTop > 2);
+    // Die Nachbarseiten liegen neben der Liste – seitlich verschoben werden darf sie trotzdem nie
+    if (el.scrollLeft) el.scrollLeft = 0;
+  };
 
   const allBlades = useMemo(() => [...blades].sort((a, b) => displayName(a).localeCompare(displayName(b))), [blades]);
   const groups = kind === 'ratchet' ? teethGroups(ratchets) : [];
@@ -255,7 +260,7 @@ function PickerSheet({ kind, label, blades = NO_BLADES, ratchets = NO_RATCHETS, 
     const el = bodyRef.current;
     return el
       ? (swipeHandle.current = attachCategorySwipe(el, (step) => swipe.current.step(step), {
-          pager: { current: () => el.querySelector<HTMLElement>('.picker-page.is-current'), side: (step) => swipe.current.side(step) },
+          pager: { track: () => el.querySelector<HTMLElement>('.picker-track'), side: (step) => swipe.current.side(step) },
           canStep: (step) => swipe.current.can(step),
           // Während der Geste ruht Hintergrundarbeit (Fotos freistellen, Nachbarseiten bauen), danach geht es weiter
           onActive: (active) => {
@@ -295,6 +300,7 @@ function PickerSheet({ kind, label, blades = NO_BLADES, ratchets = NO_RATCHETS, 
   const actions = useRef({ pick: onPick, reset: resetFilters });
   actions.current = { pick: onPick, reset: resetFilters };
   const pick = useCallback((id: string) => actions.current.pick(id), []);
+  const isBusy = useCallback(() => gesture.current, []);
   const reset = useCallback(() => actions.current.reset(), []);
 
   // Fotos der Nachbarseiten im Hintergrund vorbereiten: Beim Blättern kommen sie fertig herein.
@@ -378,19 +384,22 @@ function PickerSheet({ kind, label, blades = NO_BLADES, ratchets = NO_RATCHETS, 
 
         <div ref={bodyRef} class="picker-body" onScroll={onListScroll}>
           <div ref={pagerRef} class="picker-pager">
+            <div class="picker-track">
             {order.map((cat, i) =>
               built.current.has(cat) ? (
                 <div
                   key={cat || 'all'}
                   class={`picker-page ${i === position ? 'is-current' : Math.abs(i - position) === 1 ? 'is-side' : 'is-parked'}`}
                   data-page={i}
+                  data-dir={Math.abs(i - position) === 1 ? Math.sign(i - position) : undefined}
                   aria-hidden={i === position ? undefined : 'true'}
                   inert={i !== position}
                 >
-                  <PickerPage kind={kind} cat={cat} query={query} height={height} value={value} counts={counts} blades={allBlades} ratchets={ratchets} bits={bits} onPick={pick} onReset={reset} />
+                  <PickerPage kind={kind} cat={cat} query={query} height={height} value={value} counts={counts} blades={allBlades} ratchets={ratchets} bits={bits} onPick={pick} onReset={reset} isBusy={isBusy} />
                 </div>
               ) : null,
             )}
+            </div>
           </div>
         </div>
       </div>
@@ -410,18 +419,50 @@ interface PageProps {
   bits: Bit[];
   onPick: (id: string) => void;
   onReset: () => void;
+  /** Läuft gerade eine Geste? Dann wartet der Aufbau weiterer Karten. */
+  isBusy: () => boolean;
+}
+
+/**
+ * Karten in Häppchen aufbauen: Sofort nur so viele, wie auf den Bildschirm passen; der Rest folgt in kleinen Portionen,
+ * sobald Öffnen bzw. Einrasten vorbei ist – nie mitten in einer Geste. So bleiben diese Bewegungen flüssig.
+ */
+function useProgressive(total: number, isBusy: () => boolean): number {
+  const [n, setN] = useState(progressive.first);
+  const done = n >= total;
+  useEffect(() => {
+    if (done) return;
+    const timer = window.setTimeout(() => setN((v) => (isBusy() ? v : v + progressive.chunk)), n === progressive.first ? progressive.startMs : progressive.stepMs);
+    return () => window.clearTimeout(timer);
+  }, [n, done, isBusy]);
+  return n;
+}
+
+/** Häppchen-Größen. In Tests (jsdom) alles sofort, damit Tests ohne Warten die ganze Liste sehen. */
+const progressive =
+  import.meta.env.MODE === 'test'
+    ? { first: Infinity, chunk: Infinity, startMs: 0, stepMs: 0 }
+    : { first: 18, chunk: 24, startMs: 320, stepMs: 48 };
+
+/** Nur für Tests: Häppchen-Aufbau einschalten (`null` = wieder alles sofort). */
+export function setProgressiveForTests(first: number | null, chunk = 4): void {
+  Object.assign(progressive, first == null ? { first: Infinity, chunk: Infinity, startMs: 0, stepMs: 0 } : { first, chunk, startMs: 10, stepMs: 10 });
 }
 
 /**
  * Eine Seite: Karten einer Kategorie (mit Suche und Ratchet-Höhe) oder der passende leere Zustand.
  * Gemerkt (memo): Beim Blättern ändert sich nur, welche Seite sichtbar ist – die Seiten selbst werden nicht neu berechnet.
  */
-const PickerPage = memo(function PickerPage({ kind, cat, query, height, value, counts, blades, ratchets, bits, onPick, onReset }: PageProps) {
+const PickerPage = memo(function PickerPage({ kind, cat, query, height, value, counts, blades, ratchets, bits, onPick, onReset, isBusy }: PageProps) {
   const q = normalize(query);
   const match = (s: string) => !q || normalize(s).includes(q);
   const count = (id: string) => counts?.get(id);
+  const bladeList = kind === 'blade' ? blades.filter((b) => (!cat || b.type === cat) && match(`${b.name}${b.hasbroName ?? ''}${b.id}`)) : NO_BLADES;
+  const ratchetList = kind === 'ratchet' ? filterRatchets(ratchets, { query, teeth: cat as TeethGroup, height }) : NO_RATCHETS;
+  const bitList = kind === 'bit' ? bits.filter((b) => (!cat || b.type === cat) && match(`${b.id}${b.name}`)) : NO_BITS;
+  const shown = useProgressive(bladeList.length + ratchetList.length + bitList.length, isBusy);
   if (kind === 'blade') {
-    const list = blades.filter((b) => (!cat || b.type === cat) && match(`${b.name}${b.hasbroName ?? ''}${b.id}`));
+    const list = bladeList.slice(0, shown);
     if (!list.length) return <p class="muted center">Nichts gefunden.</p>;
     return (
       <div class="grid grid-blades">
@@ -456,7 +497,7 @@ const PickerPage = memo(function PickerPage({ kind, cat, query, height, value, c
   }
 
   if (kind === 'ratchet') {
-    const list = filterRatchets(ratchets, { query, teeth: cat as TeethGroup, height });
+    const list = ratchetList.slice(0, shown);
     if (!list.length) {
       const anyFilter = !!q || !!cat || height != null;
       return (
@@ -502,7 +543,7 @@ const PickerPage = memo(function PickerPage({ kind, cat, query, height, value, c
     );
   }
 
-  const list = bits.filter((b) => (!cat || b.type === cat) && match(`${b.id}${b.name}`));
+  const list = bitList.slice(0, shown);
   if (!list.length) return <p class="muted center">Nichts gefunden.</p>;
   return (
     <div class="grid grid-bits">

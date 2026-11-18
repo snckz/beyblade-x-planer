@@ -11,7 +11,7 @@
  * - Nach wenigen Pixeln entscheidet die überwiegende Achse. Senkrecht → aufgeben, der Browser scrollt.
  *   Waagrecht → touchmove wird blockiert, damit die Liste nicht nebenbei mitscrollt.
  * - Blättern wie in iOS: Die aktuelle Seite geht 1:1 mit dem Finger, die nächste Kategorie kommt gleichzeitig von der
- *   Seite herein. Beim Loslassen rastet sie ein (mit dem Tempo des Fingers) oder federt zurück.
+ *   Seite herein. Alle Seiten liegen fertig gezeichnet auf einer Spur – pro Bild wird nur die Spur verschoben. Beim Loslassen rastet sie ein (mit dem Tempo des Fingers) oder federt zurück.
  *   An der ersten/letzten Kategorie gibt die Seite nur gebremst nach.
  * - Schnelle Wische zählen nach dem Tempo der letzten ~100 ms, nicht gemittelt über die ganze Bewegung.
  */
@@ -61,9 +61,12 @@ export function followOffset(dx: number, canMove: boolean): number {
   return canMove ? Math.round(dx) : Math.round(dx * FOLLOW_EDGE);
 }
 
-/** Die Seiten des Blätterns: aktuelle Kategorie und ihre Nachbarn (links = vorherige, rechts = nächste). */
+/**
+ * Die Seiten des Blätterns: eine Spur, auf der die aktuelle Kategorie und ihre Nachbarn (links = vorherige,
+ * rechts = nächste) fertig nebeneinander liegen. Beim Wischen wird nur die Spur verschoben.
+ */
 export interface Pager {
-  current: () => HTMLElement | null;
+  track: () => HTMLElement | null;
   side: (step: 1 | -1) => HTMLElement | null;
 }
 
@@ -88,8 +91,8 @@ export type SwipeHandle = (() => void) & { finish: () => void };
 export function attachCategorySwipe(el: HTMLElement, onStep: (step: 1 | -1) => void, { pager, canStep = () => true, onActive, onSettle }: Options = {}): SwipeHandle {
   let g: { id: number; x: number; y: number; t: number; horizontal: boolean; samples: [number, number][] } | null = null;
   let guardUntil = 0;
-  /** Laufende Seiten: aktuelle und vorbereitete Nachbarn, Seitenbreite */
-  let pages: { cur: HTMLElement; sides: Map<1 | -1, HTMLElement>; width: number; y: number } | null = null;
+  /** Laufendes Blättern: Spur, Nachbarseiten (auf Höhe des sichtbaren Ausschnitts gelegt), Seitenbreite */
+  let pages: { track: HTMLElement; sides: HTMLElement[]; width: number } | null = null;
   /** Laufendes Einrasten/Zurückfedern – ein neuer Fingerkontakt beendet es sofort */
   let settling: { timer: number; done: () => void } | null = null;
 
@@ -104,35 +107,30 @@ export function attachCategorySwipe(el: HTMLElement, onStep: (step: 1 | -1) => v
   const clear = (node: HTMLElement) => {
     node.style.transition = '';
     node.style.transform = '';
-    node.style.visibility = '';
   };
 
-  /** Beim Entscheiden für „waagrecht“: Nachbarseiten neben die aktuelle legen, im sichtbaren Ausschnitt. */
+  /** Beim Entscheiden für „waagrecht“: Nachbarseiten auf Höhe des sichtbaren Ausschnitts legen. */
   const preparePages = () => {
-    const cur = pager?.current();
-    if (!cur) return;
-    const width = cur.offsetWidth + PAGE_GAP;
+    const track = pager?.track();
+    if (!track) return;
+    const width = track.offsetWidth + PAGE_GAP;
     // Die Nachbarseite zeigt ihren Anfang dort, wo man gerade hinschaut – nach dem Wechsel steht die Liste oben.
-    // Nur verschieben (transform), nichts neu anordnen.
+    // Die Nachbarn sind eigene Ebenen: Das Verschieben kostet kein Neuzeichnen.
     const y = el.scrollTop;
-    const sides = new Map<1 | -1, HTMLElement>();
+    const sides: HTMLElement[] = [];
     for (const s of STEPS) {
       const side = canStep(s) ? pager!.side(s) : null;
       if (!side) continue;
-      side.style.transition = 'none';
-      side.style.transform = `translate3d(${s * width}px, ${y}px, 0)`;
-      side.style.visibility = 'visible';
-      sides.set(s, side);
+      side.style.transform = y ? `translate3d(0, ${y}px, 0)` : '';
+      sides.push(side);
     }
-    cur.style.transition = 'none';
-    pages = { cur, sides, width, y };
+    track.style.transition = 'none';
+    pages = { track, sides, width };
   };
 
+  /** Ein Wert pro Bild: nur die Spur bewegt sich. */
   const move = (offset: number) => {
-    if (!pages) return;
-    const { cur, sides, width, y } = pages;
-    cur.style.transform = `translate3d(${offset}px, 0, 0)`;
-    sides.forEach((side, s) => (side.style.transform = `translate3d(${s * width + offset}px, ${y}px, 0)`));
+    if (pages) pages.track.style.transform = `translate3d(${offset}px, 0, 0)`;
   };
 
   /** Loslassen: zur neuen Seite einrasten (`step`) oder zurückfedern (0). */
@@ -145,7 +143,7 @@ export function attachCategorySwipe(el: HTMLElement, onStep: (step: 1 | -1) => v
       onActive?.(false);
     };
     if (!p) return commit();
-    const all = [p.cur, ...p.sides.values()];
+    const all = [p.track, ...p.sides];
     const target = step ? -step * p.width : 0;
     const distance = Math.abs(target - offset);
     // Ohne Breite (nicht sichtbar) oder bei „Bewegung reduzieren“: sofort
@@ -154,9 +152,8 @@ export function attachCategorySwipe(el: HTMLElement, onStep: (step: 1 | -1) => v
       return commit();
     }
     const ms = step ? Math.min(SETTLE_MAX_MS, Math.max(SETTLE_MIN_MS, distance / Math.max(velocity, 0.8))) : SPRING_MS;
-    all.forEach((node) => (node.style.transition = `transform ${Math.round(ms)}ms ${EASE}`));
-    p.cur.style.transform = `translate3d(${target}px, 0, 0)`;
-    p.sides.forEach((side, s) => (side.style.transform = `translate3d(${s * p.width + target}px, ${p.y}px, 0)`));
+    p.track.style.transition = `transform ${Math.round(ms)}ms ${EASE}`;
+    p.track.style.transform = `translate3d(${target}px, 0, 0)`;
     settling = {
       timer: window.setTimeout(finishSettling, ms + 20),
       // Erst die Kategorie wechseln, dann die Stile lösen: Preact zeichnet noch vor dem nächsten Bild neu,
