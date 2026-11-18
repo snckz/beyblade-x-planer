@@ -1,7 +1,7 @@
 import { createPortal } from 'preact/compat';
 import { useModal } from '../lib/useModal';
 import { bothNames, displayName, otherName } from '../lib/names';
-import { useEffect, useRef, useState } from 'preact/hooks';
+import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import type { BeyType, Blade, Bit, Ratchet } from '../lib/types';
 import { TYPE_LABEL } from '../lib/analysis';
 import { BeyImage, BladePhoto } from './BeyImage';
@@ -170,9 +170,14 @@ function PickerSheet({ kind, label, blades = [], ratchets = [], bits = [], value
   const onListScroll = (e: Event) => ref.current?.classList.toggle('list-scrolled', (e.currentTarget as HTMLElement).scrollTop > 2);
   const count = (id: string) => counts?.get(id);
 
-  const bladeList = blades.filter((b) => (!type || b.type === type) && match(`${b.name}${b.hasbroName ?? ''}${b.id}`)).sort((a, b) => displayName(a).localeCompare(displayName(b)));
-  const bitList = bits.filter((b) => (!type || b.type === type) && match(`${b.id}${b.name}`));
-  const ratchetList = kind === 'ratchet' ? filterRatchets(ratchets, { query, teeth: group, height }) : [];
+  // Alle Karten bleiben im Fenster, nicht passende werden nur ausgeblendet (`hidden`): Beim Wechsel der Kategorie
+  // (Chip oder Wischen) baut sich so nichts neu auf – die Fotos sind sofort da, statt kurz leer zu blinken.
+  const allBlades = useMemo(() => [...blades].sort((a, b) => displayName(a).localeCompare(displayName(b))), [blades]);
+  const showBlade = (b: Blade) => (!type || b.type === type) && match(`${b.name}${b.hasbroName ?? ''}${b.id}`);
+  const showBit = (b: Bit) => (!type || b.type === type) && match(`${b.id}${b.name}`);
+  const shownRatchets = new Set(kind === 'ratchet' ? filterRatchets(ratchets, { query, teeth: group, height }).map((r) => r.id) : []);
+  const bladeCount = kind === 'blade' ? allBlades.filter(showBlade).length : 0;
+  const bitCount = kind === 'bit' ? bits.filter(showBit).length : 0;
   const groups = kind === 'ratchet' ? teethGroups(ratchets) : [];
   const heights = kind === 'ratchet' ? ratchetHeights(ratchets) : [];
   const filtered = !!q || !!type || !!group || height != null;
@@ -278,10 +283,10 @@ function PickerSheet({ kind, label, blades = [], ratchets = [], bits = [], value
         <div ref={bodyRef} class="picker-body" onScroll={onListScroll}>
           {kind === 'blade' && (
             <div class="grid grid-blades">
-              {bladeList.map((b) => {
+              {allBlades.map((b) => {
                 const TypeIcon = TYPE_ICON[b.type];
                 return (
-                  <button key={b.id} type="button" class={`tile pick blade-card aura-${b.type}${b.id === value ? ' selected' : ''}`} onClick={() => onPick(b.id)} aria-pressed={b.id === value}>
+                  <button key={b.id} hidden={!showBlade(b)} type="button" class={`tile pick blade-card aura-${b.type}${b.id === value ? ' selected' : ''}`} onClick={() => onPick(b.id)} aria-pressed={b.id === value}>
                     <span class="blade-card-art">
                       <BladePhoto blade={b} alt="" variant="card" />
                     </span>
@@ -309,8 +314,8 @@ function PickerSheet({ kind, label, blades = [], ratchets = [], bits = [], value
 
           {kind === 'ratchet' && (
             <div class="grid grid-ratchets">
-              {ratchetList.map((r) => (
-                <button key={r.id} type="button" class={`tile pick part-card ratchet-card${r.id === value ? ' selected' : ''}`} onClick={() => onPick(r.id)} aria-pressed={r.id === value}>
+              {ratchets.map((r) => (
+                <button key={r.id} hidden={!shownRatchets.has(r.id)} type="button" class={`tile pick part-card ratchet-card${r.id === value ? ' selected' : ''}`} onClick={() => onPick(r.id)} aria-pressed={r.id === value}>
                   <span class="part-card-art">
                     <RatchetImage ratchet={r} size="card" />
                   </span>
@@ -336,10 +341,10 @@ function PickerSheet({ kind, label, blades = [], ratchets = [], bits = [], value
 
           {kind === 'bit' && (
             <div class="grid grid-bits">
-              {bitList.map((b) => {
+              {bits.map((b) => {
                 const TypeIcon = TYPE_ICON[b.type];
                 return (
-                  <button key={b.id} type="button" class={`tile pick part-card bit-card aura-${b.type}${b.id === value ? ' selected' : ''}`} onClick={() => onPick(b.id)} aria-pressed={b.id === value}>
+                  <button key={b.id} hidden={!showBit(b)} type="button" class={`tile pick part-card bit-card aura-${b.type}${b.id === value ? ' selected' : ''}`} onClick={() => onPick(b.id)} aria-pressed={b.id === value}>
                     <span class="part-card-art">
                       <BitImage bit={b} size="card" />
                     </span>
@@ -356,9 +361,9 @@ function PickerSheet({ kind, label, blades = [], ratchets = [], bits = [], value
             </div>
           )}
 
-          {((kind === 'blade' && !bladeList.length) || (kind === 'bit' && !bitList.length)) && <p class="muted center">Nichts gefunden.</p>}
+          {((kind === 'blade' && !bladeCount) || (kind === 'bit' && !bitCount)) && <p class="muted center">Nichts gefunden.</p>}
 
-          {kind === 'ratchet' && !ratchetList.length && (
+          {kind === 'ratchet' && !shownRatchets.size && (
             <div class="picker-empty" role="status">
               <p class="picker-empty-title">Kein Ratchet gefunden</p>
               <p class="muted">
@@ -378,12 +383,16 @@ function PickerSheet({ kind, label, blades = [], ratchets = [], bits = [], value
   );
 }
 
-/** Dezenter Übergang nach einem Wisch: Liste gleitet ein Stück aus der Wischrichtung herein. Ohne Bewegung bei „reduzieren“. */
+/**
+ * Übergang nach einem Wechsel: Die neue Liste gleitet aus der Wischrichtung herein und blendet dabei auf – die alte
+ * war beim Ziehen schon zur Seite gewandert und halb ausgeblendet, so wirkt es wie ein Weiterblättern statt eines Sprungs.
+ * Ohne Bewegung bei „Bewegung reduzieren“.
+ */
 function nudgeList(body: HTMLElement | null, step: 1 | -1) {
   const grid = body?.querySelector<HTMLElement>('.grid');
   if (!grid || typeof grid.animate !== 'function') return;
   if (typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  grid.animate([{ transform: `translateX(${step * 22}px)`, opacity: 0.55 }, { transform: 'translateX(0)', opacity: 1 }], { duration: 200, easing: 'cubic-bezier(.2, .8, .2, 1)' });
+  grid.animate([{ transform: `translateX(${step * 48}px)`, opacity: 0.15 }, { transform: 'translateX(0)', opacity: 1 }], { duration: 240, easing: 'cubic-bezier(.16, 1, .3, 1)' });
 }
 
 /** Zacken eines Ratchets; Sonderformen (ohne Angabe in den Daten) bekommen keine erfundene Zahl. */

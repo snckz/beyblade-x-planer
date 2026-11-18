@@ -3013,3 +3013,6 @@ html.phone-landscape .rotate-hint {
 @media (min-width: 700px) { .confirm-sheet { border-radius: var(--r-win); } }
 .confirm-parts .bit-name-code { font-weight: 700; color: var(--text); }
 .confirm-parts .bit-name-text { font-weight: 400; }
+
+/* Auswahl: nicht passende Karten bleiben im Fenster, sind aber ausgeblendet (schneller Kategoriewechsel ohne Neuaufbau) */
+.tile.pick[hidden] { display: none !important; }

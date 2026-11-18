@@ -23,7 +23,7 @@ describe('Auswahlfenster: Liste nach Filter und Suche', () => {
     body.scrollTop = 600;
     fireEvent.click(sheet.querySelector('.type-chip-stamina')!);
     expect(body.scrollTop).toBe(0);
-    expect(sheet.querySelectorAll('.picker-body .tile.pick')).toHaveLength(10);
+    expect(sheet.querySelectorAll('.picker-body .tile.pick:not([hidden])')).toHaveLength(10);
   });
 
   it('springt bei neuer Suche wieder an den Anfang', () => {

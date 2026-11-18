@@ -81,7 +81,7 @@ describe('Kategorie per Wischen (Blade/Bit)', () => {
     expect(active()).toEqual(['Alle']);
     swipe(body, -90);
     expect(active()).toEqual(['Attack']);
-    expect([...sheet.querySelectorAll('.tile.pick .mini-badge-type')].every((b) => b.textContent === 'Attack')).toBe(true);
+    expect([...sheet.querySelectorAll('.tile.pick:not([hidden]) .mini-badge-type')].every((b) => b.textContent === 'Attack')).toBe(true);
     swipe(body, -90);
     expect(active()).toEqual(['Defense']);
     swipe(body, 90);
@@ -128,9 +128,12 @@ describe('Kategorie per Wischen (Blade/Bit)', () => {
     pointer(body, 'pointermove', 140, 302); // 60 px nach links: es gibt eine nächste Kategorie
     const normal = offset();
     expect(normal).toBeLessThan(-10);
+    expect(Number(grid().style.opacity)).toBeLessThan(1); // blendet beim Mitgehen leicht aus
+    expect(Number(grid().style.opacity)).toBeGreaterThan(0.4);
     t += 50;
     act(() => void pointer(body, 'pointerup', 190, 302)); // zurückgezogen: kein Wechsel
     expect(grid().style.transform).toBe('');
+    expect(grid().style.opacity).toBe('');
     t += 1000;
     pointer(body, 'pointerdown', 200, 300);
     t += 50;
@@ -139,6 +142,22 @@ describe('Kategorie per Wischen (Blade/Bit)', () => {
     expect(offset()).toBeGreaterThan(0);
     act(() => void pointer(body, 'pointerup', 260, 302));
     expect(grid().style.transform).toBe('');
+  });
+
+  it('baut die Karten beim Wechsel nicht neu auf – nicht passende werden nur ausgeblendet', () => {
+    const { body, sheet } = openPicker('blade');
+    const cards = () => [...sheet.querySelectorAll<HTMLElement>('.tile.pick')];
+    const before = cards();
+    expect(before.length).toBe(db.blades.length);
+    swipe(body, -80); // → Attack
+    const after = cards();
+    expect(after.length).toBe(before.length);
+    expect(after.every((c, i) => c === before[i])).toBe(true); // dieselben Elemente (Fotos bleiben geladen)
+    const shown = after.filter((c) => !c.hidden);
+    expect(shown.length).toBe(db.blades.filter((b) => b.type === 'attack').length);
+    expect(shown.length).toBeGreaterThan(0);
+    swipe(body, 80); // zurück zu „Alle“
+    expect(cards().filter((c) => !c.hidden).length).toBe(db.blades.length);
   });
 
   it('zählt das Tempo am Ende: langsam ansetzen, schnell wegwischen wechselt', () => {

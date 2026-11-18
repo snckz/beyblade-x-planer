@@ -10,7 +10,8 @@
  *   (pointercancel) – Touch-Ereignisse laufen bis zum Loslassen durch.
  * - Nach wenigen Pixeln entscheidet die überwiegende Achse. Senkrecht → aufgeben, der Browser scrollt.
  *   Waagrecht → touchmove wird blockiert, damit die Liste nicht nebenbei mitscrollt.
- * - Die Liste folgt dem Finger (gedämpft); an der ersten/letzten Kategorie gibt sie nur spürbar nach.
+ * - Die Liste folgt dem Finger (gedämpft) und blendet dabei leicht aus; an der ersten/letzten Kategorie gibt sie nur
+ *   spürbar nach.
  *   Beim Loslassen wechselt sie oder federt zurück.
  * - Schnelle Wische zählen nach dem Tempo der letzten ~100 ms, nicht gemittelt über die ganze Bewegung.
  */
@@ -31,10 +32,13 @@ const VELOCITY_MS = 100;
 /** Nach einem Wisch so lange Klicks auf Karten verwerfen (ms) – der Finger landet beim Loslassen auf einer Karte. */
 const CLICK_GUARD_MS = 400;
 /** Mitgehen: Anteil der Fingerstrecke; am Rand (keine weitere Kategorie) deutlich weniger. */
-const FOLLOW = 0.35;
+const FOLLOW = 0.5;
 const FOLLOW_EDGE = 0.12;
 /** Zurückfedern (ms) – passt zum Hereingleiten der neuen Liste in PartPicker. */
 const SPRING_MS = 180;
+/** Beim Mitgehen blendet die Liste leicht aus (Strecke in px bis zur geringsten Deckkraft) – sie „geht“ zur Seite. */
+const FADE_PX = 140;
+const MIN_OPACITY = 0.45;
 
 /** Ausnahmen: Felder und eigene waagrechte Leisten (z. B. Ratchet-Höhen) wechseln nie die Kategorie. */
 const IGNORE = 'input, textarea, select, .height-filter, [data-no-swipe]';
@@ -54,6 +58,11 @@ export function swipeStep(dx: number, dy: number, ms: number, velocity?: number)
 /** Gedämpftes Mitgehen der Liste: Anteil der Fingerstrecke, am Rand stärker gebremst. */
 export function followOffset(dx: number, canMove: boolean): number {
   return Math.round(dx * (canMove ? FOLLOW : FOLLOW_EDGE));
+}
+
+/** Deckkraft der Liste beim Mitgehen (1 = voll sichtbar). */
+export function followOpacity(offset: number): number {
+  return Math.max(MIN_OPACITY, 1 - (Math.abs(offset) / FADE_PX) * (1 - MIN_OPACITY));
 }
 
 interface Options {
@@ -77,6 +86,7 @@ export function attachCategorySwipe(el: HTMLElement, onStep: (step: 1 | -1) => v
     window.clearTimeout(springTimer);
     target.style.transition = 'none';
     target.style.transform = px ? `translateX(${px}px)` : '';
+    target.style.opacity = px ? String(followOpacity(px)) : '';
     moved = target;
   };
   /** Liste wieder an ihren Platz: mit kurzem Federn, oder sofort (beim Wechsel übernimmt das Hereingleiten). */
@@ -87,10 +97,12 @@ export function attachCategorySwipe(el: HTMLElement, onStep: (step: 1 | -1) => v
     if (!animate || reducedMotion() || !target.style.transform) {
       target.style.transition = '';
       target.style.transform = '';
+      target.style.opacity = '';
       return;
     }
-    target.style.transition = `transform ${SPRING_MS}ms cubic-bezier(.2, .8, .2, 1)`;
+    target.style.transition = `transform ${SPRING_MS}ms cubic-bezier(.2, .8, .2, 1), opacity ${SPRING_MS}ms ease`;
     target.style.transform = '';
+    target.style.opacity = '';
     springTimer = window.setTimeout(() => (target.style.transition = ''), SPRING_MS + 40);
   };
 
