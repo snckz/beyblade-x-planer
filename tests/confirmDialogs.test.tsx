@@ -40,6 +40,8 @@ describe('Rückfragen im eigenen Fenster statt window.confirm', () => {
     const update = (fn: (s: UserState) => UserState) => (state = fn(state));
     Element.prototype.scrollIntoView ??= () => {}; // jsdom kennt es nicht
     const view = render(<Transfer state={state} update={update} onClose={() => {}} />);
+    // QR-Code wird asynchron nachgeladen (dynamic import) – abwarten, damit nichts nach Testende weiterläuft
+    await waitFor(() => expect(view.getByRole('img', { name: 'QR-Code mit deinen Daten' })).toBeTruthy(), { timeout: 5000 });
     fireEvent.input(view.getByRole('textbox', { name: 'Übertragungs-Link einfügen' }), { target: { value: code } });
     fireEvent.click(view.getByRole('button', { name: 'Übernehmen' }));
     await waitFor(() => expect(sheet()).not.toBeNull());
