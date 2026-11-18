@@ -6,7 +6,7 @@
 import { readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { API, wikiUrl } from './update-data.mjs';
-import { validateDb, EMPTY_RETIRED, normalizeRetired } from './validate-data.mjs';
+import { validateDb, EMPTY_RETIRED, MISSING_PAGE_CODES, normalizeRetired } from './validate-data.mjs';
 import { DataSafetyError, loadRetired, writeDbSafely, writeFileAtomic } from './data-safety.mjs';
 
 export const LIST_TITLES = ['List of Beyblade X products (Takara Tomy)', 'List of Beyblade X Products (Takara Tomy)'];
@@ -129,7 +129,7 @@ async function api(fetchFn, params) {
 /** Wikitext einer Seite; null = Seite gibt es nicht. Abruf- und Wiki-Fehler werfen (gelten nie als „fehlt“). */
 export async function wikitextOf(fetchFn, title) {
   const d = await api(fetchFn, { action: 'parse', page: title, prop: 'wikitext', redirects: '1' });
-  if (d?.error && d.error.code !== 'missingtitle') throw new Error(`Wiki-Fehler ${d.error.code} für „${title}“`);
+  if (d?.error && !MISSING_PAGE_CODES.has(d.error.code)) throw new Error(`Wiki-Fehler ${d.error.code} für „${title}“`);
   return d?.parse?.wikitext ?? null;
 }
 
@@ -182,7 +182,7 @@ export async function mergeCatalog(db, entries, fetchPage, { retired = EMPTY_RET
     for (const bey of entry.beys) {
       n++;
       const code = multi ? `${entry.code}-${String(n).padStart(2, '0')}` : entry.code;
-      if (code in stillgelegt.products) continue; // bewusst entfernt bzw. umbenannt
+      if (Object.hasOwn(stillgelegt.products, code)) continue; // bewusst entfernt bzw. umbenannt
       let blade = lookAt(bey);
       if (!blade && stillgelegt.blades[bey.bladeId] === null) {
         report.skipped.push({ code, title: bey.title, reason: 'Blade stillgelegt (retired.json)' });

@@ -4,14 +4,14 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 // @ts-expect-error – JS-Modul ohne Typen
 import { mergeHasbro, parseHasbroList, run as runHasbro } from '../scripts/import-hasbro.mjs';
 // @ts-expect-error – JS-Modul ohne Typen
-import { mergeCatalog, parseList, run as runCatalog } from '../scripts/import-catalog.mjs';
+import { mergeCatalog, parseList, run as runCatalog, wikitextOf } from '../scripts/import-catalog.mjs';
 // @ts-expect-error – JS-Modul ohne Typen
 import { validateRetired, validateTransition } from '../scripts/validate-data.mjs';
 // @ts-expect-error – JS-Modul ohne Typen
@@ -250,5 +250,51 @@ describe('Schutz bestehender IDs und gespeicherter Referenzen', () => {
     writeFileAtomic(path, '{"a":1}\n');
     expect(readFileSync(path, 'utf8')).toBe('{"a":1}\n');
     expect(readdirSync(dir)).toEqual(['x.json']);
+  });
+});
+
+describe('Befunde aus dem Review', () => {
+  it('Hasbro-Neuaufbau behält Prüfstatus und Gewicht bekannter Blades sowie Prüfstatus/Release-Datum der Produkte', async () => {
+    const db = clone();
+    const blade = db.blades.find((b) => b.id === 'SavageBear')!;
+    blade.verified = true;
+    blade.weightG = 34.2;
+    const product = db.products.find((p) => p.code === savage.code)!;
+    product.verified = true;
+    product.releaseJp = '2026-04-01';
+    const res = await mergeHasbro(db, savageEntries(), async (t: string) => ({ title: t, wikitext: beyPage('Balance', 'Flat') }));
+    const b = res.db.blades.find((x: { id: string }) => x.id === 'SavageBear');
+    const p = res.db.products.find((x: { code: string }) => x.code === savage.code);
+    expect(b.verified).toBe(true);
+    expect(b.weightG).toBe(34.2);
+    expect(p.verified).toBe(true);
+    expect(p.releaseJp).toBe('2026-04-01');
+    expect(res.report.added.blades).not.toContain('SavageBear'); // neu aufgebaut, nicht neu
+    expect(res.report.added.products).not.toContain(savage.code);
+  });
+
+  it('Umbenennung laut retired.json gilt auch für die Teile bestehender Produkte', () => {
+    const next = clone();
+    const old = next.blades.find((b) => b.id === 'SavageBear')!;
+    next.blades = next.blades.filter((b) => b.id !== 'SavageBear');
+    next.blades.push({ ...old, id: 'SavageGrizzly' });
+    for (const p of next.products) if (p.bladeId === 'SavageBear') p.bladeId = 'SavageGrizzly';
+    expect(validateTransition(realDb, next, { blades: { SavageBear: 'SavageGrizzly' } })).toEqual([]);
+    expect(validateTransition(realDb, next).length).toBeGreaterThan(0); // ohne Eintrag: abgelehnt
+  });
+
+  it('Wiki-Antworten „gibt es nicht“ (invalidtitle …) gelten als fehlende Seite, Drosselung als Abruffehler', async () => {
+    const wiki = (code: string) => (async () => json({ error: { code } })) as typeof fetch;
+    await expect(wikitextOf(wiki('invalidtitle'), 'Bad|Title')).resolves.toBeNull();
+    await expect(wikitextOf(wiki('missingtitle'), 'Nope')).resolves.toBeNull();
+    await expect(wikitextOf(wiki('ratelimited'), 'X')).rejects.toThrow('ratelimited');
+  });
+
+  it('gescheitertes atomares Schreiben hinterlässt keine temporäre Datei', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'bx-atomic-'));
+    const target = join(dir, 'db.json');
+    mkdirSync(join(target, 'blockiert'), { recursive: true }); // Ziel ist ein Ordner → Umbenennen scheitert
+    expect(() => writeFileAtomic(target, '{}')).toThrow();
+    expect(readdirSync(dir)).toEqual(['db.json']);
   });
 });

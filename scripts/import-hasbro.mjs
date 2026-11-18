@@ -6,7 +6,7 @@ import { readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { API, wikiUrl } from './update-data.mjs';
 import { LINK_RE, MAX_PAGES, norm, parseBeyPage, parseBeyTitle } from './import-catalog.mjs';
-import { validateDb, EMPTY_RETIRED, normalizeRetired } from './validate-data.mjs';
+import { validateDb, EMPTY_RETIRED, MISSING_PAGE_CODES, normalizeRetired } from './validate-data.mjs';
 import { DataSafetyError, loadRetired, writeDbSafely, writeFileAtomic } from './data-safety.mjs';
 
 export const LIST_TITLES = ['List of Beyblade X products (Hasbro)', 'List of Beyblade X Products (Hasbro)', 'Beyblade X (Hasbro)'];
@@ -220,7 +220,7 @@ export async function mergeHasbro(db, entries, fetchPage, { retired = EMPTY_RETI
       n++;
       const code = multi ? `${entry.code}-${String(n).padStart(2, '0')}` : entry.code;
       if (out.products.some((p) => p.code === code)) continue;
-      if (code in stillgelegt.products) continue; // bewusst entfernt bzw. umbenannt
+      if (Object.hasOwn(stillgelegt.products, code)) continue; // bewusst entfernt bzw. umbenannt
       let blade = findBlade(bey);
       let info = null;
       let real = bey; // Kreisel laut Zielseite (nach Weiterleitung, meist der Takara-Name)
@@ -267,9 +267,12 @@ export async function mergeHasbro(db, entries, fetchPage, { retired = EMPTY_RETI
           note: HASBRO_NOTE,
           ...(!bey.ratchet && !info.ratchetIntegratedBit ? { integratedRatchet: true } : {}),
         };
+        // Neuaufbau eines schon bekannten Blades: von anderen Schritten Ermitteltes behalten (Prüfstatus, Gewicht …)
+        const before = db.blades.find((b) => b.id === blade.id);
+        if (before) blade = { ...before, ...blade, verified: before.verified || blade.verified, ...(before.weightG !== undefined ? { weightG: before.weightG } : {}) };
         out.blades.push(blade);
         index(blade);
-        report.added.blades.push(blade.id);
+        if (!before) report.added.blades.push(blade.id);
       } else if (bey.hasbro && (!blade.hasbroName || blade.hasbroNameAuto) && wkey(bey.hasbro) !== wkey(blade.name) && wkey(blade.hasbroName ?? '') !== wkey(bey.hasbro)) {
         // Hasbro-Name aus dem Linktext ist verlässlicher als die Heuristik von update-hasbro
         blade.hasbroName = bey.hasbro;
@@ -291,7 +294,7 @@ export async function mergeHasbro(db, entries, fetchPage, { retired = EMPTY_RETI
       }
       const ratchetId = blade.integratedRatchet ? undefined : bey.ratchet;
       const label = `${bey.hasbro ?? blade.hasbroName ?? blade.name}${ratchetId || bey.bit ? ' ' + (ratchetId ?? '') + bey.bit : ''}`;
-      out.products.push({
+      const rebuilt = {
         code,
         name: `${KIND_LABEL[kind]} ${label}`,
         hasbroName: `${KIND_LABEL[kind]} ${label}`,
@@ -306,14 +309,17 @@ export async function mergeHasbro(db, entries, fetchPage, { retired = EMPTY_RETI
         verified: false,
         imported: true,
         source: wikiUrl(bey.page),
-      });
-      report.added.products.push(code);
+      };
+      // Neuaufbau einer schon bekannten Produktnummer: Prüfstatus und Release-Datum aus früheren Läufen behalten
+      const prior = db.products.find((p) => p.code === code);
+      out.products.push(prior ? { ...rebuilt, verified: prior.verified || rebuilt.verified, ...(prior.releaseJp ? { releaseJp: prior.releaseJp } : {}) } : rebuilt);
+      if (!prior) report.added.products.push(code);
     }
   }
   // Bisher importierte Produkte, die diesmal nicht entstanden sind (Seite fehlt, Liste unvollständig, Parser-Lücke):
   // behalten statt löschen – samt Blade, falls der Neuaufbau es entfernt hat.
   for (const old of db.products) {
-    if (!(old.region === 'hasbro' && old.imported) || out.products.some((p) => p.code === old.code) || old.code in stillgelegt.products) continue;
+    if (!(old.region === 'hasbro' && old.imported) || out.products.some((p) => p.code === old.code) || Object.hasOwn(stillgelegt.products, old.code)) continue;
     out.products.push(structuredClone(old));
     report.kept.push(old.code);
     if (old.bladeId && !out.blades.some((b) => b.id === old.bladeId)) {
@@ -336,7 +342,7 @@ export async function run({ fetchFn = fetch, dataDir = new URL('../public/data/'
       // HTTP-Fehler (503, 429 …) sind Abruffehler, keine fehlende Seite → werfen.
       if (!res.ok) throw new Error(`HTTP ${res.status} für „${title}“`);
       const d = await res.json();
-      if (d?.error && d.error.code !== 'missingtitle') throw new Error(`Wiki-Fehler ${d.error.code} für „${title}“`);
+      if (d?.error && !MISSING_PAGE_CODES.has(d.error.code)) throw new Error(`Wiki-Fehler ${d.error.code} für „${title}“`);
       return d?.parse?.wikitext ? { title: d.parse.title, wikitext: d.parse.wikitext } : null;
     };
     for (const t of LIST_TITLES) {

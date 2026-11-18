@@ -20,6 +20,11 @@ on:
       - 'scripts/data-safety.mjs'
       - 'scripts/validate-data.mjs'
 
+# Nie zwei Läufe gleichzeitig (Zeitplan, Push, manuell): sonst könnten sie sich gegenseitig Daten überschreiben.
+concurrency:
+  group: update-data
+  cancel-in-progress: false
+
 permissions:
   contents: write
   pages: write
@@ -74,6 +79,9 @@ jobs:
             git add public/data
             git commit -m "Neuheiten-Radar: Daten aktualisiert"
             git pull --rebase origin main
+            # main hat sich inzwischen bewegt? Den zusammengeführten Stand noch einmal gegen main prüfen.
+            git show HEAD~1:public/data/db.json > "$RUNNER_TEMP/db-main.json"
+            node scripts/validate-data.mjs --previous "$RUNNER_TEMP/db-main.json"
             git push origin HEAD:main
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi

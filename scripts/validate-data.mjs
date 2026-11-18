@@ -1,7 +1,7 @@
 // Prüft public/data/db.json und news.json auf Konsistenz.
 // Wird lokal (npm run validate-data) und im Auto-Update-Workflow ausgeführt.
 import { pathToFileURL } from 'node:url';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 
 const TYPES = new Set(['attack', 'defense', 'stamina', 'balance']);
 const SPINS = new Set(['right', 'left', 'both']);
@@ -127,6 +127,12 @@ const PART_KINDS = [
   ['products', 'code', 'Produkt'],
 ];
 
+/**
+ * MediaWiki-Fehlercodes, die „diese Seite gibt es nicht (bzw. kann es nicht geben)“ bedeuten – keine Abruffehler.
+ * Alles andere (ratelimited, readonly, internal_api_error …) bricht einen Import ab.
+ */
+export const MISSING_PAGE_CODES = new Set(['missingtitle', 'invalidtitle', 'pagecannotexist', 'nosuchpageid']);
+
 /** Leere, gültige Liste stillgelegter Einträge (Form von retired.json). */
 export const EMPTY_RETIRED = Object.freeze({ blades: {}, ratchets: {}, bits: {}, products: {}, reassigned: {} });
 
@@ -171,17 +177,20 @@ export function validateTransition(prev, next, retired = EMPTY_RETIRED) {
   const r = normalizeRetired(retired);
   for (const [kind, key, label] of PART_KINDS) {
     const nextIds = new Set((next[kind] ?? []).map((x) => x[key]));
-    const missing = (prev[kind] ?? []).map((x) => x[key]).filter((id) => !nextIds.has(id) && !(id in r[kind]));
+    const missing = (prev[kind] ?? []).map((x) => x[key]).filter((id) => !nextIds.has(id) && !Object.hasOwn(r[kind], id));
     if (missing.length) {
       errors.push(`${missing.length} ${label}${missing.length === 1 ? '' : 'e'} würde${missing.length === 1 ? '' : 'n'} verschwinden: ${missing.slice(0, 12).join(', ')}${missing.length > 12 ? ' …' : ''}`);
     }
   }
   const nextProducts = new Map((next.products ?? []).map((p) => [p.code, p]));
   const parts = (p) => `${p.bladeId ?? '–'} | ${p.ratchetId ?? '–'} | ${p.bitId ?? '–'}`;
+  // Umbenennungen aus retired.json gelten auch hier: Blade A → B macht aus „A | 3-60 | F“ erlaubt „B | 3-60 | F“.
+  const renamed = (kind, id) => (id !== undefined && typeof r[kind][id] === 'string' ? r[kind][id] : id);
+  const expected = (p) => ({ bladeId: renamed('blades', p.bladeId), ratchetId: renamed('ratchets', p.ratchetId), bitId: renamed('bits', p.bitId) });
   for (const old of prev.products ?? []) {
     const now = nextProducts.get(old.code);
-    if (!now || old.code in r.reassigned) continue;
-    if (parts(now) !== parts(old)) errors.push(`Produkt ${old.code} bekäme andere Teile: ${parts(old)} → ${parts(now)}`);
+    if (!now || Object.hasOwn(r.reassigned, old.code)) continue;
+    if (parts(now) !== parts(expected(old))) errors.push(`Produkt ${old.code} bekäme andere Teile: ${parts(old)} → ${parts(now)}`);
   }
   return errors;
 }
@@ -190,12 +199,9 @@ const isMain = !!process.argv[1] && import.meta.url === pathToFileURL(process.ar
 if (isMain) {
   const read = (f) => JSON.parse(readFileSync(new URL(`../public/data/${f}`, import.meta.url), 'utf8'));
   const db = read('db.json');
+  // Fehlt retired.json: nichts stillgelegt. Kaputtes JSON ist ein Fehler (wie in data-safety.mjs).
   let retired = EMPTY_RETIRED;
-  try {
-    retired = normalizeRetired(read('retired.json'));
-  } catch {
-    /* keine retired.json: nichts stillgelegt */
-  }
+  if (existsSync(new URL('../public/data/retired.json', import.meta.url))) retired = normalizeRetired(read('retired.json'));
   const errors = [
     ...validateDb(db),
     ...validateRetired(retired, db),

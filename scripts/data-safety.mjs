@@ -3,7 +3,7 @@
 //   (validateTransition): Nichts Bestehendes verschwindet oder wird umbelegt, außer ausdrücklich in retired.json.
 // - Schreiben atomar (temporäre Datei + Umbenennen): Ein Abbruch mitten im Schreiben hinterlässt keine halbe Datei.
 // Verdächtige Änderungen werfen DataSafetyError – das Skript bricht mit klarem Fehler ab, db.json bleibt unverändert.
-import { readFileSync, renameSync, writeFileSync } from 'node:fs';
+import { readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { EMPTY_RETIRED, normalizeRetired, validateDb, validateRetired, validateTransition } from './validate-data.mjs';
 
@@ -30,8 +30,14 @@ export function loadRetired(dataDir) {
 export function writeFileAtomic(url, text) {
   const path = url instanceof URL ? fileURLToPath(url) : url;
   const tmp = `${path}.tmp-${process.pid}`;
-  writeFileSync(tmp, text);
-  renameSync(tmp, path);
+  try {
+    writeFileSync(tmp, text);
+    renameSync(tmp, path);
+  } catch (err) {
+    // Keine halbe Datei zurücklassen (würde sonst mit `git add public/data` committet)
+    rmSync(tmp, { force: true });
+    throw err;
+  }
 }
 
 /** Prüft den Übergang prev → next; wirft DataSafetyError mit allen Befunden. */
