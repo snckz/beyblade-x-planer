@@ -11,11 +11,8 @@ import { Empty, Section, SpinBadge, StatBar, TypeBadge } from './ui';
 import { PartField } from './PartPicker';
 import { Check, Scale, Sparkles } from 'lucide-preact';
 import { ComboParts, ComboStage } from './ComboStage';
-import { ConfirmSheet } from './ConfirmSheet';
 import { SwipeRow } from './SwipeRow';
 import { showUndo } from '../lib/undo';
-import { displayName } from '../lib/names';
-import { BitName } from './ui';
 
 interface Props {
   db: Database;
@@ -262,8 +259,6 @@ export function ComboBuilder({ db, state, update, presetBladeId, presetRatchetId
 }
 
 function SavedCombos({ db, state, update }: Props) {
-  // Kombo, deren Löschen gerade bestätigt werden soll (Kennung – die Liste kann sich inzwischen ändern)
-  const [pendingId, setPendingId] = useState<string | null>(null);
   if (!state.combos.length) return null;
   const toggleDeck = (id: string) =>
     update((s) => {
@@ -271,7 +266,7 @@ function SavedCombos({ db, state, update }: Props) {
       if (s.deck.length >= 3) return s;
       return { ...s, deck: [...s.deck, id] };
     });
-  // Löschen erst nach Bestätigung im Dialog – Löschlogik unverändert, nur genau diese Kennung
+  // Löschen nur per Wischen (Papierkorb wie in iOS) – genau diese Kennung, mit „Rückgängig“
   const remove = (id: string) => update((s) => ({ ...s, combos: s.combos.filter((c) => c.id !== id), deck: s.deck.filter((d) => d !== id) }));
   /** Weggewischt: sofort löschen, mit „Rückgängig“ (Kombo an alter Stelle, wieder im Deck, falls dort Platz ist) */
   const swipeRemove = (c: Combo, title: string) => {
@@ -287,8 +282,6 @@ function SavedCombos({ db, state, update }: Props) {
       }),
     );
   };
-  const pending = pendingId ? state.combos.find((c) => c.id === pendingId) : undefined;
-  const pendingParts = pending ? resolveCombo(db, pending) : null;
   return (
     <Section title={`Gespeichert (${state.combos.length})`}>
       <ul class="list">
@@ -297,7 +290,7 @@ function SavedCombos({ db, state, update }: Props) {
           const a = r ? analyze(r) : null;
           const inDeck = state.deck.includes(c.id);
           return (
-            <SwipeRow key={c.id} class="row" deleteLabel={`Kombo ${c.name ?? (a ? a.label : '')} löschen`.replace(/\s+/g, ' ')} onDelete={() => swipeRemove(c, c.name ?? (a ? a.label : 'Unbekannte Teile'))}>
+            <SwipeRow key={c.id} class="row" deleteLabel={`Kombo ${c.name ?? (a ? a.label : '')} löschen`.replace(/\s+/g, ' ')} onlyDelete onDelete={() => swipeRemove(c, c.name ?? (a ? a.label : 'Unbekannte Teile'))}>
               <div class="row-main">
                 <span class="row-title">{c.name ?? (a ? nb(a.label) : 'Unbekannte Teile')}</span>
                 {c.name && a && <span class="row-sub">{nb(a.label)}</span>}
@@ -312,31 +305,10 @@ function SavedCombos({ db, state, update }: Props) {
               >
                 {inDeck ? 'Im Deck' : '+ Deck'}
               </button>
-              <button type="button" class="icon-btn" onClick={() => setPendingId(c.id)} aria-label={`Kombo ${c.name ?? (a ? a.label : '')} löschen`.replace(/\s+/g, ' ')} aria-haspopup="dialog">
-                ×
-              </button>
             </SwipeRow>
           );
         })}
       </ul>
-      {pending && (
-        <ConfirmSheet
-          title="Kombo löschen?"
-          note="Das lässt sich nicht rückgängig machen."
-          confirmLabel="Löschen"
-          onConfirm={() => remove(pending.id)}
-          onClose={() => setPendingId(null)}
-        >
-          <p class="confirm-item">{pending.name ?? (pendingParts ? nb(analyze(pendingParts).label) : 'Unbekannte Teile')}</p>
-          {pendingParts && (
-            <p class="confirm-parts">
-              <span>{displayName(pendingParts.blade)}</span>
-              {pendingParts.ratchet && <span>{pendingParts.ratchet.id}</span>}
-              <BitName bit={pendingParts.bit} />
-            </p>
-          )}
-        </ConfirmSheet>
-      )}
     </Section>
   );
 }

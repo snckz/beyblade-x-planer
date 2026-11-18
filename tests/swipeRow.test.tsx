@@ -72,10 +72,9 @@ describe('Wischen zum Löschen (wie iOS)', () => {
     const { row, state } = combos();
     const r = row('Zweite');
     const trash = r.querySelector<HTMLButtonElement>('.swipe-delete')!;
-    expect(trash.getAttribute('aria-hidden')).toBe('true'); // zu: nicht erreichbar
+    expect(r.classList.contains('is-open')).toBe(false); // zu: Papierkorb nicht zu sehen
     swipe(r, -120);
     expect(r.classList.contains('is-open')).toBe(true);
-    expect(trash.getAttribute('aria-hidden')).toBeNull();
     expect(r.querySelector<HTMLElement>('.swipe-content')!.style.transform).toContain('-84px');
     expect(state().combos).toHaveLength(3); // nur geöffnet, noch nichts gelöscht
     fireEvent.click(trash);

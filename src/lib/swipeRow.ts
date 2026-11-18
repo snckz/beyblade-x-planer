@@ -66,7 +66,10 @@ const reducedMotion = () => typeof window.matchMedia === 'function' && window.ma
 /** Position (px, ≤ 0) → Anteil, um den der Papierkorb sichtbar ist (0–1) */
 const reveal = (x: number) => Math.max(0, Math.min(1, -x / ACTION_WIDTH));
 
-export function attachSwipeRow(el: HTMLElement, { content, action, onDelete, onOpenChange }: SwipeRowOptions): () => void {
+/** Aushängen; `open()` öffnet den Eintrag von außen (z. B. wenn der Papierkorb per Tastatur angesteuert wird). */
+export type SwipeRowHandle = (() => void) & { open: () => void };
+
+export function attachSwipeRow(el: HTMLElement, { content, action, onDelete, onOpenChange }: SwipeRowOptions): SwipeRowHandle {
   let x = 0; // aktuelle Position des Inhalts (0 = zu, -ACTION_WIDTH = offen)
   let open = false;
   let g: { id: number; x0: number; y0: number; start: number; horizontal: boolean; samples: [number, number][] } | null = null;
@@ -248,14 +251,20 @@ export function attachSwipeRow(el: HTMLElement, { content, action, onDelete, onO
     remove();
   };
 
+  // Fokus verlässt den Eintrag (Tastatur): wieder schließen
+  const onFocusOut = (e: FocusEvent) => {
+    if (open && !el.contains(e.relatedTarget as Node | null)) close();
+  };
+
   paint(0);
+  el.addEventListener('focusout', onFocusOut);
   el.addEventListener('touchstart', onStart, { passive: true });
   el.addEventListener('touchmove', onMove, { passive: false });
   el.addEventListener('touchend', onEnd);
   el.addEventListener('touchcancel', onCancel);
   content.addEventListener('click', onClick, true);
   action.addEventListener('click', onAction);
-  return () => {
+  const detach = () => {
     // Eintrag verschwindet mitten im Hinausgleiten: das Löschen trotzdem ausführen
     if (removing) finishRemove();
     window.clearTimeout(timer);
@@ -267,5 +276,13 @@ export function attachSwipeRow(el: HTMLElement, { content, action, onDelete, onO
     el.removeEventListener('touchcancel', onCancel);
     content.removeEventListener('click', onClick, true);
     action.removeEventListener('click', onAction);
+    el.removeEventListener('focusout', onFocusOut);
   };
+  return Object.assign(detach, {
+    open: () => {
+      if (open || removing) return;
+      paint(-ACTION_WIDTH, reducedMotion() ? 0 : SNAP_MS);
+      setOpen(true);
+    },
+  });
 }

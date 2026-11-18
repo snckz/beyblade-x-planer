@@ -294,7 +294,7 @@ describe('Kategorie per Wischen (Ratchet)', () => {
   });
 });
 
-describe('Kombo löschen mit Bestätigung', () => {
+describe('Kombo löschen: nur per Papierkorb (wie iOS), mit Rückgängig', () => {
   const combos = [
     { id: 'a', name: 'Meine Erste', bladeId: 'DranSword', ratchetId: '3-60', bitId: 'F' },
     { id: 'b', name: 'Zweite', bladeId: 'WizardRod', ratchetId: '5-70', bitId: 'DB' },
@@ -307,49 +307,36 @@ describe('Kombo löschen mit Bestätigung', () => {
       return <ComboBuilder db={db} state={s} update={(fn) => set((x) => (current = fn(x)))} />;
     }
     const view = render(<Harness />);
-    const deleteBtn = (name: string) => view.getByRole('button', { name: `Kombo ${name} löschen` });
-    return { view, deleteBtn, state: () => current };
+    return { view, state: () => current };
   }
 
-  it('Löschen erst nach Bestätigung – genau die gewählte Kombo, auch aus dem Deck', async () => {
-    const { deleteBtn, state } = setup();
-    fireEvent.click(deleteBtn('Zweite'));
-    expect(state().combos).toHaveLength(2); // noch nichts gelöscht
-    const dlg = within(document.querySelector<HTMLElement>('.confirm-sheet')!);
-    expect(dlg.getByRole('heading', { name: 'Kombo löschen?' })).toBeTruthy();
-    expect(dlg.getByText('Zweite')).toBeTruthy();
-    expect(document.querySelector('.confirm-parts')?.textContent).toContain('5-70');
-    expect(dlg.getByText('Das lässt sich nicht rückgängig machen.')).toBeTruthy();
-    fireEvent.click(dlg.getByRole('button', { name: /^Löschen/ }));
-    expect(state().combos.map((c) => c.id)).toEqual(['a']);
+  it('kein × in der Zeile – der Papierkorb ist der einzige Lösch-Knopf und erst nach dem Wischen zu sehen', () => {
+    const { view } = setup();
+    const row = view.getByText('Zweite').closest<HTMLElement>('.swipe-row')!;
+    expect(row.querySelector('.icon-btn')).toBeNull();
+    expect(row.textContent).not.toContain('×');
+    expect(row.classList.contains('is-open')).toBe(false);
+    expect(view.getAllByRole('button', { name: 'Kombo Zweite löschen' })).toHaveLength(1);
+  });
+
+  it('ohne Wischen erreichbar (VoiceOver/Tastatur): Ansteuern öffnet, Antippen löscht genau diese Kombo – auch aus dem Deck', async () => {
+    const { view, state } = setup();
+    const trash = view.getByRole('button', { name: 'Kombo Zweite löschen' });
+    const row = trash.closest<HTMLElement>('.swipe-row')!;
+    act(() => trash.focus());
+    expect(row.classList.contains('is-open')).toBe(true);
+    fireEvent.click(trash);
+    await waitFor(() => expect(state().combos.map((c) => c.id)).toEqual(['a']));
     expect(state().deck).toEqual(['a']);
-    await waitFor(() => expect(document.querySelector('.confirm-sheet')).toBeNull());
+    expect(document.querySelector('.confirm-sheet')).toBeNull(); // kein Rückfrage-Fenster mehr
   });
 
-  it('Abbrechen, Escape und Hintergrund ändern nichts', async () => {
-    const { deleteBtn, state } = setup();
-    const before = JSON.stringify(state());
-    for (const how of ['cancel', 'escape', 'backdrop'] as const) {
-      fireEvent.click(deleteBtn('Meine Erste'));
-      const sheet = document.querySelector<HTMLElement>('.confirm-sheet')!;
-      if (how === 'cancel') fireEvent.click(within(sheet).getByRole('button', { name: 'Abbrechen' }));
-      if (how === 'escape') fireEvent.keyDown(document, { key: 'Escape' });
-      if (how === 'backdrop') fireEvent.click(document.querySelector('.confirm-backdrop')!);
-      await waitFor(() => expect(document.querySelector('.confirm-sheet')).toBeNull());
-      expect(JSON.stringify(state())).toBe(before);
-    }
-  });
-
-  it('verhindert versehentliches Löschen: Fokus auf „Abbrechen“, Doppeltipp löscht nur einmal', async () => {
-    const { deleteBtn, state } = setup();
-    fireEvent.click(deleteBtn('Meine Erste'));
-    const sheet = document.querySelector<HTMLElement>('.confirm-sheet')!;
-    expect(sheet.getAttribute('role')).toBe('alertdialog');
-    expect(document.activeElement?.textContent).toBe('Abbrechen');
-    const del = within(sheet).getByRole('button', { name: /^Löschen/ });
-    fireEvent.click(del);
-    fireEvent.click(del);
-    expect(state().combos.map((c) => c.id)).toEqual(['b']);
-    await waitFor(() => expect(document.querySelector('.confirm-sheet')).toBeNull());
+  it('Fokus verlässt die Zeile: sie schließt wieder, nichts gelöscht', () => {
+    const { view, state } = setup();
+    const trash = view.getByRole('button', { name: 'Kombo Meine Erste löschen' });
+    act(() => trash.focus());
+    act(() => view.getAllByRole('button', { name: /Deck/ })[1]!.focus());
+    expect(trash.closest('.swipe-row')!.classList.contains('is-open')).toBe(false);
+    expect(state().combos).toHaveLength(2);
   });
 });
