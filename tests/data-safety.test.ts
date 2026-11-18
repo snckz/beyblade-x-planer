@@ -16,6 +16,8 @@ import { mergeCatalog, parseList, run as runCatalog, wikitextOf } from '../scrip
 import { validateRetired, validateTransition } from '../scripts/validate-data.mjs';
 // @ts-expect-error – JS-Modul ohne Typen
 import { DataSafetyError, writeDbSafely, writeFileAtomic } from '../scripts/data-safety.mjs';
+// @ts-expect-error – JS-Modul ohne Typen
+import { run as runNames } from '../scripts/update-hasbro.mjs';
 import { resolveCombo } from '../src/lib/analysis';
 import type { Database } from '../src/lib/types';
 
@@ -42,50 +44,81 @@ function dataDir(extra: Record<string, unknown> = {}) {
 const json = (body: unknown) => ({ ok: true, status: 200, json: async () => body }) as Response;
 const http = (status: number) => ({ ok: false, status, json: async () => ({}) }) as Response;
 
+const newHasbro = '|-\n|G9998\n|[[Comet Owl 3-60F]]\n';
+
 describe('Root Cause: Abruffehler galten als „Seite fehlt“ und löschten Bestandsprodukte', () => {
-  it('Regression: Netzwerkfehler beim Seitenabruf bricht den Hasbro-Import ab statt Produkt und Blade zu löschen', async () => {
-    // Vorher: mergeHasbro lieferte ein gültiges Ergebnis OHNE das Produkt und OHNE das Blade SavageBear.
+  it('Regression: bekannte Produkte bleiben auch bei Netzwerkfehlern erhalten (kein Neuaufbau, kein Abruf nötig)', async () => {
+    // Vorher: Neuaufbau entfernte G0286 samt Blade SavageBear, der Abruf scheiterte, beides fehlte im Ergebnis.
+    const res = await mergeHasbro(clone(), savageEntries(), async () => {
+      throw new Error('HTTP 503');
+    });
+    expect(codes(res.db).has(savage.code)).toBe(true);
+    expect(res.db.blades.some((b: { id: string }) => b.id === 'SavageBear')).toBe(true);
+    expect(res.report.existing).toBe(1);
+    expect(validateTransition(realDb, res.db)).toEqual([]);
+  });
+
+  it('Netzwerkfehler beim Abruf eines neuen Produkts bricht den Import ab (gilt nicht als „Seite fehlt“)', async () => {
     await expect(
-      mergeHasbro(clone(), savageEntries(), async () => {
+      mergeHasbro(clone(), parseHasbroList(newHasbro), async () => {
         throw new Error('HTTP 503');
       }),
     ).rejects.toThrow('HTTP 503');
   });
 
-  it('Regression end-to-end: HTTP 503 im Wiki → db.json bleibt byte-gleich, Bericht nennt den Fehler', async () => {
+  it('end-to-end: HTTP 503 im Wiki → Fehlerstatus, db.json byte-gleich, Bericht nennt den Fehler', async () => {
     const d = dataDir();
     const before = d.db();
-    const list = `|-\n|${savage.code}\n|[[${savageTitle}]]\n`;
+    const list = `|-\n|${savage.code}\n|[[${savageTitle}]]\n${newHasbro}`;
     const fetchFn = async (url: string) => (url.includes('List_of') || url.includes('List+of') ? json({ parse: { title: 'List', wikitext: list } }) : http(503));
     const res = await runHasbro({ fetchFn: fetchFn as typeof fetch, dataDir: d.url });
+    expect(res.status).toBe('error');
     expect(res.changed).toBe(false);
     expect(d.db()).toBe(before);
     const report = JSON.parse(readFileSync(join(d.dir, 'hasbro-report.json'), 'utf8'));
-    expect(report.ok).toBe(false);
+    expect(report.status).toBe('error');
     expect(report.error).toContain('HTTP 503');
   });
 
-  it('tatsächlich fehlende Seite ist keine Löschanweisung: Produkt und Blade bleiben, Bericht meldet „kept“', async () => {
-    const res = await mergeHasbro(clone(), savageEntries(), async () => null);
-    expect(codes(res.db).has(savage.code)).toBe(true);
-    expect(res.db.blades.some((b: { id: string }) => b.id === 'SavageBear')).toBe(true);
-    expect(res.report.kept).toContain(savage.code);
-    expect(validateTransition(realDb, res.db)).toEqual([]);
+  it('fehlende Seite eines neuen Produkts: Teilerfolg wird als „partial“ gemeldet, Bestand unverändert', async () => {
+    const d = dataDir();
+    const before = d.db();
+    const list = `|-\n|${savage.code}\n|[[${savageTitle}]]\n${newHasbro}`;
+    const fetchFn = async (url: string) => (url.includes('List_of') || url.includes('List+of') ? json({ parse: { title: 'List', wikitext: list } }) : json({ error: { code: 'missingtitle' } }));
+    const res = await runHasbro({ fetchFn: fetchFn as typeof fetch, dataDir: d.url });
+    expect(res.status).toBe('partial');
+    expect(res.report.ok).toBe(false); // nicht als vollständig erfolgreich gemeldet
+    expect(res.report.skipped[0]).toMatchObject({ code: 'G9998', reason: 'Seite fehlt' });
+    expect(d.db()).toBe(before);
   });
 });
 
 describe('Importquelle leer, unvollständig oder fehlerhaft', () => {
-  it('leere Hasbro-Liste: alle Bestandsprodukte und Blades bleiben erhalten', async () => {
+  it('Quelle ohne Einträge: Bestand bleibt vollständig, nicht Gelieferte stehen nur im Bericht', async () => {
     const res = await mergeHasbro(clone(), [], async () => null);
     expect(codes(res.db)).toEqual(codes(realDb));
-    expect(new Set(res.db.blades.map((b: { id: string }) => b.id))).toEqual(new Set(realDb.blades.map((b) => b.id)));
-    expect(validateTransition(realDb, res.db)).toEqual([]);
+    expect(JSON.stringify(res.db)).toBe(JSON.stringify(realDb));
+    expect(res.report.missingFromSource.length).toBe(realDb.products.filter((p) => p.region === 'hasbro').length);
   });
 
-  it('Hasbro-Liste nicht abrufbar: Import bricht ab, db.json unverändert', async () => {
+  it('leere oder stark geschrumpfte Liste ist ein Fehler, kein „nichts Neues“', async () => {
+    const d = dataDir({ 'hasbro-report.json': { codes: 139 } });
+    const before = d.db();
+    const list = `|-\n|${savage.code}\n|[[${savageTitle}]]\n`;
+    const fetchFn = async () => json({ parse: { title: 'List', wikitext: list } });
+    const res = await runHasbro({ fetchFn: fetchFn as typeof fetch, dataDir: d.url });
+    expect(res.status).toBe('error');
+    expect(res.report.error).toContain('Hasbro-Liste unvollständig: 1 Artikelnummern gelesen, zuletzt 139');
+    expect(d.db()).toBe(before);
+    const empty = await runHasbro({ fetchFn: (async () => json({ parse: { title: 'List', wikitext: 'nichts' } })) as typeof fetch, dataDir: dataDir().url });
+    expect(empty.status).toBe('error');
+  });
+
+  it('Hasbro-Liste nicht abrufbar: Fehlerstatus, db.json unverändert', async () => {
     const d = dataDir();
     const before = d.db();
     const res = await runHasbro({ fetchFn: (async () => http(502)) as typeof fetch, dataDir: d.url });
+    expect(res.status).toBe('error');
     expect(res.changed).toBe(false);
     expect(d.db()).toBe(before);
   });
@@ -109,6 +142,71 @@ describe('Importquelle leer, unvollständig oder fehlerhaft', () => {
       throw new Error('Wiki-Fehler ratelimited');
     };
     await expect(mergeCatalog(clone(), entries, fetchPage)).rejects.toThrow('ratelimited');
+  });
+});
+
+describe('Phase 2: Hasbro-Import ergänzt schrittweise', () => {
+  const setCode = realDb.products.find((p) => p.region === 'hasbro' && /-02$/.test(p.code))!.code.slice(0, -3);
+  const setProducts = realDb.products.filter((p) => p.code.startsWith(`${setCode}-`));
+  const title = (p: (typeof realDb.products)[number]) => decodeURIComponent(p.source!.split('/wiki/')[1]!).replace(/_/g, ' ');
+  const setList = (order: typeof setProducts, extra = '') => `|-\n|${setCode}\n|Dual Pack ${order.map((p) => `[[${title(p)}]]`).join(' ')}${extra}\n`;
+
+  it('Set-Inhalte werden über die Teile wiedererkannt, nicht über die Reihenfolge', async () => {
+    const reversed = [...setProducts].reverse();
+    const res = await mergeHasbro(clone(), parseHasbroList(setList(reversed)), async () => null);
+    expect(res.report.added.products).toEqual([]);
+    expect(res.report.existing).toBe(setProducts.length);
+    expect(validateTransition(realDb, res.db)).toEqual([]); // keine Nummer bekommt andere Teile
+  });
+
+  it('neuer Kreisel in einer bekannten Packung bekommt die nächste freie Nummer', async () => {
+    const res = await mergeHasbro(clone(), parseHasbroList(setList(setProducts, ' [[Comet Owl 3-60F]]')), async (t: string) => ({ title: t, wikitext: beyPage('Stamina', 'Flat') }));
+    expect(res.report.added.products).toEqual([`${setCode}-${String(setProducts.length + 1).padStart(2, '0')}`]);
+    expect(validateTransition(realDb, res.db)).toEqual([]);
+  });
+
+  it('erst nach der Weiterleitung erkannter Kreisel wird nicht doppelt angelegt', async () => {
+    const db = clone();
+    db.blades.push({ id: 'FooBar', name: 'Foo Bar', line: 'BX', type: 'attack', spin: 'right', verified: true } as (typeof db.blades)[number]);
+    db.products.push({ code: 'G7777', name: 'Booster Foo Bar 3-60F', kind: 'booster', bladeId: 'FooBar', ratchetId: '3-60', bitId: 'F', region: 'hasbro', verified: true, imported: true } as (typeof db.products)[number]);
+    const res = await mergeHasbro(db, parseHasbroList('|-\n|G7777\n|[[Baz Qux 3-60F]]\n'), async () => ({ title: 'FooBar 3-60F', wikitext: beyPage('Attack', 'Flat') }));
+    expect(res.report.added.blades).toEqual([]);
+    expect(res.report.added.products).toEqual([]);
+    expect(res.report.existing).toBe(1);
+  });
+
+  it('bekannte Produkte: Prüfstatus und Daten bleiben; nur ein neuer US-Preis wird ergänzt, nie gelöscht', async () => {
+    const db = clone();
+    const p = db.products.find((x) => x.code === savage.code)!;
+    p.verified = true;
+    p.releaseJp = '2026-04-01';
+    const withPrice = await mergeHasbro(db, parseHasbroList(`|-\n|${savage.code}\n|[[${savageTitle}]]\n|$12.99\n`), async () => null);
+    const after = withPrice.db.products.find((x: { code: string }) => x.code === savage.code);
+    expect(after).toMatchObject({ verified: true, releaseJp: '2026-04-01', bladeId: p.bladeId, bitId: p.bitId });
+    const noPrice = await mergeHasbro(withPrice.db, savageEntries(), async () => null);
+    expect(noPrice.db.products.find((x: { code: string }) => x.code === savage.code).priceUsd).toBe(after.priceUsd);
+  });
+
+  it('kompletter Lauf über alle Bestandsprodukte: keine neuen Einträge, keine Duplikate, idempotent', async () => {
+    // Quelle wie heute: alle bekannten Hasbro-Produkte (Einzelprodukte und Sets) in Listenform
+    const groups = new Map<string, (typeof realDb.products)[number][]>();
+    for (const p of realDb.products.filter((x) => x.region === 'hasbro' && x.source)) {
+      const base = p.code.replace(/-\d{2}$/, '');
+      groups.set(base, [...(groups.get(base) ?? []), p]);
+    }
+    const list = [...groups].map(([c, ps]) => `|-\n|${c}\n|${ps.length > 1 ? 'Dual Pack ' : ''}${ps.map((p) => `[[${title(p)}]]`).join(' ')}\n`).join('');
+    const page = async () => null;
+    const a = await mergeHasbro(clone(), parseHasbroList(list), page);
+    const b = await mergeHasbro(a.db, parseHasbroList(list), page);
+    expect(a.report.added.products).toEqual([]);
+    expect(a.db.products.length).toBe(realDb.products.length);
+    expect(new Set(a.db.products.map((p: { code: string }) => p.code)).size).toBe(a.db.products.length);
+    expect(JSON.stringify(b.db)).toBe(JSON.stringify(a.db));
+    expect(validateTransition(realDb, a.db)).toEqual([]);
+    // Geprüftes wird nicht verschlechtert: Prüfstatus, Typ, Drehrichtung und Gewicht aller Blades, Prüfstatus der Produkte
+    const key = (b: { id: string; verified: boolean; type: string; spin: string; weightG?: number | null }) => `${b.id}|${b.verified}|${b.type}|${b.spin}|${b.weightG}`;
+    expect(a.db.blades.map(key)).toEqual(realDb.blades.map(key));
+    expect(a.db.products.map((p: { code: string; verified: boolean }) => `${p.code}|${p.verified}`)).toEqual(realDb.products.map((p) => `${p.code}|${p.verified}`));
   });
 });
 
@@ -238,8 +336,8 @@ describe('Kontrollierte Löschung und Umbenennung (retired.json)', () => {
 describe('Schutz bestehender IDs und gespeicherter Referenzen', () => {
   it('gespeicherte Kombo und Sammlung mit Hasbro-exklusivem Kreisel bleiben nach fehlerhaftem Import auflösbar', async () => {
     const combo = { id: 'c1', bladeId: 'SavageBear', ratchetId: savage.ratchetId, bitId: savage.bitId! };
-    // fehlende Seite (null): Import läuft durch, Bestand bleibt
-    const res = await mergeHasbro(clone(), savageEntries(), async () => null);
+    // Quelle liefert den Kreisel nicht mehr (leere Liste): Bestand bleibt
+    const res = await mergeHasbro(clone(), [], async () => null);
     expect(resolveCombo(res.db as Database, combo)).not.toBeNull();
     expect(res.db.products.some((p: { code: string }) => p.code === savage.code)).toBe(true); // Sammlung: Produktnummer existiert weiter
   });
@@ -254,25 +352,6 @@ describe('Schutz bestehender IDs und gespeicherter Referenzen', () => {
 });
 
 describe('Befunde aus dem Review', () => {
-  it('Hasbro-Neuaufbau behält Prüfstatus und Gewicht bekannter Blades sowie Prüfstatus/Release-Datum der Produkte', async () => {
-    const db = clone();
-    const blade = db.blades.find((b) => b.id === 'SavageBear')!;
-    blade.verified = true;
-    blade.weightG = 34.2;
-    const product = db.products.find((p) => p.code === savage.code)!;
-    product.verified = true;
-    product.releaseJp = '2026-04-01';
-    const res = await mergeHasbro(db, savageEntries(), async (t: string) => ({ title: t, wikitext: beyPage('Balance', 'Flat') }));
-    const b = res.db.blades.find((x: { id: string }) => x.id === 'SavageBear');
-    const p = res.db.products.find((x: { code: string }) => x.code === savage.code);
-    expect(b.verified).toBe(true);
-    expect(b.weightG).toBe(34.2);
-    expect(p.verified).toBe(true);
-    expect(p.releaseJp).toBe('2026-04-01');
-    expect(res.report.added.blades).not.toContain('SavageBear'); // neu aufgebaut, nicht neu
-    expect(res.report.added.products).not.toContain(savage.code);
-  });
-
   it('Umbenennung laut retired.json gilt auch für die Teile bestehender Produkte', () => {
     const next = clone();
     const old = next.blades.find((b) => b.id === 'SavageBear')!;
@@ -298,3 +377,28 @@ describe('Befunde aus dem Review', () => {
     expect(readdirSync(dir)).toEqual(['db.json']);
   });
 });
+
+describe('Phase 2: Hasbro-Namen (Heuristik) verschlechtern nichts', () => {
+  const autoNamed = realDb.blades.filter((b) => b.hasbroName && b.hasbroNameAuto);
+
+  it('Heuristik findet einen Namen nicht wieder: vorhandene Namen bleiben (kein Löschen, kein Überschreiben)', async () => {
+    expect(autoNamed.length).toBeGreaterThan(0);
+    const d = dataDir();
+    const before = d.db();
+    // Liste ohne verwertbare Namen
+    const res = await runNames({ fetchFn: (async () => json({ parse: { title: 'List', wikitext: 'Keine Kreisel hier.' } })) as typeof fetch, dataDir: d.url });
+    expect(res.status).toBe('ok');
+    expect(res.changed).toBe(false);
+    expect(d.db()).toBe(before);
+  });
+
+  it('Liste nicht abrufbar: Fehlerstatus statt „nichts gefunden“, db.json unverändert', async () => {
+    const d = dataDir();
+    const before = d.db();
+    const res = await runNames({ fetchFn: (async () => http(503)) as typeof fetch, dataDir: d.url });
+    expect(res.status).toBe('error');
+    expect(res.error).toContain('HTTP 503');
+    expect(d.db()).toBe(before);
+  });
+});
+

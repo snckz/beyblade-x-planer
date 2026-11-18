@@ -2,7 +2,7 @@
 // Hasbro-Packungen (Artikelnummern wie G1670, Dual Packs …) – auch Kreisel, die es nur bei Hasbro gibt.
 // Links im Wiki sehen meist so aus: [[DranSword 3-60F|Sword Dran 3-60F]] → Ziel = Kreisel-Seite, Text = Hasbro-Name.
 // Alles Importierte ist ungeprüft (verified: false, imported: true, region: 'hasbro'). Von Hand Gepflegtes bleibt.
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { API, wikiUrl } from './update-data.mjs';
 import { LINK_RE, MAX_PAGES, norm, parseBeyPage, parseBeyTitle } from './import-catalog.mjs';
@@ -126,21 +126,30 @@ export function parseHasbroList(wikitext) {
 }
 
 /**
+ * Hasbro-Produkte aus der Wiki-Liste schrittweise ergänzen.
  * fetchPage(title) → { title, wikitext } (title = Ziel nach Weiterleitung) oder null (Seite gibt es nicht).
  * Abruffehler (Netz, HTTP 5xx/429 …) muss fetchPage werfen – sie brechen den Import ab und gelten NIE als „fehlt“.
  *
- * Der Import wird bei jedem Lauf neu aufgebaut (frühere Hasbro-Importe werden erst entfernt und neu erzeugt).
- * Was die Quelle diesmal nicht liefert, ist keine Löschanweisung: Bisherige Produkte (samt Blade) bleiben erhalten
- * und stehen im Bericht unter `kept`. Gewollt entfernen/umbenennen nur über retired.json (`retired`).
+ * - Nichts wird entfernt oder neu aufgebaut. Bekannte Produkte und Teile bleiben, wie sie sind (inkl. Prüfstatus,
+ *   Gewicht, Release-Datum); ergänzt wird nur Neues – bei bekannten Produkten höchstens ein neuer US-Preis.
+ * - Wiedererkennung: Produktnummer; bei Packungen mit mehreren Kreiseln (Nummer-01, -02 …) über die Teile
+ *   (Blade, Ratchet, Bit) – nicht über die Reihenfolge in der Liste. Neue Kreisel bekommen die nächste freie Nummer.
+ * - Was die Quelle diesmal nicht liefert, bleibt erhalten (Bericht: `missingFromSource`).
+ * - Gewollt entfernen/umbenennen nur über retired.json (`retired`).
  */
 export async function mergeHasbro(db, entries, fetchPage, { retired = EMPTY_RETIRED } = {}) {
   const out = structuredClone(db);
   const stillgelegt = normalizeRetired(retired);
-  const report = { added: { blades: [], ratchets: [], bits: [], products: [] }, names: [], skipped: [], unresolved: [], kept: [] };
-  // Neu aufbauen: importierte Hasbro-Produkte und nur dafür angelegte Blades entfernen
-  out.products = out.products.filter((p) => !(p.region === 'hasbro' && p.imported));
-  const used = new Set(out.products.map((p) => p.bladeId));
-  out.blades = out.blades.filter((b) => b.note !== HASBRO_NOTE || used.has(b.id));
+  const report = {
+    added: { blades: [], ratchets: [], bits: [], products: [] },
+    existing: 0,
+    updated: [],
+    conflicts: [],
+    names: [],
+    skipped: [],
+    unresolved: [],
+    missingFromSource: [],
+  };
   const byKey = new Map();
   const index = (b) => {
     for (const n of [b.id, b.name, b.hasbroName].filter(Boolean)) {
@@ -158,6 +167,8 @@ export async function mergeHasbro(db, entries, fetchPage, { retired = EMPTY_RETI
   };
   const ratchetIds = new Set(out.ratchets.map((r) => r.id));
   const bitIds = new Set(out.bits.map((b) => b.id));
+  const byCode = new Map(out.products.map((p) => [p.code, p]));
+  const seen = new Set();
   let fetched = 0;
 
   const pages = new Map();
@@ -171,7 +182,38 @@ export async function mergeHasbro(db, entries, fetchPage, { retired = EMPTY_RETI
     return r;
   };
 
+  /** Teile eines Kreisels, wie sie im Produkt stehen (integrierter Ratchet: ohne Ratchet) */
+  const partsKey = (bladeId, ratchetId, bitId) => `${bladeId}|${ratchetId ?? ''}|${bitId}`;
+  const partsOf = (blade, bey) => partsKey(blade.id, blade.integratedRatchet ? undefined : bey.ratchet, bey.bit);
+
+  /** Hasbro-Name aus dem Linktext ist verlässlicher als die Heuristik von update-hasbro – nur automatische Namen */
+  const maybeName = (blade, bey) => {
+    if (bey.hasbro && (!blade.hasbroName || blade.hasbroNameAuto) && wkey(bey.hasbro) !== wkey(blade.name) && wkey(blade.hasbroName ?? '') !== wkey(bey.hasbro)) {
+      blade.hasbroName = bey.hasbro;
+      blade.hasbroNameAuto = true;
+      index(blade);
+      report.names.push(`${blade.name} → ${bey.hasbro}`);
+    }
+  };
+
+  /** Bekanntes Produkt: unverändert lassen, nur ein neuer US-Preis wird übernommen (nie gelöscht). */
+  const confirmExisting = (product, entry) => {
+    seen.add(product.code);
+    report.existing++;
+    if (entry.usd && product.priceUsd !== entry.usd) {
+      product.priceUsd = entry.usd;
+      report.updated.push(`${product.code}: US-Preis ${entry.usd}`);
+    }
+  };
+
   for (const entry of entries) {
+    // Schon bekannte Produkte dieser Artikelnummer (einzeln oder als -01, -02 …)
+    const known = out.products.filter((p) => p.region === 'hasbro' && (p.code === entry.code || p.code.startsWith(`${entry.code}-`)));
+    if (!entry.beys.length && known.length) {
+      // Packung längst erfasst: Inhalt nicht erneut von der Produktseite holen
+      for (const p of known) confirmExisting(p, entry);
+      continue;
+    }
     // Dual Packs/Sets: Inhalt steht auf der verlinkten Produktseite
     if (!entry.beys.length) {
       for (const l of entry.links.filter((x) => /pack|set|booster|collection|bundle/i.test(x)).slice(0, 2)) {
@@ -214,26 +256,39 @@ export async function mergeHasbro(db, entries, fetchPage, { retired = EMPTY_RETI
     let kind = kindOfHasbro(entry.text);
     // Launcher-Sets gab es nacheinander mit verschiedenen Kreiseln: jede Variante ist ein eigener Kauf, kein Set.
     if (/launcher set/i.test(entry.text)) kind = 'starter';
-    const multi = entry.beys.length > 1;
-    let n = 0;
+    const multi = entry.beys.length > 1 || known.some((p) => p.code !== entry.code);
+    const claimed = new Set();
+    let nextNo = Math.max(0, ...known.map((p) => Number(/-(\d{2})$/.exec(p.code)?.[1] ?? 0))) + 1;
+    /** Bekanntes Produkt dieses Eintrags mit genau diesen Teilen */
+    const match = (key) => known.find((p) => !claimed.has(p.code) && partsKey(p.bladeId, p.ratchetId, p.bitId) === key);
+
     for (const bey of entry.beys) {
-      n++;
-      const code = multi ? `${entry.code}-${String(n).padStart(2, '0')}` : entry.code;
-      if (out.products.some((p) => p.code === code)) continue;
-      if (Object.hasOwn(stillgelegt.products, code)) continue; // bewusst entfernt bzw. umbenannt
       let blade = findBlade(bey);
+      let existing = blade ? match(partsOf(blade, bey)) : undefined;
+      // Einzelner Kreisel unter derselben Nummer, aber andere Teile laut Quelle: Bestand behalten, Abweichung melden
+      if (!existing && !multi && byCode.has(entry.code) && blade) {
+        existing = byCode.get(entry.code);
+        const p = existing;
+        report.conflicts.push({ code: p.code, db: partsKey(p.bladeId, p.ratchetId, p.bitId), quelle: partsOf(blade, bey) });
+      }
+      if (existing) {
+        claimed.add(existing.code);
+        maybeName(blade, bey);
+        confirmExisting(existing, entry);
+        continue;
+      }
       let info = null;
       let real = bey; // Kreisel laut Zielseite (nach Weiterleitung, meist der Takara-Name)
       let realTitle = bey.page;
       if (!blade || !bitIds.has(bey.bit)) {
         const pg = await page(bey.page);
         if (pg === undefined) {
-          report.skipped.push({ code, title: bey.title, reason: 'Seitenlimit erreicht' });
+          report.skipped.push({ code: entry.code, title: bey.title, reason: 'Seitenlimit erreicht' });
           continue;
         }
         info = pg?.wikitext ? parseBeyPage(pg.wikitext) : null;
         if (!info?.isBey) {
-          report.skipped.push({ code, title: bey.title, reason: pg ? 'keine Kreisel-Seite' : 'Seite fehlt' });
+          report.skipped.push({ code: entry.code, title: bey.title, reason: pg ? 'keine Kreisel-Seite' : 'Seite fehlt' });
           continue;
         }
         // „Steel Samurai 4-80T“ leitet auf die Takara-Seite weiter → dortigen Blade nehmen
@@ -243,13 +298,25 @@ export async function mergeHasbro(db, entries, fetchPage, { retired = EMPTY_RETI
           real = { ...bey, blade: target.blade, bladeId: target.bladeId };
           blade ??= byKey.get(norm(ALIASES[target.bladeId] ?? target.bladeId)) ?? byKey.get(wkey(target.blade));
         }
+        // Erst nach der Weiterleitung erkannt: doch ein bekanntes Produkt
+        const late = blade ? match(partsOf(blade, bey)) : undefined;
+        if (late) {
+          claimed.add(late.code);
+          maybeName(blade, bey);
+          confirmExisting(late, entry);
+          continue;
+        }
       }
+      // Neues Produkt: nächste freie Nummer (bei Einzelprodukten die Artikelnummer selbst)
+      let code = multi ? `${entry.code}-${String(nextNo).padStart(2, '0')}` : entry.code;
+      while (multi && byCode.has(code)) code = `${entry.code}-${String(++nextNo).padStart(2, '0')}`;
+      if (Object.hasOwn(stillgelegt.products, code)) continue; // bewusst entfernt bzw. umbenannt
       if (!blade && stillgelegt.blades[real.bladeId] === null) {
         report.skipped.push({ code, title: bey.title, reason: 'Blade stillgelegt (retired.json)' });
         continue;
       }
       if (!blade) {
-        if (!info.type) {
+        if (!info?.type) {
           report.skipped.push({ code, title: bey.title, reason: 'Typ nicht erkennbar' });
           continue;
         }
@@ -267,19 +334,10 @@ export async function mergeHasbro(db, entries, fetchPage, { retired = EMPTY_RETI
           note: HASBRO_NOTE,
           ...(!bey.ratchet && !info.ratchetIntegratedBit ? { integratedRatchet: true } : {}),
         };
-        // Neuaufbau eines schon bekannten Blades: von anderen Schritten Ermitteltes behalten (Prüfstatus, Gewicht …)
-        const before = db.blades.find((b) => b.id === blade.id);
-        if (before) blade = { ...before, ...blade, verified: before.verified || blade.verified, ...(before.weightG !== undefined ? { weightG: before.weightG } : {}) };
         out.blades.push(blade);
         index(blade);
-        if (!before) report.added.blades.push(blade.id);
-      } else if (bey.hasbro && (!blade.hasbroName || blade.hasbroNameAuto) && wkey(bey.hasbro) !== wkey(blade.name) && wkey(blade.hasbroName ?? '') !== wkey(bey.hasbro)) {
-        // Hasbro-Name aus dem Linktext ist verlässlicher als die Heuristik von update-hasbro
-        blade.hasbroName = bey.hasbro;
-        blade.hasbroNameAuto = true;
-        index(blade);
-        report.names.push(`${blade.name} → ${bey.hasbro}`);
-      }
+        report.added.blades.push(blade.id);
+      } else maybeName(blade, bey);
       if (bey.ratchet && !ratchetIds.has(bey.ratchet)) {
         const [c, h] = bey.ratchet.split('-');
         const contacts = /^\d$/.test(c) && c !== '0' ? Number(c) : null;
@@ -294,7 +352,7 @@ export async function mergeHasbro(db, entries, fetchPage, { retired = EMPTY_RETI
       }
       const ratchetId = blade.integratedRatchet ? undefined : bey.ratchet;
       const label = `${bey.hasbro ?? blade.hasbroName ?? blade.name}${ratchetId || bey.bit ? ' ' + (ratchetId ?? '') + bey.bit : ''}`;
-      const rebuilt = {
+      const product = {
         code,
         name: `${KIND_LABEL[kind]} ${label}`,
         hasbroName: `${KIND_LABEL[kind]} ${label}`,
@@ -310,30 +368,38 @@ export async function mergeHasbro(db, entries, fetchPage, { retired = EMPTY_RETI
         imported: true,
         source: wikiUrl(bey.page),
       };
-      // Neuaufbau einer schon bekannten Produktnummer: Prüfstatus und Release-Datum aus früheren Läufen behalten
-      const prior = db.products.find((p) => p.code === code);
-      out.products.push(prior ? { ...rebuilt, verified: prior.verified || rebuilt.verified, ...(prior.releaseJp ? { releaseJp: prior.releaseJp } : {}) } : rebuilt);
-      if (!prior) report.added.products.push(code);
+      out.products.push(product);
+      byCode.set(code, product);
+      claimed.add(code);
+      seen.add(code);
+      if (multi) nextNo++;
+      report.added.products.push(code);
     }
   }
-  // Bisher importierte Produkte, die diesmal nicht entstanden sind (Seite fehlt, Liste unvollständig, Parser-Lücke):
-  // behalten statt löschen – samt Blade, falls der Neuaufbau es entfernt hat.
-  for (const old of db.products) {
-    if (!(old.region === 'hasbro' && old.imported) || out.products.some((p) => p.code === old.code) || Object.hasOwn(stillgelegt.products, old.code)) continue;
-    out.products.push(structuredClone(old));
-    report.kept.push(old.code);
-    if (old.bladeId && !out.blades.some((b) => b.id === old.bladeId)) {
-      const blade = db.blades.find((b) => b.id === old.bladeId);
-      if (blade) out.blades.push(structuredClone(blade));
-    }
-  }
+  // Bekannte Hasbro-Produkte, die die Quelle diesmal nicht liefert: bleiben – nur zur Information im Bericht
+  report.missingFromSource = out.products.filter((p) => p.region === 'hasbro' && p.imported && !seen.has(p.code)).map((p) => p.code);
   return { db: out, report, fetched };
 }
 
+/** Weniger als dieser Anteil der zuletzt gelesenen Artikelnummern: Liste unvollständig oder Format geändert → Fehler */
+export const MIN_LIST_SHARE = 0.6;
+
+/**
+ * Ergebnis eines Laufs (auch im Bericht `status`):
+ * - `ok`: Quelle vollständig gelesen, alles verarbeitet.
+ * - `partial`: gelesen, aber einzelne neue Produkte konnten nicht übernommen werden (Bericht `skipped`) – Warnung.
+ * - `error`: Quelle unerreichbar, fehlerhaft oder unvollständig – nichts wird geschrieben, der Workflow schlägt fehl.
+ */
 export async function run({ fetchFn = fetch, dataDir = new URL('../public/data/', import.meta.url) } = {}) {
   const dbPath = new URL('db.json', dataDir);
   const db = JSON.parse(readFileSync(dbPath, 'utf8'));
-  const report = { ok: false, listTitle: null, codes: 0 };
+  const report = { status: 'error', ok: false, listTitle: null, codes: 0 };
+  let previousCodes = 0;
+  try {
+    previousCodes = Number(JSON.parse(readFileSync(new URL('hasbro-report.json', dataDir), 'utf8')).codes) || 0;
+  } catch {
+    /* noch kein Bericht */
+  }
   try {
     let wikitext = null;
     const fetchPage = async (title) => {
@@ -345,8 +411,9 @@ export async function run({ fetchFn = fetch, dataDir = new URL('../public/data/'
       if (d?.error && !MISSING_PAGE_CODES.has(d.error.code)) throw new Error(`Wiki-Fehler ${d.error.code} für „${title}“`);
       return d?.parse?.wikitext ? { title: d.parse.title, wikitext: d.parse.wikitext } : null;
     };
+    // Liste: die Titel der Reihe nach; ein Abruffehler bricht ab (kein Ausweichen auf „nicht gefunden“)
     for (const t of LIST_TITLES) {
-      wikitext = (await fetchPage(t).catch(() => null))?.wikitext ?? null;
+      wikitext = (await fetchPage(t))?.wikitext ?? null;
       if (wikitext) {
         report.listTitle = t;
         break;
@@ -356,6 +423,10 @@ export async function run({ fetchFn = fetch, dataDir = new URL('../public/data/'
     const entries = parseHasbroList(wikitext);
     report.codes = entries.length;
     report.listLength = wikitext.length;
+    // Leere oder stark geschrumpfte Liste: Quelle kaputt oder Format geändert – nicht als „nichts Neues“ werten
+    if (!entries.length || (previousCodes && entries.length < previousCodes * MIN_LIST_SHARE)) {
+      throw new Error(`Hasbro-Liste unvollständig: ${entries.length} Artikelnummern gelesen, zuletzt ${previousCodes}`);
+    }
     // Zum Nachjustieren des Parsers: Ausschnitte der Seite
     report.sample = wikitext.slice(0, 2500);
     report.sampleMid = wikitext.slice(Math.floor(wikitext.length / 2), Math.floor(wikitext.length / 2) + 1500);
@@ -364,22 +435,60 @@ export async function run({ fetchFn = fetch, dataDir = new URL('../public/data/'
     const res = await mergeHasbro(db, entries, fetchPage, { retired: loadRetired(dataDir) });
     const errors = validateDb(res.db);
     if (errors.length) throw new Error('Import ergäbe ungültige Daten: ' + errors.slice(0, 5).join('; '));
-    Object.assign(report, { ok: true, fetched: res.fetched, ...res.report });
+    const status = res.report.skipped.length ? 'partial' : 'ok';
+    Object.assign(report, { status, ok: status === 'ok', fetched: res.fetched, ...res.report });
+    report.summary = summaryLine(res.report);
     // Übergangsprüfung + atomares Schreiben (wirft DataSafetyError bei verdächtigen Änderungen)
     const changed = writeDbSafely(dataDir, db, res.db);
     writeReport(dataDir, report);
-    if (res.report.kept.length) console.warn(`⚠️ ${res.report.kept.length} Hasbro-Produkte nicht in der Quelle gefunden – behalten: ${res.report.kept.slice(0, 12).join(', ')}`);
-    const a = res.report.added;
-    console.log(`Hasbro: ${entries.length} Artikelnummern, neu: ${a.products.length} Produkte, ${a.blades.length} Blades, ${res.report.names.length} Namen, übersprungen: ${res.report.skipped.length}.`);
-    return { changed, report };
+    console.log(`Hasbro (${status}): ${report.summary}`);
+    return { changed, status, report };
   } catch (err) {
+    report.status = 'error';
     report.ok = false;
     report.error = err.message;
     writeReport(dataDir, report);
-    // Verdächtige Änderung: laut scheitern (Workflow wird rot, nichts wird committet)
+    console.error(`❌ Hasbro-Import abgebrochen, db.json bleibt unverändert: ${err.message}`);
+    // Verdächtige Änderung: weiterreichen (das Skript scheitert, nichts wird committet)
     if (err instanceof DataSafetyError) throw err;
-    console.warn(`⚠️ Hasbro-Import abgebrochen, db.json bleibt unverändert: ${err.message}`);
-    return { changed: false, report };
+    return { changed: false, status: 'error', report };
+  }
+}
+
+/** Kurzfassung für Log, Bericht und Workflow-Zusammenfassung */
+export function summaryLine(r) {
+  const a = r.added;
+  const parts = [
+    `${a.products.length} neue Produkte`,
+    `${a.blades.length} neue Blades`,
+    `${a.ratchets.length} neue Ratchets`,
+    `${a.bits.length} neue Bits`,
+    `${r.existing} vorhandene wiedererkannt`,
+  ];
+  if (r.updated.length) parts.push(`${r.updated.length} ergänzt`);
+  if (r.skipped.length) parts.push(`${r.skipped.length} nicht übernommen`);
+  if (r.conflicts.length) parts.push(`${r.conflicts.length} Abweichungen`);
+  if (r.missingFromSource.length) parts.push(`${r.missingFromSource.length} nicht in der Quelle (behalten)`);
+  if (r.unresolved.length) parts.push(`${r.unresolved.length} Nummern ohne erkennbaren Kreisel`);
+  return parts.join(', ');
+}
+
+/** Workflow: Zusammenfassung und Anmerkungen (Warnung/Fehler) – nur in GitHub Actions */
+function annotate(result) {
+  const r = result.report;
+  if (process.env.GITHUB_STEP_SUMMARY) {
+    const lines = [`### Hasbro-Import: ${result.status === 'ok' ? '✅ ok' : result.status === 'partial' ? '⚠️ teilweise' : '❌ Fehler'}`, '', r.error ?? r.summary ?? ''];
+    if (r.skipped?.length) lines.push('', 'Nicht übernommen:', ...r.skipped.slice(0, 20).map((x) => `- ${x.code} ${x.title}: ${x.reason}`));
+    if (r.conflicts?.length) lines.push('', 'Abweichungen (Bestand behalten):', ...r.conflicts.slice(0, 20).map((x) => `- ${x.code}: ${x.db} → Quelle ${x.quelle}`));
+    try {
+      writeFileSync(process.env.GITHUB_STEP_SUMMARY, lines.join('\n') + '\n', { flag: 'a' });
+    } catch {
+      /* ohne Zusammenfassung weiter */
+    }
+  }
+  if (process.env.GITHUB_ACTIONS) {
+    if (result.status === 'error') console.log(`::error title=Hasbro-Import fehlgeschlagen::${r.error}`);
+    if (result.status === 'partial') console.log(`::warning title=Hasbro-Import unvollständig::${r.skipped.length} neue Produkte nicht übernommen – siehe hasbro-report.json`);
   }
 }
 
@@ -397,8 +506,15 @@ function writeReport(dataDir, report) {
 
 const isMain = !!process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
 if (isMain) {
-  run().catch((err) => {
-    console.error(err);
-    process.exit(1);
-  });
+  run()
+    .then((result) => {
+      annotate(result);
+      // Quelle unerreichbar oder fehlerhaft: echter Fehlerstatus, der Workflow schlägt fehl (nichts wird committet)
+      if (result.status === 'error') process.exit(1);
+    })
+    .catch((err) => {
+      console.error(err.message ?? err);
+      if (process.env.GITHUB_ACTIONS) console.log(`::error title=Hasbro-Import abgelehnt (Datenverlust-Schutz)::${String(err.message ?? err).split('\n')[0]}`);
+      process.exit(1);
+    });
 }

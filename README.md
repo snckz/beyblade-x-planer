@@ -32,6 +32,7 @@ npm run check      # Typecheck, Lint, Datenprüfung, Tests, Build
 - `public/data/events.json` – Releases und Turniere.
 - `npm run validate-data` prüft Verweise, IDs und Formate.
 - **Datenverlust-Schutz:** Alle Skripte, die `db.json` schreiben, gehen über `scripts/data-safety.mjs`. Ein Update, das ein Blade, Ratchet, Bit oder Produkt entfernt oder einer Produktnummer andere Teile gibt, wird abgelehnt (Skript und Workflow schlagen fehl, nichts wird committet). Abruffehler im Wiki gelten nie als „Seite fehlt“. Im Workflow prüft zusätzlich `validate-data.mjs --previous` gegen den letzten Stand auf `main`.
+- **Hasbro-Import** (`scripts/import-hasbro.mjs`): ergänzt schrittweise – bekannte Produkte und Teile bleiben unverändert (inkl. Prüfstatus), Set-Inhalte werden über die Teile wiedererkannt, nicht über die Reihenfolge. Status im Bericht `hasbro-report.json`: `ok`, `partial` (einzelne neue Produkte nicht übernommen → Warnung im Workflow) oder `error` (Quelle unerreichbar, fehlerhaft oder unvollständig → Workflow schlägt fehl, nichts wird committet). Die Namens-Heuristik (`update-hasbro.mjs`) ergänzt nur fehlende Hasbro-Namen.
 - `public/data/retired.json` – gewollte Löschungen (`"alteId": null`), Umbenennungen (`"alteId": "neueId"`) und Korrekturen von Produktnummern (`reassigned`). Nur was hier steht, darf verschwinden oder sich ändern; Importe legen Stillgelegtes nicht wieder an.
 
 ## Veröffentlichung (GitHub Pages)

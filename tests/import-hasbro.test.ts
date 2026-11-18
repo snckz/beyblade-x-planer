@@ -94,7 +94,8 @@ describe('Hasbro-Katalog', () => {
     const byCode = (c: string) => out.products.find((p: { code: string }) => p.code === c);
     expect(byCode('F9580')).toMatchObject({ bladeId: 'DranSword', region: 'hasbro', kind: 'starter', priceUsd: 9.99 });
     expect(byCode('G1679')?.bladeId).toBe('WizardArc'); // kein Duplikat „ArcWizardR“
-    expect(out.blades.find((b: { id: string }) => b.id === 'StunMedusa')).toMatchObject({ type: 'balance' });
+    // Geprüfte Bestandsdaten (Stamina, gegen das Wiki bestätigt) werden nicht durch Importdaten überschrieben
+    expect(out.blades.find((b: { id: string }) => b.id === 'StunMedusa')).toMatchObject({ type: 'stamina', verified: true });
     // Dual Pack über die Produktseite, Hasbro-Namen per Weiterleitung den Takara-Blades zugeordnet
     expect(byCode('G1686-01')?.kind).toBe('set');
     const weiss = out.blades.find((b: { name: string }) => b.name === 'Weiss Tiger');

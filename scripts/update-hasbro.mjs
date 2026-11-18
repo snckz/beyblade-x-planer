@@ -3,12 +3,15 @@
 //  1. gleiche Wörter, andere Reihenfolge („Sword Dran“ ↔ Dran Sword)
 //  2. sonst gleiche Ratchet+Bit-Kombination wie ein Takara-Produkt und mindestens ein gemeinsames Wort
 //     („Helm Knight 3-80N“ ↔ Knight Shield 3-80N)
-// Von Hand gepflegte hasbroName-Werte werden nie überschrieben. Automatisch gefundene tragen
-// hasbroNameAuto: true und werden bei jedem Lauf neu berechnet (Fehlzuordnungen korrigieren sich so).
+// Die Heuristik ergänzt nur FEHLENDE Hasbro-Namen (hasbroNameAuto: true). Vorhandene Namen – von Hand gepflegt oder
+// vom Hasbro-Import aus dem Linktext der Liste übernommen (verlässlicher) – werden nie geändert oder gelöscht:
+// Findet die Heuristik einen Namen nicht wieder, ist das keine Löschanweisung. Korrekturen kommen über import-hasbro.
+// Abruffehler (HTTP, Netz) lassen den Schritt fehlschlagen statt still „nichts gefunden“ zu melden.
 import { readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { API } from './update-data.mjs';
 import { DataSafetyError, writeDbSafely } from './data-safety.mjs';
+import { MISSING_PAGE_CODES } from './validate-data.mjs';
 
 export const LIST_TITLES = ['List of Beyblade X products (Hasbro)', 'List of Beyblade X Products (Hasbro)'];
 
@@ -87,41 +90,45 @@ export async function run({ fetchFn = fetch, dataDir = new URL('../public/data/'
     for (const t of LIST_TITLES) {
       const url = `${API}?${new URLSearchParams({ action: 'parse', page: t, prop: 'wikitext', redirects: '1', format: 'json', formatversion: '2' })}`;
       const res = await fetchFn(url, { headers: { 'User-Agent': 'beyblade-x-planer-hasbro/1.0 (GitHub Actions)' }, signal: AbortSignal.timeout(20000) });
-      if (!res.ok) continue;
-      wikitext = (await res.json())?.parse?.wikitext ?? null;
+      if (!res.ok) throw new Error(`HTTP ${res.status} für „${t}“`);
+      const d = await res.json();
+      if (d?.error && !MISSING_PAGE_CODES.has(d.error.code)) throw new Error(`Wiki-Fehler ${d.error.code} für „${t}“`);
+      wikitext = d?.parse?.wikitext ?? null;
       if (wikitext) break;
     }
     if (!wikitext) throw new Error('Hasbro-Liste nicht gefunden');
     const names = matchHasbro(db, parseHasbroNames(wikitext));
     let changed = 0;
     for (const b of db.blades) {
-      if (b.hasbroName && !b.hasbroNameAuto) continue; // von Hand gepflegt
+      if (b.hasbroName) continue; // vorhanden (von Hand oder aus der Liste): nie ändern oder löschen
       const n = names[b.id];
-      if (n === b.hasbroName) continue;
-      if (n) {
-        b.hasbroName = n;
-        b.hasbroNameAuto = true;
-      } else {
-        delete b.hasbroName;
-        delete b.hasbroNameAuto;
-      }
+      if (!n) continue;
+      b.hasbroName = n;
+      b.hasbroNameAuto = true;
       changed++;
     }
     // Übergangsprüfung + atomares Schreiben (wirft DataSafetyError bei verdächtigen Änderungen)
     if (changed) writeDbSafely(dataDir, before, db);
-    console.log(`Hasbro-Namen: ${changed} geändert (${Object.keys(names).length} erkannt).`);
-    return { changed: changed > 0, names };
+    console.log(`Hasbro-Namen: ${changed} ergänzt (${Object.keys(names).length} erkannt).`);
+    return { changed: changed > 0, status: 'ok', names };
   } catch (err) {
     if (err instanceof DataSafetyError) throw err; // verdächtig: laut scheitern
-    console.warn(`⚠️ Hasbro-Namen nicht aktualisiert: ${err.message}`);
-    return { changed: false, names: {} };
+    console.error(`❌ Hasbro-Namen nicht aktualisiert, db.json bleibt unverändert: ${err.message}`);
+    return { changed: false, status: 'error', error: err.message, names: {} };
   }
 }
 
 const isMain = !!process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
 if (isMain) {
-  run().catch((err) => {
-    console.error(err.message ?? err);
-    process.exit(1);
-  });
+  run()
+    .then((r) => {
+      if (r.status !== 'error') return;
+      // Quelle unerreichbar oder fehlerhaft: echter Fehlerstatus, der Workflow schlägt fehl
+      if (process.env.GITHUB_ACTIONS) console.log(`::error title=Hasbro-Namen fehlgeschlagen::${r.error}`);
+      process.exit(1);
+    })
+    .catch((err) => {
+      console.error(err.message ?? err);
+      process.exit(1);
+    });
 }
