@@ -147,6 +147,49 @@ describe('Kategorie per Wischen (Blade/Bit)', () => {
     expect(page().style.transform).toBe('');
   });
 
+  it('Chip schaltet beim Loslassen sofort um, die Seite nach dem Einrasten; ein Chip-Tipp dabei hat Vorrang', async () => {
+    const { body, sheet, ui, active } = openPicker('bit');
+    // Echte Seitenbreite vortäuschen (jsdom ordnet nichts an) – dann federt die Seite animiert ein
+    const original = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'offsetWidth')!;
+    Object.defineProperty(HTMLElement.prototype, 'offsetWidth', { configurable: true, get: () => 360 });
+    try {
+      const current = () => sheet.querySelector('.picker-page.is-current')?.getAttribute('data-page');
+      await waitFor(() => expect(sheet.querySelector('.picker-page[data-page="1"]')).not.toBeNull());
+      swipe(body, -120);
+      expect(active()).toEqual(['Attack']); // sofort
+      expect(current()).toBe('0'); // Seite rastet noch ein
+      await waitFor(() => expect(current()).toBe('1'));
+      expect(active()).toEqual(['Attack']);
+
+      swipe(body, -120); // → Defense, rastet ein …
+      expect(active()).toEqual(['Defense']);
+      fireEvent.click(ui.getByRole('button', { name: /Stamina/ })); // … Tipp auf Stamina hat Vorrang
+      // Einrasten sofort beendet: keine Seite gleitet mehr über die neue
+      expect([...sheet.querySelectorAll<HTMLElement>('.picker-page')].every((p) => !p.style.transform && !p.style.visibility)).toBe(true);
+      await new Promise((r) => setTimeout(r, 400));
+      expect(active()).toEqual(['Stamina']);
+      expect(sheet.querySelector('.picker-page.is-current .mini-badge-type')?.textContent).toBe('Stamina');
+    } finally {
+      Object.defineProperty(HTMLElement.prototype, 'offsetWidth', original);
+    }
+  });
+
+  it('räumt eine liegengebliebene Geste bei der nächsten Berührung auf', async () => {
+    const { body, active } = openPicker('bit');
+    await waitFor(() => expect(body.querySelector('.picker-page[data-page="1"]')).not.toBeNull());
+    t += 1000;
+    pointer(body, 'pointerdown', 200, 300);
+    t += 50;
+    pointer(body, 'pointermove', 120, 301); // waagrecht gezogen – das Ende kommt nie an
+    expect(body.querySelector<HTMLElement>('.picker-page.is-current')!.style.transform).not.toBe('');
+    t += 500;
+    act(() => void pointer(body, 'pointerdown', 200, 300)); // neue Berührung
+    expect(body.querySelector<HTMLElement>('.picker-page.is-current')!.style.transform).toBe('');
+    expect(body.querySelector<HTMLElement>('.picker-page[data-page="1"]')!.style.visibility).toBe('');
+    expect(active()).toEqual(['Alle']);
+    act(() => void pointer(body, 'pointerup', 200, 300));
+  });
+
   it('bricht ab, wenn der Finger zum Schluss deutlich zurückzieht', () => {
     const { body, active } = openPicker('bit');
     t += 1000;

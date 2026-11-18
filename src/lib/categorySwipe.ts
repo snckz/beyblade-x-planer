@@ -74,13 +74,18 @@ interface Options {
   canStep?: (step: 1 | -1) => boolean;
   /** Geste samt Einrasten läuft (`true`) bzw. ist vorbei – z. B. um Hintergrundarbeit so lange anzuhalten. */
   onActive?: (active: boolean) => void;
+  /** Loslassen mit Wechsel: sofort gemeldet (z. B. Chip umschalten), `onStep` folgt nach dem Einrasten. */
+  onSettle?: (step: 1 | -1) => void;
 }
 
 const reducedMotion = () => typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 const STEPS = [1, -1] as const;
 
-export function attachCategorySwipe(el: HTMLElement, onStep: (step: 1 | -1) => void, { pager, canStep = () => true, onActive }: Options = {}): () => void {
+/** Aushängen; `finish()` beendet ein laufendes Einrasten sofort (z. B. wenn ein Chip-Tipp dazwischenkommt). */
+export type SwipeHandle = (() => void) & { finish: () => void };
+
+export function attachCategorySwipe(el: HTMLElement, onStep: (step: 1 | -1) => void, { pager, canStep = () => true, onActive, onSettle }: Options = {}): SwipeHandle {
   let g: { id: number; x: number; y: number; t: number; horizontal: boolean; samples: [number, number][] } | null = null;
   let guardUntil = 0;
   /** Laufende Seiten: aktuelle und vorbereitete Nachbarn, Seitenbreite */
@@ -134,6 +139,7 @@ export function attachCategorySwipe(el: HTMLElement, onStep: (step: 1 | -1) => v
   const settle = (step: 1 | -1 | 0, offset: number, velocity: number) => {
     const p = pages;
     pages = null;
+    if (step) onSettle?.(step);
     const commit = () => {
       if (step) onStep(step);
       onActive?.(false);
@@ -166,12 +172,11 @@ export function attachCategorySwipe(el: HTMLElement, onStep: (step: 1 | -1) => v
 
   const onStart = (e: TouchEvent) => {
     finishSettling();
-    if (e.touches.length !== 1) {
-      // Zweiter Finger: keine Wischgeste (z. B. Zoom-Versuch)
-      if (g?.horizontal) settle(0, 0, 0);
-      g = null;
-      return;
-    }
+    // Laufende Geste beenden: zweiter Finger (z. B. Zoom-Versuch) oder liegengebliebene Geste, deren Ende nie ankam
+    // (z. B. Element unter dem Finger ersetzt) – Seiten zurück an ihren Platz
+    if (g?.horizontal) settle(0, 0, 0);
+    g = null;
+    if (e.touches.length !== 1) return;
     const t = e.touches[0]!;
     if ((e.target as Element | null)?.closest?.(IGNORE)) return;
     g = { id: t.identifier, x: t.clientX, y: t.clientY, t: e.timeStamp, horizontal: false, samples: [[e.timeStamp, t.clientX]] };
@@ -243,7 +248,7 @@ export function attachCategorySwipe(el: HTMLElement, onStep: (step: 1 | -1) => v
   el.addEventListener('touchend', onEnd);
   el.addEventListener('touchcancel', onCancel);
   el.addEventListener('click', onClick, true);
-  return () => {
+  const detach = () => {
     finishSettling();
     el.removeEventListener('touchstart', onStart);
     el.removeEventListener('touchmove', onMove);
@@ -251,4 +256,5 @@ export function attachCategorySwipe(el: HTMLElement, onStep: (step: 1 | -1) => v
     el.removeEventListener('touchcancel', onCancel);
     el.removeEventListener('click', onClick, true);
   };
+  return Object.assign(detach, { finish: finishSettling });
 }

@@ -10,7 +10,7 @@ import { pauseCutouts, prefetchCutout, type CutoutOptions } from '../lib/cutout'
 import { useApp } from '../lib/context';
 import { BitName } from './ui';
 import { filterRatchets, heightLabel, ratchetHeights, teethGroups, type TeethGroup } from '../lib/ratchetFilter';
-import { attachCategorySwipe } from '../lib/categorySwipe';
+import { attachCategorySwipe, type SwipeHandle } from '../lib/categorySwipe';
 import { ChevronRight, Cog, Link2, MoveVertical, Plus, RotateCcw, Scale, Search, Shield, Swords, Timer, X } from 'lucide-preact';
 
 type Kind = 'blade' | 'ratchet' | 'bit';
@@ -193,8 +193,11 @@ function PickerSheet({ kind, label, blades = NO_BLADES, ratchets = NO_RATCHETS, 
   const built = useRef(new Set<string>());
   built.current.add(order[position]!);
   const [, rebuild] = useState(0);
+  const gesture = useRef(false);
   useEffect(() => {
-    const timer = window.setTimeout(() => {
+    let timer = 0;
+    const build = () => {
+      if (gesture.current) return void (timer = window.setTimeout(build, NEIGHBOR_DELAY_MS));
       let added = false;
       for (const cat of [order[position - 1], order[position + 1]]) {
         if (cat !== undefined && !built.current.has(cat)) {
@@ -203,35 +206,70 @@ function PickerSheet({ kind, label, blades = NO_BLADES, ratchets = NO_RATCHETS, 
         }
       }
       if (added) rebuild((n) => n + 1);
-    }, NEIGHBOR_DELAY_MS);
+    };
+    timer = window.setTimeout(build, NEIGHBOR_DELAY_MS);
     return () => window.clearTimeout(timer);
     // order hängt nur an kind und den Teilen
   }, [position, kind]);
 
-  const swipe = useRef<{ step: (step: 1 | -1) => void; can: (step: 1 | -1) => boolean; side: (step: 1 | -1) => HTMLElement | null }>({ step: () => {}, can: () => false, side: () => null });
+  // Beim Loslassen schaltet der Chip sofort um (wie in iOS); die Seite selbst wechselt nach dem Einrasten.
+  const [preview, setPreview] = useState<string | null>(null);
+  /** Ziel des laufenden Einrastens; `null` = durch einen Chip-Tipp überholt, `undefined` = kein Einrasten */
+  const target = useRef<string | null | undefined>(undefined);
+  const setCategory = (cat: string) => {
+    // Ein Tipp auf einen Chip während des Einrastens hat Vorrang vor dem Wisch: Einrasten sofort beenden (ohne Wechsel)
+    if (target.current !== undefined) {
+      target.current = null;
+      swipeHandle.current?.finish();
+    }
+    setPreview(null);
+    if (kind === 'ratchet') setGroup(cat as TeethGroup);
+    else setType(cat as BeyType | '');
+  };
+  const chipValue = preview ?? category;
+  const swipe = useRef<{ step: (step: 1 | -1) => void; settle: (step: 1 | -1) => void; can: (step: 1 | -1) => boolean; side: (step: 1 | -1) => HTMLElement | null }>({
+    step: () => {},
+    settle: () => {},
+    can: () => false,
+    side: () => null,
+  });
   swipe.current = {
     can: (step) => position + step >= 0 && position + step < order.length, // erste/letzte Kategorie: nicht darüber hinaus
+    settle: (step) => {
+      const next = order[position + step];
+      if (next === undefined) return;
+      target.current = next;
+      setPreview(next);
+    },
     step: (step) => {
-      const next = position + step;
-      if (next < 0 || next >= order.length) return;
-      if (kind === 'ratchet') setGroup(order[next] as TeethGroup);
-      else setType(order[next] as BeyType | '');
+      // Ziel vom Loslassen; wurde inzwischen ein Chip angetippt, gilt der Chip
+      const next = target.current === undefined ? order[position + step] : target.current;
+      target.current = undefined;
+      if (next == null) return;
+      setCategory(next);
     },
     side: (step) => bodyRef.current?.querySelector<HTMLElement>(`.picker-page[data-page="${position + step}"]`) ?? null,
   };
+  const swipeHandle = useRef<SwipeHandle | null>(null);
   useEffect(() => {
     const el = bodyRef.current;
     return el
-      ? attachCategorySwipe(el, (step) => swipe.current.step(step), {
+      ? (swipeHandle.current = attachCategorySwipe(el, (step) => swipe.current.step(step), {
           pager: { current: () => el.querySelector<HTMLElement>('.picker-page.is-current'), side: (step) => swipe.current.side(step) },
           canStep: (step) => swipe.current.can(step),
-          // Fotos freistellen kostet Rechenzeit – während der Geste ruht das, danach geht es weiter
-          onActive: pauseCutouts,
-        })
+          // Während der Geste ruht Hintergrundarbeit (Fotos freistellen, Nachbarseiten bauen), danach geht es weiter
+          onActive: (active) => {
+            gesture.current = active;
+            pauseCutouts(active);
+          },
+          onSettle: (step) => swipe.current.settle(step),
+        }))
       : undefined;
   }, []);
 
   const resetFilters = () => {
+    target.current = undefined;
+    setPreview(null);
     setQuery('');
     setType('');
     setGroup('');
@@ -299,11 +337,11 @@ function PickerSheet({ kind, label, blades = NO_BLADES, ratchets = NO_RATCHETS, 
           {kind === 'ratchet' ? (
             <>
               <div class="type-filter teeth-filter" role="group" aria-label="Nach Zacken filtern">
-                <button type="button" class={`chip type-chip type-chip-all${group === '' ? ' chip-on' : ''}`} aria-pressed={group === ''} onClick={() => setGroup('')}>
+                <button type="button" class={`chip type-chip type-chip-all${chipValue === '' ? ' chip-on' : ''}`} aria-pressed={chipValue === ''} onClick={() => setCategory('')}>
                   Alle
                 </button>
                 {groups.map((g) => (
-                  <button key={g.id} type="button" class={`chip type-chip teeth-chip${group === g.id ? ' chip-on' : ''}`} aria-pressed={group === g.id} aria-label={`${g.value} ${g.caption}`} onClick={() => setGroup(group === g.id ? '' : g.id)}>
+                  <button key={g.id} type="button" class={`chip type-chip teeth-chip${chipValue === g.id ? ' chip-on' : ''}`} aria-pressed={chipValue === g.id} aria-label={`${g.value} ${g.caption}`} onClick={() => setCategory(chipValue === g.id ? '' : g.id)}>
                     <span class="teeth-chip-value">{g.value}</span>
                     <span class="teeth-chip-caption">{g.caption}</span>
                   </button>
@@ -322,13 +360,13 @@ function PickerSheet({ kind, label, blades = NO_BLADES, ratchets = NO_RATCHETS, 
             </>
           ) : (
             <div class="type-filter" role="group" aria-label="Nach Typ filtern">
-              <button type="button" class={`chip type-chip type-chip-all${type === '' ? ' chip-on' : ''}`} aria-pressed={type === ''} onClick={() => setType('')}>
+              <button type="button" class={`chip type-chip type-chip-all${chipValue === '' ? ' chip-on' : ''}`} aria-pressed={chipValue === ''} onClick={() => setCategory('')}>
                 Alle
               </button>
               {(['attack', 'defense', 'stamina', 'balance'] as const).map((t) => {
                 const Icon = TYPE_ICON[t];
                 return (
-                  <button key={t} type="button" class={`chip type-chip type-chip-${t}${type === t ? ' chip-on' : ''}`} aria-pressed={type === t} onClick={() => setType(type === t ? '' : t)}>
+                  <button key={t} type="button" class={`chip type-chip type-chip-${t}${chipValue === t ? ' chip-on' : ''}`} aria-pressed={chipValue === t} onClick={() => setCategory(chipValue === t ? '' : t)}>
                     <Icon aria-hidden="true" />
                     {TYPE_LABEL[t]}
                   </button>
