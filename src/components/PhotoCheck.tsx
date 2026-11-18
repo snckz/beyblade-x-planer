@@ -41,7 +41,7 @@ export function PhotoCheck({ db, state, update, meta, onClose, initialCode }: Pr
   const ref = useRef<HTMLDivElement>(null);
   const camRef = useRef<HTMLInputElement>(null);
   const galRef = useRef<HTMLInputElement>(null);
-  const { rates } = useApp();
+  const { rates, barcodes: shipped } = useApp();
   const [phase, setPhase] = useState<Phase>(() => {
     const p = initialCode ? db.products.find((x) => x.code === initialCode) : undefined;
     if (!p) return { k: 'idle' };
@@ -65,7 +65,8 @@ export function PhotoCheck({ db, state, update, meta, onClose, initialCode }: Pr
     setMsg('');
     setPhase({ k: 'working', step: 'Suche Barcode …' });
     try {
-      const res = await recognizePhoto(file, db, state.barcodes, (step, p) => {
+      // Mitgelieferte Barcodes, überschrieben von selbst zugeordneten
+      const res = await recognizePhoto(file, db, { ...shipped, ...state.barcodes }, (step, p) => {
         if (run.current !== id) return;
         setPhase({ k: 'working', step: step === 'barcode' ? 'Suche Barcode …' : p !== undefined && p < 1 ? 'Lade Texterkennung (nur beim ersten Mal) …' : 'Lese die Packung …', p });
       });

@@ -1,7 +1,7 @@
 import { createPortal } from 'preact/compat';
 import { useModal } from '../lib/useModal';
 import { displayProductName } from '../lib/names';
-import { useEffect, useRef, useState } from 'preact/hooks';
+import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import type { Database, Product } from '../lib/types';
 import type { UserState } from '../lib/storage';
 import { createDetector, normalizeGtin, validGtin } from '../lib/barcode';
@@ -48,7 +48,7 @@ function grabFrame(v: HTMLVideoElement): Promise<Blob | null> {
  * Ohne Kamera (oder abgelehnt) bleibt die Produktsuche.
  */
 function ScannerInner({ db, state, update, onClose }: Props) {
-  const { rates } = useApp();
+  const { rates, barcodes: shipped } = useApp();
   const ref = useRef<HTMLDivElement>(null);
   const video = useRef<HTMLVideoElement>(null);
   const closeRef = useRef(onClose);
@@ -64,8 +64,10 @@ function ScannerInner({ db, state, update, onClose }: Props) {
   const [query, setQuery] = useState('');
   const [msg, setMsg] = useState('');
   const [round, setRound] = useState(0);
-  const barcodes = useRef(state.barcodes);
-  barcodes.current = state.barcodes;
+  // Bekannte Barcodes: mitgelieferte Liste, überschrieben von dem, was man selbst zugeordnet hat
+  const known = useMemo(() => ({ ...shipped, ...state.barcodes }), [shipped, state.barcodes]);
+  const barcodes = useRef(known);
+  barcodes.current = known;
 
   // Dialog-Grundverhalten: Fokus, Escape, Hintergrund nicht scrollen.
   const close = useModal(ref, () => closeRef.current(), { animate: true });

@@ -84,6 +84,40 @@ export function validateEvents(feed, bladeIds = new Set()) {
   return errors;
 }
 
+/** Prüfziffer von EAN-8/EAN-13/UPC-A (wie src/lib/barcode.ts). */
+export function validGtin(code) {
+  if (!/^(\d{8}|\d{12}|\d{13})$/.test(String(code))) return false;
+  const digits = String(code).split('').map(Number);
+  const check = digits.pop();
+  const sum = digits.reverse().reduce((s, d, i) => s + d * (i % 2 === 0 ? 3 : 1), 0);
+  return (10 - (sum % 10)) % 10 === check;
+}
+
+/**
+ * Mitgelieferte Barcodes (barcodes.json): gültige Prüfziffer, Herkunft angegeben, und die Nummer muss genau einen Kauf
+ * in db.json bezeichnen – ein Produkt oder ein Set (Packungsnummer ohne Unternummer). Nichts Mehrdeutiges:
+ * Ein falsch zugeordneter Barcode legt beim Scannen das falsche Produkt in die Sammlung.
+ */
+export function validateBarcodes(feed, db) {
+  if (!feed || typeof feed.barcodes !== 'object' || !feed.barcodes || Array.isArray(feed.barcodes)) return ['barcodes.json: barcodes fehlt'];
+  const errors = [];
+  const sources = feed.sources && typeof feed.sources === 'object' ? feed.sources : {};
+  // Random Booster haben zufälligen Inhalt: Ihr Barcode sagt nicht, welcher Kreisel drin ist.
+  const codes = new Set(db.products.filter((p) => p.kind !== 'random-booster').map((p) => p.code));
+  const setPacks = new Set(db.products.filter((p) => p.kind === 'set').map((p) => /^([A-Z]+-?\d+)-\d{2}$/.exec(p.code)?.[1]).filter(Boolean));
+  const normal = new Set();
+  for (const [gtin, entry] of Object.entries(feed.barcodes)) {
+    if (!validGtin(gtin)) errors.push(`Barcode ${gtin}: ungültig (Länge oder Prüfziffer)`);
+    const key = gtin.length === 12 ? `0${gtin}` : gtin;
+    if (normal.has(key)) errors.push(`Barcode ${gtin}: doppelt (als UPC und EAN)`);
+    normal.add(key);
+    const pack = entry?.product;
+    if (typeof pack !== 'string' || !(codes.has(pack) || setPacks.has(pack))) errors.push(`Barcode ${gtin}: Produkt ${pack} gibt es nicht (oder es ist kein einzelner Kauf)`);
+    if (typeof entry?.source !== 'string' || !sources[entry.source]) errors.push(`Barcode ${gtin}: Quelle fehlt`);
+  }
+  return errors;
+}
+
 /** Meta-Liste: alle Teile müssen in der Datenbank stehen, Quellen sind Pflicht. */
 export function validateMeta(meta, db) {
   const errors = [];
@@ -195,6 +229,8 @@ if (isMain) {
     ...validateEvents(read('events.json'), new Set(db.blades.map((b) => b.id))),
     ...validateImages(read('images.json')),
     ...validateMeta(read('meta.json'), db),
+    // Fehlt barcodes.json: keine mitgelieferten Barcodes (die App lernt sie dann nur beim Zuordnen).
+    ...(existsSync(new URL('../public/data/barcodes.json', import.meta.url)) ? validateBarcodes(read('barcodes.json'), db) : []),
   ];
   // --previous <datei>: zusätzlich gegen den vorigen Stand prüfen (im Workflow: db.json aus dem letzten Commit)
   const i = process.argv.indexOf('--previous');

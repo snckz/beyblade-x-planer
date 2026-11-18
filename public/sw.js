@@ -9,7 +9,7 @@ const BUILD = 'dev';
 void BUILD;
 // Texterkennung (ca. 7 MB) in eigenem Cache: überlebt App-Updates, nur alte OCR-Versionen werden entfernt.
 const OCR_CACHE = 'xplaner-ocr';
-const STATIC = ['./', 'manifest.webmanifest', 'icons/icon.svg', 'icons/icon-192.png', 'data/db.json', 'data/news.json', 'data/images.json', 'data/events.json', 'data/meta.json', 'data/rates.json', 'data/aliases.json', 'bg-logo.webp', 'logo.webp'];
+const STATIC = ['./', 'manifest.webmanifest', 'icons/icon.svg', 'icons/icon-192.png', 'data/db.json', 'data/news.json', 'data/images.json', 'data/events.json', 'data/meta.json', 'data/rates.json', 'data/aliases.json', 'data/barcodes.json', 'bg-logo.webp', 'logo.webp'];
 
 function assetsFromHtml(html) {
   return [...html.matchAll(/(?:src|href)="(?:\.\/|[^"]*\/)?(assets\/[^"]+)"/g)].map((m) => m[1]);

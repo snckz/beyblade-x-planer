@@ -1,0 +1,218 @@
+{
+  "_hinweis": "Barcodes (EAN-13) auf Packungen → Artikelnummer. Damit erkennt der Scan eine Packung beim ersten Mal, ohne dass man sie zuordnen muss. Nur Einträge aufnehmen, bei denen ein Händler Barcode und Artikelnummer (oder den vollen Produktnamen) zusammen nennt – nichts raten. product = Produktnummer aus db.json; bei Sets die Nummer der Packung ohne Unternummer (G0197 statt G0197-01). Selbst zugeordnete Barcodes in der App haben Vorrang.",
+  "updatedAt": "2026-11-18",
+  "sources": {
+    "toys-shop.gr": "https://www.toys-shop.gr/el/s/55-beyblade – Produktseiten nennen „EAN13“ und die Hersteller-Nr.",
+    "collectibleshunters.it": "https://collectibleshunters.it/collections/beyblade – Produktdaten nennen Barcode und „Codice prodotto“."
+  },
+  "barcodes": {
+    "5010996256607": {
+      "product": "F9324",
+      "source": "toys-shop.gr"
+    },
+    "5010996257086": {
+      "product": "F9581",
+      "source": "toys-shop.gr"
+    },
+    "5010996257116": {
+      "product": "F9582",
+      "source": "toys-shop.gr"
+    },
+    "5010996256959": {
+      "product": "F9588",
+      "source": "toys-shop.gr"
+    },
+    "5010996257130": {
+      "product": "F9589",
+      "source": "toys-shop.gr"
+    },
+    "5010996264671": {
+      "product": "G0184",
+      "source": "toys-shop.gr"
+    },
+    "5010996257093": {
+      "product": "G0188",
+      "source": "toys-shop.gr"
+    },
+    "5010996256997": {
+      "product": "G0192",
+      "source": "toys-shop.gr"
+    },
+    "5010996264664": {
+      "product": "G0193",
+      "source": "toys-shop.gr"
+    },
+    "5010996257024": {
+      "product": "G0195",
+      "source": "toys-shop.gr"
+    },
+    "5010996259295": {
+      "product": "G0197",
+      "source": "toys-shop.gr"
+    },
+    "5010996260130": {
+      "product": "G0198",
+      "source": "toys-shop.gr"
+    },
+    "5010996260123": {
+      "product": "G0282",
+      "source": "toys-shop.gr"
+    },
+    "5010996257031": {
+      "product": "G0283",
+      "source": "toys-shop.gr"
+    },
+    "5010996257017": {
+      "product": "G0285",
+      "source": "toys-shop.gr"
+    },
+    "5010996264190": {
+      "product": "G0287",
+      "source": "toys-shop.gr"
+    },
+    "5010996264183": {
+      "product": "G0288",
+      "source": "toys-shop.gr"
+    },
+    "5010996257147": {
+      "product": "G0290",
+      "source": "toys-shop.gr"
+    },
+    "5010996290397": {
+      "product": "G1530",
+      "source": "toys-shop.gr"
+    },
+    "5010996290403": {
+      "product": "G1531",
+      "source": "toys-shop.gr"
+    },
+    "5010996290632": {
+      "product": "G1533",
+      "source": "toys-shop.gr"
+    },
+    "5010996290625": {
+      "product": "G1534",
+      "source": "toys-shop.gr"
+    },
+    "5010996295033": {
+      "product": "G1536",
+      "source": "toys-shop.gr"
+    },
+    "5010996317506": {
+      "product": "G1681",
+      "source": "toys-shop.gr"
+    },
+    "5010996305718": {
+      "product": "G1690",
+      "source": "toys-shop.gr"
+    },
+    "5010996305725": {
+      "product": "G1691",
+      "source": "toys-shop.gr"
+    },
+    "5010996305732": {
+      "product": "G1694",
+      "source": "toys-shop.gr"
+    },
+    "5010996298218": {
+      "product": "G1754",
+      "source": "toys-shop.gr"
+    },
+    "5010996298201": {
+      "product": "G1756",
+      "source": "toys-shop.gr"
+    },
+    "5010996385222": {
+      "product": "G2731",
+      "source": "collectibleshunters.it"
+    },
+    "5010996404930": {
+      "product": "G2734",
+      "source": "collectibleshunters.it"
+    },
+    "5010996404978": {
+      "product": "G2736",
+      "source": "collectibleshunters.it"
+    },
+    "5010996404985": {
+      "product": "G2737",
+      "source": "collectibleshunters.it"
+    },
+    "5010996430892": {
+      "product": "G2742",
+      "source": "collectibleshunters.it"
+    },
+    "5010996430922": {
+      "product": "G2745",
+      "source": "collectibleshunters.it"
+    },
+    "5010996431189": {
+      "product": "G2750",
+      "source": "collectibleshunters.it"
+    },
+    "5010996386014": {
+      "product": "G2758",
+      "source": "collectibleshunters.it"
+    },
+    "5010996386007": {
+      "product": "G2759",
+      "source": "collectibleshunters.it"
+    },
+    "5010996386021": {
+      "product": "G2762",
+      "source": "collectibleshunters.it"
+    },
+    "5010996386038": {
+      "product": "G2763",
+      "source": "collectibleshunters.it"
+    },
+    "5010996385550": {
+      "product": "G3061",
+      "source": "collectibleshunters.it"
+    },
+    "5010996385543": {
+      "product": "G3063",
+      "source": "toys-shop.gr"
+    },
+    "5010996385185": {
+      "product": "G3195",
+      "source": "toys-shop.gr"
+    },
+    "5010996438577": {
+      "product": "G4561",
+      "source": "collectibleshunters.it"
+    },
+    "5010996438560": {
+      "product": "G4564",
+      "source": "collectibleshunters.it"
+    },
+    "5010996438546": {
+      "product": "G4565",
+      "source": "collectibleshunters.it"
+    },
+    "5010996438553": {
+      "product": "G4566",
+      "source": "collectibleshunters.it"
+    },
+    "5010996439550": {
+      "product": "G4567",
+      "source": "collectibleshunters.it"
+    },
+    "5010996439567": {
+      "product": "G4568",
+      "source": "collectibleshunters.it"
+    },
+    "5010996439376": {
+      "product": "G4569",
+      "source": "collectibleshunters.it"
+    },
+    "5010996439383": {
+      "product": "G4570",
+      "source": "collectibleshunters.it"
+    },
+    "5010996439321": {
+      "product": "G4571",
+      "source": "collectibleshunters.it"
+    }
+  }
+}

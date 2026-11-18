@@ -1,5 +1,6 @@
 import { groupKey } from './price';
-import type { Blade, Database, EventFeed, ImageIndex, MetaFeed, NewsFeed, Product, Rates } from './types';
+import { normalizeGtin, validGtin } from './barcode';
+import type { BarcodeFeed, Blade, Database, EventFeed, ImageIndex, MetaFeed, NewsFeed, Product, Rates } from './types';
 import { normalizeRegister, type IdRegister } from './idRegister';
 
 const base = import.meta.env.BASE_URL;
@@ -54,6 +55,36 @@ export async function loadMeta(): Promise<MetaFeed | null> {
   } catch {
     return null;
   }
+}
+
+/** Mitgelieferte Barcode-Liste. Fehlt sie (offline, alter Stand), bleibt es beim Zuordnen von Hand. */
+export async function loadBarcodes(): Promise<BarcodeFeed> {
+  try {
+    const f = await getJson<BarcodeFeed>('barcodes.json');
+    return f && typeof f.barcodes === 'object' && f.barcodes ? f : { barcodes: {} };
+  } catch {
+    return { barcodes: {} };
+  }
+}
+
+/** Produkt zu einer Packungsnummer: die Nummer selbst, bei Sets sonst der erste Eintrag der Packung (G0197 → G0197-01). */
+export function packProduct(products: Product[], pack: string): Product | undefined {
+  // Random Booster ausgenommen: Ihr Barcode sagt nicht, welcher Kreisel drin ist.
+  return products.find((p) => p.code === pack && p.kind !== 'random-booster') ?? products.find((p) => p.kind === 'set' && groupKey(p) === pack);
+}
+
+/**
+ * Mitgelieferte Barcodes als Zuordnung Barcode → Produktcode, wie sie die App auch für selbst gelernte führt.
+ * Ungültige Barcodes (Prüfziffer) und Nummern, die es in der Datenbank nicht gibt, fallen weg.
+ */
+export function knownBarcodes(feed: BarcodeFeed | null | undefined, products: Product[]): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const [raw, entry] of Object.entries(feed?.barcodes ?? {})) {
+    if (!validGtin(raw) || typeof entry?.product !== 'string') continue;
+    const p = packProduct(products, entry.product);
+    if (p) out[normalizeGtin(raw)] = p.code;
+  }
+  return out;
 }
 
 export async function loadRates(): Promise<Rates | null> {

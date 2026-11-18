@@ -1,7 +1,7 @@
 import { displayName } from './lib/names';
 import { useCallback, useEffect, useMemo, useState } from 'preact/hooks';
-import type { Database, EventFeed, ImageIndex, MetaFeed, NewsFeed, Rates } from './lib/types';
-import { daysUntil, loadDatabase, loadEvents, loadIdRegister, loadImages, loadMeta, loadNews, loadRates } from './lib/data';
+import type { BarcodeFeed, Database, EventFeed, ImageIndex, MetaFeed, NewsFeed, Rates } from './lib/types';
+import { daysUntil, knownBarcodes, loadBarcodes, loadDatabase, loadEvents, loadIdRegister, loadImages, loadMeta, loadNews, loadRates } from './lib/data';
 import { migrateUserState, type IdRegister } from './lib/idRegister';
 import { loadState, saveState, STORAGE_KEY, type UserState } from './lib/storage';
 import { AppContext, type ImageKind } from './lib/context';
@@ -115,6 +115,7 @@ export function App() {
   const [rates, setRates] = useState<Rates | null>(null);
   const [register, setRegister] = useState<IdRegister | null>(null);
   const [meta, setMeta] = useState<MetaFeed | null>(null);
+  const [barcodeFeed, setBarcodeFeed] = useState<BarcodeFeed | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [state, setState] = useState<UserState>(loadState);
   const [tab, setTab] = useState<Tab>(readTab);
@@ -138,6 +139,7 @@ export function App() {
     void loadEvents().then(setEvents);
     void loadRates().then(setRates);
     void loadMeta().then(setMeta);
+    void loadBarcodes().then(setBarcodeFeed);
     void loadIdRegister().then(setRegister);
   }, []);
 
@@ -238,9 +240,11 @@ export function App() {
   const bladeName = useCallback((b: { name: string; hasbroName?: string }) => displayName(b), []);
   const owned = state.owned;
   const ownedCount = useCallback((code: string) => owned[code] ?? 0, [owned]);
+  // Mitgelieferte Barcodes, auf die Produkte der Datenbank aufgelöst (Scanner und Kauf-Check erkennen Packungen damit sofort)
+  const barcodes = useMemo(() => (db ? knownBarcodes(barcodeFeed, db.products) : {}), [barcodeFeed, db]);
   const ctx = useMemo(
-    () => ({ images, rates, openBlade, openImage, openCheck, ownedCount, bladeName, hasbroNames }),
-    [images, rates, openBlade, openImage, openCheck, ownedCount, bladeName, hasbroNames],
+    () => ({ images, rates, openBlade, openImage, openCheck, ownedCount, bladeName, hasbroNames, barcodes }),
+    [images, rates, openBlade, openImage, openCheck, ownedCount, bladeName, hasbroNames, barcodes],
   );
 
   const unread = news.items.filter((n) => !state.seenNews.includes(n.id)).length;

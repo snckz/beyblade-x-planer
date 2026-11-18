@@ -17,10 +17,12 @@ export interface AppCtx {
   openCheck: (code: string) => void;
   /** wie oft ein Produkt in der Sammlung ist */
   ownedCount: (code: string) => number;
+  /** mitgelieferte Barcodes: Barcode → Produktcode (leer, solange nicht geladen) */
+  barcodes: Record<string, string>;
 }
 
 export type ImageKind = 'blade' | 'bit' | 'ratchet';
 
-export const AppContext = createContext<AppCtx>({ images: { source: '', blades: {} }, rates: null, bladeName: (b) => b.name, hasbroNames: false, openBlade: () => {}, openImage: () => {}, openCheck: () => {}, ownedCount: () => 0 });
+export const AppContext = createContext<AppCtx>({ images: { source: '', blades: {} }, rates: null, bladeName: (b) => b.name, hasbroNames: false, openBlade: () => {}, openImage: () => {}, openCheck: () => {}, ownedCount: () => 0, barcodes: {} });
 
 export const useApp = () => useContext(AppContext);

@@ -165,6 +165,18 @@ export interface EventFeed {
 
 export type MetaTrend = 'top' | 'up' | 'down' | 'steady';
 
+/**
+ * Mitgelieferte Barcodes (public/data/barcodes.json): EAN/UPC einer Packung → Artikelnummer.
+ * Damit erkennt der Scan eine Packung schon beim ersten Mal. Selbst zugeordnete Barcodes haben Vorrang.
+ */
+export interface BarcodeFeed {
+  updatedAt?: string;
+  /** Kürzel → Herkunft der Angaben */
+  sources?: Record<string, string>;
+  /** Barcode → Produktnummer aus db.json (bei Sets die Packungsnummer ohne Unternummer) */
+  barcodes: Record<string, { product: string; source?: string }>;
+}
+
 /** Turnier-Meta: Momentaufnahme gewinnender Kombos (public/data/meta.json) */
 export interface MetaFeed {
   updatedAt: string;
