@@ -20,7 +20,10 @@ import { isAndroidBrowser, saveBlob } from '../lib/download';
 import { Showcase } from './Showcase';
 import { nb } from '../lib/analysis';
 import { convert, groupKey, priceHint, sumPrices, yen } from '../lib/price';
-import { CalendarPlus, ShoppingCart } from 'lucide-preact';
+import { CalendarPlus, FileDown, ShoppingCart } from 'lucide-preact';
+import { ConfirmSheet } from './ConfirmSheet';
+import { SwipeRow } from './SwipeRow';
+import { showUndo } from '../lib/undo';
 
 interface Props {
   events?: BeyEvent[];
@@ -41,6 +44,9 @@ export function Collection({ db, state, update, events = [], meta }: Props) {
   const [adding, setAdding] = useState(false);
   const [editing, setEditing] = useState(false);
   const [showcase, setShowcase] = useState(false);
+  // Rückfrage im eigenen Fenster statt window.confirm: Produkt entfernen (über ×) bzw. Import ersetzen
+  const [pendingRemove, setPendingRemove] = useState<string | null>(null);
+  const [pendingImport, setPendingImport] = useState<UserState | null>(null);
   const ownedProducts = db.products.filter((p) => (state.owned[p.code] ?? 0) > 0);
   const unknownCodes = Object.keys(state.owned).filter((c) => !db.products.some((p) => p.code === c));
   // Packungen zählen: ein Set/Dual Pack ist eine Packung, auch wenn mehrere Kreisel drin sind
@@ -72,13 +78,14 @@ export function Collection({ db, state, update, events = [], meta }: Props) {
       })),
       'beyblade-wunschliste.ics',
     );
+  const productName = (code: string) => {
+    const p = db.products.find((x) => x.code === code);
+    return p ? displayProductName(p, db) : code;
+  };
   // Anzahl ändern; bei 0 verschwindet der Eintrag (mit Rückfrage, damit nichts aus Versehen weg ist)
   const changeOwned = (code: string, d: 1 | -1) => {
     const n = state.owned[code] ?? 0;
-    if (d < 0 && n <= 1) {
-      const p = db.products.find((x) => x.code === code);
-      if (!window.confirm(`${p?.name ?? code} aus der Sammlung entfernen?`)) return;
-    }
+    if (d < 0 && n <= 1) return setPendingRemove(code);
     update((s) => {
       const owned = { ...s.owned };
       const next = (owned[code] ?? 0) + d;
@@ -87,7 +94,25 @@ export function Collection({ db, state, update, events = [], meta }: Props) {
       return { ...s, owned };
     });
   };
+  const removeProduct = (code: string) => update((s) => {
+    const owned = { ...s.owned };
+    delete owned[code];
+    return { ...s, owned };
+  });
+  /** Weggewischt: sofort entfernen, mit „Rückgängig“ (alle Exemplare kommen zurück) */
+  const swipeRemoveProduct = (code: string) => {
+    const before = state.owned[code] ?? 0;
+    removeProduct(code);
+    showUndo(`„${productName(code)}“ aus der Sammlung entfernt`, () => update((s) => ({ ...s, owned: { ...s.owned, [code]: (s.owned[code] ?? 0) + before } })));
+  };
   const unwish = (code: string) => update((s) => ({ ...s, wishlist: s.wishlist.filter((c) => c !== code) }));
+  const swipeUnwish = (code: string) => {
+    const at = state.wishlist.indexOf(code);
+    unwish(code);
+    showUndo(`„${productName(code)}“ von der Wunschliste genommen`, () =>
+      update((s) => (s.wishlist.includes(code) ? s : { ...s, wishlist: [...s.wishlist.slice(0, at), code, ...s.wishlist.slice(at)] })),
+    );
+  };
   const gotIt = (code: string) => {
     const p = db.products.find((x) => x.code === code);
     const codes = p ? purchaseCodes(db.products, p) : [code];
@@ -106,10 +131,7 @@ export function Collection({ db, state, update, events = [], meta }: Props) {
   const doImport = async (file: File | undefined) => {
     if (!file) return;
     try {
-      const next = importState(await file.text());
-      if (!window.confirm('Aktuelle Sammlung, Kombos und Deck durch die Datei ersetzen?')) return;
-      update(() => next);
-      setMsg('Import erfolgreich.');
+      setPendingImport(importState(await file.text()));
     } catch {
       setMsg('Die Datei konnte nicht gelesen werden.');
     } finally {
@@ -202,7 +224,7 @@ export function Collection({ db, state, update, events = [], meta }: Props) {
               {ownedProducts.map((p) => {
                 const b = db.blades.find((x) => x.id === p.bladeId);
                 return (
-                  <li key={p.code} class={`tile-bey${b ? ` aura-${b.type}` : ''}`}>
+                  <SwipeRow key={p.code} class={`tile-bey${b ? ` aura-${b.type}` : ''}`} deleteLabel={`${p.name} aus der Sammlung entfernen`} onDelete={() => swipeRemoveProduct(p.code)}>
                     <div class="tile-top">
                       <span class={`region-tag ${p.region === 'hasbro' ? 'hasbro' : 'takara'}`}>{regionLabel(p)}</span>
                       {!editing && <span class="count">{state.owned[p.code]}×</span>}
@@ -224,7 +246,7 @@ export function Collection({ db, state, update, events = [], meta }: Props) {
                         </button>
                       </div>
                     )}
-                  </li>
+                  </SwipeRow>
                 );
               })}
             </ul>
@@ -265,7 +287,7 @@ export function Collection({ db, state, update, events = [], meta }: Props) {
                 const price = priceHint(p, rates);
                 const rel = releaseOf(p.code);
                 return (
-                  <li key={p.code} class="row">
+                  <SwipeRow key={p.code} class="row" deleteLabel={`${p.name} von der Wunschliste nehmen`} onDelete={() => swipeUnwish(p.code)}>
                     <div class="row-main">
                       <span class="row-title">{nb(displayProductName(p, db))}</span>
                       <span class="row-sub">
@@ -286,7 +308,7 @@ export function Collection({ db, state, update, events = [], meta }: Props) {
                     <button type="button" class="icon-btn" onClick={() => unwish(p.code)} aria-label={`${p.name} von der Wunschliste nehmen`}>
                       ×
                     </button>
-                  </li>
+                  </SwipeRow>
                 );
               })}
             </ul>
@@ -364,6 +386,38 @@ export function Collection({ db, state, update, events = [], meta }: Props) {
         </div>
       </Section>
       {transfer && <Transfer state={state} update={update} onClose={() => setTransfer(false)} />}
+      {pendingRemove && (
+        <ConfirmSheet
+          title="Aus der Sammlung entfernen?"
+          note="Teile, die nur in diesem Produkt stecken, fehlen dann beim Kombinieren."
+          confirmLabel="Entfernen"
+          onConfirm={() => removeProduct(pendingRemove)}
+          onClose={() => setPendingRemove(null)}
+        >
+          <p class="confirm-item">{nb(productName(pendingRemove))}</p>
+          <p class="confirm-parts">
+            <span>{pendingRemove}</span>
+          </p>
+        </ConfirmSheet>
+      )}
+      {pendingImport && (
+        <ConfirmSheet
+          title="Daten ersetzen?"
+          note="Sammlung, Kombos und Deck auf diesem Gerät werden durch die Datei ersetzt."
+          confirmLabel="Ersetzen"
+          icon={FileDown}
+          onConfirm={() => {
+            update(() => pendingImport);
+            setMsg('Import erfolgreich.');
+          }}
+          onClose={() => setPendingImport(null)}
+        >
+          <p class="confirm-parts">
+            <span>{Object.keys(pendingImport.owned).length} Produkte</span>
+            <span>{pendingImport.combos.length} Kombos</span>
+          </p>
+        </ConfirmSheet>
+      )}
     </div>
   );
 }

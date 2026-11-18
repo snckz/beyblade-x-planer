@@ -102,6 +102,22 @@ export function isIosBrowserTab(): boolean {
 }
 
 /** Text für die Rückfrage vor dem Zusammenführen. */
+/** Für das Import-Fenster: was übernommen wird, und der Hinweis zum Zusammenführen. */
+export function importSummary(incoming: UserState): { counts: string[]; note: string; iosHint: string | null } {
+  return {
+    counts: [
+      `${Object.keys(incoming.owned).length} Produkte`,
+      `${incoming.combos.length} Kombos`,
+      `${incoming.wishlist.length} Wünsche`,
+      `${incoming.matches.length} Kämpfe`,
+    ],
+    note: 'Fehlendes kommt dazu, bei Anzahlen gilt der höhere Wert. Was du hier gelöscht hast, kann dadurch zurückkommen.',
+    iosHint: isIosBrowserTab()
+      ? 'Das hier ist Safari. Nutzt du die App vom Home-Bildschirm, öffne sie dort und füge den Link unter Sammlung → „Auf anderes Gerät“ → „Code einfügen“ ein – Safari und die App haben getrennten Speicher.'
+      : null,
+  };
+}
+
 export function importQuestion(incoming: UserState): string {
   const n = Object.keys(incoming.owned).length;
   const hint = isIosBrowserTab()

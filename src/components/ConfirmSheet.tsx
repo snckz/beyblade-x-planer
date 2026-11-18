@@ -2,7 +2,7 @@ import type { ComponentChildren } from 'preact';
 import { createPortal } from 'preact/compat';
 import { useEffect, useRef } from 'preact/hooks';
 import { useModal } from '../lib/useModal';
-import { Trash2 } from 'lucide-preact';
+import { Trash2, type LucideIcon } from 'lucide-preact';
 
 interface Props {
   title: string;
@@ -11,7 +11,10 @@ interface Props {
   /** Kurzer Hinweis unter dem Inhalt, z. B. „Das lässt sich nicht rückgängig machen.“ */
   note?: string;
   confirmLabel: string;
-  cancelLabel?: string;
+  /** Symbol oben und auf dem Bestätigen-Knopf (Standard: Papierkorb) */
+  icon?: LucideIcon;
+  /** `null`: nur ein Knopf (reiner Hinweis, z. B. eine Fehlermeldung) */
+  cancelLabel?: string | null;
   /** Wird genau einmal und nur beim Tipp auf die Bestätigung aufgerufen */
   onConfirm: () => void;
   /** Fenster ist zu (nach Bestätigen, Abbrechen, Schließen, Escape, Wischen) */
@@ -23,7 +26,7 @@ interface Props {
  * (useModal: Fokus, Escape, Griff zum Schließen, Safe-Areas). Abbrechen, Escape, Hintergrund und Wischen ändern nichts;
  * nur „Löschen“ ruft onConfirm. Der Fokus startet auf „Abbrechen“ – Enter oder ein versehentlicher Tipp löscht nichts.
  */
-function ConfirmSheetInner({ title, children, note, confirmLabel, cancelLabel = 'Abbrechen', onConfirm, onClose }: Props) {
+function ConfirmSheetInner({ title, children, note, confirmLabel, cancelLabel = 'Abbrechen', icon: Icon = Trash2, onConfirm, onClose }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const cancelRef = useRef<HTMLButtonElement>(null);
   const closeRef = useRef(onClose);
@@ -45,7 +48,7 @@ function ConfirmSheetInner({ title, children, note, confirmLabel, cancelLabel = 
         <div class="sheet-grab" aria-hidden="true" />
         <div class="confirm-body">
           <span class="confirm-icon" aria-hidden="true">
-            <Trash2 />
+            <Icon />
           </span>
           <h2 id="confirm-title" class="confirm-title">
             {title}
@@ -55,11 +58,13 @@ function ConfirmSheetInner({ title, children, note, confirmLabel, cancelLabel = 
             {note && <p class="confirm-note">{note}</p>}
           </div>
           <div class="confirm-actions">
-            <button ref={cancelRef} type="button" class="btn confirm-cancel" onClick={close}>
-              {cancelLabel}
-            </button>
-            <button type="button" class="btn confirm-danger" onClick={confirm}>
-              <Trash2 aria-hidden="true" /> {confirmLabel}
+            {cancelLabel !== null && (
+              <button ref={cancelRef} type="button" class="btn confirm-cancel" onClick={close}>
+                {cancelLabel}
+              </button>
+            )}
+            <button ref={cancelLabel === null ? cancelRef : undefined} type="button" class={`btn confirm-danger${cancelLabel === null ? ' confirm-only' : ''}`} onClick={confirm}>
+              <Icon aria-hidden="true" /> {confirmLabel}
             </button>
           </div>
         </div>

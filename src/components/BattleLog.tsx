@@ -7,6 +7,9 @@ import { comboLabel, nb, resolveCombo } from '../lib/analysis';
 import { FINISH, statsByCombo, type Finish, type Match } from '../lib/matches';
 import { ComboPicker } from './ComboPicker';
 import { Section } from './ui';
+import { ConfirmSheet } from './ConfirmSheet';
+import { SwipeRow } from './SwipeRow';
+import { showUndo } from '../lib/undo';
 
 interface Props {
   db: Database;
@@ -53,9 +56,15 @@ export function BattleLog({ db, state, update }: Props) {
     setWon(null);
     setFinish(null);
   };
-  const remove = (id: string) => {
-    if (window.confirm('Diesen Kampf löschen?')) update((s) => ({ ...s, matches: s.matches.filter((m) => m.id !== id) }));
+  // Löschen über × mit Rückfrage im eigenen Fenster; weggewischt sofort, mit „Rückgängig“
+  const [pendingId, setPendingId] = useState<string | null>(null);
+  const remove = (id: string) => update((s) => ({ ...s, matches: s.matches.filter((m) => m.id !== id) }));
+  const swipeRemove = (m: Match) => {
+    const at = state.matches.findIndex((x) => x.id === m.id);
+    remove(m.id);
+    showUndo('Kampf gelöscht', () => update((s) => (s.matches.some((x) => x.id === m.id) ? s : { ...s, matches: [...s.matches.slice(0, at), m, ...s.matches.slice(at)] })));
   };
+  const pending = pendingId ? state.matches.find((m) => m.id === pendingId) : undefined;
 
   return (
     <Section
@@ -143,7 +152,7 @@ export function BattleLog({ db, state, update }: Props) {
                 .reverse()
                 .slice(0, 15)
                 .map((m) => (
-                  <li key={m.id} class="row">
+                  <SwipeRow key={m.id} class="row" deleteLabel="Kampf löschen" onDelete={() => swipeRemove(m)}>
                     <span class={`log-dot ${m.won ? 'good' : 'bad'}`} aria-label={m.won ? 'Sieg' : 'Niederlage'} />
                     <div class="row-main">
                       <span class="row-title">
@@ -153,16 +162,27 @@ export function BattleLog({ db, state, update }: Props) {
                         {m.won ? 'Sieg' : 'Niederlage'} per {FINISH[m.finish].label} · {new Date(m.date).toLocaleDateString('de-AT')}
                       </span>
                     </div>
-                    <button type="button" class="icon-btn" onClick={() => remove(m.id)} aria-label="Kampf löschen">
+                    <button type="button" class="icon-btn" onClick={() => setPendingId(m.id)} aria-label="Kampf löschen" aria-haspopup="dialog">
                       ×
                     </button>
-                  </li>
+                  </SwipeRow>
                 ))}
             </ul>
           </details>
         </div>
       ) : (
         !open && <p class="muted">Trag nach jedem Kampf kurz ein, wie es ausging. Mit der Zeit siehst du hier deine Siegquote pro Kombo und woran du am häufigsten verlierst.</p>
+      )}
+      {pending && (
+        <ConfirmSheet title="Kampf löschen?" confirmLabel="Löschen" onConfirm={() => remove(pending.id)} onClose={() => setPendingId(null)}>
+          <p class="confirm-item">
+            {label(db, pending.mine)} <span class="muted">vs</span> {label(db, pending.opp)}
+          </p>
+          <p class="confirm-parts">
+            <span>{pending.won ? 'Sieg' : 'Niederlage'}</span>
+            <span>{new Date(pending.date).toLocaleDateString('de-AT')}</span>
+          </p>
+        </ConfirmSheet>
       )}
     </Section>
   );

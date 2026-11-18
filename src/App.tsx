@@ -5,13 +5,17 @@ import { daysUntil, loadDatabase, loadEvents, loadImages, loadMeta, loadNews, lo
 import { loadState, saveState, STORAGE_KEY, type UserState } from './lib/storage';
 import { AppContext, type ImageKind } from './lib/context';
 import { preloadImages } from './lib/images';
-import { decodeState, importError, importQuestion, mergeState } from './lib/transfer';
+import { decodeState, importError, mergeState } from './lib/transfer';
+import { ImportConfirm } from './components/ImportConfirm';
+import { ConfirmSheet } from './components/ConfirmSheet';
+import { TriangleAlert } from 'lucide-preact';
 import { wishReleases } from './lib/reminders';
 import { ComboBuilder } from './components/ComboBuilder';
 import { Lightbox } from './components/Lightbox';
 import { DetailSheet } from './components/DetailSheet';
 import { IosHint } from './components/IosHint';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { UndoToast } from './components/UndoToast';
 import { lazy, Suspense } from 'preact/compat';
 
 // Tabs und selten genutzte Fenster erst bei Bedarf laden – der Start bleibt schlank.
@@ -165,6 +169,9 @@ export function App() {
     window.scrollTo({ top: 0 });
   }, []);
 
+  // Daten von einem anderen Gerät: Rückfrage bzw. Fehlermeldung im eigenen Fenster
+  const [incoming, setIncoming] = useState<UserState | null>(null);
+  const [importFailed, setImportFailed] = useState<string | null>(null);
   // Übertragungs-Link von einem anderen Gerät (#import=…): nach Rückfrage zusammenführen.
   useEffect(() => {
     const check = () => {
@@ -174,10 +181,8 @@ export function App() {
       history.replaceState(null, '', `${location.pathname}${location.search}#collection`);
       setTab('collection');
       decodeState(code)
-        .then((incoming) => {
-          if (window.confirm(importQuestion(incoming))) setState((s) => mergeState(s, incoming));
-        })
-        .catch((err: unknown) => window.alert(importError(err)));
+        .then((data) => setIncoming(data))
+        .catch((err: unknown) => setImportFailed(importError(err)));
     };
     check();
     // Auch wenn die App schon offen ist und nur der Link (Hash) wechselt.
@@ -327,6 +332,13 @@ export function App() {
         <nav class="tabbar glass-bar" aria-label="Hauptnavigation">
           {TABS.map((t) => navLink(t, true))}
         </nav>
+        <UndoToast />
+        {incoming && <ImportConfirm incoming={incoming} onConfirm={() => setState((s) => mergeState(s, incoming))} onClose={() => setIncoming(null)} />}
+        {importFailed && (
+          <ConfirmSheet title="Übernehmen ging nicht" confirmLabel="OK" cancelLabel={null} icon={TriangleAlert} onConfirm={() => {}} onClose={() => setImportFailed(null)}>
+            <p>{importFailed}</p>
+          </ConfirmSheet>
+        )}
 
         {db && detail && <DetailSheet db={db} events={events.events} bladeId={detail} onClose={closeDetail} onUse={useInBuilder} meta={meta} />}
         {db && zoom && <Lightbox db={db} id={zoom.id} kind={zoom.kind} onClose={closeZoom} />}

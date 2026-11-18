@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import type { UserState } from '../lib/storage';
-import { decodeState, encodeState, extractCode, importError, importQuestion, isIosBrowserTab, mergeState, transferLink } from '../lib/transfer';
+import { decodeState, encodeState, extractCode, importError, isIosBrowserTab, mergeState, transferLink } from '../lib/transfer';
+import { ImportConfirm } from './ImportConfirm';
 
 /** Link + QR-Code, um Sammlung, Kombos, Wunschliste und Kämpfe auf ein anderes Gerät zu holen. */
 export function Transfer({ state, update, onClose }: { state: UserState; update: (fn: (s: UserState) => UserState) => void; onClose: () => void }) {
@@ -33,6 +34,8 @@ export function Transfer({ state, update, onClose }: { state: UserState; update:
     ref.current?.focus();
   }, []);
 
+  // Erst nach Rückfrage im eigenen Fenster zusammenführen
+  const [incoming, setIncoming] = useState<UserState | null>(null);
   const doImport = async () => {
     const code = extractCode(paste);
     if (!code) {
@@ -40,11 +43,7 @@ export function Transfer({ state, update, onClose }: { state: UserState; update:
       return;
     }
     try {
-      const incoming = await decodeState(code);
-      if (!window.confirm(importQuestion(incoming))) return;
-      update((s) => mergeState(s, incoming));
-      setPaste('');
-      setMsg('Daten übernommen.');
+      setIncoming(await decodeState(code));
     } catch (err) {
       setMsg(importError(err));
     }
@@ -105,6 +104,17 @@ export function Transfer({ state, update, onClose }: { state: UserState; update:
       <button type="button" class="btn" onClick={doImport} disabled={!paste.trim()}>
         Übernehmen
       </button>
+      {incoming && (
+        <ImportConfirm
+          incoming={incoming}
+          onConfirm={() => {
+            update((s) => mergeState(s, incoming));
+            setPaste('');
+            setMsg('Daten übernommen.');
+          }}
+          onClose={() => setIncoming(null)}
+        />
+      )}
     </div>
   );
 }

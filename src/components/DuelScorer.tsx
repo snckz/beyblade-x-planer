@@ -2,7 +2,8 @@ import { createPortal } from 'preact/compat';
 import { useRef, useState } from 'preact/hooks';
 import { FINISH, type Finish } from '../lib/matches';
 import { useModal } from '../lib/useModal';
-import { Undo2 } from 'lucide-preact';
+import { LogOut, Undo2 } from 'lucide-preact';
+import { ConfirmSheet } from './ConfirmSheet';
 
 interface Props {
   left: string;
@@ -20,10 +21,9 @@ function DuelScorerInner({ left, right, target, onDone, onClose }: Props) {
   const l = score(0);
   const r = score(1);
   const over = l >= target || r >= target;
-  const close = () => {
-    if (log.length && !window.confirm(over ? 'Ergebnis noch nicht eingetragen – trotzdem schließen?' : 'Zähler schließen? Der Zwischenstand geht verloren.')) return;
-    onClose();
-  };
+  // Mit Zwischenstand erst nachfragen (eigenes Fenster statt window.confirm)
+  const [asking, setAsking] = useState(false);
+  const close = () => (log.length ? setAsking(true) : onClose());
   useModal(ref, close);
 
   const side = (s: 0 | 1) => (
@@ -78,6 +78,17 @@ function DuelScorerInner({ left, right, target, onDone, onClose }: Props) {
         </button>
       </div>
       {side(1)}
+      {asking && (
+        <ConfirmSheet
+          title={over ? 'Ergebnis nicht eingetragen' : 'Zähler schließen?'}
+          note={over ? `Das Ergebnis ${l}:${r} wird dann nicht ins Turnier übernommen.` : 'Der Zwischenstand geht verloren.'}
+          confirmLabel="Schließen"
+          cancelLabel="Weiterzählen"
+          icon={LogOut}
+          onConfirm={onClose}
+          onClose={() => setAsking(false)}
+        />
+      )}
     </div>
   );
 }

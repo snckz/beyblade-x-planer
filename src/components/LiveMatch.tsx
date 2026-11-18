@@ -8,7 +8,8 @@ import { nb, resolveCombo } from '../lib/analysis';
 import { displayName } from '../lib/names';
 import { FINISH, type Finish, type Match } from '../lib/matches';
 import { DeckPicker, DEFAULT_DECK, toPart, type Part } from './DeckPicker';
-import { Undo2 } from 'lucide-preact';
+import { Flag, Undo2 } from 'lucide-preact';
+import { ConfirmSheet } from './ConfirmSheet';
 
 interface Props {
   db: Database;
@@ -48,10 +49,8 @@ function LiveMatchInner({ db, state, update, onClose }: Props) {
 
   // Schließen mit Rückfrage, wenn ein Match läuft.
   const running = log.length > 0 && !over;
-  const close = () => {
-    if (running && !window.confirm(withBeys ? 'Match beenden? Die bisherigen Runden bleiben im Tagebuch.' : 'Match beenden? Der Spielstand geht verloren.')) return;
-    onClose();
-  };
+  const [asking, setAsking] = useState(false);
+  const close = () => (running ? setAsking(true) : onClose());
   useModal(ref, close);
 
   // Bildschirm während des Matches anlassen (wo unterstützt).
@@ -246,6 +245,17 @@ function LiveMatchInner({ db, state, update, onClose }: Props) {
           </div>
           {pad(true)}
         </>
+      )}
+      {asking && (
+        <ConfirmSheet
+          title="Match beenden?"
+          note={withBeys ? 'Die bisherigen Runden bleiben im Tagebuch.' : 'Der Spielstand geht verloren.'}
+          confirmLabel="Beenden"
+          cancelLabel="Weiterspielen"
+          icon={Flag}
+          onConfirm={onClose}
+          onClose={() => setAsking(false)}
+        />
       )}
     </div>
   );

@@ -19,7 +19,8 @@ import {
 } from '../lib/tournament';
 import { DuelScorer } from './DuelScorer';
 import { Section } from './ui';
-import { Pencil, Trophy } from 'lucide-preact';
+import { LogOut, Pencil, Trophy } from 'lucide-preact';
+import { ConfirmSheet } from './ConfirmSheet';
 
 /** Mini-Turnier mit Freunden: Spieler eintragen, Paarungen auslosen, Tabelle führen. Bleibt auf dem Gerät gespeichert. */
 export function Tournament() {
@@ -29,6 +30,8 @@ export function Tournament() {
   const [format, setFormat] = useState<Format>('swiss');
   const [target, setTarget] = useState<4 | 7>(4);
   const [live, setLive] = useState<TMatch | null>(null);
+  // Turnier beenden bzw. abbrechen: Rückfrage im eigenen Fenster
+  const [askEnd, setAskEnd] = useState(false);
   const [edit, setEdit] = useState<{ id: string; a: string; b: string } | null>(null);
   const [error, setError] = useState('');
 
@@ -191,12 +194,7 @@ export function Tournament() {
         <button
           type="button"
           class="btn btn-sm btn-ghost"
-          onClick={() => {
-            if (window.confirm(done ? 'Turnier schließen?' : 'Turnier abbrechen? Alle Ergebnisse gehen verloren.')) {
-              setNames(t.players.map((p) => p.name));
-              setT(null);
-            }
-          }}
+          onClick={() => setAskEnd(true)}
         >
           {done ? 'Neues Turnier' : 'Abbrechen'}
         </button>
@@ -276,6 +274,20 @@ export function Tournament() {
             save(live.id, a, b);
             setLive(null);
           }}
+        />
+      )}
+      {askEnd && (
+        <ConfirmSheet
+          title={done ? 'Turnier schließen?' : 'Turnier abbrechen?'}
+          note={done ? 'Die Spielernamen bleiben für ein neues Turnier eingetragen.' : 'Alle Ergebnisse gehen verloren.'}
+          confirmLabel={done ? 'Schließen' : 'Turnier abbrechen'}
+          cancelLabel={done ? 'Zurück' : 'Weiterspielen'}
+          icon={LogOut}
+          onConfirm={() => {
+            setNames(t.players.map((p) => p.name));
+            setT(null);
+          }}
+          onClose={() => setAskEnd(false)}
         />
       )}
     </Section>
