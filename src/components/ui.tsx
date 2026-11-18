@@ -1,3 +1,4 @@
+import type { ReleaseStatus } from '../lib/release';
 import type { ComponentChildren } from 'preact';
 import type { BeyType, Spin } from '../lib/types';
 import { TYPE_LABEL } from '../lib/analysis';
@@ -21,6 +22,16 @@ export function UnverifiedMark({ show }: { show: boolean }) {
   return (
     <span class="unverified" title="Daten noch nicht geprüft">
       ungeprüft
+    </span>
+  );
+}
+
+/** Angekündigt (noch nicht erschienen): im Lexikon sichtbar, im Kombo-Planer nicht wählbar. Gleiche Optik wie „ungeprüft“. */
+export function AnnouncedMark({ status, reason }: { status: ReleaseStatus; reason: string }) {
+  if (status !== 'announced') return null;
+  return (
+    <span class="unverified" title={`Angekündigt – ${reason}. Im Kombo-Planer erst nach Release und Prüfung.`}>
+      angekündigt
     </span>
   );
 }

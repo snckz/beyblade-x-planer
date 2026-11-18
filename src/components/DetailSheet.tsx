@@ -7,6 +7,7 @@ import { TYPE_HINT, TYPE_LABEL } from '../lib/analysis';
 import { useApp } from '../lib/context';
 import { BladePhoto, ImageCredit } from './BeyImage';
 import { UnverifiedMark } from './ui';
+import { releaseOf } from '../lib/useRelease';
 import { ArrowLeftRight, ArrowUpRight, BadgeCheck, BookOpen, Check, ChevronRight, CircleAlert, Cog, Feather, Globe, Languages, Layers, Package, Puzzle, RotateCcw, RotateCw, Scale, Shield, Shuffle, Swords, Timer, Trophy, Weight, Wrench, X } from 'lucide-preact';
 
 interface Props {
@@ -34,6 +35,8 @@ export function DetailSheet({ db, events, bladeId, onClose, onUse, meta = null }
   useEffect(() => closeRef.current?.focus(), []);
 
   if (!blade) return null;
+  // Zentraler Freigabestatus: nur Freigegebenes lässt sich in den Kombo-Planer übernehmen
+  const release = releaseOf(db).part('blades', blade.id);
   const products = db.products.filter((p) => p.bladeId === blade.id);
   const related = events.filter((e) => e.bladeId === blade.id);
   const weight = products.find((p) => p.weightG)?.weightG;
@@ -126,6 +129,15 @@ export function DetailSheet({ db, events, bladeId, onClose, onUse, meta = null }
                     <dd>{codes}</dd>
                   </div>
                 )}
+                {release.status === 'announced' && (
+                  <div class="sb-row">
+                    <CircleAlert aria-hidden="true" />
+                    <dt>Release</dt>
+                    <dd>
+                      <span class="sb-status">Angekündigt – {release.reason}</span>
+                    </dd>
+                  </div>
+                )}
                 <div class="sb-row">
                   {blade.verified ? <BadgeCheck aria-hidden="true" /> : <CircleAlert aria-hidden="true" />}
                   <dt>Datenstatus</dt>
@@ -207,11 +219,15 @@ export function DetailSheet({ db, events, bladeId, onClose, onUse, meta = null }
             )}
 
             <div class="sb-actions">
-              <button type="button" class="sb-cta" onClick={() => onUse(blade.id)}>
-                <Shuffle aria-hidden="true" />
-                <span>Im Kombo-Planer nutzen</span>
-                <ChevronRight aria-hidden="true" />
-              </button>
+              {release.status === 'confirmed' ? (
+                <button type="button" class="sb-cta" onClick={() => onUse(blade.id)}>
+                  <Shuffle aria-hidden="true" />
+                  <span>Im Kombo-Planer nutzen</span>
+                  <ChevronRight aria-hidden="true" />
+                </button>
+              ) : (
+                <p class="fineprint">Im Kombo-Planer wählbar, sobald {displayName(blade)} erschienen und geprüft ist.</p>
+              )}
               {wiki && (
                 <a class="sb-wiki" href={wiki.page} target="_blank" rel="noopener noreferrer">
                   <BookOpen aria-hidden="true" />

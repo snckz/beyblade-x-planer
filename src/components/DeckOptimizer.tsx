@@ -9,6 +9,7 @@ import { nb } from '../lib/analysis';
 import { BeyImage } from './BeyImage';
 import { Section, TypeBadge } from './ui';
 import { useApp } from '../lib/context';
+import { playableParts, releaseOf } from '../lib/useRelease';
 
 interface Props {
   db: Database;
@@ -37,9 +38,16 @@ export function DeckOptimizer({ db, state, update, meta }: Props) {
     // Kurz warten, damit der Lade-Zustand sichtbar wird, bevor gerechnet wird.
     window.setTimeout(() => {
       const useOwned = onlyOwned && hasParts;
+      // Nur freigegebene Teile (zentraler Freigabestatus) – auch aus der Sammlung, falls dort schon Angekündigtes steht
+      const rel = releaseOf(db);
+      const play = playableParts(db);
       const pool = useOwned
-        ? { blades: [...parts.blades.keys()], ratchets: [...parts.ratchets.keys()], bits: [...parts.bits.keys()] }
-        : { blades: db.blades.map((b) => b.id), ratchets: db.ratchets.map((r) => r.id), bits: db.bits.map((b) => b.id) };
+        ? {
+            blades: [...parts.blades.keys()].filter((id) => rel.selectable('blades', id)),
+            ratchets: [...parts.ratchets.keys()].filter((id) => rel.selectable('ratchets', id)),
+            bits: [...parts.bits.keys()].filter((id) => rel.selectable('bits', id)),
+          }
+        : { blades: play.blades.map((b) => b.id), ratchets: play.ratchets.map((r) => r.id), bits: play.bits.map((b) => b.id) };
       setResult(optimizeDeck(db, pool, opponents));
       setBusy(false);
     }, 30);

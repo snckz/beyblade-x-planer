@@ -3,6 +3,7 @@
 //   → verified: true. Abweichungen werden NICHT automatisch übernommen, sondern im Bericht gemeldet.
 // - Bit: Typ steht auf der Bit-Seite („… is an Attack Type Bit“) → Typ übernehmen, uncertain entfällt.
 // - Produkt: Blade geprüft und Produkt laut Wiki erschienen → verified: true.
+// - Release: Produkt mit vergangenem Release-Datum ohne Beleg → released: true erst, wenn das Wiki „erschienen“ meldet.
 // Bei Netzwerkfehlern bleibt alles, wie es ist. Läuft im Neuheiten-Radar.
 import { readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
@@ -160,6 +161,32 @@ export async function verifyCatalog(db, fetchPage, today = new Date()) {
       report.products++;
     }
   }
+
+  // Release-Bestätigung (Freigabestatus, src/lib/release.js): Produkte mit Release-Datum, die noch keinen Beleg haben
+  // (von Hand gepflegt wie UX-22). Ein vergangenes Datum allein genügt nicht – erst wenn das Wiki „erschienen“ meldet,
+  // wird released: true gesetzt. Nichts wird je zurückgenommen; ohne Seite oder bei Abbruch bleibt es gesperrt.
+  report.releaseConfirmed = [];
+  report.releasePending = [];
+  const day = today.toISOString().slice(0, 10);
+  for (const p of out.products) {
+    if (!p.releaseJp || p.released === true || (p.imported && p.verified)) continue;
+    if (p.releaseJp > day) continue; // noch angekündigt
+    const blade = out.blades.find((b) => b.id === p.bladeId);
+    const titles = [titleFromUrl(p.source), blade?.wikiTitle, p.bladeId && `${p.bladeId} ${p.ratchetId ?? ''}${p.bitId ?? ''}`.trim()].filter((x, i, a) => x && a.indexOf(x) === i);
+    let released = false;
+    for (const title of titles) {
+      const wt = await page(title);
+      if (wt === undefined) break; // Seitenlimit
+      if (wt && parseRelease(wt, today).released) {
+        released = true;
+        break;
+      }
+    }
+    if (released) {
+      p.released = true;
+      report.releaseConfirmed.push(p.code);
+    } else report.releasePending.push(p.code);
+  }
   return { db: out, report, fetched };
 }
 
@@ -190,7 +217,8 @@ export async function run({ fetchFn = fetch, dataDir = new URL('../public/data/'
       /* neu */
     }
     if (prev !== next) writeFileAtomic(reportPath, next);
-    console.log(`Prüfung: ${r.blades.length} Blades, ${r.bits.length} Bits, ${r.products} Produkte bestätigt; ${r.mismatches.length} Abweichungen, ${r.unreleased.length} noch nicht erschienen, ${r.notFound.length} ohne Wiki-Seite.`);
+    console.log(`Prüfung: ${r.blades.length} Blades, ${r.bits.length} Bits, ${r.products} Produkte bestätigt; ${r.mismatches.length} Abweichungen, ${r.unreleased.length} noch nicht erschienen, ${r.notFound.length} ohne Wiki-Seite; Release bestätigt: ${r.releaseConfirmed.length}, Datum vorbei, aber unbestätigt: ${r.releasePending.length}.`);
+    for (const code of r.releasePending) console.warn(`::warning::${code}: Release-Datum vorbei, im Wiki aber noch nicht als erschienen bestätigt – bleibt im Kombo-Planer gesperrt.`);
     return { changed, report: r };
   } catch (err) {
     if (err instanceof DataSafetyError) throw err; // verdächtig: laut scheitern

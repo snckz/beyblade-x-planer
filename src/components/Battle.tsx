@@ -3,6 +3,7 @@ import type { Combo, Database, MetaFeed } from '../lib/types';
 import type { UserState } from '../lib/storage';
 import { newId } from '../lib/storage';
 import { nb } from '../lib/analysis';
+import { playableParts, releaseOf } from '../lib/useRelease';
 
 /** Zweizeilig: Blade oben, Ratchet+Bit unten – kein Umbruch mitten im Namen. */
 function TwoLine({ name, label }: { name?: string; label: string }) {
@@ -53,9 +54,11 @@ export function Battle(props: Props) {
   const opponents = usingArchetypes ? ARCHETYPES.map((c) => toBey(db, c)).filter((b): b is Bey => !!b) : oppValid;
   const duel = mine.length ? deckDuel(mine, opponents) : null;
 
+  // Tausch-Vorschläge nur mit freigegebenen Teilen (zentraler Freigabestatus)
+  const rel = releaseOf(db);
   const pool = onlyOwned && hasParts
-    ? { bits: [...parts.bits.keys()], ratchets: [...parts.ratchets.keys()] }
-    : { bits: db.bits.map((b) => b.id), ratchets: db.ratchets.map((r) => r.id) };
+    ? { bits: [...parts.bits.keys()].filter((id) => rel.selectable('bits', id)), ratchets: [...parts.ratchets.keys()].filter((id) => rel.selectable('ratchets', id)) }
+    : { bits: playableParts(db).bits.map((b) => b.id), ratchets: playableParts(db).ratchets.map((r) => r.id) };
   const suggestions = mine.length ? suggestImprovements(db, mine.map((b) => b.combo), opponents, pool) : [];
 
   const setOpp = (i: number, c: Combo) =>

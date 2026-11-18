@@ -3,7 +3,8 @@ import { useState } from 'preact/hooks';
 import type { BeyType, Database } from '../lib/types';
 import type { UserState } from '../lib/storage';
 import { TYPE_LABEL } from '../lib/analysis';
-import { Empty, SpinBadge, TypeBadge, UnverifiedMark } from './ui';
+import { AnnouncedMark, Empty, SpinBadge, TypeBadge, UnverifiedMark } from './ui';
+import { releaseOf } from '../lib/useRelease';
 import { BeyImage } from './BeyImage';
 import { useApp } from '../lib/context';
 import { bitText, ratchetText, TERMS } from '../lib/lexicon';
@@ -24,6 +25,8 @@ export function Lexikon({ db, state, update }: Props) {
   const [type, setType] = useState<BeyType | ''>('');
 
   const q = query.trim().toLowerCase();
+  // Freigabestatus (zentral): Angekündigtes bleibt im Lexikon sichtbar, nur gekennzeichnet
+  const rel = releaseOf(db);
 
   const blades = db.blades.filter(
     (b) => (!type || b.type === type) && (!q || `${b.name} ${b.hasbroName ?? ''}`.toLowerCase().includes(q)),
@@ -91,7 +94,7 @@ export function Lexikon({ db, state, update }: Props) {
                 <div class="tile-text">
                   <span class={`tile-kind type-fg-${b.type}`}>{TYPE_LABEL[b.type]}</span>
                   <button type="button" class="tile-name title-btn" onClick={() => openBlade(b.id)}>
-                    {displayName(b)} <UnverifiedMark show={!b.verified} />
+                    {displayName(b)} <UnverifiedMark show={!b.verified} /> <AnnouncedMark {...rel.part('blades', b.id)} />
                   </button>
                   {(otherName(b) || b.integratedRatchet) && (
                     <span class="row-sub">
@@ -119,7 +122,7 @@ export function Lexikon({ db, state, update }: Props) {
                     <span class="row-main">
                       <span class="code code-inline">{b.id}</span>
                       <span class="row-title">
-                        {b.name} <UnverifiedMark show={!!b.uncertain} />
+                        {b.name} <UnverifiedMark show={!!b.uncertain} /> <AnnouncedMark {...rel.part('bits', b.id)} />
                       </span>
                     </span>
                     <TypeBadge type={b.type} small />
@@ -145,7 +148,9 @@ export function Lexikon({ db, state, update }: Props) {
               <li key={r.id} class="row">
                 <RatchetImage ratchet={r} zoomable />
                 <div class="row-main">
-                  <span class="row-title">{r.id}</span>
+                  <span class="row-title">
+                    {r.id} <AnnouncedMark {...rel.part('ratchets', r.id)} />
+                  </span>
                   <span class="row-sub">{ratchetText(r)}</span>
                   <span class="height-bar" aria-hidden="true">
                     <span style={{ width: `${Math.min(100, ((r.heightMm ?? 0) / 9) * 100)}%` }} />

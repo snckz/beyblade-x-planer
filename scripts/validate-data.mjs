@@ -2,6 +2,7 @@
 // Wird lokal (npm run validate-data) und im Auto-Update-Workflow ausgeführt.
 import { pathToFileURL } from 'node:url';
 import { existsSync, readFileSync } from 'node:fs';
+import { buildReleaseIndex } from '../src/lib/release.js';
 import { normalizeRegister, validateRegister } from '../src/lib/idRegister.js';
 
 const TYPES = new Set(['attack', 'defense', 'stamina', 'balance']);
@@ -46,6 +47,8 @@ export function validateDb(db) {
     if (p.ratchetId && !ratchetIds.has(p.ratchetId)) errors.push(`Produkt ${p.code}: Ratchet ${p.ratchetId} unbekannt`);
     if (p.bitId && !bitIds.has(p.bitId)) errors.push(`Produkt ${p.code}: Bit ${p.bitId} unbekannt`);
     if (p.bladeId && integrated.has(p.bladeId) && p.ratchetId) errors.push(`Produkt ${p.code}: Blade hat integrierten Ratchet, aber Ratchet angegeben`);
+    if (p.released !== undefined && typeof p.released !== 'boolean') errors.push(`Produkt ${p.code}: released muss true/false sein`);
+    if (p.releaseJp !== undefined && !/^\d{4}-\d{2}-\d{2}$/.test(p.releaseJp)) errors.push(`Produkt ${p.code}: releaseJp muss YYYY-MM-DD sein`);
   }
   return errors;
 }
@@ -211,6 +214,19 @@ export function validateTransition(prev, next, retired = EMPTY_RETIRED) {
     const now = nextProducts.get(old.code);
     if (!now || Object.hasOwn(r.reassigned, old.code)) continue;
     if (parts(now) !== parts(expected(old))) errors.push(`Produkt ${old.code} bekäme andere Teile: ${parts(old)} → ${parts(now)}`);
+    // Freigabestatus (src/lib/release.js): Bestätigungen gehen bei automatischen Updates nie verloren
+    if (old.verified === true && now.verified !== true) errors.push(`Produkt ${old.code}: Bestätigung (verified) würde zurückgesetzt`);
+    if (old.released === true && now.released !== true) errors.push(`Produkt ${old.code}: Release-Bestätigung (released) würde zurückgesetzt`);
+  }
+  const nextBlades = new Map((next.blades ?? []).map((b) => [b.id, b]));
+  for (const old of prev.blades ?? []) {
+    const now = nextBlades.get(renamed('blades', old.id));
+    if (now && old.verified === true && now.verified !== true) errors.push(`Blade ${old.id}: Bestätigung (verified) würde zurückgesetzt`);
+  }
+  const nextBits = new Map((next.bits ?? []).map((b) => [b.id, b]));
+  for (const old of prev.bits ?? []) {
+    const now = nextBits.get(renamed('bits', old.id));
+    if (now && !old.uncertain && now.uncertain) errors.push(`Bit ${old.id}: geprüfter Typ würde wieder „unsicher“`);
   }
   return errors;
 }
@@ -242,5 +258,10 @@ if (isMain) {
     console.error(`❌ ${errors.length} Fehler:\n- ` + errors.join('\n- '));
     process.exit(1);
   }
+  // Freigabestatus: Übersicht und Widersprüche (Hinweis, kein Abbruch – gesperrt bleibt im Zweifel gesperrt)
+  const rel = buildReleaseIndex(db);
+  const c = rel.counts();
+  console.log(`Freigabe: Blades ${c.blades.confirmed}/${db.blades.length}, Ratchets ${c.ratchets.confirmed}/${db.ratchets.length}, Bits ${c.bits.confirmed}/${db.bits.length} im Kombo-Planer wählbar.`);
+  for (const w of rel.conflicts) console.warn(`::warning::Freigabestatus widersprüchlich: ${w}`);
   console.log('✅ Daten sind konsistent.');
 }

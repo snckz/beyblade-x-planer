@@ -13,6 +13,8 @@ import { Check, Scale, Sparkles } from 'lucide-preact';
 import { ComboParts, ComboStage } from './ComboStage';
 import { SwipeRow } from './SwipeRow';
 import { showUndo } from '../lib/undo';
+import { playableParts, releaseOf } from '../lib/useRelease';
+import { lockedParts } from '../lib/release';
 
 interface Props {
   db: Database;
@@ -52,15 +54,23 @@ export function ComboBuilder({ db, state, update, presetBladeId, presetRatchetId
   const [saved, setSaved] = useState(false);
 
   const useOwned = onlyOwned && hasCollection;
+  // Wählbar sind nur freigegebene Teile (zentraler Freigabestatus, lib/release.js) – Angekündigtes steht im Lexikon.
+  const play = playableParts(db);
   const blades = useMemo(
-    () => db.blades.filter((b) => !useOwned || parts.blades.has(b.id)).sort((a, b) => a.name.localeCompare(b.name)),
-    [db.blades, useOwned, parts.blades],
+    () => play.blades.filter((b) => !useOwned || parts.blades.has(b.id)).sort((a, b) => a.name.localeCompare(b.name)),
+    [db, useOwned, parts.blades],
   );
-  const ratchets = db.ratchets.filter((r) => !useOwned || parts.ratchets.has(r.id));
+  const ratchets = play.ratchets.filter((r) => !useOwned || parts.ratchets.has(r.id));
   const bits = useMemo(
-    () => db.bits.filter((b) => !useOwned || parts.bits.has(b.id)).sort((a, b) => a.id.localeCompare(b.id)),
-    [db.bits, useOwned, parts.bits],
+    () => play.bits.filter((b) => !useOwned || parts.bits.has(b.id)).sort((a, b) => a.id.localeCompare(b.id)),
+    [db, useOwned, parts.bits],
   );
+  // Vorgabe (z. B. „Im Planer verwenden“, Direktlink) mit gesperrtem Teil: nicht übernehmen, sondern sagen warum
+  const rel = releaseOf(db);
+  const blocked = lockedParts(rel, start).map((x) => {
+    const item = x.kind === 'blades' ? db.blades.find((b) => b.id === x.id) : null;
+    return `${item ? item.name : x.id} (${rel.part(x.kind, x.id).reason})`;
+  });
 
   // Auswahl nur gelten lassen, wenn sie in den (ggf. gefilterten) Listen vorkommt.
   const blade = blades.find((b) => b.id === bladeId);
@@ -83,10 +93,10 @@ export function ComboBuilder({ db, state, update, presetBladeId, presetRatchetId
     if (!improveOpen || !combo) return null;
     const { opponents } = metaOpponents(db, meta);
     const pool = useOwned
-      ? { ratchets: [...parts.ratchets.keys()], bits: [...parts.bits.keys()] }
+      ? { ratchets: [...parts.ratchets.keys()].filter((id) => rel.selectable('ratchets', id)), bits: [...parts.bits.keys()].filter((id) => rel.selectable('bits', id)) }
       : {
-          ratchets: db.ratchets.map((r) => r.id),
-          bits: db.bits.map((b) => b.id),
+          ratchets: play.ratchets.map((r) => r.id),
+          bits: play.bits.map((b) => b.id),
           owned: hasCollection ? { ratchets: new Set(parts.ratchets.keys()), bits: new Set(parts.bits.keys()) } : undefined,
         };
     // Abhängigkeit über comboKey (Kombo + Filter), damit nicht bei jedem Rendern neu gerechnet wird
@@ -133,6 +143,11 @@ export function ComboBuilder({ db, state, update, presetBladeId, presetRatchetId
               <input type="checkbox" checked={onlyOwned} onChange={(e) => setOnlyOwned(e.currentTarget.checked)} />
               <span>Nur Teile aus meiner Sammlung</span>
             </label>
+          )}
+          {blocked.length > 0 && bladeId === start.bladeId && ratchetId === start.ratchetId && bitId === start.bitId && (
+            <p class="fineprint" role="status">
+              Noch nicht im Kombo-Planer: {blocked.join(', ')}. Sobald es erschienen und geprüft ist, kannst du es hier wählen.
+            </p>
           )}
           <div class="layers">
             <PartField kind="blade" label="Blade" blades={blades} value={bladeSel} onChange={setBladeId} counts={useOwned ? parts.blades : undefined} />
@@ -289,11 +304,14 @@ function SavedCombos({ db, state, update }: Props) {
           const r = resolveCombo(db, c);
           const a = r ? analyze(r) : null;
           const inDeck = state.deck.includes(c.id);
+          // Gespeichert bleibt gespeichert – enthält die Kombo inzwischen gesperrte Teile, nur kennzeichnen
+          const locked = lockedParts(releaseOf(db), c).length > 0;
           return (
             <SwipeRow key={c.id} class="row" deleteLabel={`Kombo ${c.name ?? (a ? a.label : '')} löschen`.replace(/\s+/g, ' ')} onlyDelete onDelete={() => swipeRemove(c, c.name ?? (a ? a.label : 'Unbekannte Teile'))}>
               <div class="row-main">
                 <span class="row-title">{c.name ?? (a ? nb(a.label) : 'Unbekannte Teile')}</span>
                 {c.name && a && <span class="row-sub">{nb(a.label)}</span>}
+                {locked && <span class="row-sub">Enthält noch nicht freigegebene Teile</span>}
               </div>
               {a && <TypeBadge type={a.type} small />}
               <button
