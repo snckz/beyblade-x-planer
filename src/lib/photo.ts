@@ -6,6 +6,7 @@
 import type { Database, Product } from './types';
 import { createDetector, normalizeGtin, validGtin } from './barcode';
 import { resolveId } from './idRegister';
+import { groupKey } from './price';
 import type { IdRegister } from './idRegister';
 
 const BUYABLE = new Set<Product['kind']>(['starter', 'booster', 'random-booster', 'set']);
@@ -68,9 +69,10 @@ export function findByName(text: string, db: Pick<Database, 'products' | 'blades
  */
 export function findBarcodeDigits(text: string): string[] {
   const out: string[] = [];
-  const runs = [...text.matchAll(/(?<![\d])\d(?:[ ]?\d){11,12}(?![\d])/g), ...text.matchAll(/(?<![\d])\d{12,13}(?![\d])/g)];
+  // Ohne Lookbehind (iOS vor 16.4 kennt es nicht): Zeichen davor als eigene Gruppe
+  const runs = [...text.matchAll(/(^|[^\d])(\d(?:[ ]?\d){11,12})(?![\d])/g), ...text.matchAll(/(^|[^\d])(\d{12,13})(?![\d])/g)];
   for (const m of runs) {
-    const code = m[0].replace(/ /g, '');
+    const code = m[2]!.replace(/ /g, '');
     if ((code.length === 12 || code.length === 13) && validGtin(code)) {
       const gtin = normalizeGtin(code);
       if (!out.includes(gtin)) out.push(gtin);
@@ -145,33 +147,36 @@ export function matchPackText(text: string, db: Pick<Database, 'products' | 'bla
 
   const full = new Set<string>();
   const partial = new Set<string>();
+  const single = new Set<string>();
   for (const [id, names] of spellings) {
     for (const n of names) {
       const w = words(n);
       if (w.length >= 2 && w.every(hit)) full.add(id);
+      // Einwortige Namen („Hulk“, „Shockwave“): nur exakt, ab 4 Buchstaben – und immer mit Nachfrage
+      else if (w.length === 1 && w[0]!.length >= 4 && tokens.has(w[0]!)) single.add(id);
       else if (w.some((x) => x.length >= 4 && hit(x))) partial.add(id);
     }
   }
-  if (!full.size && !partial.size) return { products: [], sure: false };
+  if (!full.size && !partial.size && !single.size) return { products: [], sure: false };
 
   // Kombo der Packung im Text? („3-60F“, auch „3-60 F“; Ratchet und Bit stehen direkt hinter dem Namen)
   const esc = (x: string) => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const comboAt = (p: Product) => {
     if (!p.ratchetId || !p.bitId) return false;
-    return new RegExp(`(?<![0-9A-Z])${esc(skeleton(p.ratchetId))} ?${esc(skeleton(p.bitId))}(?![0-9A-Z])`).test(flat);
+    return new RegExp(`(?:^|[^0-9A-Z])${esc(skeleton(p.ratchetId))} ?${esc(skeleton(p.bitId))}(?![0-9A-Z])`).test(flat);
   };
   const hasbro = HASBRO_HINT.test(upper);
   const takara = !hasbro && TAKARA_HINT.test(upper);
   const scored = db.products
-    .filter((p) => BUYABLE.has(p.kind) && p.bladeId && (full.has(p.bladeId) || partial.has(p.bladeId)))
+    .filter((p) => BUYABLE.has(p.kind) && p.bladeId && (full.has(p.bladeId) || partial.has(p.bladeId) || single.has(p.bladeId)))
     .map((p) => {
       const combo = comboAt(p);
       // Teilname nur zusammen mit der passenden Kombo
-      if (!full.has(p.bladeId!) && !combo) return null;
-      let score = (full.has(p.bladeId!) ? 3 : 1) + (combo ? 2 : 0);
+      if (!full.has(p.bladeId!) && !single.has(p.bladeId!) && !combo) return null;
+      let score = (full.has(p.bladeId!) ? 3 : single.has(p.bladeId!) ? 2 : 1) + (combo ? 2 : 0);
       if (p.kind === 'set') {
-        const mates = db.products.filter((x) => x.kind === 'set' && x.code !== p.code && x.code.replace(/-\d{2}$/, '') === p.code.replace(/-\d{2}$/, ''));
-        if (mates.some((x) => x.bladeId && (full.has(x.bladeId) || partial.has(x.bladeId)))) score += 3;
+        const mates = db.products.filter((x) => x.kind === 'set' && x.code !== p.code && groupKey(x) === groupKey(p));
+        if (mates.some((x) => x.bladeId && (full.has(x.bladeId) || partial.has(x.bladeId) || single.has(x.bladeId)))) score += 3;
       }
       const region = (hasbro && p.region === 'hasbro') || (takara && p.region !== 'hasbro') ? 0.5 : 0;
       return { p, score, region, sure: full.has(p.bladeId!) };
@@ -204,6 +209,9 @@ async function load(file: Blob): Promise<HTMLCanvasElement> {
 }
 
 /** Verkleinerte Kopie (längste Seite höchstens `max`). */
+/** Speicher eines Canvas sofort freigeben (iOS Safari hat ein knappes Gesamtlimit für Canvas-Speicher). */
+const release = (...cs: HTMLCanvasElement[]) => cs.forEach((c) => ((c.width = 0), (c.height = 0)));
+
 function scaled(src: CanvasImageSource & { width: number; height: number }, max: number): HTMLCanvasElement {
   const scale = Math.min(1, max / Math.max(src.width, src.height));
   const c = document.createElement('canvas');
@@ -325,10 +333,13 @@ export async function prefetchOcr(): Promise<'ok' | 'nosw' | 'fail'> {
 async function readBarcode(full: HTMLCanvasElement): Promise<string | null> {
   try {
     const det = await createDetector();
-    for (const img of full.width * full.height > 2400 * 1800 ? [full, scaled(full, 2400)] : [full]) {
-      const raw = (await det.detect(img)).map((r) => r.rawValue.trim()).find(validGtin);
-      if (raw) return normalizeGtin(raw);
+    let raw = (await det.detect(full)).map((r) => r.rawValue.trim()).find(validGtin);
+    if (!raw && full.width * full.height > 2400 * 1800) {
+      const mid = scaled(full, 2400);
+      raw = (await det.detect(mid)).map((r) => r.rawValue.trim()).find(validGtin);
+      release(mid);
     }
+    if (raw) return normalizeGtin(raw);
   } catch {
     /* kein Barcode-Leser – weiter mit Text */
   }
@@ -351,18 +362,41 @@ export async function recognizePhoto(
   const full = await load(file);
 
   onStep?.('barcode');
-  let barcode = await readBarcode(full);
-  let barcodeFrom: PhotoResult['barcodeFrom'] = barcode ? 'scan' : null;
+  const barcode = await readBarcode(full);
+  // Für die Texterkennung reicht die kleinere Kopie – das große Bild sofort freigeben
+  const small = scaled(full, 1800);
+  release(full);
+  const barcodeFrom: PhotoResult['barcodeFrom'] = barcode ? 'scan' : null;
   const byBarcode = (code: string) => db.products.find((x) => x.code === barcodes[code]);
-  if (barcode && byBarcode(barcode)) return { products: [byBarcode(barcode)!], barcode, barcodeFrom, text: '', via: 'barcode', sure: true };
+  if (barcode && byBarcode(barcode)) {
+    release(small);
+    return { products: [byBarcode(barcode)!], barcode, barcodeFrom, text: '', via: 'barcode', sure: true };
+  }
+  try {
+    return await readText(small, db, barcodes, onStep, register, barcode, barcodeFrom);
+  } finally {
+    release(small);
+  }
+}
+
+async function readText(
+  small: HTMLCanvasElement,
+  db: Database,
+  barcodes: Record<string, string>,
+  onStep: ((step: 'barcode' | 'ocr', p?: number) => void) | undefined,
+  register: IdRegister | null | undefined,
+  barcode: string | null,
+  barcodeFrom: PhotoResult['barcodeFrom'],
+): Promise<PhotoResult> {
+  const byBarcode = (code: string) => db.products.find((x) => x.code === barcodes[code]);
 
   onStep?.('ocr', 0);
   const w = await loadOcr((p) => onStep?.('ocr', p));
   onStep?.('ocr', 1); // geladen – ab jetzt „Lese die Packung …“
-  const small = scaled(full, 1800);
   let text = '';
   for (const pass of [grayscale, whiteText]) {
-    const { data } = await w.recognize(pass(small));
+    const img = pass(small);
+    const { data } = await w.recognize(img).finally(() => release(img));
     text += `${data.text ?? ''}\n`;
     // Barcode-Ziffern unter dem Strichcode, falls der Leser ihn nicht entziffern konnte
     if (!barcode) {

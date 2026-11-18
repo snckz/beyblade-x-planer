@@ -96,4 +96,25 @@ describe('Packungstext → Produkt (Name + Kombo)', () => {
     // Nummer, die es im Katalog nicht gibt (Sortimentsnummer F9586) → kein Treffer, nichts geraten
     expect(findByCode('F9586', db)).toEqual([]);
   });
+  it('einwortige Namen („Venom“): erkannt, aber nur mit Nachfrage', () => {
+    const r = matchPackText('MARVEL VENOM', db, register);
+    expect(r.products.length).toBeGreaterThan(0);
+    expect(r.products.every((p) => p.bladeId === 'Venom')).toBe(true);
+    expect(r.sure).toBe(false);
+  });
+  it('Set-Partner nur innerhalb derselben Packung (UX-15 ist kein Partner von UX-10)', () => {
+    const mini = {
+      blades: [
+        { id: 'X', name: 'Shark Scale', line: 'UX', type: 'attack', spin: 'right' },
+        { id: 'Y', name: 'Knight Mail', line: 'UX', type: 'defense', spin: 'right' },
+      ],
+      products: [
+        { code: 'UX-15', name: 'Set', kind: 'set', bladeId: 'X', ratchetId: '4-50', bitId: 'UF' },
+        { code: 'UX-16', name: 'Starter', kind: 'starter', bladeId: 'X', ratchetId: '4-50', bitId: 'UF' },
+        { code: 'UX-10', name: 'Set', kind: 'set', bladeId: 'Y', ratchetId: '3-85', bitId: 'BS' },
+      ],
+    } as unknown as Database;
+    // „KNIGHT“ allein macht UX-10 zum Teiltreffer – das darf UX-15 keinen Set-Bonus geben
+    expect(codes(matchPackText('SHARK SCALE 4-50UF KNIGHT', mini, null).products).sort()).toEqual(['UX-15', 'UX-16']);
+  });
 });

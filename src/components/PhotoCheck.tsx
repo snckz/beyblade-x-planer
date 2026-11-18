@@ -70,6 +70,8 @@ export function PhotoCheck({ db, state, update, meta, onClose, initialCode }: Pr
   const [msg, setMsg] = useState('');
   const [round, setRound] = useState(0);
   const run = useRef(0);
+  /** Läuft gerade ein Zurück (Animation)? Weitere Tipps/Gesten warten – ein Doppeltipp geht nur eine Ebene zurück. */
+  const leaving = useRef(false);
   /** Richtung des letzten Wechsels: vorwärts gleitet die neue Ebene von rechts herein (wie iOS) */
   const dir = useRef<'fwd' | 'none'>('none');
   const close = useModal(ref, onClose, { animate: true });
@@ -138,16 +140,22 @@ export function PhotoCheck({ db, state, update, meta, onClose, initialCode }: Pr
   };
 
   // Live-Scan: dieselbe Kamera-Logik wie „Packung scannen“
+  // Sofort (nicht erst nach dem nächsten Zeichnen) aus, sobald die Live-Ebene verlassen wird – sonst käme ein
+  // während der Zurück-Animation gelesener Code noch als Ergebnis an.
+  const liveOn = useRef(false);
+  liveOn.current = level.k === 'live' && !leaving.current;
   useBarcodeCamera(video, level.k === 'live', round, {
+    needFrame: (gtin) => !db.products.some((x) => x.code === known[gtin]),
     onReady: () => setStack((s) => (s[s.length - 1]!.k === 'live' ? [...s.slice(0, -1), { k: 'live', ready: true }] : s)),
     onCode: (gtin, frame) => {
+      if (!liveOn.current) return;
       const p = db.products.find((x) => x.code === known[gtin]);
       if (p) return go({ k: 'result', product: head(p) });
       // Unbekannter Barcode: Packung auf demselben Bild per Texterkennung bestimmen
       if (frame) void analyze(frame, gtin);
       else go({ k: 'none', barcode: gtin, learn: true });
     },
-    onFail: (why) => go({ k: 'error', why }),
+    onFail: (why) => liveOn.current && go({ k: 'error', why }),
   });
   const startLive = () => {
     run.current++;
@@ -188,34 +196,48 @@ export function PhotoCheck({ db, state, update, meta, onClose, initialCode }: Pr
     setStack((s) => (s.length > 1 ? s.slice(0, -1) : s));
   };
   const back = () => {
+    if (leaving.current) return;
     if (stack.length <= 1) return close();
-    void slideBack(async () => {
-      underRef.current?.classList.add('is-peek');
-      await nextFrame();
-      return pageRef.current ? { page: pageRef.current, under: underRef.current } : null;
-    }, pop);
+    leaving.current = true;
+    liveOn.current = false;
+    void slideBack(
+      async () => {
+        underRef.current?.classList.add('is-peek');
+        await nextFrame();
+        return pageRef.current ? { page: pageRef.current, under: underRef.current } : null;
+      },
+      () => {
+        leaving.current = false;
+        pop();
+      },
+    );
   };
   // Randgeste: nur mit einer Ebene darunter und nicht, solange die Kamera läuft
   const canSwipe = useRef(false);
-  canSwipe.current = stack.length > 1 && level.k !== 'live';
+  canSwipe.current = stack.length > 1 && level.k !== 'live' && !leaving.current;
   const popRef = useRef(pop);
   popRef.current = pop;
   useEffect(() => {
     const root = ref.current;
     if (!root) return;
     return attachEdgeBack(root, {
-      canBack: () => canSwipe.current,
+      canBack: () => canSwipe.current && !leaving.current,
       start: () => {
         if (!pageRef.current) return null;
         underRef.current?.classList.add('is-peek');
         return { page: pageRef.current, under: underRef.current };
       },
-      back: () => popRef.current(),
+      back: () => {
+        liveOn.current = false;
+        popRef.current();
+      },
       cancel: () => underRef.current?.classList.remove('is-peek'),
     });
   }, []);
   // Nach jedem Ebenenwechsel: untere Ebene wieder verstecken, nach oben scrollen
   useLayoutEffect(() => {
+    // Mitten in einer Geste (z. B. Erkennung wird fertig) nicht dazwischenfunken
+    if (ref.current?.classList.contains('edge-dragging')) return;
     underRef.current?.classList.remove('is-peek');
     ref.current?.scrollTo?.({ top: 0 });
   }, [stack.length, level.k]);

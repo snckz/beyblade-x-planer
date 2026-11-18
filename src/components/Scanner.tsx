@@ -117,6 +117,7 @@ function ScannerInner({ db, state, update, onClose }: Props) {
   // Kamera + Erkennung. Läuft pro „round“ neu (nach „Nächste Packung“), nur im Live-Modus.
   useBarcodeCamera(video, live && (phase === 'starting' || phase === 'scanning'), round, {
     onReady: () => setPhase('scanning'),
+    needFrame: (gtin) => !db.products.some((p) => p.code === barcodes.current[gtin]),
     onCode: (gtin, frame) => {
       setCode(gtin);
       const known = db.products.find((p) => p.code === barcodes.current[gtin]);

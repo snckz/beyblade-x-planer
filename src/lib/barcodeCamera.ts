@@ -31,6 +31,8 @@ export interface CameraHandlers {
   onReady: () => void;
   /** Derselbe gültige Barcode zweimal hintereinander gelesen. Kamera ist danach aus; `frame` = Bild dazu (für die Texterkennung). */
   onCode: (gtin: string, frame: Blob | null) => void;
+  /** Braucht `onCode` für diesen Barcode ein Standbild? (false = schon bekannt; Standard: ja) */
+  needFrame?: (gtin: string) => boolean;
   /** 'nocam' = keine Kamera/abgelehnt, 'noreader' = Barcode-Leser nicht ladbar (offline?) */
   onFail: (why: 'nocam' | 'noreader') => void;
 }
@@ -79,10 +81,12 @@ export function useBarcodeCamera(video: RefObject<HTMLVideoElement | null>, acti
               // Erst übernehmen, wenn derselbe Code zweimal hintereinander gelesen wurde.
               if (found === last) {
                 navigator.vibrate?.(60);
-                const frame = await grabFrame(v);
+                const gtin = normalizeGtin(found);
+                // Standbild nur, wenn es gebraucht wird (unbekannter Barcode → Texterkennung)
+                const frame = h.current.needFrame?.(gtin) === false ? null : await grabFrame(v);
                 if (stopped) return;
                 stop();
-                h.current.onCode(normalizeGtin(found), frame);
+                h.current.onCode(gtin, frame);
                 return;
               }
               last = found;
