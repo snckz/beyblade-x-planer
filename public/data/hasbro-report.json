@@ -157,7 +157,7 @@
     "bits": [],
     "products": []
   },
-  "existing": 164,
+  "existing": 168,
   "updated": [],
   "conflicts": [],
   "names": [],
@@ -249,5 +249,5 @@
     }
   ],
   "missingFromSource": [],
-  "summary": "0 neue Produkte, 0 neue Blades, 0 neue Ratchets, 0 neue Bits, 164 vorhandene wiedererkannt, 14 Nummern ohne erkennbaren Kreisel"
+  "summary": "0 neue Produkte, 0 neue Blades, 0 neue Ratchets, 0 neue Bits, 168 vorhandene wiedererkannt, 14 Nummern ohne erkennbaren Kreisel"
 }
