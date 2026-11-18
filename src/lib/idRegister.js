@@ -133,9 +133,15 @@ export function validateRegister(register, db) {
   // Blade-Alias, der normalisiert wie ein ANDERES bestehendes Blade heißt: Prüfbedarf
   const bladeNames = new Map();
   for (const b of db.blades ?? []) for (const n of [b.id, b.name, b.hasbroName].filter(Boolean)) bladeNames.set(norm(n), b.id);
-  for (const [key, target] of Object.entries(reg.aliases.blades)) {
-    const other = bladeNames.get(norm(key));
-    if (other && other !== target) errors.push(`aliases.json aliases.blades „${key}“ → ${target}: Name gehört bereits zu Blade ${other} (bitte prüfen)`);
+  for (const [part, entries] of [
+    ['aliases', reg.aliases.blades],
+    ['retired', reg.retired.blades],
+  ]) {
+    for (const [key, target] of Object.entries(entries)) {
+      if (typeof target !== 'string') continue;
+      const other = bladeNames.get(norm(key));
+      if (other && other !== target) errors.push(`aliases.json ${part}.blades „${key}“ → ${target}: Name gehört bereits zu Blade ${other} (bitte prüfen)`);
+    }
   }
   return errors;
 }
@@ -217,11 +223,16 @@ export function migrateUserState(state, register, db) {
     }
     return id;
   };
-  const codes = (code) => {
+  /** Aktuelle Codes zu einem gespeicherten Code (nur Nachschlagen, ohne Meldung) */
+  const lookup = (code) => {
     if (typeof code !== 'string' || ids.products.has(code)) return [code];
     const next = resolveIds(reg, 'products', code, (x) => ids.products.has(x));
-    if (!next.length) return [code];
-    changes.push(`Produkt ${code} → ${next.join(', ')}`);
+    return next.length ? next : [code];
+  };
+  /** Codes übernehmen und die Umstellung melden – nur, wenn sich wirklich etwas ändert */
+  const codes = (code) => {
+    const next = lookup(code);
+    if (next.length !== 1 || next[0] !== code) changes.push(`Produkt ${code} → ${next.join(', ')}`);
     return next;
   };
   const part = (c) => {
@@ -231,6 +242,22 @@ export function migrateUserState(state, register, db) {
     const bitId = one('bits', c.bitId);
     return bladeId === c.bladeId && ratchetId === c.ratchetId && bitId === c.bitId ? c : { ...c, bladeId, ...(c.ratchetId === undefined ? {} : { ratchetId }), bitId };
   };
+  /** Nur eindeutige Umbenennungen (1:1) – ein aufgeteiltes Produkt hat keinen eindeutigen neuen Code */
+  const single = (code) => {
+    const next = lookup(code);
+    if (next.length !== 1 || next[0] === code) return code;
+    changes.push(`Produkt ${code} → ${next[0]}`);
+    return next[0];
+  };
+  // Ladenpreise: eigener Preis für den neuen Code hat Vorrang; aufgeteilte Produkte bekommen keinen Set-Preis
+  const shopPrices = {};
+  const oldPrices = [];
+  for (const [c, v] of Object.entries(state.shopPrices ?? {})) {
+    const target = single(c);
+    if (target === c) shopPrices[c] = v;
+    else oldPrices.push([target, v]);
+  }
+  for (const [c, v] of oldPrices) if (!Object.hasOwn(shopPrices, c)) shopPrices[c] = v;
   const owned = {};
   for (const [code, n] of Object.entries(state.owned ?? {})) for (const c of codes(code)) owned[c] = Math.max(owned[c] ?? 0, n);
   const next = {
@@ -244,8 +271,8 @@ export function migrateUserState(state, register, db) {
       return mine === m.mine && opp === m.opp ? m : { ...m, mine, opp };
     }),
     wishlist: [...new Set((state.wishlist ?? []).flatMap(codes))],
-    barcodes: Object.fromEntries(Object.entries(state.barcodes ?? {}).map(([g, c]) => [g, codes(c)[0]])),
-    shopPrices: Object.fromEntries(Object.entries(state.shopPrices ?? {}).flatMap(([c, v]) => codes(c).map((x) => [x, v]))),
+    barcodes: Object.fromEntries(Object.entries(state.barcodes ?? {}).map(([g, c]) => [g, single(c)])),
+    shopPrices,
   };
   return changes.length ? { state: next, changes } : { state, changes };
 }

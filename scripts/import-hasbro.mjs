@@ -305,6 +305,11 @@ export async function mergeHasbro(db, entries, fetchPage, { retired = EMPTY_RETI
           realTitle = pg.title;
           real = { ...bey, blade: target.blade, bladeId: target.bladeId };
           blade ??= blades.find(target.bladeId, target.blade);
+          // Auch der Name der Zielseite kann zu mehreren Blades passen: nicht raten, melden
+          if (!blade && blades.ambiguous(target.bladeId, target.blade)) {
+            report.skipped.push({ code: entry.code, title: bey.title, reason: 'Name mehrdeutig (passt zu mehreren Blades) – im ID-Register eintragen' });
+            continue;
+          }
         }
         // Erst nach der Weiterleitung erkannt: doch ein bekanntes Produkt
         const late = blade ? match(partsOf(blade, bey)) : undefined;

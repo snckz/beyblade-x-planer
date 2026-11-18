@@ -197,3 +197,40 @@ describe('Gespeicherte Nutzerdaten bleiben auflösbar', () => {
     expect(res.state).toBe(today);
   });
 });
+
+describe('Befunde aus dem Review', () => {
+  it('Ladenpreise: eigener Preis für den neuen Code bleibt; aufgeteiltes Produkt bekommt keinen Set-Preis; Barcode nur bei eindeutigem Ziel', () => {
+    const reg = { retired: { products: { 'HAS-XBS': ['F9588-01', 'F9588-02'], 'OLD-1': 'BX-01' } } };
+    const state: UserState = {
+      ...EMPTY_STATE,
+      shopPrices: { 'F9588-01': { amount: 500, cur: 'THB' }, 'HAS-XBS': { amount: 900, cur: 'THB' }, 'OLD-1': { amount: 300, cur: 'THB' } },
+      barcodes: { '4900000000001': 'HAS-XBS', '4900000000002': 'OLD-1' },
+    };
+    const { state: s } = migrateUserState(state, reg, realDb);
+    expect(s.shopPrices['F9588-01']).toEqual({ amount: 500, cur: 'THB' }); // eigener Preis gewinnt
+    expect(s.shopPrices['F9588-02']).toBeUndefined(); // kein Set-Preis auf Einzelteil
+    expect(s.shopPrices['BX-01']).toEqual({ amount: 300, cur: 'THB' }); // eindeutige Umbenennung
+    expect(s.barcodes['4900000000001']).toBe('HAS-XBS'); // mehrdeutig: unverändert
+    expect(s.barcodes['4900000000002']).toBe('BX-01');
+  });
+
+  it('keine Endlosschleife: nicht umstellbare Einträge melden keine Änderung, zweiter Durchlauf liefert dasselbe Objekt', () => {
+    const reg = { retired: { products: { 'HAS-XBS': ['F9588-01', 'F9588-02'] } } };
+    const state: UserState = { ...EMPTY_STATE, barcodes: { '4900000000001': 'HAS-XBS' }, shopPrices: { 'HAS-XBS': { amount: 900, cur: 'THB' } } };
+    const res = migrateUserState(state, reg, realDb);
+    expect(res.changes).toEqual([]);
+    expect(res.state).toBe(state);
+  });
+
+  it('Hasbro-Import: mehrdeutiger Name erst nach der Weiterleitung → gemeldet, kein doppeltes Blade', async () => {
+    const db = clone();
+    db.blades.push({ id: 'SwordOther', name: 'Sword Other', hasbroName: 'Dran Sword', line: 'BX', type: 'attack', spin: 'right', verified: false } as Blade);
+    const res = await mergeHasbro(db, parseHasbroList('|-\n|G9996\n|[[Unknown Thing 3-60F]]\n'), async () => ({ title: 'Dran Sword 3-60F', wikitext: beyPage('Attack', 'Flat') }));
+    expect(res.report.added.blades).toEqual([]);
+    expect(res.report.skipped[0]?.reason).toContain('mehrdeutig');
+  });
+
+  it('alter Name unter retired, der einem anderen Blade gehört, ist Prüfbedarf', () => {
+    expect(validateRegister({ retired: { blades: { WizardArrow2: 'DranSword', 'Wizard Arrow': 'DranSword' } } }, realDb).join('\n')).toContain('gehört bereits zu Blade WizardArrow');
+  });
+});
