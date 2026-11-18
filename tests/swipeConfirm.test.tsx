@@ -81,7 +81,7 @@ describe('Kategorie per Wischen (Blade/Bit)', () => {
     expect(active()).toEqual(['Alle']);
     swipe(body, -90);
     expect(active()).toEqual(['Attack']);
-    expect([...sheet.querySelectorAll('.tile.pick:not([hidden]) .mini-badge-type')].every((b) => b.textContent === 'Attack')).toBe(true);
+    expect([...sheet.querySelectorAll('.picker-page.is-current .tile.pick .mini-badge-type')].every((b) => b.textContent === 'Attack')).toBe(true);
     swipe(body, -90);
     expect(active()).toEqual(['Defense']);
     swipe(body, 90);
@@ -118,46 +118,64 @@ describe('Kategorie per Wischen (Blade/Bit)', () => {
     pointer(body, 'pointerup', 205, 420);
   });
 
-  it('die Liste folgt dem Finger, am Rand nur gebremst, und kommt danach an ihren Platz zurück', () => {
+  it('blättert: die Seite folgt dem Finger, die nächste Kategorie kommt daneben herein; am Rand nur gebremst', () => {
     const { body } = openPicker('bit');
-    const grid = () => body.querySelector<HTMLElement>('.grid')!;
-    const offset = () => Number(/-?\d+/.exec(grid().style.transform)?.[0] ?? 0);
+    const page = () => body.querySelector<HTMLElement>('.picker-page.is-current')!;
+    const next = () => body.querySelector<HTMLElement>('.picker-page[data-page="1"]')!;
+    const offset = (el: HTMLElement) => Number(/-?\d+/.exec(el.style.transform)?.[0] ?? 0);
+    expect(next().classList.contains('is-side')).toBe(true); // Nachbar liegt schon bereit
     t += 1000;
     pointer(body, 'pointerdown', 200, 300);
     t += 50;
     pointer(body, 'pointermove', 140, 302); // 60 px nach links: es gibt eine nächste Kategorie
-    const normal = offset();
-    expect(normal).toBeLessThan(-10);
-    expect(Number(grid().style.opacity)).toBeLessThan(1); // blendet beim Mitgehen leicht aus
-    expect(Number(grid().style.opacity)).toBeGreaterThan(0.4);
+    const normal = offset(page());
+    expect(normal).toBe(-60); // 1:1 mit dem Finger
+    expect(next().style.visibility).toBe('visible');
+    expect(offset(next())).toBeGreaterThan(normal); // rechts daneben, wandert mit
     t += 50;
     act(() => void pointer(body, 'pointerup', 190, 302)); // zurückgezogen: kein Wechsel
-    expect(grid().style.transform).toBe('');
-    expect(grid().style.opacity).toBe('');
+    expect(page().style.transform).toBe('');
+    expect(next().style.visibility).toBe('');
     t += 1000;
     pointer(body, 'pointerdown', 200, 300);
     t += 50;
     pointer(body, 'pointermove', 260, 302); // 60 px nach rechts bei „Alle“: Rand
-    expect(Math.abs(offset())).toBeLessThan(Math.abs(normal));
-    expect(offset()).toBeGreaterThan(0);
+    expect(Math.abs(offset(page()))).toBeLessThan(Math.abs(normal));
+    expect(offset(page())).toBeGreaterThan(0);
     act(() => void pointer(body, 'pointerup', 260, 302));
-    expect(grid().style.transform).toBe('');
+    expect(page().style.transform).toBe('');
   });
 
-  it('baut die Karten beim Wechsel nicht neu auf – nicht passende werden nur ausgeblendet', () => {
+  it('bricht ab, wenn der Finger zum Schluss deutlich zurückzieht', () => {
+    const { body, active } = openPicker('bit');
+    t += 1000;
+    act(() => {
+      pointer(body, 'pointerdown', 200, 300);
+      t += 100;
+      pointer(body, 'pointermove', 100, 301); // weit nach links …
+      t += 30;
+      pointer(body, 'pointermove', 130, 301); // … dann zügig zurück
+      t += 30;
+      pointer(body, 'pointerup', 160, 301);
+    });
+    expect(active()).toEqual(['Alle']);
+  });
+
+  it('baut Seiten beim Blättern nicht neu auf – zurück sind Karten und Fotos sofort da', () => {
     const { body, sheet } = openPicker('blade');
-    const cards = () => [...sheet.querySelectorAll<HTMLElement>('.tile.pick')];
+    const cards = () => [...sheet.querySelectorAll<HTMLElement>('.picker-page.is-current .tile.pick')];
     const before = cards();
     expect(before.length).toBe(db.blades.length);
     swipe(body, -80); // → Attack
+    const attack = cards();
+    expect(attack.length).toBe(db.blades.filter((b) => b.type === 'attack').length);
+    expect(attack.length).toBeGreaterThan(0);
+    swipe(body, 80); // zurück zu „Alle“
     const after = cards();
     expect(after.length).toBe(before.length);
-    expect(after.every((c, i) => c === before[i])).toBe(true); // dieselben Elemente (Fotos bleiben geladen)
-    const shown = after.filter((c) => !c.hidden);
-    expect(shown.length).toBe(db.blades.filter((b) => b.type === 'attack').length);
-    expect(shown.length).toBeGreaterThan(0);
-    swipe(body, 80); // zurück zu „Alle“
-    expect(cards().filter((c) => !c.hidden).length).toBe(db.blades.length);
+    expect(after.every((c, i) => c === before[i])).toBe(true); // dieselben Elemente
+    // Nicht sichtbare Seiten sind für Tastatur und Vorlesen gesperrt
+    expect(sheet.querySelectorAll('.picker-page:not(.is-current)[aria-hidden="true"]').length).toBeGreaterThan(0);
   });
 
   it('zählt das Tempo am Ende: langsam ansetzen, schnell wegwischen wechselt', () => {
@@ -190,7 +208,7 @@ describe('Kategorie per Wischen (Blade/Bit)', () => {
     swipe(body, -90); // Stamina – hier liegt „B Ball“
     expect(active()).toEqual(['Stamina']);
     expect((ui.getByRole('searchbox') as HTMLInputElement).value).toBe('b');
-    expect(sheet.querySelector('.tile.pick.selected .tile-name')?.textContent).toBe('B');
+    expect(sheet.querySelector('.picker-page.is-current .tile.pick.selected .tile-name')?.textContent).toBe('B');
     // Klick direkt nach dem Wisch (Finger landet auf einer Karte) wird verworfen
     const card = sheet.querySelector<HTMLElement>('.tile.pick')!;
     const click = new MouseEvent('click', { bubbles: true, cancelable: true });

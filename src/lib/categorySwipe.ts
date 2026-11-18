@@ -10,9 +10,9 @@
  *   (pointercancel) – Touch-Ereignisse laufen bis zum Loslassen durch.
  * - Nach wenigen Pixeln entscheidet die überwiegende Achse. Senkrecht → aufgeben, der Browser scrollt.
  *   Waagrecht → touchmove wird blockiert, damit die Liste nicht nebenbei mitscrollt.
- * - Die Liste folgt dem Finger (gedämpft) und blendet dabei leicht aus; an der ersten/letzten Kategorie gibt sie nur
- *   spürbar nach.
- *   Beim Loslassen wechselt sie oder federt zurück.
+ * - Blättern wie in iOS: Die aktuelle Seite geht 1:1 mit dem Finger, die nächste Kategorie kommt gleichzeitig von der
+ *   Seite herein. Beim Loslassen rastet sie ein (mit dem Tempo des Fingers) oder federt zurück.
+ *   An der ersten/letzten Kategorie gibt die Seite nur gebremst nach.
  * - Schnelle Wische zählen nach dem Tempo der letzten ~100 ms, nicht gemittelt über die ganze Bewegung.
  */
 
@@ -31,14 +31,15 @@ const MAX_MS = 1000;
 const VELOCITY_MS = 100;
 /** Nach einem Wisch so lange Klicks auf Karten verwerfen (ms) – der Finger landet beim Loslassen auf einer Karte. */
 const CLICK_GUARD_MS = 400;
-/** Mitgehen: Anteil der Fingerstrecke; am Rand (keine weitere Kategorie) deutlich weniger. */
-const FOLLOW = 0.5;
-const FOLLOW_EDGE = 0.12;
-/** Zurückfedern (ms) – passt zum Hereingleiten der neuen Liste in PartPicker. */
-const SPRING_MS = 180;
-/** Beim Mitgehen blendet die Liste leicht aus (Strecke in px bis zur geringsten Deckkraft) – sie „geht“ zur Seite. */
-const FADE_PX = 140;
-const MIN_OPACITY = 0.45;
+/** Am Rand (keine weitere Kategorie) gibt die Seite nur gebremst nach. */
+const FOLLOW_EDGE = 0.2;
+/** Abstand zwischen zwei Seiten beim Blättern (px) */
+const PAGE_GAP = 24;
+/** Zurückfedern bzw. Einrasten (ms): Rest der Strecke mit dem Tempo des Fingers, in diesen Grenzen */
+const SPRING_MS = 220;
+const SETTLE_MIN_MS = 160;
+const SETTLE_MAX_MS = 320;
+const EASE = 'cubic-bezier(.2, .8, .2, 1)';
 
 /** Ausnahmen: Felder und eigene waagrechte Leisten (z. B. Ratchet-Höhen) wechseln nie die Kategorie. */
 const IGNORE = 'input, textarea, select, .height-filter, [data-no-swipe]';
@@ -55,63 +56,120 @@ export function swipeStep(dx: number, dy: number, ms: number, velocity?: number)
   return dx < 0 ? 1 : -1;
 }
 
-/** Gedämpftes Mitgehen der Liste: Anteil der Fingerstrecke, am Rand stärker gebremst. */
+/** Mitgehen der Seite: 1:1 mit dem Finger, am Rand (keine weitere Kategorie) deutlich gebremst. */
 export function followOffset(dx: number, canMove: boolean): number {
-  return Math.round(dx * (canMove ? FOLLOW : FOLLOW_EDGE));
+  return canMove ? Math.round(dx) : Math.round(dx * FOLLOW_EDGE);
 }
 
-/** Deckkraft der Liste beim Mitgehen (1 = voll sichtbar). */
-export function followOpacity(offset: number): number {
-  return Math.max(MIN_OPACITY, 1 - (Math.abs(offset) / FADE_PX) * (1 - MIN_OPACITY));
+/** Die Seiten des Blätterns: aktuelle Kategorie und ihre Nachbarn (links = vorherige, rechts = nächste). */
+export interface Pager {
+  current: () => HTMLElement | null;
+  side: (step: 1 | -1) => HTMLElement | null;
 }
 
 interface Options {
-  /** Element, das beim Wischen mitgeht (z. B. das Kartenraster) */
-  follow?: () => HTMLElement | null;
+  /** Seiten, die beim Wischen mitgehen: Die nächste Kategorie kommt gleichzeitig von der Seite herein. */
+  pager?: Pager;
   /** Gibt es in diese Richtung noch eine Kategorie? Sonst nur Nachgeben am Rand, kein Wechsel. */
   canStep?: (step: 1 | -1) => boolean;
 }
 
 const reducedMotion = () => typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-export function attachCategorySwipe(el: HTMLElement, onStep: (step: 1 | -1) => void, { follow, canStep = () => true }: Options = {}): () => void {
+const STEPS = [1, -1] as const;
+
+export function attachCategorySwipe(el: HTMLElement, onStep: (step: 1 | -1) => void, { pager, canStep = () => true }: Options = {}): () => void {
   let g: { id: number; x: number; y: number; t: number; horizontal: boolean; samples: [number, number][] } | null = null;
   let guardUntil = 0;
-  let springTimer = 0;
-  let moved: HTMLElement | null = null;
+  /** Laufende Seiten: aktuelle und vorbereitete Nachbarn, Seitenbreite */
+  let pages: { cur: HTMLElement; sides: Map<1 | -1, HTMLElement>; width: number } | null = null;
+  /** Laufendes Einrasten/Zurückfedern – ein neuer Fingerkontakt beendet es sofort */
+  let settling: { timer: number; done: () => void } | null = null;
 
-  const setOffset = (px: number) => {
-    const target = follow?.();
-    if (!target) return;
-    window.clearTimeout(springTimer);
-    target.style.transition = 'none';
-    target.style.transform = px ? `translateX(${px}px)` : '';
-    target.style.opacity = px ? String(followOpacity(px)) : '';
-    moved = target;
+  const finishSettling = () => {
+    const s = settling;
+    if (!s) return;
+    settling = null;
+    window.clearTimeout(s.timer);
+    s.done();
   };
-  /** Liste wieder an ihren Platz: mit kurzem Federn, oder sofort (beim Wechsel übernimmt das Hereingleiten). */
-  const release = (animate: boolean) => {
-    const target = moved;
-    moved = null;
-    if (!target) return;
-    if (!animate || reducedMotion() || !target.style.transform) {
-      target.style.transition = '';
-      target.style.transform = '';
-      target.style.opacity = '';
-      return;
+
+  const clear = (node: HTMLElement) => {
+    node.style.transition = '';
+    node.style.transform = '';
+    node.style.willChange = '';
+    node.style.visibility = '';
+    node.style.top = '';
+    node.style.height = '';
+  };
+
+  /** Beim Entscheiden für „waagrecht“: Nachbarseiten neben die aktuelle legen, im sichtbaren Ausschnitt. */
+  const preparePages = () => {
+    const cur = pager?.current();
+    if (!cur) return;
+    const width = cur.offsetWidth + PAGE_GAP;
+    const sides = new Map<1 | -1, HTMLElement>();
+    for (const s of STEPS) {
+      const side = canStep(s) ? pager!.side(s) : null;
+      if (!side) continue;
+      // Die Nachbarseite zeigt ihren Anfang dort, wo man gerade hinschaut – nach dem Wechsel steht die Liste oben.
+      side.style.top = `${el.scrollTop}px`;
+      side.style.height = `${el.clientHeight}px`;
+      side.style.visibility = 'visible';
+      side.style.willChange = 'transform';
+      side.style.transition = 'none';
+      side.style.transform = `translateX(${s * width}px)`;
+      sides.set(s, side);
     }
-    target.style.transition = `transform ${SPRING_MS}ms cubic-bezier(.2, .8, .2, 1), opacity ${SPRING_MS}ms ease`;
-    target.style.transform = '';
-    target.style.opacity = '';
-    springTimer = window.setTimeout(() => (target.style.transition = ''), SPRING_MS + 40);
+    cur.style.willChange = 'transform';
+    cur.style.transition = 'none';
+    pages = { cur, sides, width };
+  };
+
+  const move = (offset: number) => {
+    if (!pages) return;
+    pages.cur.style.transform = offset ? `translateX(${offset}px)` : '';
+    pages.sides.forEach((side, s) => (side.style.transform = `translateX(${s * pages!.width + offset}px)`));
+  };
+
+  /** Loslassen: zur neuen Seite einrasten (`step`) oder zurückfedern (0). */
+  const settle = (step: 1 | -1 | 0, offset: number, velocity: number) => {
+    const p = pages;
+    pages = null;
+    const commit = () => {
+      if (step) onStep(step);
+    };
+    if (!p) return commit();
+    const all = [p.cur, ...p.sides.values()];
+    const target = step ? -step * p.width : 0;
+    const distance = Math.abs(target - offset);
+    // Ohne Breite (nicht sichtbar) oder bei „Bewegung reduzieren“: sofort
+    if (p.width <= PAGE_GAP || reducedMotion() || distance < 1) {
+      all.forEach(clear);
+      return commit();
+    }
+    const ms = step ? Math.min(SETTLE_MAX_MS, Math.max(SETTLE_MIN_MS, distance / Math.max(velocity, 0.8))) : SPRING_MS;
+    all.forEach((node) => (node.style.transition = `transform ${Math.round(ms)}ms ${EASE}`));
+    p.cur.style.transform = target ? `translateX(${target}px)` : '';
+    p.sides.forEach((side, s) => (side.style.transform = `translateX(${s * p.width + target}px)`));
+    settling = {
+      timer: window.setTimeout(finishSettling, ms + 20),
+      // Erst die Kategorie wechseln, dann die Stile lösen: Preact zeichnet noch vor dem nächsten Bild neu,
+      // die neue Seite steht dann ohne Sprung an derselben Stelle.
+      done: () => {
+        commit();
+        all.forEach(clear);
+      },
+    };
   };
 
   const touchOf = (list: TouchList, id: number) => [...list].find((t) => t.identifier === id) ?? null;
 
   const onStart = (e: TouchEvent) => {
+    finishSettling();
     if (e.touches.length !== 1) {
       // Zweiter Finger: keine Wischgeste (z. B. Zoom-Versuch)
-      if (g) release(true);
+      if (g?.horizontal) settle(0, 0, 0);
       g = null;
       return;
     }
@@ -120,6 +178,7 @@ export function attachCategorySwipe(el: HTMLElement, onStep: (step: 1 | -1) => v
     g = { id: t.identifier, x: t.clientX, y: t.clientY, t: e.timeStamp, horizontal: false, samples: [[e.timeStamp, t.clientX]] };
   };
 
+  let lastOffset = 0;
   const onMove = (e: TouchEvent) => {
     if (!g) return;
     const t = touchOf(e.touches, g.id);
@@ -134,12 +193,14 @@ export function attachCategorySwipe(el: HTMLElement, onStep: (step: 1 | -1) => v
         return;
       }
       g.horizontal = true;
+      preparePages();
     }
-    // Waagrecht: Liste darf nicht nebenbei mitscrollen; sie folgt stattdessen dem Finger.
+    // Waagrecht: Liste darf nicht nebenbei mitscrollen; die Seiten folgen stattdessen dem Finger.
     if (e.cancelable) e.preventDefault();
     g.samples.push([e.timeStamp, t.clientX]);
     if (g.samples.length > 12) g.samples.shift();
-    setOffset(followOffset(dx, canStep(dx < 0 ? 1 : -1)));
+    lastOffset = followOffset(dx, canStep(dx < 0 ? 1 : -1));
+    move(lastOffset);
   };
 
   const onEnd = (e: TouchEvent) => {
@@ -153,18 +214,19 @@ export function attachCategorySwipe(el: HTMLElement, onStep: (step: 1 | -1) => v
     const recent = s.samples.filter(([time]) => e.timeStamp - time <= VELOCITY_MS);
     const first = recent[0];
     const dt = first ? e.timeStamp - first[0] : 0;
-    const velocity = first && dt > 0 ? Math.abs(t.clientX - first[1]) / dt : undefined;
-    const step = swipeStep(dx, t.clientY - s.y, e.timeStamp - s.t, velocity);
+    // Tempo zuletzt mit Richtung (px/ms, nach rechts positiv)
+    const signed = first && dt > 0 ? (t.clientX - first[1]) / dt : undefined;
+    let step = swipeStep(dx, t.clientY - s.y, e.timeStamp - s.t, signed == null ? undefined : Math.abs(signed));
+    // Zum Schluss deutlich zurückgezogen: Das ist ein Abbrechen, kein Wechsel.
+    if (step && signed != null && Math.sign(signed) === step && Math.abs(signed) > 0.15) step = 0;
     // Auch ein zu kurzer waagrechter Wisch soll keine Karte auswählen
     guardUntil = e.timeStamp + CLICK_GUARD_MS;
-    if (step && canStep(step)) {
-      release(false);
-      onStep(step);
-    } else release(true);
+    const ok = step && canStep(step) ? step : 0;
+    settle(ok, lastOffset, Math.abs(signed ?? 0));
   };
 
   const onCancel = () => {
-    if (g?.horizontal) release(true);
+    if (g?.horizontal) settle(0, lastOffset, 0);
     g = null;
   };
 
@@ -182,7 +244,7 @@ export function attachCategorySwipe(el: HTMLElement, onStep: (step: 1 | -1) => v
   el.addEventListener('touchcancel', onCancel);
   el.addEventListener('click', onClick, true);
   return () => {
-    window.clearTimeout(springTimer);
+    finishSettling();
     el.removeEventListener('touchstart', onStart);
     el.removeEventListener('touchmove', onMove);
     el.removeEventListener('touchend', onEnd);

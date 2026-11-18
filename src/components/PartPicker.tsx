@@ -1,7 +1,7 @@
 import { createPortal } from 'preact/compat';
 import { useModal } from '../lib/useModal';
 import { bothNames, displayName, otherName } from '../lib/names';
-import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'preact/hooks';
 import type { BeyType, Blade, Bit, Ratchet } from '../lib/types';
 import { TYPE_LABEL } from '../lib/analysis';
 import { BeyImage, BladePhoto } from './BeyImage';
@@ -154,11 +154,12 @@ function PickerSheet({ kind, label, blades = [], ratchets = [], bits = [], value
   const q = query.trim().toLowerCase().replace(/\s+/g, '');
   const match = (s: string) => !q || s.toLowerCase().replace(/\s+/g, '').includes(q);
 
-  // Neue Suche oder neuer Typfilter: Die Liste beginnt wieder oben. Sonst bliebe die alte Scrollposition stehen
-  // (bei einer kürzeren Liste auf deren Maximum) und die erste Kartenreihe stünde halb unter der Filterleiste.
+  // Neue Suche, neue Kategorie oder neuer Filter: Die Liste beginnt wieder oben. Sonst bliebe die alte Scrollposition
+  // stehen (bei einer kürzeren Liste auf deren Maximum) und die erste Kartenreihe stünde halb unter der Filterleiste.
+  // Vor dem Zeichnen (Layout-Effekt): Nach dem Blättern steht die neue Seite ohne Sprung oben.
   const bodyRef = useRef<HTMLDivElement>(null);
   const firstRun = useRef(true);
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (firstRun.current) {
       firstRun.current = false;
       return;
@@ -170,24 +171,21 @@ function PickerSheet({ kind, label, blades = [], ratchets = [], bits = [], value
   const onListScroll = (e: Event) => ref.current?.classList.toggle('list-scrolled', (e.currentTarget as HTMLElement).scrollTop > 2);
   const count = (id: string) => counts?.get(id);
 
-  // Alle Karten bleiben im Fenster, nicht passende werden nur ausgeblendet (`hidden`): Beim Wechsel der Kategorie
-  // (Chip oder Wischen) baut sich so nichts neu auf – die Fotos sind sofort da, statt kurz leer zu blinken.
   const allBlades = useMemo(() => [...blades].sort((a, b) => displayName(a).localeCompare(displayName(b))), [blades]);
-  const showBlade = (b: Blade) => (!type || b.type === type) && match(`${b.name}${b.hasbroName ?? ''}${b.id}`);
-  const showBit = (b: Bit) => (!type || b.type === type) && match(`${b.id}${b.name}`);
-  const shownRatchets = new Set(kind === 'ratchet' ? filterRatchets(ratchets, { query, teeth: group, height }).map((r) => r.id) : []);
-  const bladeCount = kind === 'blade' ? allBlades.filter(showBlade).length : 0;
-  const bitCount = kind === 'bit' ? bits.filter(showBit).length : 0;
   const groups = kind === 'ratchet' ? teethGroups(ratchets) : [];
   const heights = kind === 'ratchet' ? ratchetHeights(ratchets) : [];
-  const filtered = !!q || !!type || !!group || height != null;
 
-  // Kategorie per Wischen über die Karten wechseln – dieselben Setzfunktionen wie die Chips (Reihenfolge wie die Chips).
-  // Suche und Ratchet-Höhe bleiben, die Auswahl (value) bleibt; den Sprung nach oben übernimmt der Effekt oben.
+  // Kategorien als Seiten zum Blättern (Reihenfolge wie die Chips). Wischen und Chips setzen dieselben Werte;
+  // Suche und Ratchet-Höhe gelten für alle Seiten, die Auswahl (value) bleibt.
   const order: string[] = kind === 'ratchet' ? ['', ...groups.map((g) => g.id)] : ['', 'attack', 'defense', 'stamina', 'balance'];
-  const position = order.indexOf(kind === 'ratchet' ? group : type);
-  // Für die Geste (eingehängt nur einmal): immer der aktuelle Stand
-  const swipe = useRef<{ step: (step: 1 | -1) => void; can: (step: 1 | -1) => boolean }>({ step: () => {}, can: () => false });
+  const category = kind === 'ratchet' ? group : type;
+  const position = Math.max(0, order.indexOf(category));
+  // Seiten bleiben gebaut, sobald sie einmal da waren – beim Zurückblättern sind Karten und Fotos sofort da.
+  // Bereit liegen immer die aktuelle Seite und ihre beiden Nachbarn (die beim Wischen hereinkommen).
+  const built = useRef(new Set<string>());
+  for (const i of [position - 1, position, position + 1]) if (i >= 0 && i < order.length) built.current.add(order[i]!);
+
+  const swipe = useRef<{ step: (step: 1 | -1) => void; can: (step: 1 | -1) => boolean; side: (step: 1 | -1) => HTMLElement | null }>({ step: () => {}, can: () => false, side: () => null });
   swipe.current = {
     can: (step) => position + step >= 0 && position + step < order.length, // erste/letzte Kategorie: nicht darüber hinaus
     step: (step) => {
@@ -195,14 +193,14 @@ function PickerSheet({ kind, label, blades = [], ratchets = [], bits = [], value
       if (next < 0 || next >= order.length) return;
       if (kind === 'ratchet') setGroup(order[next] as TeethGroup);
       else setType(order[next] as BeyType | '');
-      nudgeList(bodyRef.current, step);
     },
+    side: (step) => bodyRef.current?.querySelector<HTMLElement>(`.picker-page[data-page="${position + step}"]`) ?? null,
   };
   useEffect(() => {
     const el = bodyRef.current;
     return el
       ? attachCategorySwipe(el, (step) => swipe.current.step(step), {
-          follow: () => el.querySelector<HTMLElement>('.grid'),
+          pager: { current: () => el.querySelector<HTMLElement>('.picker-page.is-current'), side: (step) => swipe.current.side(step) },
           canStep: (step) => swipe.current.can(step),
         })
       : undefined;
@@ -213,6 +211,115 @@ function PickerSheet({ kind, label, blades = [], ratchets = [], bits = [], value
     setType('');
     setGroup('');
     setHeight(null);
+  };
+
+  /** Eine Seite: Karten einer Kategorie (mit Suche und Ratchet-Höhe) oder der passende leere Zustand. */
+  const renderPage = (cat: string) => {
+    if (kind === 'blade') {
+      const list = allBlades.filter((b) => (!cat || b.type === cat) && match(`${b.name}${b.hasbroName ?? ''}${b.id}`));
+      if (!list.length) return <p class="muted center">Nichts gefunden.</p>;
+      return (
+        <div class="grid grid-blades">
+          {list.map((b) => {
+            const TypeIcon = TYPE_ICON[b.type];
+            return (
+              <button key={b.id} type="button" class={`tile pick blade-card aura-${b.type}${b.id === value ? ' selected' : ''}`} onClick={() => onPick(b.id)} aria-pressed={b.id === value}>
+                <span class="blade-card-art">
+                  <BladePhoto blade={b} alt="" variant="card" />
+                </span>
+                <span class="tile-name">{displayName(b)}</span>
+                {/* Zweitname nur während der Suche – er erklärt, warum die Karte gefunden wurde */}
+                {q && otherName(b) && <span class="pick-alt">{b.name}</span>}
+                <span class="blade-card-badges">
+                  <span class="mini-badge">{b.line}</span>
+                  <span class={`mini-badge mini-badge-type type-fg-${b.type}`}>
+                    <TypeIcon aria-hidden="true" />
+                    {TYPE_LABEL[b.type]}
+                  </span>
+                  {b.spin === 'left' && (
+                    <span class="mini-badge mini-badge-icon" role="img" aria-label="Linksdreher">
+                      <RotateCcw aria-hidden="true" />
+                    </span>
+                  )}
+                </span>
+                {count(b.id) ? <span class="tile-count">{count(b.id)}×</span> : null}
+              </button>
+            );
+          })}
+        </div>
+      );
+    }
+
+    if (kind === 'ratchet') {
+      const list = filterRatchets(ratchets, { query, teeth: cat as TeethGroup, height });
+      if (!list.length) {
+        const anyFilter = !!q || !!cat || height != null;
+        return (
+          <div class="picker-empty" role="status">
+            <p class="picker-empty-title">Kein Ratchet gefunden</p>
+            <p class="muted">
+              {query.trim() ? `Zu „${query.trim()}“ passt kein Ratchet` : 'Kein Ratchet passt'}
+              {cat || height != null ? ' mit den gewählten Filtern.' : '.'}
+            </p>
+            {anyFilter && (
+              <button type="button" class="btn btn-sm" onClick={resetFilters}>
+                Suche und Filter zurücksetzen
+              </button>
+            )}
+          </div>
+        );
+      }
+      return (
+        <div class="grid grid-ratchets">
+          {list.map((r) => (
+            <button key={r.id} type="button" class={`tile pick part-card ratchet-card${r.id === value ? ' selected' : ''}`} onClick={() => onPick(r.id)} aria-pressed={r.id === value}>
+              <span class="part-card-art">
+                <RatchetImage ratchet={r} size="card" />
+              </span>
+              <span class="tile-name part-card-code">{r.id}</span>
+              <span class="part-card-facts">
+                <span>
+                  <Cog aria-hidden="true" />
+                  {teeth(r.contacts)}
+                </span>
+                {r.heightMm != null && (
+                  <span>
+                    <MoveVertical aria-hidden="true" />
+                    <span class="sr-only">Höhe </span>
+                    {heightMm(r.heightMm)}
+                  </span>
+                )}
+              </span>
+              {count(r.id) ? <span class="tile-count">{count(r.id)}×</span> : null}
+            </button>
+          ))}
+        </div>
+      );
+    }
+
+    const list = bits.filter((b) => (!cat || b.type === cat) && match(`${b.id}${b.name}`));
+    if (!list.length) return <p class="muted center">Nichts gefunden.</p>;
+    return (
+      <div class="grid grid-bits">
+        {list.map((b) => {
+          const TypeIcon = TYPE_ICON[b.type];
+          return (
+            <button key={b.id} type="button" class={`tile pick part-card bit-card aura-${b.type}${b.id === value ? ' selected' : ''}`} onClick={() => onPick(b.id)} aria-pressed={b.id === value}>
+              <span class="part-card-art">
+                <BitImage bit={b} size="card" />
+              </span>
+              <span class="tile-name part-card-code">{b.id}</span>
+              <span class="part-card-name">{b.name}</span>
+              <span class={`mini-badge mini-badge-type type-fg-${b.type}`}>
+                <TypeIcon aria-hidden="true" />
+                {TYPE_LABEL[b.type]}
+              </span>
+              {count(b.id) ? <span class="tile-count">{count(b.id)}×</span> : null}
+            </button>
+          );
+        })}
+      </div>
+    );
   };
 
   return (
@@ -281,118 +388,25 @@ function PickerSheet({ kind, label, blades = [], ratchets = [], bits = [], value
         </div>
 
         <div ref={bodyRef} class="picker-body" onScroll={onListScroll}>
-          {kind === 'blade' && (
-            <div class="grid grid-blades">
-              {allBlades.map((b) => {
-                const TypeIcon = TYPE_ICON[b.type];
-                return (
-                  <button key={b.id} hidden={!showBlade(b)} type="button" class={`tile pick blade-card aura-${b.type}${b.id === value ? ' selected' : ''}`} onClick={() => onPick(b.id)} aria-pressed={b.id === value}>
-                    <span class="blade-card-art">
-                      <BladePhoto blade={b} alt="" variant="card" />
-                    </span>
-                    <span class="tile-name">{displayName(b)}</span>
-                    {/* Zweitname nur während der Suche – er erklärt, warum die Karte gefunden wurde */}
-                    {q && otherName(b) && <span class="pick-alt">{b.name}</span>}
-                    <span class="blade-card-badges">
-                      <span class="mini-badge">{b.line}</span>
-                      <span class={`mini-badge mini-badge-type type-fg-${b.type}`}>
-                        <TypeIcon aria-hidden="true" />
-                        {TYPE_LABEL[b.type]}
-                      </span>
-                      {b.spin === 'left' && (
-                        <span class="mini-badge mini-badge-icon" role="img" aria-label="Linksdreher">
-                          <RotateCcw aria-hidden="true" />
-                        </span>
-                      )}
-                    </span>
-                    {count(b.id) ? <span class="tile-count">{count(b.id)}×</span> : null}
-                  </button>
-                );
-              })}
-            </div>
-          )}
-
-          {kind === 'ratchet' && (
-            <div class="grid grid-ratchets">
-              {ratchets.map((r) => (
-                <button key={r.id} hidden={!shownRatchets.has(r.id)} type="button" class={`tile pick part-card ratchet-card${r.id === value ? ' selected' : ''}`} onClick={() => onPick(r.id)} aria-pressed={r.id === value}>
-                  <span class="part-card-art">
-                    <RatchetImage ratchet={r} size="card" />
-                  </span>
-                  <span class="tile-name part-card-code">{r.id}</span>
-                  <span class="part-card-facts">
-                    <span>
-                      <Cog aria-hidden="true" />
-                      {teeth(r.contacts)}
-                    </span>
-                    {r.heightMm != null && (
-                      <span>
-                        <MoveVertical aria-hidden="true" />
-                        <span class="sr-only">Höhe </span>
-                        {heightMm(r.heightMm)}
-                      </span>
-                    )}
-                  </span>
-                  {count(r.id) ? <span class="tile-count">{count(r.id)}×</span> : null}
-                </button>
-              ))}
-            </div>
-          )}
-
-          {kind === 'bit' && (
-            <div class="grid grid-bits">
-              {bits.map((b) => {
-                const TypeIcon = TYPE_ICON[b.type];
-                return (
-                  <button key={b.id} hidden={!showBit(b)} type="button" class={`tile pick part-card bit-card aura-${b.type}${b.id === value ? ' selected' : ''}`} onClick={() => onPick(b.id)} aria-pressed={b.id === value}>
-                    <span class="part-card-art">
-                      <BitImage bit={b} size="card" />
-                    </span>
-                    <span class="tile-name part-card-code">{b.id}</span>
-                    <span class="part-card-name">{b.name}</span>
-                    <span class={`mini-badge mini-badge-type type-fg-${b.type}`}>
-                      <TypeIcon aria-hidden="true" />
-                      {TYPE_LABEL[b.type]}
-                    </span>
-                    {count(b.id) ? <span class="tile-count">{count(b.id)}×</span> : null}
-                  </button>
-                );
-              })}
-            </div>
-          )}
-
-          {((kind === 'blade' && !bladeCount) || (kind === 'bit' && !bitCount)) && <p class="muted center">Nichts gefunden.</p>}
-
-          {kind === 'ratchet' && !shownRatchets.size && (
-            <div class="picker-empty" role="status">
-              <p class="picker-empty-title">Kein Ratchet gefunden</p>
-              <p class="muted">
-                {query.trim() ? `Zu „${query.trim()}“ passt kein Ratchet` : 'Kein Ratchet passt'}
-                {group || height != null ? ' mit den gewählten Filtern.' : '.'}
-              </p>
-              {filtered && (
-                <button type="button" class="btn btn-sm" onClick={resetFilters}>
-                  Suche und Filter zurücksetzen
-                </button>
-              )}
-            </div>
-          )}
+          <div class="picker-pager">
+            {order.map((cat, i) =>
+              built.current.has(cat) ? (
+                <div
+                  key={cat || 'all'}
+                  class={`picker-page ${i === position ? 'is-current' : Math.abs(i - position) === 1 ? 'is-side' : 'is-parked'}`}
+                  data-page={i}
+                  aria-hidden={i === position ? undefined : 'true'}
+                  inert={i !== position}
+                >
+                  {renderPage(cat)}
+                </div>
+              ) : null,
+            )}
+          </div>
         </div>
       </div>
     </div>
   );
-}
-
-/**
- * Übergang nach einem Wechsel: Die neue Liste gleitet aus der Wischrichtung herein und blendet dabei auf – die alte
- * war beim Ziehen schon zur Seite gewandert und halb ausgeblendet, so wirkt es wie ein Weiterblättern statt eines Sprungs.
- * Ohne Bewegung bei „Bewegung reduzieren“.
- */
-function nudgeList(body: HTMLElement | null, step: 1 | -1) {
-  const grid = body?.querySelector<HTMLElement>('.grid');
-  if (!grid || typeof grid.animate !== 'function') return;
-  if (typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  grid.animate([{ transform: `translateX(${step * 48}px)`, opacity: 0.15 }, { transform: 'translateX(0)', opacity: 1 }], { duration: 240, easing: 'cubic-bezier(.16, 1, .3, 1)' });
 }
 
 /** Zacken eines Ratchets; Sonderformen (ohne Angabe in den Daten) bekommen keine erfundene Zahl. */

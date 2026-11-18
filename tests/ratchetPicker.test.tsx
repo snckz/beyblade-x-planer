@@ -61,7 +61,7 @@ function openPicker(value = '') {
   fireEvent.click(view.getByRole('button', { name: /^Ratchet:/ }));
   const sheet = document.querySelector<HTMLElement>('.picker-sheet')!;
   const ui = within(sheet);
-  const cards = () => [...sheet.querySelectorAll('.picker-body .tile.pick:not([hidden]) .tile-name')].map((n) => n.textContent);
+  const cards = () => [...sheet.querySelectorAll('.picker-page.is-current .tile.pick .tile-name')].map((n) => n.textContent);
   return { sheet, ui, cards, picked: () => picked };
 }
 
@@ -96,7 +96,7 @@ describe('Ratchet-Auswahl (Fenster)', () => {
     fireEvent.click(ui.getByRole('button', { name: '4–5 Zacken' }));
     fireEvent.input(ui.getByRole('searchbox'), { target: { value: 'xyz' } });
     expect(cards()).toEqual([]);
-    const empty = sheet.querySelector('.picker-empty')!;
+    const empty = sheet.querySelector('.picker-page.is-current .picker-empty')!;
     expect(empty.textContent).toContain('Kein Ratchet gefunden');
     expect(empty.textContent).toContain('Zu „xyz“ passt kein Ratchet mit den gewählten Filtern.');
     fireEvent.click(ui.getByRole('button', { name: 'Suche und Filter zurücksetzen' }));
@@ -107,7 +107,7 @@ describe('Ratchet-Auswahl (Fenster)', () => {
 
   it('übernimmt die Auswahl; Filterwechsel löscht sie nicht', () => {
     const { ui, sheet, picked } = openPicker('2-70');
-    const selected = () => [...sheet.querySelectorAll('.tile.pick.selected:not([hidden]) .tile-name')].map((n) => n.textContent);
+    const selected = () => [...sheet.querySelectorAll('.picker-page.is-current .tile.pick.selected .tile-name')].map((n) => n.textContent);
     expect(selected()).toEqual(['2-70']);
     fireEvent.click(ui.getByRole('button', { name: '6+ Zacken' }));
     expect(selected()).toEqual([]); // nicht sichtbar …
