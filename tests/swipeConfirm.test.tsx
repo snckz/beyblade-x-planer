@@ -16,10 +16,18 @@ afterEach(cleanup);
 afterAll(() => new Promise((resolve) => setTimeout(resolve, 150)));
 
 let t = 1000;
+const TYPES: Record<string, string> = { pointerdown: 'touchstart', pointermove: 'touchmove', pointerup: 'touchend' };
+/** Touch-Ereignis mit einem Finger (jsdom hat keinen Touch-Konstruktor – Felder werden nachgebildet) */
 function pointer(el: Element, type: string, x: number, y: number) {
-  const e = new PointerEvent(type, { bubbles: true, cancelable: true, clientX: x, clientY: y, pointerId: 7, isPrimary: true, pointerType: 'touch' });
+  const name = TYPES[type] ?? type;
+  const e = new Event(name, { bubbles: true, cancelable: true });
+  const point = { identifier: 7, clientX: x, clientY: y, target: el };
+  const list = (items: object[]) => Object.assign(items, { item: (i: number) => items[i] ?? null });
+  Object.defineProperty(e, 'touches', { value: list(name === 'touchend' ? [] : [point]) });
+  Object.defineProperty(e, 'changedTouches', { value: list([point]) });
   Object.defineProperty(e, 'timeStamp', { value: t });
   el.dispatchEvent(e);
+  return e;
 }
 /** Wisch über `el`: dx/dy in px in `steps` Schritten über `ms` Millisekunden */
 function swipe(el: Element, dx: number, dy = 0, ms = 200, steps = 8) {
@@ -97,23 +105,55 @@ describe('Kategorie per Wischen (Blade/Bit)', () => {
 
   it('blockiert das Mitscrollen nur, wenn die Geste waagrecht ist', () => {
     const { body } = openPicker('bit');
-    const touchMove = () => {
-      const e = new Event('touchmove', { bubbles: true, cancelable: true });
-      body.dispatchEvent(e);
-      return e.defaultPrevented;
-    };
     t += 1000;
     pointer(body, 'pointerdown', 200, 300);
     t += 16;
-    pointer(body, 'pointermove', 188, 304); // waagrecht entschieden
-    expect(touchMove()).toBe(true);
-    pointer(body, 'pointerup', 120, 310);
+    expect(pointer(body, 'pointermove', 188, 304).defaultPrevented).toBe(true); // waagrecht entschieden
+    act(() => void pointer(body, 'pointerup', 190, 304));
     t += 1000;
     pointer(body, 'pointerdown', 200, 300);
     t += 16;
-    pointer(body, 'pointermove', 203, 312); // senkrecht → Browser scrollt
-    expect(touchMove()).toBe(false);
+    expect(pointer(body, 'pointermove', 203, 312).defaultPrevented).toBe(false); // senkrecht → Browser scrollt
+    expect(pointer(body, 'pointermove', 205, 360).defaultPrevented).toBe(false);
     pointer(body, 'pointerup', 205, 420);
+  });
+
+  it('die Liste folgt dem Finger, am Rand nur gebremst, und kommt danach an ihren Platz zurück', () => {
+    const { body } = openPicker('bit');
+    const grid = () => body.querySelector<HTMLElement>('.grid')!;
+    const offset = () => Number(/-?\d+/.exec(grid().style.transform)?.[0] ?? 0);
+    t += 1000;
+    pointer(body, 'pointerdown', 200, 300);
+    t += 50;
+    pointer(body, 'pointermove', 140, 302); // 60 px nach links: es gibt eine nächste Kategorie
+    const normal = offset();
+    expect(normal).toBeLessThan(-10);
+    t += 50;
+    act(() => void pointer(body, 'pointerup', 190, 302)); // zurückgezogen: kein Wechsel
+    expect(grid().style.transform).toBe('');
+    t += 1000;
+    pointer(body, 'pointerdown', 200, 300);
+    t += 50;
+    pointer(body, 'pointermove', 260, 302); // 60 px nach rechts bei „Alle“: Rand
+    expect(Math.abs(offset())).toBeLessThan(Math.abs(normal));
+    expect(offset()).toBeGreaterThan(0);
+    act(() => void pointer(body, 'pointerup', 260, 302));
+    expect(grid().style.transform).toBe('');
+  });
+
+  it('zählt das Tempo am Ende: langsam ansetzen, schnell wegwischen wechselt', () => {
+    const { body, active } = openPicker('bit');
+    t += 1000;
+    act(() => {
+      pointer(body, 'pointerdown', 200, 300);
+      t += 500;
+      pointer(body, 'pointermove', 192, 301); // 8 px in 500 ms
+      t += 20;
+      pointer(body, 'pointermove', 184, 301); // dann zügig …
+      t += 20;
+      pointer(body, 'pointerup', 176, 301); // … insgesamt nur 24 px, aber zuletzt 0,4 px/ms
+    });
+    expect(active()).toEqual(['Attack']);
   });
 
   it('springt beim Wechsel an den Listenanfang', () => {

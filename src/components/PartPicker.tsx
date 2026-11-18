@@ -179,19 +179,28 @@ function PickerSheet({ kind, label, blades = [], ratchets = [], bits = [], value
 
   // Kategorie per Wischen über die Karten wechseln – dieselben Setzfunktionen wie die Chips (Reihenfolge wie die Chips).
   // Suche und Ratchet-Höhe bleiben, die Auswahl (value) bleibt; den Sprung nach oben übernimmt der Effekt oben.
-  const swipeStep = useRef<(step: 1 | -1) => void>(() => {});
-  swipeStep.current = (step) => {
-    const order: string[] = kind === 'ratchet' ? ['', ...groups.map((g) => g.id)] : ['', 'attack', 'defense', 'stamina', 'balance'];
-    const now = order.indexOf(kind === 'ratchet' ? group : type);
-    const next = Math.max(0, Math.min(order.length - 1, now + step));
-    if (next === now) return; // erste/letzte Kategorie: nicht darüber hinaus
-    if (kind === 'ratchet') setGroup(order[next] as TeethGroup);
-    else setType(order[next] as BeyType | '');
-    nudgeList(bodyRef.current, step);
+  const order: string[] = kind === 'ratchet' ? ['', ...groups.map((g) => g.id)] : ['', 'attack', 'defense', 'stamina', 'balance'];
+  const position = order.indexOf(kind === 'ratchet' ? group : type);
+  // Für die Geste (eingehängt nur einmal): immer der aktuelle Stand
+  const swipe = useRef<{ step: (step: 1 | -1) => void; can: (step: 1 | -1) => boolean }>({ step: () => {}, can: () => false });
+  swipe.current = {
+    can: (step) => position + step >= 0 && position + step < order.length, // erste/letzte Kategorie: nicht darüber hinaus
+    step: (step) => {
+      const next = position + step;
+      if (next < 0 || next >= order.length) return;
+      if (kind === 'ratchet') setGroup(order[next] as TeethGroup);
+      else setType(order[next] as BeyType | '');
+      nudgeList(bodyRef.current, step);
+    },
   };
   useEffect(() => {
     const el = bodyRef.current;
-    return el ? attachCategorySwipe(el, (step) => swipeStep.current(step)) : undefined;
+    return el
+      ? attachCategorySwipe(el, (step) => swipe.current.step(step), {
+          follow: () => el.querySelector<HTMLElement>('.grid'),
+          canStep: (step) => swipe.current.can(step),
+        })
+      : undefined;
   }, []);
 
   const resetFilters = () => {

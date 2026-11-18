@@ -2,12 +2,17 @@
  * Kategorie per Wischen wechseln – in der Kartenliste der Auswahlfenster (Blade, Bit, Ratchet).
  * Nach links: nächste Kategorie, nach rechts: vorherige.
  *
- * Gleiches Muster wie lib/sheetDrag.ts (Pointer-Ereignisse, Ein-/Aushängen per Funktion, nicht-passives touchmove), aber
- * eine andere Fläche: Die Ziehgeste zum Schließen lebt auf Griff und Kopfzeile, diese hier nur auf der Kartenliste.
+ * Gleiches Muster wie lib/sheetDrag.ts (Ein-/Aushängen per Funktion, nicht-passives touchmove), aber eine andere
+ * Fläche: Die Ziehgeste zum Schließen lebt auf Griff und Kopfzeile, diese hier nur auf der Kartenliste.
  *
- * Richtung: Nach wenigen Pixeln entscheidet die überwiegende Achse. Senkrecht → die Geste gibt auf, der Browser scrollt.
- * Waagrecht → touchmove wird ab da blockiert. Sonst würde iOS bei jedem leichten Bogen des Daumens mitscrollen und die
- * Geste mit pointercancel abbrechen (so sprang der Wechsel vorher oft nicht an).
+ * Wie in iOS-Apps:
+ * - Touch-Ereignisse statt Pointer-Ereignissen: Safari bricht Pointer-Gesten ab, sobald es selbst eine Geste vermutet
+ *   (pointercancel) – Touch-Ereignisse laufen bis zum Loslassen durch.
+ * - Nach wenigen Pixeln entscheidet die überwiegende Achse. Senkrecht → aufgeben, der Browser scrollt.
+ *   Waagrecht → touchmove wird blockiert, damit die Liste nicht nebenbei mitscrollt.
+ * - Die Liste folgt dem Finger (gedämpft); an der ersten/letzten Kategorie gibt sie nur spürbar nach.
+ *   Beim Loslassen wechselt sie oder federt zurück.
+ * - Schnelle Wische zählen nach dem Tempo der letzten ~100 ms, nicht gemittelt über die ganze Bewegung.
  */
 
 /** Ab dieser Strecke (px) ist die Richtung entschieden – früh, bevor der Browser zu scrollen beginnt. */
@@ -21,64 +26,134 @@ const FLICK_MIN_DX = 18;
 const DOMINANCE = 1;
 /** Längere Bewegungen sind eher Herumschieben als ein Wisch. */
 const MAX_MS = 1000;
+/** Zeitfenster für das Tempo beim Loslassen (ms). */
+const VELOCITY_MS = 100;
 /** Nach einem Wisch so lange Klicks auf Karten verwerfen (ms) – der Finger landet beim Loslassen auf einer Karte. */
 const CLICK_GUARD_MS = 400;
+/** Mitgehen: Anteil der Fingerstrecke; am Rand (keine weitere Kategorie) deutlich weniger. */
+const FOLLOW = 0.35;
+const FOLLOW_EDGE = 0.12;
+/** Zurückfedern (ms) – passt zum Hereingleiten der neuen Liste in PartPicker. */
+const SPRING_MS = 180;
 
 /** Ausnahmen: Felder und eigene waagrechte Leisten (z. B. Ratchet-Höhen) wechseln nie die Kategorie. */
 const IGNORE = 'input, textarea, select, .height-filter, [data-no-swipe]';
 
 /**
  * Entscheidet beim Loslassen: 1 = nächste Kategorie (nach links gewischt), -1 = vorherige (nach rechts), 0 = nichts.
- * `dx`/`dy` in px (rechts/unten positiv), `ms` = Dauer der Bewegung.
+ * `dx`/`dy` in px (rechts/unten positiv), `ms` = Dauer der Bewegung, `velocity` = Tempo zuletzt (px/ms, Betrag).
  */
-export function swipeStep(dx: number, dy: number, ms: number): 1 | -1 | 0 {
+export function swipeStep(dx: number, dy: number, ms: number, velocity?: number): 1 | -1 | 0 {
   const ax = Math.abs(dx);
   if (ax < FLICK_MIN_DX || ax <= Math.abs(dy) * DOMINANCE || ms > MAX_MS) return 0;
-  const velocity = ms > 0 ? ax / ms : 0;
-  if (ax < MIN_DX && velocity < FLICK) return 0;
+  const v = velocity ?? (ms > 0 ? ax / ms : 0);
+  if (ax < MIN_DX && v < FLICK) return 0;
   return dx < 0 ? 1 : -1;
 }
 
-export function attachCategorySwipe(el: HTMLElement, onStep: (step: 1 | -1) => void): () => void {
-  let g: { id: number; x: number; y: number; t: number; horizontal: boolean } | null = null;
+/** Gedämpftes Mitgehen der Liste: Anteil der Fingerstrecke, am Rand stärker gebremst. */
+export function followOffset(dx: number, canMove: boolean): number {
+  return Math.round(dx * (canMove ? FOLLOW : FOLLOW_EDGE));
+}
+
+interface Options {
+  /** Element, das beim Wischen mitgeht (z. B. das Kartenraster) */
+  follow?: () => HTMLElement | null;
+  /** Gibt es in diese Richtung noch eine Kategorie? Sonst nur Nachgeben am Rand, kein Wechsel. */
+  canStep?: (step: 1 | -1) => boolean;
+}
+
+const reducedMotion = () => typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+export function attachCategorySwipe(el: HTMLElement, onStep: (step: 1 | -1) => void, { follow, canStep = () => true }: Options = {}): () => void {
+  let g: { id: number; x: number; y: number; t: number; horizontal: boolean; samples: [number, number][] } | null = null;
   let guardUntil = 0;
+  let springTimer = 0;
+  let moved: HTMLElement | null = null;
 
-  const onDown = (e: PointerEvent) => {
-    if (!e.isPrimary || e.pointerType === 'mouse') return; // Maus: Chips anklicken reicht, kein Ziehen über Karten
-    const target = e.target as Element | null;
-    if (target?.closest?.(IGNORE)) return;
-    g = { id: e.pointerId, x: e.clientX, y: e.clientY, t: e.timeStamp, horizontal: false };
+  const setOffset = (px: number) => {
+    const target = follow?.();
+    if (!target) return;
+    window.clearTimeout(springTimer);
+    target.style.transition = 'none';
+    target.style.transform = px ? `translateX(${px}px)` : '';
+    moved = target;
+  };
+  /** Liste wieder an ihren Platz: mit kurzem Federn, oder sofort (beim Wechsel übernimmt das Hereingleiten). */
+  const release = (animate: boolean) => {
+    const target = moved;
+    moved = null;
+    if (!target) return;
+    if (!animate || reducedMotion() || !target.style.transform) {
+      target.style.transition = '';
+      target.style.transform = '';
+      return;
+    }
+    target.style.transition = `transform ${SPRING_MS}ms cubic-bezier(.2, .8, .2, 1)`;
+    target.style.transform = '';
+    springTimer = window.setTimeout(() => (target.style.transition = ''), SPRING_MS + 40);
   };
 
-  const onMove = (e: PointerEvent) => {
-    if (!g || e.pointerId !== g.id || g.horizontal) return;
-    const dx = e.clientX - g.x;
-    const dy = e.clientY - g.y;
-    if (Math.abs(dx) < SLOP && Math.abs(dy) < SLOP) return;
-    // Überwiegend senkrecht: Das ist Scrollen – Geste aufgeben, der Browser scrollt.
-    if (Math.abs(dy) >= Math.abs(dx)) g = null;
-    else g.horizontal = true;
+  const touchOf = (list: TouchList, id: number) => [...list].find((t) => t.identifier === id) ?? null;
+
+  const onStart = (e: TouchEvent) => {
+    if (e.touches.length !== 1) {
+      // Zweiter Finger: keine Wischgeste (z. B. Zoom-Versuch)
+      if (g) release(true);
+      g = null;
+      return;
+    }
+    const t = e.touches[0]!;
+    if ((e.target as Element | null)?.closest?.(IGNORE)) return;
+    g = { id: t.identifier, x: t.clientX, y: t.clientY, t: e.timeStamp, horizontal: false, samples: [[e.timeStamp, t.clientX]] };
   };
 
-  const onUp = (e: PointerEvent) => {
-    if (!g || e.pointerId !== g.id) return;
+  const onMove = (e: TouchEvent) => {
+    if (!g) return;
+    const t = touchOf(e.touches, g.id);
+    if (!t) return;
+    const dx = t.clientX - g.x;
+    const dy = t.clientY - g.y;
+    if (!g.horizontal) {
+      if (Math.abs(dx) < SLOP && Math.abs(dy) < SLOP) return;
+      // Überwiegend senkrecht: Das ist Scrollen – Geste aufgeben, der Browser scrollt.
+      if (Math.abs(dy) >= Math.abs(dx)) {
+        g = null;
+        return;
+      }
+      g.horizontal = true;
+    }
+    // Waagrecht: Liste darf nicht nebenbei mitscrollen; sie folgt stattdessen dem Finger.
+    if (e.cancelable) e.preventDefault();
+    g.samples.push([e.timeStamp, t.clientX]);
+    if (g.samples.length > 12) g.samples.shift();
+    setOffset(followOffset(dx, canStep(dx < 0 ? 1 : -1)));
+  };
+
+  const onEnd = (e: TouchEvent) => {
+    if (!g) return;
+    const t = touchOf(e.changedTouches, g.id);
+    if (!t) return;
     const s = g;
     g = null;
     if (!s.horizontal) return;
-    const step = swipeStep(e.clientX - s.x, e.clientY - s.y, e.timeStamp - s.t);
+    const dx = t.clientX - s.x;
+    const recent = s.samples.filter(([time]) => e.timeStamp - time <= VELOCITY_MS);
+    const first = recent[0];
+    const dt = first ? e.timeStamp - first[0] : 0;
+    const velocity = first && dt > 0 ? Math.abs(t.clientX - first[1]) / dt : undefined;
+    const step = swipeStep(dx, t.clientY - s.y, e.timeStamp - s.t, velocity);
     // Auch ein zu kurzer waagrechter Wisch soll keine Karte auswählen
     guardUntil = e.timeStamp + CLICK_GUARD_MS;
-    if (step) onStep(step);
+    if (step && canStep(step)) {
+      release(false);
+      onStep(step);
+    } else release(true);
   };
 
-  const onCancel = (e: PointerEvent) => {
-    if (g && e.pointerId === g.id) g = null;
-  };
-
-  // Steht die waagrechte Richtung fest, darf die Liste nicht mehr mitscrollen (iOS bräche die Geste sonst ab).
-  // Pointer-Ereignisse kommen vor dem zugehörigen touchmove – die Entscheidung oben steht also schon fest.
-  const onTouchMove = (e: TouchEvent) => {
-    if (g?.horizontal && e.cancelable) e.preventDefault();
+  const onCancel = () => {
+    if (g?.horizontal) release(true);
+    g = null;
   };
 
   // Klick nach einem Wisch verwerfen (Erfassungsphase: vor dem Klick-Handler der Karte)
@@ -89,18 +164,17 @@ export function attachCategorySwipe(el: HTMLElement, onStep: (step: 1 | -1) => v
     }
   };
 
-  el.addEventListener('pointerdown', onDown);
-  el.addEventListener('pointermove', onMove);
-  el.addEventListener('pointerup', onUp);
-  el.addEventListener('pointercancel', onCancel);
+  el.addEventListener('touchstart', onStart, { passive: true });
+  el.addEventListener('touchmove', onMove, { passive: false });
+  el.addEventListener('touchend', onEnd);
+  el.addEventListener('touchcancel', onCancel);
   el.addEventListener('click', onClick, true);
-  el.addEventListener('touchmove', onTouchMove, { passive: false });
   return () => {
-    el.removeEventListener('touchmove', onTouchMove);
-    el.removeEventListener('pointerdown', onDown);
-    el.removeEventListener('pointermove', onMove);
-    el.removeEventListener('pointerup', onUp);
-    el.removeEventListener('pointercancel', onCancel);
+    window.clearTimeout(springTimer);
+    el.removeEventListener('touchstart', onStart);
+    el.removeEventListener('touchmove', onMove);
+    el.removeEventListener('touchend', onEnd);
+    el.removeEventListener('touchcancel', onCancel);
     el.removeEventListener('click', onClick, true);
   };
 }
