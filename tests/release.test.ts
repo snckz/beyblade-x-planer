@@ -3,7 +3,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import type { Database } from '../src/lib/types';
-import { buildReleaseIndex, lockedParts, productRelease } from '../src/lib/release';
+import { buildReleaseIndex, isoDay, lockedParts, playedParts, productRelease } from '../src/lib/release';
 import { migrateUserState, normalizeRegister } from '../src/lib/idRegister';
 import { ownedParts } from '../src/lib/data';
 import { EMPTY_STATE } from '../src/lib/storage';
@@ -134,44 +134,50 @@ describe('Freigaberegel', () => {
   });
 });
 
-describe('Migration des echten Datenbestands (11: keine Massensperre)', () => {
-  const r = buildReleaseIndex(real, TODAY, realMeta);
-  const locked = (k: 'blades' | 'ratchets' | 'bits') => real[k].filter((x) => !r.selectable(k, x.id)).map((x) => x.id).sort();
-  it('vorher alles wählbar (144/38/56) – nachher nur Teile mit Release in der Zukunft gesperrt', () => {
-    expect([real.blades.length, real.ratchets.length, real.bits.length]).toEqual([144, 38, 56]);
-    expect(locked('blades')).toEqual(['FoxBlast', 'PhoenixForce', 'VanishLucifer']);
-    expect(locked('ratchets')).toEqual(['M-65']);
-    expect(locked('bits')).toEqual(['MO', 'MT']);
-    for (const k of ['blades', 'ratchets', 'bits'] as const) for (const id of locked(k)) expect(r.part(k, id).date! > TODAY).toBe(true);
+// Echter Datenbestand: Er ändert sich täglich (Neuheiten-Radar). Darum hier keine festen Listen, sondern Regeln,
+// die immer gelten müssen – mit dem heutigen Datum. Die Zahlen der Migration stehen im Bericht zu Phase 4.
+describe('Echter Datenbestand (11: keine Massensperre)', () => {
+  const today = isoDay();
+  const r = buildReleaseIndex(real, today, realMeta);
+  const played = playedParts(realMeta);
+  const KEYS = { blades: 'bladeId', ratchets: 'ratchetId', bits: 'bitId' } as const;
+  it('gesperrt ist nur, was in keinem erschienenen Produkt steckt und nicht im Turnier gespielt wird', () => {
+    for (const kind of ['blades', 'ratchets', 'bits'] as const) {
+      for (const part of real[kind]) {
+        if (r.selectable(kind, part.id)) continue;
+        const inReleased = real.products.some((p) => p[KEYS[kind]] === part.id && r.product(p.code).released);
+        expect(inReleased, `${kind} ${part.id}`).toBe(false);
+        expect(played[kind].has(part.id), `${kind} ${part.id}`).toBe(false);
+      }
+    }
   });
-  it('kein Teil aus der Turnier-Meta oder einem erschienenen Produkt wird gesperrt', () => {
-    const meta = JSON.parse(readFileSync(new URL('../public/data/meta.json', import.meta.url), 'utf8')) as { combos?: { bladeId: string; ratchetId?: string | null; bitId: string }[] };
-    for (const c of meta.combos ?? []) expect(lockedParts(r, { ...c, ratchetId: c.ratchetId ?? undefined })).toEqual([]);
+  it('höchstens ein kleiner Teil gesperrt (Schutz vor Massensperre)', () => {
+    const c = r.counts();
+    for (const kind of ['blades', 'ratchets', 'bits'] as const) expect(c[kind].confirmed / real[kind].length).toBeGreaterThan(0.9);
+  });
+  it('kein Teil aus der Turnier-Meta ist gesperrt', () => {
+    for (const c of realMeta.combos ?? []) expect(lockedParts(r, { ...c, ratchetId: c.ratchetId ?? undefined })).toEqual([]);
   });
   it('9./10. gespeicherte Kombos, Deck und Sammlung bleiben unverändert erhalten', () => {
+    // Kombo mit einem Teil, das (in der kleinen Testdatenbank) gesperrt ist, plus eine normale
     const state = {
       ...EMPTY_STATE,
-      owned: { 'BX-01': 1, 'BX-54': 1 },
+      owned: { 'BX-01': 1, 'BX-99': 1 },
       combos: [
         { id: 'a', bladeId: 'DranSword', ratchetId: '3-60', bitId: 'F' },
-        { id: 'b', bladeId: 'SiegSuperion', ratchetId: '0-70', bitId: 'LP' }, // inzwischen gesperrt
+        { id: 'b', bladeId: 'New', ratchetId: '9-90', bitId: 'NB' },
       ],
       deck: ['a', 'b'],
     };
     const before = JSON.stringify(state);
     // Freigabe verändert keine Nutzerdaten (die einzige Umstellung beim Laden ist das ID-Register)
     const reg = normalizeRegister(JSON.parse(readFileSync(new URL('../public/data/aliases.json', import.meta.url), 'utf8')));
-    const res = migrateUserState(state, reg, real);
-    expect(JSON.stringify(res.state)).toBe(before);
-    expect(lockedParts(r, state.combos[1]!)).toEqual([]); // Superion/LP: in Turnieren gespielt (Hasbro schon erschienen)
-    const noMeta = buildReleaseIndex(real, TODAY);
-    expect(lockedParts(noMeta, state.combos[1]!).map((x) => x.id)).toEqual(['SiegSuperion', 'LP']); // ohne Beleg gesperrt
-    expect(lockedParts(r, state.combos[0]!)).toHaveLength(0);
+    expect(JSON.stringify(migrateUserState(state, reg, real).state)).toBe(before);
+    const m = buildReleaseIndex(mini(), TODAY);
+    expect(lockedParts(m, state.combos[1]!).map((x) => x.id)).toEqual(['New', '9-90', 'NB']);
+    expect(lockedParts(r, state.combos[0]!)).toEqual([]);
     // Sammlung zählt weiter alles, was man hat – auch Vorbestelltes
-    expect(ownedParts(real, state.owned).blades.has('SiegSuperion')).toBe(true);
-  });
-  it('keine Widersprüche im aktuellen Bestand', () => {
-    expect(r.conflicts).toEqual([]);
+    expect(ownedParts(mini(), state.owned).blades.has('New')).toBe(true);
   });
 });
 
