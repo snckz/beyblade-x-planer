@@ -10,7 +10,7 @@ import { Lexikon } from '../src/components/Lexikon';
 import { DetailSheet } from '../src/components/DetailSheet';
 
 afterEach(cleanup);
-afterAll(() => new Promise((resolve) => setTimeout(resolve, 150)));
+afterAll(() => new Promise((resolve) => setTimeout(resolve, 400)));
 
 const db = {
   version: 1,

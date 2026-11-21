@@ -16,7 +16,7 @@ afterEach(() => {
   cleanup();
   dismissUndo();
 });
-afterAll(() => new Promise((resolve) => setTimeout(resolve, 150)));
+afterAll(() => new Promise((resolve) => setTimeout(resolve, 400)));
 
 let t = 1000;
 /** Touch-Ereignis mit einem Finger (jsdom hat keinen Touch-Konstruktor) */

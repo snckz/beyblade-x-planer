@@ -7,7 +7,9 @@ import { encodeState } from '../src/lib/transfer';
 import { EMPTY_STATE, type UserState } from '../src/lib/storage';
 
 afterEach(cleanup);
-afterAll(() => new Promise((resolve) => setTimeout(resolve, 150)));
+// Schließ-Animationen (useModal: 180 ms + 1 Bild) vor dem Abbau der Testumgebung auslaufen lassen –
+// sonst laufen sie danach ohne window (sporadisch auf dem langsameren CI-Server).
+afterAll(() => new Promise((resolve) => setTimeout(resolve, 400)));
 
 const sheet = () => document.querySelector<HTMLElement>('.confirm-sheet');
 
