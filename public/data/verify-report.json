@@ -1,7 +1,7 @@
 {
   "blades": [],
   "bits": [],
-  "products": 3,
+  "products": 0,
   "mismatches": [],
   "unreleased": [
     "FoxBlast (2026-12-26)"
@@ -9,5 +9,5 @@
   "notFound": [],
   "releaseConfirmed": [],
   "releasePending": [],
-  "fetched": 10
+  "fetched": 7
 }
