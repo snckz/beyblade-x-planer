@@ -51,6 +51,11 @@ interface Props<T extends string> {
   onChange: (tab: T) => void;
   /** Beim Loslassen: Ziel schon anzeigen (Leiste unten), `null` = wieder die aktuelle Seite */
   onPreview?: (tab: T | null) => void;
+  /**
+   * Fläche, auf der gewischt werden darf: der nächste Vorfahre mit diesem Selektor (Standard: der Pager selbst).
+   * Die Seiten haben seitlich Rand – ein Wisch, der am Bildschirmrand beginnt, muss trotzdem zählen.
+   */
+  swipeArea?: string;
 }
 
 /**
@@ -62,7 +67,7 @@ interface Props<T extends string> {
  *   aktuelle Seite trotzdem mit und die neue erscheint nach dem Einrasten.
  * - Wer eine Seite verlässt, findet sie beim nächsten Mal frisch vor (wie bisher): Sie wird neu aufgebaut.
  */
-export function TabPager<T extends string>({ tabs, current, render, canPrebuild = () => true, onChange, onPreview }: Props<T>) {
+export function TabPager<T extends string>({ tabs, current, render, canPrebuild = () => true, onChange, onPreview, swipeArea }: Props<T>) {
   const root = useRef<HTMLDivElement>(null);
   const index = tabs.indexOf(current);
 
@@ -89,8 +94,9 @@ export function TabPager<T extends string>({ tabs, current, render, canPrebuild 
     const el = root.current;
     if (!el) return;
     const at = (step: 1 | -1) => live.current.tabs[live.current.index + step];
+    const area = (swipeArea ? el.closest<HTMLElement>(swipeArea) : null) ?? el;
     return attachCategorySwipe(
-      el,
+      area,
       (step) => {
         const next = at(step);
         live.current.onPreview?.(null);
@@ -105,7 +111,7 @@ export function TabPager<T extends string>({ tabs, current, render, canPrebuild 
         // Während der Geste ruht das Freistellen von Fotos – wie in den Auswahlfenstern
         onActive: pauseCutouts,
         onSettle: (step) => live.current.onPreview?.(at(step) ?? null),
-        ignore: (target) => blocksTabSwipe(target, el),
+        ignore: (target) => blocksTabSwipe(target, area),
         ownsStep: rowOwnsStep,
         scrollTop: () => window.scrollY,
       },

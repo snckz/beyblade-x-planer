@@ -124,6 +124,8 @@ Regeln:
   Einrasten.
 - Nachbarseiten dürfen nichts auslösen, was „gesehen“ bedeutet. Hier: Meldungen gelten erst als gelesen, wenn die
   Seite sichtbar ist (`active`).
+- Gewischt wird auf der ganzen Seitenfläche samt seitlichem Rand (`swipeArea`), nicht nur auf dem Inhalt: Ein Wisch,
+  der am Bildschirmrand beginnt, muss zählen – dort setzt der Daumen meistens auf.
 - Kein Seitenwechsel, solange ein Fenster offen ist, auf Schiebereglern und in allem, was selbst waagrecht scrollt
   (`blocksTabSwipe` prüft das beim Aufsetzen des Fingers).
 - Einträge mit Wischen-zum-Löschen: nach links gehört die Geste dem Eintrag, nach rechts der Seite (`rowOwnsStep`).
@@ -269,6 +271,12 @@ Knopf und Geste lösen dieselbe Bewegung aus (`slideBack`).
 
 ## 8. Stolpersteine, die schon gelöst sind
 
+- **iOS blättert vom Bildschirmrand selbst durch den Verlauf.** Legt jeder Seitenwechsel einen Eintrag im Verlauf an
+  (`location.hash = …`), zeigt iOS bei einem Wisch vom Rand seine eigene Zurück-/Vorwärts-Geste: Der ganze Bildschirm
+  samt Kopf und Leiste schiebt sich als Standbild übereinander, und man kommt nur zu Seiten, auf denen man schon war.
+  Abschalten lässt sich das nicht. Lösung: auf iPhone/iPad die Adresse mit `history.replaceState` setzen
+  (`rememberTab` in `lib/tabSwipe.ts`) – ohne Verlauf hat die System-Geste nichts zu blättern. Auf Android bleibt der
+  Verlauf, dort geht die Zurück-Taste zur vorherigen Seite.
 - **`position: fixed` in einer verschobenen Fläche.** Ein Element mit `transform` oder `will-change: transform` wird
   zum Bezugsrahmen für alle `fixed`-Elemente darin. Liegen Fenster im DOM innerhalb der Seite, hängen sie dann an der
   Spur statt am Bildschirm. Deshalb bekommt die Spur der Hauptseiten ihre Verschiebung nur während der Geste. Im

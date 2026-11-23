@@ -35,3 +35,20 @@ export function rowOwnsStep(target: Element, step: 1 | -1): boolean {
   if (!row) return false;
   return step === 1 || row.classList.contains('is-open') || row.classList.contains('is-swiping');
 }
+
+/** iPhone/iPad (auch iPadOS, das sich als Mac ausgibt) */
+const isIos = () => /iP(hone|ad|od)/.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
+
+/**
+ * Die aktuelle Seite in der Adresse merken (`#battle` …), damit Neuladen und Links dort landen.
+ *
+ * iPhone/iPad: ohne neuen Eintrag im Verlauf. iOS blättert bei einem Wisch vom Bildschirmrand sonst selbst durch den
+ * Verlauf – der ganze Bildschirm samt Logo und Leiste schiebt sich dann als Standbild übereinander, und man kommt nur
+ * zu Seiten, auf denen man schon war. Diese System-Geste lässt sich nicht abschalten; ohne Verlauf hat sie nichts zu
+ * blättern, und der Wisch gehört der App (components/TabPager.tsx).
+ * Sonst (Android, PC): wie bisher ein Eintrag je Wechsel – die Zurück-Taste geht zur vorherigen Seite.
+ */
+export function rememberTab(tab: string): void {
+  if (isIos()) history.replaceState(history.state, '', `${location.pathname}${location.search}#${tab}`);
+  else window.location.hash = tab;
+}

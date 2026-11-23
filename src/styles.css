@@ -3236,14 +3236,15 @@ button.lex-row-art { cursor: zoom-in; }
    Die aktuelle Seite liegt normal im Dokument und scrollt mit dem Fenster. Ihre Nachbarn liegen fertig gebaut links
    und rechts daneben (außerhalb des Bildschirms) und kommen beim Wischen herein. Die Spur bekommt nur während der
    Geste eine Verschiebung – dauerhaft bliebe sie ohne (sonst hingen Fenster in der Seite an der Spur statt am Bildschirm). */
-.main { overflow-x: clip; }
+/* Gewischt wird auf der ganzen Seitenfläche samt Rand (auch vom Bildschirmrand aus) */
+.main { overflow-x: clip; touch-action: pan-y; }
 /* Etwas Luft oben und unten (per Gegenrand ausgeglichen), damit Schatten und Schein am Seitenrand nicht hart abgeschnitten werden */
 .tab-pager {
   position: relative; min-height: calc(100dvh - var(--tabbar-h) - var(--safe-b) - var(--safe-t) - 150px);
   margin-block: -8px -32px; padding-block: 8px 32px; overflow-x: visible; overflow-y: clip; touch-action: pan-y;
 }
 .tab-track { position: relative; }
-.tab-page.is-side { position: absolute; top: 8px; left: calc(100% + 24px); width: 100%; pointer-events: none; -webkit-user-select: none; user-select: none; }
+.tab-page.is-side { position: absolute; top: 0; left: calc(100% + 24px); width: 100%; pointer-events: none; -webkit-user-select: none; user-select: none; }
 .tab-page.is-side[data-dir="-1"] { left: calc(-100% - 24px); }
 /* Ältere Browser ohne `overflow: clip` könnten die Nachbarn nicht abschneiden: dort ohne Nachbarseiten (Wischen geht trotzdem). */
 @supports not (overflow: clip) { .tab-page.is-side { display: none; } }

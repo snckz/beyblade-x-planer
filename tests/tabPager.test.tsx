@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, cleanup, render } from '@testing-library/preact';
 import { useState } from 'preact/hooks';
 import { TabPager } from '../src/components/TabPager';
-import { blocksTabSwipe, rowOwnsStep } from '../src/lib/tabSwipe';
+import { blocksTabSwipe, rememberTab, rowOwnsStep } from '../src/lib/tabSwipe';
 import { attachCategorySwipe } from '../src/lib/categorySwipe';
 import { News } from '../src/components/News';
 import type { UserState } from '../src/lib/storage';
@@ -150,6 +150,22 @@ describe('Hauptseiten zum Blättern (TabPager)', () => {
   });
 });
 
+describe('Wischen vom Rand', () => {
+  it('zählt auch, wenn der Finger im Rand neben den Seiten aufsetzt', () => {
+    const seen: string[] = [];
+    const view = render(
+      <main id="main">
+        <p data-testid="rand">Rand</p>
+        <TabPager tabs={TABS} current="a" render={(t) => <span>{t}</span>} onChange={(t) => seen.push(t)} swipeArea="#main" />
+      </main>,
+    );
+    later(300);
+    swipe(view.getByTestId('rand'), -120);
+    later(600);
+    expect(seen).toEqual(['b']);
+  });
+});
+
 describe('Wo das Wischen zwischen den Seiten nicht gilt', () => {
   const root = () => {
     const r = document.createElement('div');
@@ -210,5 +226,29 @@ describe('Termine als Nachbarseite', () => {
     expect(update).not.toHaveBeenCalled();
     view.rerender(<News news={news as never} state={state} update={update} active />);
     expect(update).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('Seite in der Adresse merken', () => {
+  const ua = (value: string) => Object.defineProperty(navigator, 'userAgent', { value, configurable: true });
+  const original = navigator.userAgent;
+  afterEach(() => ua(original));
+
+  it('iPhone: kein neuer Eintrag im Verlauf (sonst blättert iOS vom Rand selbst durch den Verlauf)', () => {
+    ua('Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148');
+    const before = history.length;
+    rememberTab('battle');
+    rememberTab('events');
+    expect(location.hash).toBe('#events');
+    expect(history.length).toBe(before);
+  });
+
+  it('Android und PC: ein Eintrag je Wechsel, die Zurück-Taste geht zur vorherigen Seite', () => {
+    ua('Mozilla/5.0 (Linux; Android 15; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Mobile Safari/537.36');
+    const before = history.length;
+    rememberTab('parts');
+    rememberTab('collection');
+    expect(location.hash).toBe('#collection');
+    expect(history.length).toBe(before + 2);
   });
 });

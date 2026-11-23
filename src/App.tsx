@@ -19,6 +19,7 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { UndoToast } from './components/UndoToast';
 import { lazy, Suspense } from 'preact/compat';
 import { TabPager } from './components/TabPager';
+import { rememberTab } from './lib/tabSwipe';
 
 // Tabs und selten genutzte Fenster erst bei Bedarf laden – der Start bleibt schlank.
 // Gleich nach dem Start werden sie im Leerlauf vorgeladen, damit der Wechsel trotzdem sofort geht.
@@ -194,7 +195,7 @@ export function App() {
 
   const update = useCallback((fn: (s: UserState) => UserState) => setState((s) => fn(s)), []);
   const go = useCallback((t: Tab) => {
-    window.location.hash = t;
+    rememberTab(t);
     setTab(t);
     setPreviewTab(null);
     window.scrollTo({ top: 0 });
@@ -375,7 +376,7 @@ export function App() {
               )}
             </>
           ) : (
-            <TabPager tabs={TAB_IDS} current={tab} render={(t, active) => renderPage(db, t, active)} canPrebuild={(t) => loadedTabs.has(t)} onChange={go} onPreview={setPreviewTab} />
+            <TabPager tabs={TAB_IDS} current={tab} render={(t, active) => renderPage(db, t, active)} canPrebuild={(t) => loadedTabs.has(t)} onChange={go} onPreview={setPreviewTab} swipeArea="#main" />
           )}
         </main>
 
