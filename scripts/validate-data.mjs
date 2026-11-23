@@ -69,6 +69,12 @@ export function validateNews(news) {
 const KINDS_EVENT = new Set(['release', 'tournament', 'event']);
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 
+/**
+ * Persönliche Anrede in Texten, die jeder Nutzer der App sieht („Du bist dann in Bangkok“).
+ * Termine werden automatisch gepflegt – die Texte müssen für alle gelten, nicht für eine bestimmte Person.
+ */
+const PERSONAL = /(?<![\p{L}\p{N}])(du|dir|dich|dein(?:e[mnrs]?)?|ihr|euch|euer|eure[mnrs]?)(?![\p{L}\p{N}])/iu;
+
 export function validateEvents(feed, bladeIds = new Set()) {
   const errors = [];
   if (!feed || !Array.isArray(feed.events)) return ['events.json: events muss ein Array sein'];
@@ -83,6 +89,10 @@ export function validateEvents(feed, bladeIds = new Set()) {
     if (e.url && !/^https:\/\//.test(e.url)) errors.push(`Termin ${e.id}: URL muss https sein`);
     if (e.bladeId && bladeIds.size && !bladeIds.has(e.bladeId)) errors.push(`Termin ${e.id}: Blade ${e.bladeId} unbekannt`);
     if (typeof e.confirmed !== 'boolean') errors.push(`Termin ${e.id}: confirmed fehlt`);
+    for (const field of ['title', 'place', 'note']) {
+      const hit = typeof e[field] === 'string' ? PERSONAL.exec(e[field]) : null;
+      if (hit) errors.push(`Termin ${e.id}: ${field} spricht jemanden persönlich an („${hit[0]}“) – neutral formulieren, die App nutzen mehrere Personen`);
+    }
   }
   return errors;
 }
