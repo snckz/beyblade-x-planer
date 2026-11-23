@@ -7,11 +7,13 @@ interface Props {
   news: NewsFeed;
   state: UserState;
   update: (fn: (s: UserState) => UserState) => void;
+  /** Nur die sichtbare Seite markiert Meldungen als gelesen – eine fürs Wischen vorbereitete Nachbarseite nicht. */
+  active?: boolean;
 }
 
 const fmt = (iso: string) => new Date(iso).toLocaleDateString('de-AT', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
-export function News({ news, state, update }: Props) {
+export function News({ news, state, update, active = true }: Props) {
   // „neu“-Markierung aus dem Stand beim Öffnen des Tabs, damit sie während des Lesens sichtbar bleibt.
   const seenAtOpen = useRef<Set<string> | null>(null);
   if (seenAtOpen.current === null) seenAtOpen.current = new Set(state.seenNews);
@@ -19,10 +21,11 @@ export function News({ news, state, update }: Props) {
 
   // Sofort als gelesen speichern – auch wenn die App direkt auf diesem Tab geschlossen wird.
   useEffect(() => {
+    if (!active) return;
     const ids = news.items.map((i) => i.id);
     if (ids.every((id) => state.seenNews.includes(id))) return;
     update((s) => ({ ...s, seenNews: [...new Set([...s.seenNews, ...ids])].slice(-300) }));
-  }, [news.items, state.seenNews, update]);
+  }, [news.items, state.seenNews, update, active]);
 
   return (
     <div class="stack">

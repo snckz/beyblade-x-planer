@@ -2,7 +2,7 @@ import { useMemo, useState } from 'preact/hooks';
 import type { Combo, Database, MetaFeed } from '../lib/types';
 import type { UserState } from '../lib/storage';
 import { newId } from '../lib/storage';
-import { nb } from '../lib/analysis';
+import { nb, TYPE_LABEL } from '../lib/analysis';
 import { useRelease } from '../lib/useRelease';
 
 /** Zweizeilig: Blade oben, Ratchet+Bit unten – kein Umbruch mitten im Namen. */
@@ -26,7 +26,8 @@ import { BattleLog } from './BattleLog';
 import { DeckOptimizer } from './DeckOptimizer';
 import { LiveMatch } from './LiveMatch';
 import { Tournament } from './Tournament';
-import { Section, TypeBadge } from './ui';
+import { Section, TypeChip } from './ui';
+import { ArrowRight } from 'lucide-preact';
 
 interface Props {
   db: Database;
@@ -123,7 +124,7 @@ export function Battle(props: Props) {
       {duel && (
         <Section title={usingArchetypes ? 'Analyse gegen typische Gegner' : 'Matchup-Analyse'}>
           <div class="card glass stack-sm">
-            <div class="verdict">
+            <div class="duel-verdict">
               <span class={`verdict-score ${duel.overall >= 5 ? 'win' : duel.overall <= -5 ? 'lose' : 'even'}`}>
                 {duel.overall > 0 ? '+' : ''}
                 {duel.overall}
@@ -141,9 +142,17 @@ export function Battle(props: Props) {
                       <span class="sr-only">Mein Kreisel</span>
                     </th>
                     {opponents.map((o) => (
-                      <th key={o.combo.id} scope="col" title={o.analysis.label}>
+                      <th key={o.combo.id} scope="col" title={o.combo.name ? `${o.combo.name} (${o.analysis.label})` : o.analysis.label}>
                         <BeyImage bladeId={o.combo.bladeId} type={o.analysis.type} size="sm" alt={o.analysis.label} />
-                        <TwoLine name={o.combo.name} label={o.analysis.label} />
+                        {/* Typische Gegner: In der schmalen Spalte steht der Typ, der volle Name bleibt für Vorlesen und Tooltip */}
+                        {usingArchetypes ? (
+                          <span class="matrix-name">
+                            <span aria-hidden="true">{TYPE_LABEL[o.analysis.type]}</span>
+                            <span class="sr-only">{o.combo.name}</span>
+                          </span>
+                        ) : (
+                          <TwoLine name={o.combo.name} label={o.analysis.label} />
+                        )}
                       </th>
                     ))}
                   </tr>
@@ -202,18 +211,23 @@ export function Battle(props: Props) {
                   const m = mine[s.slot]!;
                   return (
                     <li key={`${s.slot}-${s.newId}`} class="suggestion">
-                      <div class="row-main">
-                        <span class="row-title">
-                          {m.combo.name ?? nb(m.analysis.label)}: {s.part} {s.oldId} → {s.newId}
+                      <div class="suggestion-main">
+                        <span class="row-title">{m.combo.name ?? nb(m.analysis.label)}</span>
+                        <span class="suggestion-swap">
+                          <span class="suggestion-part">{s.part}</span>
+                          <span class="mini-badge">{s.oldId}</span>
+                          <ArrowRight aria-label="wird zu" />
+                          <span class="mini-badge suggestion-new">{s.newId}</span>
+                          <span class="gain">+{s.gain} Punkte</span>
                         </span>
-                        <span class="row-sub">
-                          Neu: {nb(s.newLabel)} · <span class="gain">+{s.gain} Punkte</span> im Schnitt
-                        </span>
+                        <span class="row-sub">Neu: {nb(s.newLabel)} · im Schnitt gegen diese Gegner</span>
                       </div>
-                      <TypeBadge type={toBey(db, s.to)!.analysis.type} small />
-                      <button type="button" class="btn btn-ghost" onClick={() => apply(m.combo.id, s.to)}>
-                        Übernehmen
-                      </button>
+                      <div class="suggestion-side">
+                        <TypeChip type={toBey(db, s.to)!.analysis.type} />
+                        <button type="button" class="btn btn-sm" onClick={() => apply(m.combo.id, s.to)} aria-label={`${s.part} ${s.oldId} durch ${s.newId} ersetzen`}>
+                          Übernehmen
+                        </button>
+                      </div>
                     </li>
                   );
                 })}

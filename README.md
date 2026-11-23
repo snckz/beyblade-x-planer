@@ -74,6 +74,7 @@ Es gibt zwei Wege. Der erste ist der einfachere.
 - **Termine:** Releases und Turniere mit Countdown (`public/data/events.json`), zweimal pro Woche per Scheduled Task recherchiert.
 - **Detailseiten:** Steckbrief im Wiki-Stil je Blade. Bilder werden direkt vom Beyblade Wiki verlinkt (nicht kopiert), mit Quellenlink; ohne Bild erscheint ein eigenes Emblem.
 - **Neuheiten-Radar:** GitHub Action durchsucht täglich das Beyblade Wiki nach neuen Produktnummern und zeigt Treffer im News-Tab.
+- **Wischen:** Zwischen den Hauptseiten (Kombo, Lexikon, Battle, Termine, Sammlung) blättert man mit einem Wisch nach links oder rechts – mit denselben Werten wie in den Auswahlfenstern (`src/lib/categorySwipe.ts`, `src/components/TabPager.tsx`). Alle Werte fürs Wischen und für die Fenster stehen zum Übernehmen in andere Apps in [`docs/wischen-und-fenster.md`](docs/wischen-und-fenster.md).
 - **Offline:** Nach dem ersten Öffnen funktioniert die App auch ohne Internet.
 
 Daten zur Sammlung bleiben lokal auf dem Gerät (localStorage).

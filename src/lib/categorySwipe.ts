@@ -107,6 +107,12 @@ interface Options {
   onActive?: (active: boolean) => void;
   /** Loslassen mit Wechsel: sofort gemeldet (z. B. Chip umschalten), `onStep` folgt nach dem Einrasten. */
   onSettle?: (step: 1 | -1) => void;
+  /** Weitere Ausnahmen beim Aufsetzen des Fingers (z. B. eigene waagrechte Leisten, offenes Fenster). */
+  ignore?: (target: Element) => boolean;
+  /** Gehört ein Wisch in diese Richtung an dieser Stelle jemand anderem (z. B. Wischen zum Löschen)? Dann nichts tun. */
+  ownsStep?: (target: Element, step: 1 | -1) => boolean;
+  /** Scrollstand der Fläche – Standard: `el.scrollTop`. Für Seiten, die mit dem Fenster scrollen: `window.scrollY`. */
+  scrollTop?: () => number;
 }
 
 const reducedMotion = () => typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -116,8 +122,8 @@ const STEPS = [1, -1] as const;
 /** Aushängen; `finish()` beendet ein laufendes Einrasten sofort (z. B. wenn ein Chip-Tipp dazwischenkommt). */
 export type SwipeHandle = (() => void) & { finish: () => void };
 
-export function attachCategorySwipe(el: HTMLElement, onStep: (step: 1 | -1) => void, { pager, canStep = () => true, onActive, onSettle }: Options = {}): SwipeHandle {
-  let g: { id: number; x: number; y: number; t: number; horizontal: boolean; samples: [number, number][] } | null = null;
+export function attachCategorySwipe(el: HTMLElement, onStep: (step: 1 | -1) => void, { pager, canStep = () => true, onActive, onSettle, ignore, ownsStep, scrollTop = () => el.scrollTop }: Options = {}): SwipeHandle {
+  let g: { id: number; x: number; y: number; t: number; horizontal: boolean; target: Element | null; samples: [number, number][] } | null = null;
   let guardUntil = 0;
   /** Laufendes Blättern: Spur, Nachbarseiten (auf Höhe des sichtbaren Ausschnitts gelegt), Seitenbreite */
   let pages: { track: HTMLElement; sides: HTMLElement[]; width: number } | null = null;
@@ -144,7 +150,7 @@ export function attachCategorySwipe(el: HTMLElement, onStep: (step: 1 | -1) => v
     const width = track.offsetWidth + PAGE_GAP;
     // Die Nachbarseite zeigt ihren Anfang dort, wo man gerade hinschaut – nach dem Wechsel steht die Liste oben.
     // Die Nachbarn sind eigene Ebenen: Das Verschieben kostet kein Neuzeichnen.
-    const y = el.scrollTop;
+    const y = scrollTop();
     const sides: HTMLElement[] = [];
     for (const s of STEPS) {
       const side = canStep(s) ? pager!.side(s) : null;
@@ -206,8 +212,9 @@ export function attachCategorySwipe(el: HTMLElement, onStep: (step: 1 | -1) => v
     g = null;
     if (e.touches.length !== 1) return;
     const t = e.touches[0]!;
-    if ((e.target as Element | null)?.closest?.(IGNORE)) return;
-    g = { id: t.identifier, x: t.clientX, y: t.clientY, t: e.timeStamp, horizontal: false, samples: [[e.timeStamp, t.clientX]] };
+    const target = e.target instanceof Element ? e.target : null;
+    if (target?.closest(IGNORE) || (target && ignore?.(target))) return;
+    g = { id: t.identifier, x: t.clientX, y: t.clientY, t: e.timeStamp, horizontal: false, target, samples: [[e.timeStamp, t.clientX]] };
   };
 
   let lastOffset = 0;
@@ -221,6 +228,11 @@ export function attachCategorySwipe(el: HTMLElement, onStep: (step: 1 | -1) => v
       if (Math.abs(dx) < SLOP && Math.abs(dy) < SLOP) return;
       // Überwiegend senkrecht: Das ist Scrollen – Geste aufgeben, der Browser scrollt.
       if (Math.abs(dy) >= Math.abs(dx)) {
+        g = null;
+        return;
+      }
+      // Waagrecht, aber an dieser Stelle gehört die Richtung einer anderen Geste: ihr überlassen
+      if (g.target && ownsStep?.(g.target, dx < 0 ? 1 : -1)) {
         g = null;
         return;
       }

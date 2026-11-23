@@ -1,5 +1,6 @@
 import { displayName, displayProductName, regionLabel } from '../lib/names';
-import { BeyImage } from './BeyImage';
+import { BladePhoto } from './BeyImage';
+import { BitImage, RatchetImage } from './BitImage';
 import { useMemo, useRef, useState } from 'preact/hooks';
 import type { BeyEvent, Database, MetaFeed } from '../lib/types';
 import { wishReleases } from '../lib/reminders';
@@ -7,8 +8,7 @@ import { downloadIcs } from '../lib/ics';
 import type { UserState } from '../lib/storage';
 import { exportState, importState } from '../lib/storage';
 import { ownedParts, purchaseCodes } from '../lib/data';
-import { Empty, Section } from './ui';
-import { TYPE_LABEL } from '../lib/analysis';
+import { Empty, Section, TypeChip } from './ui';
 import { useApp } from '../lib/context';
 import { Scanner } from './Scanner';
 import { Transfer } from './Transfer';
@@ -223,17 +223,34 @@ export function Collection({ db, state, update, events = [], meta }: Props) {
             <ul class={`tiles${editing ? ' editing' : ''}`}>
               {ownedProducts.map((p) => {
                 const b = db.blades.find((x) => x.id === p.bladeId);
+                // Lose Teile aus Sets (ohne Blade): Ratchet und Bit im Bild statt nur der Artikelnummer
+                const ratchet = b ? undefined : db.ratchets.find((x) => x.id === p.ratchetId);
+                const bit = b ? undefined : db.bits.find((x) => x.id === p.bitId);
+                const isNew = p.code.startsWith('TBA');
                 return (
                   <SwipeRow key={p.code} class={`tile-bey${b ? ` aura-${b.type}` : ''}`} deleteLabel={`${p.name} aus der Sammlung entfernen`} onDelete={() => swipeRemoveProduct(p.code)}>
                     <div class="tile-top">
                       <span class={`region-tag ${p.region === 'hasbro' ? 'hasbro' : 'takara'}`}>{regionLabel(p)}</span>
                       {!editing && <span class="count">{state.owned[p.code]}×</span>}
                     </div>
-                    <div class="tile-art">{b ? <BeyImage bladeId={b.id} type={b.type} size="lg" alt={displayName(b)} /> : <span class="code">{p.code.startsWith('TBA') ? 'neu' : p.code}</span>}</div>
+                    <div class="tile-art">
+                      {b ? (
+                        <BladePhoto blade={b} alt={displayName(b)} variant="card" zoomable />
+                      ) : ratchet || bit ? (
+                        <span class="tile-parts">
+                          {ratchet && <RatchetImage ratchet={ratchet} size="card" />}
+                          {bit && <BitImage bit={bit} size="card" />}
+                        </span>
+                      ) : (
+                        <span class="code">{isNew ? 'neu' : p.code}</span>
+                      )}
+                    </div>
                     <div class="tile-text">
-                      {b && <span class={`tile-kind type-fg-${b.type}`}>{TYPE_LABEL[b.type]}</span>}
                       <span class="tile-name">{nb(displayProductName(p, db))}</span>
-                      {b && !p.code.startsWith('TBA') && <span class="owned-code">{p.code}</span>}
+                      <span class="tile-meta">
+                        {b && <TypeChip type={b.type} />}
+                        {!isNew && <span class="owned-code">{p.code}</span>}
+                      </span>
                     </div>
                     {editing && (
                       <div class="stepper stepper-sm" aria-label={`Anzahl ${p.name}`}>
@@ -253,14 +270,29 @@ export function Collection({ db, state, update, events = [], meta }: Props) {
           </section>
           <Section title="Teile zum Kombinieren">
             <div class="card parts-grid">
-              <div>
-                <p class="eyebrow">Ratchets</p>
-                <p>{[...parts.ratchets.keys()].sort().join(', ') || '–'}</p>
-              </div>
-              <div>
-                <p class="eyebrow">Bits</p>
-                <p>{[...parts.bits.keys()].sort().join(', ') || '–'}</p>
-              </div>
+              {(
+                [
+                  ['Ratchets', [...parts.ratchets.keys()]],
+                  ['Bits', [...parts.bits.keys()]],
+                ] as const
+              ).map(([label, ids]) => (
+                <div key={label}>
+                  <p class="eyebrow">
+                    {label} <span class="parts-count">{ids.length}</span>
+                  </p>
+                  {ids.length ? (
+                    <ul class="part-chips" aria-label={label}>
+                      {[...ids].sort().map((id) => (
+                        <li key={id} class="mini-badge">
+                          {id}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p>–</p>
+                  )}
+                </div>
+              ))}
             </div>
           </Section>
         </>

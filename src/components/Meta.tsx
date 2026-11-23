@@ -3,8 +3,8 @@ import type { Database, MetaFeed, MetaTrend } from '../lib/types';
 import type { UserState } from '../lib/storage';
 import { newId } from '../lib/storage';
 import { deriveType, nb, resolveCombo } from '../lib/analysis';
-import { BeyImage } from './BeyImage';
-import { Section, TypeBadge } from './ui';
+import { BladePhoto } from './BeyImage';
+import { Section, TypeChip } from './ui';
 
 interface Props {
   db: Database;
@@ -45,18 +45,20 @@ export function Meta({ db, meta, update, onBuild }: Props) {
           {combos.map(({ c, r }, i) => (
             <li key={`${c.bladeId}-${c.ratchetId}-${c.bitId}`} class="row meta-row">
               <span class="meta-rank">{i + 1}</span>
-              <BeyImage bladeId={r.blade.id} type={r.blade.type} size="sm" alt={r.blade.name} zoomable={false} />
+              <span class={`saved-art aura-${deriveType(r.blade, r.bit)}`}>
+                <BladePhoto blade={r.blade} alt="" variant="card" />
+              </span>
               <div class="row-main">
                 <span class="row-title">
                   {displayName(r.blade)} {nb(`${r.ratchet?.id ?? ''}${r.bit.id}`)}
                 </span>
                 <span class="meta-tags">
-                  <TypeBadge type={deriveType(r.blade, r.bit)} small />
+                  <TypeChip type={deriveType(r.blade, r.bit)} />
                   <span class={`trend ${TREND[c.trend].cls}`}>{TREND[c.trend].label}</span>
                 </span>
                 <span class="row-sub">{c.note}</span>
               </div>
-              <button type="button" class="btn btn-ghost btn-sm" onClick={() => onBuild(c.bladeId, c.ratchetId ?? undefined, c.bitId)} aria-label={`${displayName(r.blade)} ${r.ratchet?.id ?? ''}${r.bit.id} im Kombo-Planer öffnen`}>
+              <button type="button" class="btn btn-sm" onClick={() => onBuild(c.bladeId, c.ratchetId ?? undefined, c.bitId)} aria-label={`${displayName(r.blade)} ${r.ratchet?.id ?? ''}${r.bit.id} im Kombo-Planer öffnen`}>
                 Bauen
               </button>
             </li>

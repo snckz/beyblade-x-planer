@@ -18,6 +18,8 @@ interface Props {
   news: NewsFeed;
   state: UserState;
   update: (fn: (s: UserState) => UserState) => void;
+  /** Seite ist sichtbar (nicht nur als Nachbarseite fürs Wischen vorbereitet) */
+  active?: boolean;
 }
 
 const KIND = { release: 'Release', tournament: 'Turnier', event: 'Event' } as const;
@@ -44,7 +46,7 @@ function dateRange(e: BeyEvent) {
 /** „Abb. ähnlich“, wenn das Foto nicht exakt zum Produkt passt (Set, Sonderfarbe). */
 const similarNote = (eventTitle: string) => (imageTitle: string) => (photoMatchesTitle(eventTitle, imageTitle) ? null : 'Abb. ähnlich');
 
-export function Events({ db, events, news, state, update }: Props) {
+export function Events({ db, events, news, state, update, active = true }: Props) {
   const { openBlade, rates } = useApp();
   const [kind, setKind] = useState<'all' | BeyEvent['kind']>('all');
   const sorted = [...events].sort((a, b) => a.date.localeCompare(b.date));
@@ -259,7 +261,7 @@ export function Events({ db, events, news, state, update }: Props) {
         </details>
       )}
       <Section title="Neuheiten-Radar">
-        <News news={news} state={state} update={update} />
+        <News news={news} state={state} update={update} active={active} />
       </Section>
     </div>
   );

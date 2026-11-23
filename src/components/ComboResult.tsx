@@ -53,14 +53,15 @@ export function ComboNow({ resolved, result, children }: { resolved: Resolved; r
   );
 }
 
-// Schmale Zeichenfläche: Auf einem 320 px breiten iPhone bleibt die Beschriftung so bei gut 11 px
-const SIZE = { w: 310, h: 216, cx: 155, cy: 107, r: 58 };
+// Schmale Zeichenfläche, das Netz so groß wie die Beschriftung links und rechts es zulässt
+// (auf einem 320 px breiten iPhone bleibt sie bei gut 10 px, die Zahlen bei 16 px).
+const SIZE = { w: 310, h: 248, cx: 155, cy: 124, r: 74 };
 /** Wo Beschriftung und Zahl je Achse stehen: oben, rechts, unten, links */
 const LABEL_POS = [
   { x: SIZE.cx, y: 18, anchor: 'middle' },
-  { x: SIZE.cx + SIZE.r + 12, y: SIZE.cy - 8, anchor: 'start' },
-  { x: SIZE.cx, y: SIZE.cy + SIZE.r + 22, anchor: 'middle' },
-  { x: SIZE.cx - SIZE.r - 12, y: SIZE.cy - 8, anchor: 'end' },
+  { x: SIZE.cx + SIZE.r + 9, y: SIZE.cy - 8, anchor: 'start' },
+  { x: SIZE.cx, y: SIZE.cy + SIZE.r + 21, anchor: 'middle' },
+  { x: SIZE.cx - SIZE.r - 9, y: SIZE.cy - 8, anchor: 'end' },
 ] as const;
 
 /**
@@ -97,7 +98,7 @@ export function Performance({ result, weightG }: { result: Analysis; weightG?: n
         <polygon class="perf-glow" points={shape.map((p) => p.join(',')).join(' ')} />
         <polygon class="perf-shape" points={shape.map((p) => p.join(',')).join(' ')} fill="url(#perf-fill)" />
         {shape.map(([x, y], i) => (
-          <circle key={i} class="perf-dot" cx={x} cy={y} r="3.2" />
+          <circle key={i} class="perf-dot" cx={x} cy={y} r="3.6" />
         ))}
         {METRICS.map((m, i) => {
           const pos = LABEL_POS[i]!;

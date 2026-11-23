@@ -4,8 +4,8 @@ import type { UserState } from '../lib/storage';
 import { displayName } from '../lib/names';
 import { nb, TYPE_LABEL } from '../lib/analysis';
 import { useModal } from '../lib/useModal';
-import { BeyImage } from './BeyImage';
-import { TypeBadge } from './ui';
+import { BladePhoto } from './BeyImage';
+import { TypeChip } from './ui';
 
 interface Props {
   db: Database;
@@ -54,10 +54,15 @@ export function Showcase({ db, state, onClose }: Props) {
             {shown.map(({ p, blade, n }) => (
               <li key={p.code} class={`show-card type-edge-${blade.type}`}>
                 {n > 1 && <span class="show-count">{n}×</span>}
-                <BeyImage bladeId={blade.id} type={blade.type} size="lg" alt={displayName(blade)} />
+                <span class={`show-art aura-${blade.type}`}>
+                  <BladePhoto blade={blade} alt={displayName(blade)} variant="card" zoomable />
+                </span>
                 <strong>{displayName(blade)}</strong>
                 <span class="muted">{nb(`${p.ratchetId ?? ''}${p.bitId ?? ''}`) || '–'}</span>
-                <TypeBadge type={blade.type} small />
+                <span class="saved-badges">
+                  <span class="mini-badge">{blade.line}</span>
+                  <TypeChip type={blade.type} />
+                </span>
               </li>
             ))}
           </ul>

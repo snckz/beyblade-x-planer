@@ -18,6 +18,7 @@ import { IosHint } from './components/IosHint';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { UndoToast } from './components/UndoToast';
 import { lazy, Suspense } from 'preact/compat';
+import { TabPager } from './components/TabPager';
 
 // Tabs und selten genutzte Fenster erst bei Bedarf laden – der Start bleibt schlank.
 // Gleich nach dem Start werden sie im Leerlauf vorgeladen, damit der Wechsel trotzdem sofort geht.
@@ -27,11 +28,20 @@ const retry =
   <T,>(load: () => Promise<T>) =>
   () =>
     load().catch(() => new Promise<T>((r) => setTimeout(r, 400)).then(load));
+// Welche Seiten sind schon geladen? Nur die dürfen als Nachbarseite im Hintergrund entstehen (siehe TabPager) –
+// ein fehlgeschlagenes Nachladen soll nie die sichtbare Seite stören.
+const loadedTabs = new Set<string>(['builder']);
+const mark =
+  <T,>(tab: string) =>
+  (m: T) => {
+    loadedTabs.add(tab);
+    return m;
+  };
 const loaders = {
-  Lexikon: retry(() => import('./components/Lexikon').then((m) => ({ default: m.Lexikon }))),
-  Battle: retry(() => import('./components/Battle').then((m) => ({ default: m.Battle }))),
-  Events: retry(() => import('./components/Events').then((m) => ({ default: m.Events }))),
-  Collection: retry(() => import('./components/Collection').then((m) => ({ default: m.Collection }))),
+  Lexikon: retry(() => import('./components/Lexikon').then((m) => ({ default: m.Lexikon })).then(mark('parts'))),
+  Battle: retry(() => import('./components/Battle').then((m) => ({ default: m.Battle })).then(mark('battle'))),
+  Events: retry(() => import('./components/Events').then((m) => ({ default: m.Events })).then(mark('events'))),
+  Collection: retry(() => import('./components/Collection').then((m) => ({ default: m.Collection })).then(mark('collection'))),
   PhotoCheck: retry(() => import('./components/PhotoCheck').then((m) => ({ default: m.PhotoCheck }))),
 };
 const Lexikon = lazy(loaders.Lexikon);
@@ -39,7 +49,7 @@ const Battle = lazy(loaders.Battle);
 const Events = lazy(loaders.Events);
 const Collection = lazy(loaders.Collection);
 const PhotoCheck = lazy(loaders.PhotoCheck);
-const preloadAll = () => Object.values(loaders).forEach((l) => void l().catch(() => undefined));
+const preloadAll = () => Promise.all(Object.values(loaders).map((l) => l().catch(() => undefined)));
 
 type Tab = 'builder' | 'parts' | 'battle' | 'events' | 'collection';
 
@@ -88,6 +98,8 @@ const TABS: {
 ];
 
 // Alte Links (#deck, #news) auf die neuen Tabs umleiten.
+const TAB_IDS = TABS.map((t) => t.id);
+
 const ALIAS: Record<string, Tab> = {
   deck: 'battle',
   news: 'events',
@@ -119,6 +131,9 @@ export function App() {
   const [error, setError] = useState<string | null>(null);
   const [state, setState] = useState<UserState>(loadState);
   const [tab, setTab] = useState<Tab>(readTab);
+  // Beim Wischen: Ziel in der Leiste schon markieren, sobald der Finger loslässt (die Seite rastet noch ein)
+  const [previewTab, setPreviewTab] = useState<Tab | null>(null);
+  const [, setPreloaded] = useState(false);
   const [storageOk, setStorageOk] = useState(true);
   const [detail, setDetail] = useState<string | null>(null);
   const [zoom, setZoom] = useState<{ id: string; kind: ImageKind } | null>(null);
@@ -167,6 +182,7 @@ export function App() {
   useEffect(() => {
     const onHash = () => {
       setTab(readTab());
+      setPreviewTab(null);
       // Zurück-Taste (Android) oder Tab-Wechsel: offene Fenster auf App-Ebene schließen
       setDetail(null);
       setZoom(null);
@@ -180,6 +196,7 @@ export function App() {
   const go = useCallback((t: Tab) => {
     window.location.hash = t;
     setTab(t);
+    setPreviewTab(null);
     window.scrollTo({ top: 0 });
   }, []);
 
@@ -207,8 +224,10 @@ export function App() {
   useEffect(() => {
     if (!db) return;
     const w = window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number };
-    if (w.requestIdleCallback) w.requestIdleCallback(preloadAll, { timeout: 3000 });
-    else window.setTimeout(preloadAll, 1200);
+    // Danach einmal neu zeichnen: Jetzt dürfen die Nachbarseiten fürs Wischen entstehen.
+    const run = () => void preloadAll().then(() => setPreloaded(true));
+    if (w.requestIdleCallback) w.requestIdleCallback(run, { timeout: 3000 });
+    else window.setTimeout(run, 1200);
   }, [!!db]);
   const openBlade = useCallback((id: string) => setDetail(id), []);
   const closeDetail = useCallback(() => setDetail(null), []);
@@ -254,7 +273,7 @@ export function App() {
   }).length;
   const newWishes = db ? wishReleases(db, state, events.events).filter((r) => r.status === 'new').length : 0;
   const badge = (t: Tab) => (t === 'events' ? unread + soon : t === 'collection' ? newWishes : 0);
-  const current = TABS.find((t) => t.id === tab)!;
+  const shownTab = previewTab ?? tab;
 
   // Merkt, ob gescrollt ist – dann schützt eine dunkle Fläche die Statusleiste (siehe styles.css „.is-scrolled“).
   useEffect(() => {
@@ -264,12 +283,48 @@ export function App() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  const spinner = (
+    <div class="loading" aria-busy="true" aria-label="Lädt">
+      <div class="spinner" />
+    </div>
+  );
+  const storageBanner = !storageOk && <p class="banner">Speichern auf diesem Gerät ist blockiert (z. B. privater Modus). Änderungen gehen beim Schließen verloren.</p>;
+  const pageHead = (id: Tab) => {
+    const t = TABS.find((x) => x.id === id)!;
+    return (
+      <div class="page-head">
+        <h1 class="page-title">{t.title}</h1>
+        <span class="x-rail" aria-hidden="true" />
+        <p class="page-sub">{t.kicker}</p>
+      </div>
+    );
+  };
+  /** Eine Hauptseite samt Kopf. `active`: die sichtbare Seite; Nachbarseiten liegen fürs Wischen fertig daneben. */
+  const renderPage = (data: Database, id: Tab, active: boolean) => (
+    <>
+      {pageHead(id)}
+      {active && storageBanner}
+      {active && <IosHint hasData={Object.keys(state.owned).length > 0 || state.combos.length > 0} />}
+      <ErrorBoundary>
+        <Suspense fallback={active ? spinner : null}>
+          {id === 'builder' && (
+            <ComboBuilder key={preset?.key ?? 0} db={data} state={state} update={update} presetBladeId={preset?.bladeId} presetRatchetId={preset?.ratchetId} presetBitId={preset?.bitId} presetKey={preset?.key} meta={meta} />
+          )}
+          {id === 'parts' && <Lexikon db={data} state={state} update={update} />}
+          {id === 'battle' && <Battle db={data} state={state} update={update} goToBuilder={() => go('builder')} meta={meta} onBuild={buildCombo} />}
+          {id === 'events' && <Events db={data} events={events.events} news={news} state={state} update={update} active={active} />}
+          {id === 'collection' && <Collection events={events.events} db={data} state={state} update={update} meta={meta} />}
+        </Suspense>
+      </ErrorBoundary>
+    </>
+  );
+
   const navLink = (t: (typeof TABS)[number], withIcon: boolean) => (
     <a
       key={t.id}
       href={`#${t.id}`}
-      class={tab === t.id ? 'on' : ''}
-      aria-current={tab === t.id ? 'page' : undefined}
+      class={shownTab === t.id ? 'on' : ''}
+      aria-current={shownTab === t.id ? 'page' : undefined}
       onClick={(e) => {
         e.preventDefault();
         go(t.id);
@@ -304,44 +359,23 @@ export function App() {
         </header>
 
         <main class="main" id="main">
-          <div class="page-head" key={tab}>
-            <h1 class="page-title">{current.title}</h1>
-            <span class="x-rail" aria-hidden="true" />
-            <p class="page-sub">{current.kicker}</p>
-          </div>
-          {!storageOk && <p class="banner">Speichern auf diesem Gerät ist blockiert (z. B. privater Modus). Änderungen gehen beim Schließen verloren.</p>}
-          {error ? (
-            <div class="card glass error" role="alert">
-              <p>{error}</p>
-              <button type="button" class="btn btn-primary" onClick={load}>
-                Erneut versuchen
-              </button>
-            </div>
-          ) : !db ? (
-            <div class="loading" aria-busy="true" aria-label="Lädt">
-              <div class="spinner" />
-            </div>
-          ) : (
+          {error || !db ? (
             <>
-              <IosHint hasData={Object.keys(state.owned).length > 0 || state.combos.length > 0} />
-              <ErrorBoundary key={tab}>
-                <Suspense
-                  fallback={
-                    <div class="loading" aria-busy="true" aria-label="Lädt">
-                      <div class="spinner" />
-                    </div>
-                  }
-                >
-                  {tab === 'builder' && (
-                    <ComboBuilder key={preset?.key ?? 0} db={db} state={state} update={update} presetBladeId={preset?.bladeId} presetRatchetId={preset?.ratchetId} presetBitId={preset?.bitId} presetKey={preset?.key} meta={meta} />
-                  )}
-                  {tab === 'parts' && <Lexikon db={db} state={state} update={update} />}
-                  {tab === 'battle' && <Battle db={db} state={state} update={update} goToBuilder={() => go('builder')} meta={meta} onBuild={buildCombo} />}
-                  {tab === 'events' && <Events db={db} events={events.events} news={news} state={state} update={update} />}
-                  {tab === 'collection' && <Collection events={events.events} db={db} state={state} update={update} meta={meta} />}
-                </Suspense>
-              </ErrorBoundary>
+              {pageHead(tab)}
+              {storageBanner}
+              {error ? (
+                <div class="card glass error" role="alert">
+                  <p>{error}</p>
+                  <button type="button" class="btn btn-primary" onClick={load}>
+                    Erneut versuchen
+                  </button>
+                </div>
+              ) : (
+                spinner
+              )}
             </>
+          ) : (
+            <TabPager tabs={TAB_IDS} current={tab} render={(t, active) => renderPage(db, t, active)} canPrebuild={(t) => loadedTabs.has(t)} onChange={go} onPreview={setPreviewTab} />
           )}
         </main>
 
