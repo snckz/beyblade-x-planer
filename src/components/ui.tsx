@@ -2,10 +2,24 @@ import type { ReleaseStatus } from '../lib/release';
 import type { ComponentChildren } from 'preact';
 import type { BeyType, Spin } from '../lib/types';
 import { TYPE_LABEL } from '../lib/analysis';
-import { ArrowLeftRight, RotateCcw } from 'lucide-preact';
+import { ArrowLeftRight, RotateCcw, Scale, Shield, Swords, Timer } from 'lucide-preact';
 
 export function TypeBadge({ type, small }: { type: BeyType; small?: boolean }) {
   return <span class={`badge type-${type}${small ? ' badge-sm' : ''}`}>{TYPE_LABEL[type]}</span>;
+}
+
+/** Symbol je Typ – dieselben wie in Auswahl und Detailansicht */
+export const TYPE_ICON = { attack: Swords, defense: Shield, stamina: Timer, balance: Scale } as const;
+
+/** Typ als Chip mit Symbol in Typfarbe (wie auf den Karten der Auswahl) */
+export function TypeChip({ type }: { type: BeyType }) {
+  const Icon = TYPE_ICON[type];
+  return (
+    <span class={`mini-badge mini-badge-type aura-${type}`}>
+      <Icon aria-hidden="true" />
+      {TYPE_LABEL[type]}
+    </span>
+  );
 }
 
 export function SpinBadge({ spin }: { spin: Spin }) {
@@ -33,20 +47,6 @@ export function AnnouncedMark({ status, reason }: { status: ReleaseStatus; reaso
     <span class="unverified" title={`Angekündigt – ${reason}. Im Kombo-Planer erst nach Release und Prüfung.`}>
       angekündigt
     </span>
-  );
-}
-
-export function StatBar({ label, value, tone }: { label: string; value: number; tone: string }) {
-  return (
-    <div class="stat">
-      <div class="stat-head">
-        <span>{label}</span>
-        <span class="stat-val">{value}</span>
-      </div>
-      <div class="stat-track" role="meter" aria-label={label} aria-valuemin={0} aria-valuemax={100} aria-valuenow={value}>
-        <div class={`stat-fill tone-${tone}`} style={{ width: `${value}%` }} />
-      </div>
-    </div>
   );
 }
 

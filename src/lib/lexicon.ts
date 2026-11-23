@@ -47,11 +47,14 @@ export function bitText(bit: Bit): string {
   return bit.uncertain ? `${base} Details noch nicht geprüft.` : base;
 }
 
+/** Höhe in Millimetern mit Komma und einer Nachkommastelle („6,0“) */
+const mm = (h: number | null | undefined) => (h == null ? '?' : h.toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 }));
+
 export function ratchetText(r: Ratchet): string {
-  if (r.contacts === null) return `Sonderform ohne klassische Zacken, ${r.heightMm?.toFixed(1)} mm hoch.`;
+  if (r.contacts === null) return `Sonderform ohne klassische Zacken, ${mm(r.heightMm)} mm hoch.`;
   const z = r.contacts >= 7 ? 'Viele Zacken: sehr guter Burst-Schutz.' : r.contacts <= 2 ? 'Wenige Zacken: große Trefferfläche, aber höheres Burst-Risiko.' : 'Mittlere Zackenzahl: ausgewogen.';
   const h = (r.heightMm ?? 0) <= 5.5 ? 'Niedrig: trifft Gegner von unten.' : (r.heightMm ?? 0) >= 8 ? 'Hoch: trifft über niedrige Gegner hinweg, ist aber anfälliger.' : 'Mittlere Höhe.';
-  return `${r.contacts} Zacken, ${r.heightMm?.toFixed(1)} mm hoch. ${z} ${h}`;
+  return `${r.contacts} Zacken, ${mm(r.heightMm)} mm hoch. ${z} ${h}`;
 }
 
 export interface Term {

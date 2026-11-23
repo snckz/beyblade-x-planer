@@ -6,10 +6,10 @@ import { codeLabel, RARITY_HINT, RARITY_LABEL, RARITY_ORDER, rarityOf } from '..
 import { useApp } from '../lib/context';
 import { nb } from '../lib/analysis';
 import { priceHint } from '../lib/price';
-import { BeyImage } from './BeyImage';
-import { Empty, TypeBadge } from './ui';
+import { BladePhoto } from './BeyImage';
+import { Empty, TypeChip } from './ui';
 import { useProgressive } from '../lib/useProgressive';
-import { Check } from 'lucide-preact';
+import { Check, Search } from 'lucide-preact';
 
 interface Props {
   db: Database;
@@ -59,7 +59,7 @@ export function CardAlbum({ db, state, update }: Props) {
 
   return (
     <div class="stack">
-      <div class="card glass album-head">
+      <div class="ref-card album-head">
         <div class="album-progress">
           <span class="album-count">
             {have}
@@ -96,8 +96,11 @@ export function CardAlbum({ db, state, update }: Props) {
         </div>
       </div>
 
-      <div class="filters">
-        <input type="search" placeholder="Karte suchen: Name oder Code …" value={query} onInput={(e) => setQuery(e.currentTarget.value)} aria-label="Karten suchen" />
+      <div class="filters album-filters">
+        <label class="search-field">
+          <Search aria-hidden="true" />
+          <input type="search" placeholder="Karte suchen: Name oder Code …" value={query} onInput={(e) => setQuery(e.currentTarget.value)} aria-label="Karten suchen" />
+        </label>
         <label class="toggle">
           <input type="checkbox" checked={onlyMissing} onChange={(e) => setOnlyMissing(e.currentTarget.checked)} />
           <span>Nur fehlende Karten</span>
@@ -130,7 +133,7 @@ export function CardAlbum({ db, state, update }: Props) {
                     </button>
                   </div>
                   <div class="bcard-art">
-                    <BeyImage bladeId={blade.id} type={blade.type} size="lg" alt={blade.name} />
+                    <BladePhoto blade={blade} alt={blade.name} variant="card" zoomable />
                   </div>
                   <button type="button" class="bcard-name" onClick={() => openBlade(blade.id)}>
                     {nb(displayProductName(p, db).replace(/^(Starter|Booster|Set|Random Booster( Vol\.\d+)?)\s+/, ''))}
@@ -145,7 +148,7 @@ export function CardAlbum({ db, state, update }: Props) {
                     {ownedCount(p.code) ? <><Check aria-hidden="true" /> Hab ich</> : 'Kaufen?'}
                   </button>
                   <div class="bcard-foot">
-                    <TypeBadge type={blade.type} small />
+                    <TypeChip type={blade.type} />
                     <div class="stepper stepper-sm" aria-label={`Anzahl ${p.name}`}>
                       <button type="button" onClick={() => setOwned(p.code, -1)} disabled={!n} aria-label="Eins weniger">
                         −

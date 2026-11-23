@@ -5,12 +5,13 @@ import { improveCombo, type Improvement } from '../lib/improve';
 import { metaOpponents } from '../lib/battle';
 import type { UserState } from '../lib/storage';
 import { newId } from '../lib/storage';
-import { analyze, nb, resolveCombo, TYPE_HINT } from '../lib/analysis';
+import { analyze, nb, resolveCombo } from '../lib/analysis';
 import { ownedParts } from '../lib/data';
-import { Empty, Section, SpinBadge, StatBar, TypeBadge } from './ui';
+import { Empty, Section, TypeChip } from './ui';
+import { BladePhoto } from './BeyImage';
 import { PartField } from './PartPicker';
 import { Check, Scale, Sparkles } from 'lucide-preact';
-import { ComboParts, ComboStage } from './ComboStage';
+import { ComboNow, Performance, Verdict } from './ComboResult';
 import { SwipeRow } from './SwipeRow';
 import { showUndo } from '../lib/undo';
 import { useRelease } from '../lib/useRelease';
@@ -168,100 +169,62 @@ export function ComboBuilder({ db, state, update, presetBladeId, presetRatchetId
       </Section>
 
       {result && resolved ? (
-        <div class={`card result type-edge-${result.type}`} aria-live="polite">
-          <div class="result-head">
-            <ComboStage resolved={resolved} />
-            <div class="result-title">
-              <p class="eyebrow">Deine Kombo</p>
-              <h3 class="combo-name">{nb(result.label)}</h3>
-              <div class="badges badges-left">
-                <TypeBadge type={result.type} />
-                <SpinBadge spin={resolved.blade.spin} />
+        <div class="result-stack" aria-live="polite">
+          <ComboNow resolved={resolved} result={result}>
+            <div class="result-actions">
+              <div class="result-actions-row">
+                <button type="button" class={`btn improve-btn${improveOpen ? ' on' : ''}`} onClick={() => setImproveOpen((o) => !o)} aria-expanded={improveOpen}>
+                  <Sparkles aria-hidden="true" /> {improveOpen ? 'Vorschläge zu' : 'Verbessern'}
+                </button>
+                <button type="button" class="btn" onClick={() => setCompareSignal((n) => n + 1)}>
+                  <Scale aria-hidden="true" /> Vergleichen
+                </button>
+              </div>
+              {improveOpen && improvements && (
+                <div class="improve" aria-live="polite">
+                  {improvements.length ? (
+                    <ul class="improve-list">
+                      {improvements.map((s) => (
+                        <li key={s.label} class="improve-item">
+                          <div class="improve-main">
+                            <span class="improve-label">{nb(s.label)}</span>
+                            <span class="improve-change">{s.change}</span>
+                            <span class="improve-why">
+                              {s.gain > 0 && <span class="improve-tag good">+{s.gain} gegen Turnier-Kombos</span>}
+                              {s.fixes.length > 0 && <span class="improve-tag fix">behebt: {s.fixes.map((f) => f.split(':')[0]).join(', ')}</span>}
+                              {s.metaDecks >= 3 && <span class="improve-tag meta">im Turnier {s.metaDecks}× gespielt</span>}
+                            </span>
+                            {s.missing.length > 0 && <span class="improve-missing">Fehlt dir noch: {s.missing.join(', ')}</span>}
+                          </div>
+                          <button type="button" class="btn btn-sm btn-primary" onClick={() => apply(s.combo)}>
+                            Übernehmen
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p class="muted">Mit {useOwned ? 'deinen Teilen' : 'den verfügbaren Teilen'} ist diese Blade so schon gut aufgestellt – ich finde keine klar bessere Ratchet/Bit-Kombination.</p>
+                  )}
+                  <p class="fineprint">Gerechnet gegen {meta?.combos?.length ? 'die aktuellen Turnier-Kombos' : 'typische Gegner'}. Blade bleibt gleich – getauscht werden nur Ratchet und Bit.</p>
+                </div>
+              )}
+              <div class="save-row">
+                <input
+                  type="text"
+                  placeholder="Name (optional)"
+                  maxLength={40}
+                  value={name}
+                  onInput={(e) => setName(e.currentTarget.value)}
+                  aria-label="Name der Kombo"
+                />
+                <button type="button" class="btn btn-primary" onClick={save} disabled={!result.valid}>
+                  {saved ? <><Check aria-hidden="true" /> Gespeichert</> : 'Speichern'}
+                </button>
               </div>
             </div>
-          </div>
-          <ComboParts resolved={resolved} />
-          <div class="result-actions">
-            <div class="result-actions-row">
-              <button type="button" class={`btn improve-btn${improveOpen ? ' on' : ''}`} onClick={() => setImproveOpen((o) => !o)} aria-expanded={improveOpen}>
-                <Sparkles aria-hidden="true" /> {improveOpen ? 'Vorschläge zu' : 'Verbessern'}
-              </button>
-              <button type="button" class="btn" onClick={() => setCompareSignal((n) => n + 1)}>
-                <Scale aria-hidden="true" /> Vergleichen
-              </button>
-            </div>
-            {improveOpen && improvements && (
-              <div class="improve" aria-live="polite">
-                {improvements.length ? (
-                  <ul class="improve-list">
-                    {improvements.map((s) => (
-                      <li key={s.label} class="improve-item">
-                        <div class="improve-main">
-                          <span class="improve-label">{nb(s.label)}</span>
-                          <span class="improve-change">{s.change}</span>
-                          <span class="improve-why">
-                            {s.gain > 0 && <span class="improve-tag good">+{s.gain} gegen Turnier-Kombos</span>}
-                            {s.fixes.length > 0 && <span class="improve-tag fix">behebt: {s.fixes.map((f) => f.split(':')[0]).join(', ')}</span>}
-                            {s.metaDecks >= 3 && <span class="improve-tag meta">im Turnier {s.metaDecks}× gespielt</span>}
-                          </span>
-                          {s.missing.length > 0 && <span class="improve-missing">Fehlt dir noch: {s.missing.join(', ')}</span>}
-                        </div>
-                        <button type="button" class="btn btn-sm btn-primary" onClick={() => apply(s.combo)}>
-                          Übernehmen
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p class="muted">Mit {useOwned ? 'deinen Teilen' : 'den verfügbaren Teilen'} ist diese Blade so schon gut aufgestellt – ich finde keine klar bessere Ratchet/Bit-Kombination.</p>
-                )}
-                <p class="fineprint">Gerechnet gegen {meta?.combos?.length ? 'die aktuellen Turnier-Kombos' : 'typische Gegner'}. Blade bleibt gleich – getauscht werden nur Ratchet und Bit.</p>
-              </div>
-            )}
-            <div class="save-row">
-              <input
-                type="text"
-                placeholder="Name (optional)"
-                maxLength={40}
-                value={name}
-                onInput={(e) => setName(e.currentTarget.value)}
-                aria-label="Name der Kombo"
-              />
-              <button type="button" class="btn btn-primary" onClick={save} disabled={!result.valid}>
-                {saved ? <><Check aria-hidden="true" /> Gespeichert</> : 'Speichern'}
-              </button>
-            </div>
-          </div>
-
-          <div class="block-head block-sep">
-            <h4 class="block-h">Profil</h4>
-            <span class="est-tag">Schätzwerte</span>
-          </div>
-          <p class="result-hint">{TYPE_HINT[result.type]}</p>
-          <div class="stats">
-            <StatBar label="Angriff" value={result.profile.attack} tone="attack" />
-            <StatBar label="Ausdauer" value={result.profile.stamina} tone="stamina" />
-            <StatBar label="Verteidigung" value={result.profile.defense} tone="defense" />
-            <StatBar label="Burst-Schutz" value={result.profile.burstResistance} tone="balance" />
-          </div>
-          <p class="fineprint">
-            Richtwerte aus Teile-Typen, Ratchet-Form{typeof resolved.blade.weightG === 'number' ? ` und dem echten Blade-Gewicht (${resolved.blade.weightG.toLocaleString('de-DE')} g)` : ''} – keine Messwerte.
-          </p>
-          {result.warnings.length > 0 && (
-            <ul class="notes notes-warn">
-              {result.warnings.map((w) => (
-                <li key={w}>{w}</li>
-              ))}
-            </ul>
-          )}
-
-          {result.tips.length > 0 && (
-            <ul class="notes">
-              {result.tips.map((t) => (
-                <li key={t}>{t}</li>
-              ))}
-            </ul>
-          )}
+          </ComboNow>
+          <Performance result={result} weightG={resolved.blade.weightG} />
+          <Verdict result={result} />
         </div>
       ) : (
         <Empty title="Wähle Blade, Ratchet und Bit">Dann siehst du Typ, Profil und Hinweise zu deiner Kombo.</Empty>
@@ -300,7 +263,7 @@ function SavedCombos({ db, state, update }: Props) {
   };
   return (
     <Section title={`Gespeichert (${state.combos.length})`}>
-      <ul class="list">
+      <ul class="list saved-list">
         {state.combos.map((c) => {
           const r = resolveCombo(db, c);
           const a = r ? analyze(r) : null;
@@ -308,13 +271,23 @@ function SavedCombos({ db, state, update }: Props) {
           // Gespeichert bleibt gespeichert – enthält die Kombo inzwischen gesperrte Teile, nur kennzeichnen
           const locked = lockedParts(rel, c).length > 0;
           return (
-            <SwipeRow key={c.id} class="row" deleteLabel={`Kombo ${c.name ?? (a ? a.label : '')} löschen`.replace(/\s+/g, ' ')} onlyDelete onDelete={() => swipeRemove(c, c.name ?? (a ? a.label : 'Unbekannte Teile'))}>
+            <SwipeRow key={c.id} class="row saved-row" deleteLabel={`Kombo ${c.name ?? (a ? a.label : '')} löschen`.replace(/\s+/g, ' ')} onlyDelete onDelete={() => swipeRemove(c, c.name ?? (a ? a.label : 'Unbekannte Teile'))}>
+              {r && (
+                <span class={`saved-art aura-${a!.type}`}>
+                  <BladePhoto blade={r.blade} alt="" variant="card" />
+                </span>
+              )}
               <div class="row-main">
                 <span class="row-title">{c.name ?? (a ? nb(a.label) : 'Unbekannte Teile')}</span>
                 {c.name && a && <span class="row-sub">{nb(a.label)}</span>}
+                {r && a && (
+                  <span class="saved-badges">
+                    <span class="mini-badge">{r.blade.line}</span>
+                    <TypeChip type={a.type} />
+                  </span>
+                )}
                 {locked && <span class="row-sub">Enthält noch nicht freigegebene Teile</span>}
               </div>
-              {a && <TypeBadge type={a.type} small />}
               <button
                 type="button"
                 class={`chip${inDeck ? ' chip-on' : ''}`}

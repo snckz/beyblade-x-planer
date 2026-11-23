@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import type { Combo, Database } from '../lib/types';
 import { matchup, toBey } from '../lib/battle';
-import { TYPE_LABEL, nb } from '../lib/analysis';
+import { nb } from '../lib/analysis';
+import { METRICS, totalScore } from '../lib/verdict';
 import { displayName } from '../lib/names';
 import { ComboPicker } from './ComboPicker';
-import { BeyImage } from './BeyImage';
-import { Section } from './ui';
+import { BladePhoto } from './BeyImage';
+import { Section, TypeChip } from './ui';
 
 type Part = Omit<Combo, 'id' | 'name'>;
 
@@ -33,21 +34,29 @@ export function CompareCombos({ db, initial, openSignal = 0 }: { db: Database; i
   const m = ok ? matchup(ba!, bb!) : null;
   const name = (x: NonNullable<typeof ba>) => nb(`${displayName(x.resolved.blade)} ${x.resolved.ratchet?.id ?? ''}${x.resolved.bit.id}`);
 
-  const rows: { label: string; a: number | null; b: number | null; unit?: string; higherIsBetter?: boolean }[] = ok
+  type Row = { label: string; a: number | null; b: number | null; unit?: string; higherIsBetter?: boolean };
+  // Die vier Richtwerte in derselben Reihenfolge wie in Balken und Netzdiagramm
+  const metrics: Row[] = ok ? METRICS.map((mt) => ({ label: mt.label, a: ba!.analysis.profile[mt.key], b: bb!.analysis.profile[mt.key] })) : [];
+  const total: Row | null = ok ? { label: 'Gesamt', a: totalScore(ba!.analysis.profile), b: totalScore(bb!.analysis.profile) } : null;
+  const facts: Row[] = ok
     ? [
-        { label: 'Angriff', a: ba!.analysis.profile.attack, b: bb!.analysis.profile.attack },
-        { label: 'Ausdauer', a: ba!.analysis.profile.stamina, b: bb!.analysis.profile.stamina },
-        { label: 'Verteidigung', a: ba!.analysis.profile.defense, b: bb!.analysis.profile.defense },
-        { label: 'Burst-Schutz', a: ba!.analysis.profile.burstResistance, b: bb!.analysis.profile.burstResistance },
         { label: 'Blade-Gewicht', a: ba!.resolved.blade.weightG ?? null, b: bb!.resolved.blade.weightG ?? null, unit: ' g' },
         { label: 'Ratchet-Höhe', a: ba!.analysis.heightMm, b: bb!.analysis.heightMm, unit: ' mm', higherIsBetter: false },
       ]
     : [];
-  const fmt = (v: number | null, unit = '') => (v === null ? '–' : `${v.toLocaleString('de-DE')}${unit}`);
-  const better = (r: (typeof rows)[number], side: 'a' | 'b') => {
+  // Millimeter immer mit einer Nachkommastelle („6,0 mm“ wie in der Auswahl)
+  const fmt = (v: number | null, unit = '') => (v === null ? '–' : `${v.toLocaleString('de-DE', unit === ' mm' ? { minimumFractionDigits: 1, maximumFractionDigits: 1 } : undefined)}${unit}`);
+  const better = (r: Row, side: 'a' | 'b') => {
     if (r.a === null || r.b === null || r.a === r.b || r.higherIsBetter === false) return false;
     return side === 'a' ? r.a > r.b : r.b > r.a;
   };
+  const line = (r: Row, cls = '') => (
+    <tr key={r.label} class={cls}>
+      <th scope="row">{r.label}</th>
+      <td class={better(r, 'a') ? 'best' : ''}>{fmt(r.a, r.unit)}</td>
+      <td class={better(r, 'b') ? 'best' : ''}>{fmt(r.b, r.unit)}</td>
+    </tr>
+  );
 
   return (
     <div ref={anchor} class="scroll-anchor">
@@ -69,7 +78,7 @@ export function CompareCombos({ db, initial, openSignal = 0 }: { db: Database; i
       }
     >
       {open && (
-        <div class="card glass stack-sm">
+        <div class="ref-card vs">
           <div class="cmp-pickers">
             <div>
               <p class="eyebrow">Kombo A</p>
@@ -82,37 +91,27 @@ export function CompareCombos({ db, initial, openSignal = 0 }: { db: Database; i
           </div>
           {ok && m ? (
             <>
-              <div class="cmp-head">
-                {[ba!, bb!].map((x, i) => (
-                  <div key={i} class="cmp-bey">
-                    <BeyImage bladeId={x.resolved.blade.id} type={x.analysis.type} size="md" alt={displayName(x.resolved.blade)} zoomable={false} />
-                    <strong>{name(x)}</strong>
-                    <span class="muted">
-                      {TYPE_LABEL[x.analysis.type]} · {x.resolved.blade.spin === 'left' ? 'Links' : 'Rechts'}
-                    </span>
-                  </div>
-                ))}
-              </div>
-              <table class="cmp-table">
+              <table class="vs-table">
                 <thead>
                   <tr>
-                    <th scope="col">A</th>
-                    <th scope="col" class="cmp-label">
-                      Wert
-                    </th>
-                    <th scope="col">B</th>
+                    <td />
+                    {[ba!, bb!].map((x, i) => (
+                      <th key={i} scope="col">
+                        <span class={`vs-art aura-${x.analysis.type}`}>
+                          <BladePhoto blade={x.resolved.blade} alt="" variant="card" />
+                        </span>
+                        <span class="vs-side">Kombo {i === 0 ? 'A' : 'B'}</span>
+                        <span class="vs-name">{name(x)}</span>
+                        <TypeChip type={x.analysis.type} />
+                        {x.resolved.blade.spin === 'left' && <span class="vs-spin">Linksdreher</span>}
+                      </th>
+                    ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {rows.map((r) => (
-                    <tr key={r.label}>
-                      <td class={better(r, 'a') ? 'best' : ''}>{fmt(r.a, r.unit)}</td>
-                      <th scope="row" class="cmp-label">
-                        {r.label}
-                      </th>
-                      <td class={better(r, 'b') ? 'best' : ''}>{fmt(r.b, r.unit)}</td>
-                    </tr>
-                  ))}
+                  {metrics.map((r) => line(r))}
+                  {total && line(total, 'vs-total')}
+                  {facts.map((r) => line(r, 'vs-fact'))}
                 </tbody>
               </table>
               <div class="cmp-verdict">
@@ -131,7 +130,7 @@ export function CompareCombos({ db, initial, openSignal = 0 }: { db: Database; i
                     ))}
                   </ul>
                 )}
-                <p class="fineprint">Grobe Einschätzung aus Typ, Profil, Gewicht und Drehrichtung – Höhe ist je nach Stil Vor- oder Nachteil.</p>
+                <p class="fineprint">Gesamt ist die Summe der vier Richtwerte. Das Duell ist eine grobe Einschätzung aus Typ, Profil, Gewicht und Drehrichtung – Höhe ist je nach Stil Vor- oder Nachteil.</p>
               </div>
             </>
           ) : (

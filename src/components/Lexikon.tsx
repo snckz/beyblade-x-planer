@@ -3,13 +3,15 @@ import { useState } from 'preact/hooks';
 import type { BeyType, Database } from '../lib/types';
 import type { UserState } from '../lib/storage';
 import { TYPE_LABEL } from '../lib/analysis';
-import { AnnouncedMark, Empty, SpinBadge, TypeBadge, UnverifiedMark } from './ui';
+import { AnnouncedMark, Empty, TYPE_ICON, TypeChip, UnverifiedMark } from './ui';
 import { useRelease } from '../lib/useRelease';
-import { BeyImage } from './BeyImage';
+import { BladePhoto } from './BeyImage';
 import { useApp } from '../lib/context';
 import { bitText, ratchetText, TERMS } from '../lib/lexicon';
 import { CardAlbum } from './CardAlbum';
 import { BitImage, RatchetImage } from './BitImage';
+import type { ComponentChildren } from 'preact';
+import { BookOpen, ChevronDown, RotateCcw, Search } from 'lucide-preact';
 
 interface Props {
   db: Database;
@@ -18,8 +20,30 @@ interface Props {
 }
 
 type View = 'cards' | 'blades' | 'bits' | 'ratchets' | 'terms';
+/**
+ * Teilefoto in einer Lexikon-Zeile. Gibt es ein Foto, öffnet Antippen die Großansicht –
+ * auch innerhalb eines <summary>, ohne die Zeile auf- oder zuzuklappen.
+ */
+function PartArt({ has, label, onZoom, children }: { has: boolean; label: string; onZoom: () => void; children: ComponentChildren }) {
+  if (!has) return <span class="lex-row-art">{children}</span>;
+  return (
+    <button
+      type="button"
+      class="lex-row-art zoom"
+      aria-label={`${label}: Bild vergrößern`}
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        onZoom();
+      }}
+    >
+      {children}
+    </button>
+  );
+}
+
 export function Lexikon({ db, state, update }: Props) {
-  const { openBlade } = useApp();
+  const { openBlade, openImage, images } = useApp();
   const [view, setView] = useState<View>('cards');
   const [query, setQuery] = useState('');
   const [type, setType] = useState<BeyType | ''>('');
@@ -54,56 +78,56 @@ export function Lexikon({ db, state, update }: Props) {
         ))}
       </div>
 
-      {view !== 'cards' && <div class="filters">
-        <input
-          type="search"
-          placeholder="Suchen …"
-          value={query}
-          onInput={(e) => setQuery(e.currentTarget.value)}
-          aria-label="Suchen"
-        />
-        {showTypeFilter && <div class="type-filter" role="group" aria-label="Nach Typ filtern">
-          {(['attack', 'defense', 'stamina', 'balance'] as const).map((t) => (
-            <button
-              key={t}
-              type="button"
-              class={`chip type-chip-${t}${type === t ? ' chip-on' : ''}`}
-              aria-pressed={type === t}
-              onClick={() => setType(type === t ? '' : t)}
-            >
-              {TYPE_LABEL[t]}
-            </button>
-          ))}
-        </div>}
-      </div>}
+      {view !== 'cards' && (
+        <div class="filters lex-filters">
+          <label class="search-field">
+            <Search aria-hidden="true" />
+            <input type="search" placeholder="Suchen …" value={query} onInput={(e) => setQuery(e.currentTarget.value)} aria-label="Suchen" />
+          </label>
+          {showTypeFilter && (
+            <div class="type-filter" role="group" aria-label="Nach Typ filtern">
+              <button type="button" class={`chip type-chip type-chip-all${type === '' ? ' chip-on' : ''}`} aria-pressed={type === ''} onClick={() => setType('')}>
+                Alle
+              </button>
+              {(['attack', 'defense', 'stamina', 'balance'] as const).map((t) => {
+                const Icon = TYPE_ICON[t];
+                return (
+                  <button key={t} type="button" class={`chip type-chip type-chip-${t}${type === t ? ' chip-on' : ''}`} aria-pressed={type === t} onClick={() => setType(type === t ? '' : t)}>
+                    <Icon aria-hidden="true" />
+                    {TYPE_LABEL[t]}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
 
       {view === 'cards' && <CardAlbum db={db} state={state} update={update} />}
 
       {view === 'blades' &&
         (blades.length ? (
-          <ul class="tiles">
+          <ul class="lex-grid">
             {blades.map((b) => (
-              <li key={b.id} class={`tile-bey tile-link aura-${b.type}`}>
-                <div class="tile-top">
-                  <span class="code code-inline">{b.line}</span>
-                  <SpinBadge spin={b.spin} />
-                </div>
-                <div class="tile-art">
-                  <BeyImage bladeId={b.id} type={b.type} size="lg" alt={b.name} />
-                </div>
-                <div class="tile-text">
-                  <span class={`tile-kind type-fg-${b.type}`}>{TYPE_LABEL[b.type]}</span>
-                  <button type="button" class="tile-name title-btn" onClick={() => openBlade(b.id)}>
-                    {displayName(b)} <UnverifiedMark show={!b.verified} /> <AnnouncedMark {...rel.part('blades', b.id)} />
-                  </button>
-                  {(otherName(b) || b.integratedRatchet) && (
-                    <span class="row-sub">
-                      {otherName(b) ?? ''}
-                      {b.integratedRatchet ? `${otherName(b) ? ' · ' : ''}Ratchet integriert` : ''}
+              <li key={b.id} class={`lex-card aura-${b.type}`}>
+                <span class="lex-card-art">
+                  <BladePhoto blade={b} alt={displayName(b)} variant="card" zoomable />
+                </span>
+                <button type="button" class="lex-card-name title-btn" onClick={() => openBlade(b.id)}>
+                  {displayName(b)} <UnverifiedMark show={!b.verified} /> <AnnouncedMark {...rel.part('blades', b.id)} />
+                </button>
+                {otherName(b) && <span class="lex-card-sub">{otherName(b)}</span>}
+                <span class="lex-card-badges">
+                  <span class="mini-badge">{b.line}</span>
+                  <TypeChip type={b.type} />
+                  {b.spin === 'left' && (
+                    <span class="mini-badge mini-badge-icon" role="img" aria-label="Linksdreher">
+                      <RotateCcw aria-hidden="true" />
                     </span>
                   )}
-                  {b.note && <span class="row-note">{b.note}</span>}
-                </div>
+                </span>
+                {b.integratedRatchet && <span class="lex-card-sub">Ratchet integriert</span>}
+                {b.note && <span class="lex-card-note">{b.note}</span>}
               </li>
             ))}
           </ul>
@@ -113,19 +137,21 @@ export function Lexikon({ db, state, update }: Props) {
 
       {view === 'bits' &&
         (bits.length ? (
-          <ul class="list">
+          <ul class="lex-list">
             {bits.map((b) => (
               <li key={b.id}>
-                <details class="row lex">
+                <details class={`lex-row aura-${b.type}`}>
                   <summary>
-                    <BitImage bit={b} zoomable />
-                    <span class="row-main">
-                      <span class="code code-inline">{b.id}</span>
-                      <span class="row-title">
-                        {b.name} <UnverifiedMark show={!!b.uncertain} /> <AnnouncedMark {...rel.part('bits', b.id)} />
+                    <PartArt has={!!images.bits?.[b.id]?.thumb} label={`Bit ${b.id}`} onZoom={() => openImage(b.id, 'bit')}>
+                      <BitImage bit={b} size="card" />
+                    </PartArt>
+                    <span class="lex-row-main">
+                      <span class="lex-row-title">
+                        <span class="lex-row-code">{b.id}</span> {b.name} <UnverifiedMark show={!!b.uncertain} /> <AnnouncedMark {...rel.part('bits', b.id)} />
                       </span>
+                      <TypeChip type={b.type} />
                     </span>
-                    <TypeBadge type={b.type} small />
+                    <ChevronDown class="lex-row-chevron" aria-hidden="true" />
                   </summary>
                   <p class="lex-text">{bitText(b)}</p>
                 </details>
@@ -138,20 +164,20 @@ export function Lexikon({ db, state, update }: Props) {
 
       {view === 'ratchets' && (
         <>
-          <div class="card glass">
-            <p class="muted">
-              Die erste Zahl ist die Anzahl der Zacken, die zweite die Höhe in Zehntel-Millimetern. <strong>3-60</strong> heißt also 3 Zacken und 6,0 mm.
-            </p>
-          </div>
-          <ul class="list">
+          <p class="lex-intro">
+            Die erste Zahl ist die Anzahl der Zacken, die zweite die Höhe in Zehntel-Millimetern. <strong>3-60</strong> heißt also 3 Zacken und 6,0 mm.
+          </p>
+          <ul class="lex-list">
             {ratchets.map((r) => (
-              <li key={r.id} class="row">
-                <RatchetImage ratchet={r} zoomable />
-                <div class="row-main">
-                  <span class="row-title">
-                    {r.id} <AnnouncedMark {...rel.part('ratchets', r.id)} />
+              <li key={r.id} class="lex-row lex-row-static">
+                <PartArt has={!!images.ratchets?.[r.id]?.thumb} label={`Ratchet ${r.id}`} onZoom={() => openImage(r.id, 'ratchet')}>
+                  <RatchetImage ratchet={r} size="card" />
+                </PartArt>
+                <div class="lex-row-main">
+                  <span class="lex-row-title">
+                    <span class="lex-row-code">{r.id}</span> <AnnouncedMark {...rel.part('ratchets', r.id)} />
                   </span>
-                  <span class="row-sub">{ratchetText(r)}</span>
+                  <span class="lex-row-sub">{ratchetText(r)}</span>
                   <span class="height-bar" aria-hidden="true">
                     <span style={{ width: `${Math.min(100, ((r.heightMm ?? 0) / 9) * 100)}%` }} />
                   </span>
@@ -164,14 +190,18 @@ export function Lexikon({ db, state, update }: Props) {
 
       {view === 'terms' &&
         (terms.length ? (
-          <ul class="list">
+          <ul class="lex-list">
             {terms.map((t) => (
               <li key={t.term}>
-                <details class="row lex">
+                <details class="lex-row">
                   <summary>
-                    <span class="row-main">
-                      <span class="row-title">{t.term}</span>
+                    <span class="lex-row-art lex-row-icon" aria-hidden="true">
+                      <BookOpen />
                     </span>
+                    <span class="lex-row-main">
+                      <span class="lex-row-title">{t.term}</span>
+                    </span>
+                    <ChevronDown class="lex-row-chevron" aria-hidden="true" />
                   </summary>
                   <p class="lex-text">{t.text}</p>
                 </details>
