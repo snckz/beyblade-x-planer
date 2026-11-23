@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-16",
+  "updatedAt": "2026-11-23",
   "events": [
     {
       "id": "release-valkyrievolt-gunmetal",
@@ -46,7 +46,7 @@
       "place": "ICONSIAM, Bangkok",
       "country": "TH",
       "url": "https://beyblade.takaratomy.co.jp/gpfinal/en/",
-      "note": "Erstes Weltfinale der GP-Serie, 3-gegen-3 im BX-10-Stadium, Regular Class (6–12) und Open Class. Mitspielen nur für Qualifizierte; ob Zuschauer zugelassen sind, nennt die offizielle Seite noch nicht. Du bist dann in Bangkok.",
+      "note": "Erstes Weltfinale der GP-Serie, 3-gegen-3 im BX-10-Stadium, Regular Class (6–12) und Open Class. Mitspielen nur für Qualifizierte, zuschauen darf laut offizieller Seite jeder (bei Andrang begrenzter Einlass). Vor Ort gibt es BahamutBlitz Metal Coat: Black. Du bist dann in Bangkok.",
       "confirmed": true
     },
     {
@@ -68,7 +68,7 @@
       "place": "Japan (B4 Store)",
       "country": "JP",
       "url": "https://beyblade.takaratomy.co.jp/beyblade-x/lineup/",
-      "note": "Exklusive schwarze Metallic-Version, nur über den B4-Store. 2.400 Yen.",
+      "note": "Exklusive schwarze Metallic-Version mit Roblox-Code, in Japan nur über den B4-Store. 2.400 Yen. Schon beim GP Final in Bangkok (12.–13.12.) erhältlich.",
       "bladeId": "BahamutBlitz",
       "confirmed": true
     },
@@ -93,6 +93,28 @@
       "url": "https://beyblade.takaratomy.co.jp/beyblade-x/lineup/ux22.html",
       "note": "Defense-Typ, der durch die Drehung eine Barriere ausfährt. 2.500 Yen inkl. Long-Winder-Launcher.",
       "bladeId": "VanishLucifer",
+      "confirmed": true
+    },
+    {
+      "id": "plus-one-bit-kampagne-2027-01",
+      "kind": "event",
+      "date": "2027-01-23",
+      "title": "Plus-One-Bit-Kampagne (2. Welle)",
+      "place": "Japan (teilnehmende Händler)",
+      "country": "JP",
+      "url": "https://beyblade.takaratomy.co.jp/beyblade-x/news/news260615_6.html",
+      "note": "Verschobene Sommer-Aktion: ab 3.000 Yen Einkauf zufällig ein Sonderfarben-Bit (U, GB oder W), solange der Vorrat reicht.",
+      "confirmed": true
+    },
+    {
+      "id": "gp-2027-japan-championship",
+      "kind": "tournament",
+      "date": "2027-02-21",
+      "title": "Beyblade X GP 2027 Japan Championship",
+      "place": "Tokio",
+      "country": "JP",
+      "url": "https://beyblade.takaratomy.co.jp/beyblade-x/event/g1_jcs2027.html",
+      "note": "Japanische Meisterschaft nur für Sieger der G1-Turniere und der GP 2026 Tokyo; wird live übertragen.",
       "confirmed": true
     }
   ]

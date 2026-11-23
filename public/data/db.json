@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-16",
+  "updatedAt": "2026-11-23",
   "blades": [
     {
       "id": "DranSword",
@@ -127,6 +127,7 @@
       "type": "attack",
       "spin": "right",
       "verified": true,
+      "note": "Drei schwere, lackierte Metallklingen für wuchtige Treffer.",
       "weightG": 38,
       "hasbroName": "Soar Phoenix",
       "hasbroNameAuto": true
@@ -185,6 +186,7 @@
       "type": "balance",
       "spin": "right",
       "verified": true,
+      "note": "Wendbare Klinge: eine Seite spart Ausdauer, die andere ist auf Konter-Treffer ausgelegt.",
       "weightG": 35,
       "hasbroName": "Scarlet Garuda",
       "hasbroNameAuto": true
@@ -196,6 +198,7 @@
       "type": "attack",
       "spin": "right",
       "verified": true,
+      "note": "Metall zieht sich bis zur Mitte der Klinge – steifer und gleichmäßig verteiltes Gewicht.",
       "weightG": 41.4,
       "hasbroName": "Strike Dran",
       "hasbroNameAuto": true
@@ -207,7 +210,7 @@
       "type": "attack",
       "spin": "left",
       "verified": true,
-      "note": "Neuheit – Typ und Drehrichtung noch nicht bestätigt.",
+      "note": "Linksdrehende Angriffsklinge mit vielen Trefferkanten, die aus jeder Lage zuschlagen kann.",
       "weightG": 43
     },
     {
