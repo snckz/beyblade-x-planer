@@ -26,7 +26,8 @@ function Shell({ children }: { children: ComponentChildren }) {
 afterEach(cleanup);
 // Preact führt Effekte und deren Aufräumen leicht verzögert per Timer aus. Vor dem Abbau der Testumgebung abwarten,
 // sonst laufen sie danach ohne window/document (sporadischer „window is not defined“ beim Ende der Datei).
-afterAll(() => new Promise((resolve) => setTimeout(resolve, 150)));
+// Länger als die Schließ-Animation (CLOSE_MS = 180 in lib/useModal.ts): Deren Timer darf nicht erst nach Testende laufen.
+afterAll(() => new Promise((resolve) => setTimeout(resolve, 400)));
 
 describe('Kombo-Tab: einheitliche Produktfotos', () => {
   it('Bühne und Teileleiste nutzen die Freistellung – kein weißer Rahmen (.stage-photo / .bit-img)', () => {

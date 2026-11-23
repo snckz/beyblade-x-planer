@@ -13,7 +13,8 @@ const db = JSON.parse(readFileSync(join(process.cwd(), 'public/data/db.json'), '
 
 afterEach(cleanup);
 // Preact führt Effekte per Timer aus – vor dem Abbau der Testumgebung abwarten (siehe comboTabExport.test.tsx)
-afterAll(() => new Promise((resolve) => setTimeout(resolve, 150)));
+// Länger als die Schließ-Animation (CLOSE_MS = 180 in lib/useModal.ts): Deren Timer darf nicht erst nach Testende laufen.
+afterAll(() => new Promise((resolve) => setTimeout(resolve, 400)));
 
 let t = 1000;
 const TYPES: Record<string, string> = { pointerdown: 'touchstart', pointermove: 'touchmove', pointerup: 'touchend' };

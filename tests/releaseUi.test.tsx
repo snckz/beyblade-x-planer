@@ -10,7 +10,8 @@ import { Lexikon } from '../src/components/Lexikon';
 import { DetailSheet } from '../src/components/DetailSheet';
 
 afterEach(cleanup);
-afterAll(() => new Promise((resolve) => setTimeout(resolve, 150)));
+// Länger als die Schließ-Animation (CLOSE_MS = 180 in lib/useModal.ts): Deren Timer darf nicht erst nach Testende laufen.
+afterAll(() => new Promise((resolve) => setTimeout(resolve, 400)));
 
 const db = {
   version: 1,

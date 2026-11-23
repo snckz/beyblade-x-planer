@@ -7,7 +7,8 @@ import { encodeState } from '../src/lib/transfer';
 import { EMPTY_STATE, type UserState } from '../src/lib/storage';
 
 afterEach(cleanup);
-afterAll(() => new Promise((resolve) => setTimeout(resolve, 150)));
+// Länger als die Schließ-Animation (CLOSE_MS = 180 in lib/useModal.ts): Deren Timer darf nicht erst nach Testende laufen.
+afterAll(() => new Promise((resolve) => setTimeout(resolve, 400)));
 
 const sheet = () => document.querySelector<HTMLElement>('.confirm-sheet');
 

@@ -8,7 +8,8 @@ import { Collection } from '../src/components/Collection';
 import { Battle } from '../src/components/Battle';
 
 afterEach(cleanup);
-afterAll(() => new Promise((resolve) => setTimeout(resolve, 150)));
+// Länger als die Schließ-Animation (CLOSE_MS = 180 in lib/useModal.ts): Deren Timer darf nicht erst nach Testende laufen.
+afterAll(() => new Promise((resolve) => setTimeout(resolve, 400)));
 
 const db = {
   version: 1,
