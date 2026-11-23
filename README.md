@@ -2,6 +2,29 @@
 
 Web-App (PWA) zum Planen von Beyblade-X-Kombos – läuft im Browser und lässt sich auf iPhone/Android wie eine App zum Homescreen hinzufügen.
 
+## App öffnen und installieren
+
+**Zur App: <https://snckz.github.io/beyblade-x-planer/>**
+
+Kostenlos, ohne Anmeldung und ohne App Store. Die App läuft sofort im Browser. Als Symbol auf dem Home-Bildschirm startet sie im Vollbild und funktioniert auch ohne Internet.
+
+### iPhone und iPad
+
+1. Den Link oben in **Safari** öffnen. Kommt der Link aus WhatsApp, Instagram oder einer anderen App, dort zuerst „In Safari öffnen“ wählen.
+2. Auf **Teilen** tippen (Quadrat mit Pfeil nach oben). Fehlt das Symbol in der Leiste, zuerst auf **⋯** tippen.
+3. In der Liste nach unten gehen und **„Zum Home-Bildschirm“** wählen. Falls ein Schalter „Als Web-App öffnen“ erscheint, eingeschaltet lassen.
+4. Oben rechts auf **Hinzufügen** tippen.
+
+Das Symbol „Beyblade“ liegt jetzt auf dem Home-Bildschirm. Die App künftig darüber starten: In Safari kann iOS die gespeicherte Sammlung nach 7 Tagen ohne Besuch löschen, in der Home-Bildschirm-App bleibt sie erhalten.
+
+### Android
+
+1. Den Link oben in **Chrome** öffnen.
+2. Oben rechts auf **⋮** tippen und **„Zum Startbildschirm hinzufügen“** (oder „App installieren“) wählen.
+3. Mit **Installieren** bestätigen.
+
+Alternativ gibt es eine APK-Datei zum Herunterladen unter [Releases](https://github.com/snckz/beyblade-x-planer/releases/latest). Die Web-App ist immer auf dem neuesten Stand, die APK nur so aktuell wie das letzte Release.
+
 ## Funktionen
 
 - **Kombo-Planer:** Blade, Ratchet und Bit wählen → Typ, Richtwert-Profil, Warnungen (z. B. integrierter Ratchet, Burst-Risiko, Linksdreher) und Tipps. Optional nur mit Teilen aus der eigenen Sammlung.
@@ -45,7 +68,7 @@ npm run check      # Typecheck, Lint, Datenprüfung, Tests, Build
 3. Jeder Push auf `main` baut und veröffentlicht die App (`.github/workflows/deploy.yml`).
 4. Der Neuheiten-Radar (`.github/workflows/update-data.yml`) läuft täglich und kann unter **Actions → Neuheiten-Radar → Run workflow** manuell gestartet werden.
 
-Auf dem iPhone: Seite in Safari öffnen → Teilen → „Zum Home-Bildschirm“.
+Wie man die App auf iPhone und Android installiert, steht oben unter „App öffnen und installieren“.
 
 ## Hinweis
 
