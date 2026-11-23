@@ -8,22 +8,61 @@ Web-App (PWA) zum Planen von Beyblade-X-Kombos – läuft im Browser und lässt 
 
 Kostenlos, ohne Anmeldung und ohne App Store. Die App läuft sofort im Browser. Als Symbol auf dem Home-Bildschirm startet sie im Vollbild und funktioniert auch ohne Internet.
 
-### iPhone und iPad
+| Dein Gerät | Anleitung |
+| --- | --- |
+| 📱 iPhone oder iPad | [Zur Anleitung fürs iPhone](#iphone) |
+| 🤖 Android | [Zur Anleitung für Android](#android) |
 
-1. Den Link oben in **Safari** öffnen. Kommt der Link aus WhatsApp, Instagram oder einer anderen App, dort zuerst „In Safari öffnen“ wählen.
-2. Auf **Teilen** tippen (Quadrat mit Pfeil nach oben). Fehlt das Symbol in der Leiste, zuerst auf **⋯** tippen.
-3. In der Liste nach unten gehen und **„Zum Home-Bildschirm“** wählen. Falls ein Schalter „Als Web-App öffnen“ erscheint, eingeschaltet lassen.
-4. Oben rechts auf **Hinzufügen** tippen.
+---
 
-Das Symbol „Beyblade“ liegt jetzt auf dem Home-Bildschirm. Die App künftig darüber starten: In Safari kann iOS die gespeicherte Sammlung nach 7 Tagen ohne Besuch löschen, in der Home-Bildschirm-App bleibt sie erhalten.
+### iPhone
+
+Gilt genauso fürs iPad. Dauert etwa eine Minute.
+
+1. **Link in Safari öffnen**<br>
+   <https://snckz.github.io/beyblade-x-planer/>
+2. **Auf „Teilen“ tippen**<br>
+   Das ist das Quadrat mit dem Pfeil nach oben. Siehst du es nicht, tippe zuerst auf **⋯**.
+3. **„Zum Home-Bildschirm“ wählen**<br>
+   Dafür in der Liste etwas nach unten gehen. Falls ein Schalter „Als Web-App öffnen“ erscheint, eingeschaltet lassen.
+4. **Auf „Hinzufügen“ tippen**<br>
+   Der Knopf sitzt oben rechts.
+
+✅ Fertig. Das Symbol „Beyblade“ liegt jetzt auf deinem Home-Bildschirm.
+
+> [!TIP]
+> Hast du den Link in WhatsApp, Instagram oder einer anderen App geöffnet? Dann fehlt der Menüpunkt. Wähle dort zuerst „In Safari öffnen“.
+
+> [!IMPORTANT]
+> Starte die App danach immer über das Symbol. In Safari kann iOS deine gespeicherte Sammlung nach 7 Tagen ohne Besuch löschen, in der Home-Bildschirm-App bleibt sie erhalten.
+
+---
 
 ### Android
 
-1. Den Link oben in **Chrome** öffnen.
-2. Oben rechts auf **⋮** tippen und **„Zum Startbildschirm hinzufügen“** (oder „App installieren“) wählen.
-3. Mit **Installieren** bestätigen.
+Es gibt zwei Wege. Der erste ist der einfachere.
 
-Alternativ gibt es eine APK-Datei zum Herunterladen unter [Releases](https://github.com/snckz/beyblade-x-planer/releases/latest). Die Web-App ist immer auf dem neuesten Stand, die APK nur so aktuell wie das letzte Release.
+**Weg 1: Im Browser (empfohlen, immer aktuell)**
+
+1. **Link in Chrome öffnen**<br>
+   <https://snckz.github.io/beyblade-x-planer/>
+2. **Oben rechts auf ⋮ tippen**
+3. **„Zum Startbildschirm hinzufügen“ wählen**<br>
+   Je nach Gerät heißt der Punkt „App installieren“. Danach mit **Installieren** bestätigen.
+
+✅ Fertig. Die App liegt als Symbol auf deinem Startbildschirm.
+
+**Weg 2: Als App-Datei (APK)**
+
+1. **[Neueste APK herunterladen](https://github.com/snckz/beyblade-x-planer/releases/latest)**<br>
+   Auf der Seite unter „Assets“ die Datei mit der Endung `.apk` antippen.
+2. **Heruntergeladene Datei öffnen**<br>
+   Beim ersten Mal fragt Android, ob der Browser Apps installieren darf. Das erlauben.
+
+> [!NOTE]
+> Die APK ist nur so aktuell wie das letzte Release. Die Web-App aus Weg 1 hat immer den neuesten Stand.
+
+---
 
 ## Funktionen
 
