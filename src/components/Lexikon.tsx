@@ -1,3 +1,4 @@
+import { tr, trData } from '../lib/i18n';
 import { displayName, otherName } from '../lib/names';
 import { useState } from 'preact/hooks';
 import type { BeyType, Database } from '../lib/types';
@@ -30,7 +31,7 @@ function PartArt({ has, label, onZoom, children }: { has: boolean; label: string
     <button
       type="button"
       class="lex-row-art zoom"
-      aria-label={`${label}: Bild vergrößern`}
+      aria-label={tr('{0}: Bild vergrößern', label)}
       onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -62,14 +63,14 @@ export function Lexikon({ db, state, update }: Props) {
 
   return (
     <div class="stack">
-      <div class="segmented" role="tablist" aria-label="Ansicht">
+      <div class="segmented" role="tablist" aria-label={tr('Ansicht')}>
         {(
           [
-            ['cards', 'Karten'],
+            ['cards', tr('Karten')],
             ['blades', 'Blades'],
             ['bits', 'Bits'],
             ['ratchets', 'Ratchets'],
-            ['terms', 'Begriffe'],
+            ['terms', tr('Begriffe')],
           ] as const
         ).map(([id, label]) => (
           <button key={id} type="button" role="tab" aria-selected={view === id} class={view === id ? 'on' : ''} onClick={() => setView(id)}>
@@ -82,12 +83,12 @@ export function Lexikon({ db, state, update }: Props) {
         <div class="filters lex-filters">
           <label class="search-field">
             <Search aria-hidden="true" />
-            <input type="search" placeholder="Suchen …" value={query} onInput={(e) => setQuery(e.currentTarget.value)} aria-label="Suchen" />
+            <input type="search" placeholder={tr('Suchen …')} value={query} onInput={(e) => setQuery(e.currentTarget.value)} aria-label={tr('Suchen')} />
           </label>
           {showTypeFilter && (
-            <div class="type-filter" role="group" aria-label="Nach Typ filtern">
+            <div class="type-filter" role="group" aria-label={tr('Nach Typ filtern')}>
               <button type="button" class={`chip type-chip type-chip-all${type === '' ? ' chip-on' : ''}`} aria-pressed={type === ''} onClick={() => setType('')}>
-                Alle
+                {tr('Alle')}
               </button>
               {(['attack', 'defense', 'stamina', 'balance'] as const).map((t) => {
                 const Icon = TYPE_ICON[t];
@@ -121,18 +122,18 @@ export function Lexikon({ db, state, update }: Props) {
                   <span class="mini-badge">{b.line}</span>
                   <TypeChip type={b.type} />
                   {b.spin === 'left' && (
-                    <span class="mini-badge mini-badge-icon" role="img" aria-label="Linksdreher">
+                    <span class="mini-badge mini-badge-icon" role="img" aria-label={tr('Linksdreher')}>
                       <RotateCcw aria-hidden="true" />
                     </span>
                   )}
                 </span>
-                {b.integratedRatchet && <span class="lex-card-sub">Ratchet integriert</span>}
-                {b.note && <span class="lex-card-note">{b.note}</span>}
+                {b.integratedRatchet && <span class="lex-card-sub">{tr('Ratchet integriert')}</span>}
+                {b.note && <span class="lex-card-note">{trData(b.note)}</span>}
               </li>
             ))}
           </ul>
         ) : (
-          <Empty title="Keine Blades gefunden" />
+          <Empty title={tr('Keine Blades gefunden')} />
         ))}
 
       {view === 'bits' &&
@@ -159,13 +160,13 @@ export function Lexikon({ db, state, update }: Props) {
             ))}
           </ul>
         ) : (
-          <Empty title="Keine Bits gefunden" />
+          <Empty title={tr('Keine Bits gefunden')} />
         ))}
 
       {view === 'ratchets' && (
         <>
           <p class="lex-intro">
-            Die erste Zahl ist die Anzahl der Zacken, die zweite die Höhe in Zehntel-Millimetern. <strong>3-60</strong> heißt also 3 Zacken und 6,0 mm.
+            {tr('Die erste Zahl ist die Anzahl der Zacken, die zweite die Höhe in Zehntel-Millimetern.')} <strong>3-60</strong> {tr('heißt also 3 Zacken und 6,0 mm.')}
           </p>
           <ul class="lex-list">
             {ratchets.map((r) => (
@@ -209,10 +210,10 @@ export function Lexikon({ db, state, update }: Props) {
             ))}
           </ul>
         ) : (
-          <Empty title="Kein Begriff gefunden" />
+          <Empty title={tr('Kein Begriff gefunden')} />
         ))}
       <p class="fineprint">
-        Datenstand {db.updatedAt}. „ungeprüft“ heißt: Typ oder Drehrichtung sind noch nicht durch die Produktseite im Beyblade Wiki bestätigt, oder der Kreisel ist in Japan noch nicht erschienen.
+        {tr('Datenstand')} {db.updatedAt}{tr('. „ungeprüft“ heißt: Typ oder Drehrichtung sind noch nicht durch die Produktseite im Beyblade Wiki bestätigt, oder der Kreisel ist in Japan noch nicht erschienen.')}
       </p>
     </div>
   );

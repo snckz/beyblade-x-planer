@@ -1,3 +1,4 @@
+import { tr, trData } from '../lib/i18n';
 import { CompareCombos } from './CompareCombos';
 import { useEffect, useMemo, useState } from 'preact/hooks';
 import type { Combo, Database, MetaFeed } from '../lib/types';
@@ -69,7 +70,7 @@ export function ComboBuilder({ db, state, update, presetBladeId, presetRatchetId
   // Vorgabe (z. B. „Im Planer verwenden“, Direktlink) mit gesperrtem Teil: nicht übernehmen, sondern sagen warum
   const blocked = lockedParts(rel, start).map((x) => {
     const item = x.kind === 'blades' ? db.blades.find((b) => b.id === x.id) : null;
-    return `${item ? item.name : x.id} (${rel.part(x.kind, x.id).reason})`;
+    return `${item ? item.name : x.id} (${trData(rel.part(x.kind, x.id).reason)})`;
   });
 
   // Auswahl nur gelten lassen, wenn sie in den (ggf. gefilterten) Listen vorkommt.
@@ -131,10 +132,10 @@ export function ComboBuilder({ db, state, update, presetBladeId, presetRatchetId
   return (
     <div class="stack">
       <Section
-        title="Kombo bauen"
+        title={tr('Kombo bauen')}
         aside={
           <button type="button" class="btn btn-ghost" onClick={random} disabled={!blades.length || !bits.length}>
-            Zufall
+            {tr('Zufall')}
           </button>
         }
       >
@@ -142,12 +143,12 @@ export function ComboBuilder({ db, state, update, presetBladeId, presetRatchetId
           {hasCollection && (
             <label class="toggle">
               <input type="checkbox" checked={onlyOwned} onChange={(e) => setOnlyOwned(e.currentTarget.checked)} />
-              <span>Nur Teile aus meiner Sammlung</span>
+              <span>{tr('Nur Teile aus meiner Sammlung')}</span>
             </label>
           )}
           {blocked.length > 0 && bladeId === start.bladeId && ratchetId === start.ratchetId && bitId === start.bitId && (
             <p class="fineprint" role="status">
-              Noch nicht im Kombo-Planer: {blocked.join(', ')}. Sobald es erschienen und geprüft ist, kannst du es hier wählen.
+              {tr('Noch nicht im Kombo-Planer:')} {blocked.join(', ')}{tr('. Sobald es erschienen und geprüft ist, kannst du es hier wählen.')}
             </p>
           )}
           <div class="layers">
@@ -159,12 +160,12 @@ export function ComboBuilder({ db, state, update, presetBladeId, presetRatchetId
               value={integrated ? '' : ratchetSel}
               onChange={setRatchetId}
               disabled={integrated}
-              disabledText="In Blade integriert"
+              disabledText={tr('In Blade integriert')}
               counts={useOwned ? parts.ratchets : undefined}
             />
             <PartField kind="bit" label="Bit" bits={bits} value={bitSel} onChange={setBitId} counts={useOwned ? parts.bits : undefined} />
           </div>
-          {useOwned && !blades.length && <p class="muted">In deiner Sammlung sind noch keine Blades.</p>}
+          {useOwned && !blades.length && <p class="muted">{tr('In deiner Sammlung sind noch keine Blades.')}</p>}
         </div>
       </Section>
 
@@ -174,10 +175,10 @@ export function ComboBuilder({ db, state, update, presetBladeId, presetRatchetId
             <div class="result-actions">
               <div class="result-actions-row">
                 <button type="button" class={`btn improve-btn${improveOpen ? ' on' : ''}`} onClick={() => setImproveOpen((o) => !o)} aria-expanded={improveOpen}>
-                  <Sparkles aria-hidden="true" /> {improveOpen ? 'Vorschläge zu' : 'Verbessern'}
+                  <Sparkles aria-hidden="true" /> {improveOpen ? tr('Vorschläge zu') : tr('Verbessern')}
                 </button>
                 <button type="button" class="btn" onClick={() => setCompareSignal((n) => n + 1)}>
-                  <Scale aria-hidden="true" /> Vergleichen
+                  <Scale aria-hidden="true" /> {tr('Vergleichen')}
                 </button>
               </div>
               {improveOpen && improvements && (
@@ -190,35 +191,35 @@ export function ComboBuilder({ db, state, update, presetBladeId, presetRatchetId
                             <span class="improve-label">{nb(s.label)}</span>
                             <span class="improve-change">{s.change}</span>
                             <span class="improve-why">
-                              {s.gain > 0 && <span class="improve-tag good">+{s.gain} gegen Turnier-Kombos</span>}
-                              {s.fixes.length > 0 && <span class="improve-tag fix">behebt: {s.fixes.map((f) => f.split(':')[0]).join(', ')}</span>}
-                              {s.metaDecks >= 3 && <span class="improve-tag meta">im Turnier {s.metaDecks}× gespielt</span>}
+                              {s.gain > 0 && <span class="improve-tag good">+{s.gain} {tr('gegen Turnier-Kombos')}</span>}
+                              {s.fixes.length > 0 && <span class="improve-tag fix">{tr('behebt:')} {s.fixes.map((f) => f.split(':')[0]).join(', ')}</span>}
+                              {s.metaDecks >= 3 && <span class="improve-tag meta">{tr('im Turnier')} {s.metaDecks}{tr('× gespielt')}</span>}
                             </span>
-                            {s.missing.length > 0 && <span class="improve-missing">Fehlt dir noch: {s.missing.join(', ')}</span>}
+                            {s.missing.length > 0 && <span class="improve-missing">{tr('Fehlt dir noch:')} {s.missing.join(', ')}</span>}
                           </div>
                           <button type="button" class="btn btn-sm btn-primary" onClick={() => apply(s.combo)}>
-                            Übernehmen
+                            {tr('Übernehmen')}
                           </button>
                         </li>
                       ))}
                     </ul>
                   ) : (
-                    <p class="muted">Mit {useOwned ? 'deinen Teilen' : 'den verfügbaren Teilen'} ist diese Blade so schon gut aufgestellt – ich finde keine klar bessere Ratchet/Bit-Kombination.</p>
+                    <p class="muted">{tr('Mit')} {useOwned ? tr('deinen Teilen') : tr('den verfügbaren Teilen')} {tr('ist diese Blade so schon gut aufgestellt – ich finde keine klar bessere Ratchet/Bit-Kombination.')}</p>
                   )}
-                  <p class="fineprint">Gerechnet gegen {meta?.combos?.length ? 'die aktuellen Turnier-Kombos' : 'typische Gegner'}. Blade bleibt gleich – getauscht werden nur Ratchet und Bit.</p>
+                  <p class="fineprint">{tr('Gerechnet gegen')} {meta?.combos?.length ? tr('die aktuellen Turnier-Kombos') : tr('typische Gegner')}{tr('. Blade bleibt gleich – getauscht werden nur Ratchet und Bit.')}</p>
                 </div>
               )}
               <div class="save-row">
                 <input
                   type="text"
-                  placeholder="Name (optional)"
+                  placeholder={tr('Name (optional)')}
                   maxLength={40}
                   value={name}
                   onInput={(e) => setName(e.currentTarget.value)}
-                  aria-label="Name der Kombo"
+                  aria-label={tr('Name der Kombo')}
                 />
                 <button type="button" class="btn btn-primary" onClick={save} disabled={!result.valid}>
-                  {saved ? <><Check aria-hidden="true" /> Gespeichert</> : 'Speichern'}
+                  {saved ? <><Check aria-hidden="true" /> {tr('Gespeichert')}</> : tr('Speichern')}
                 </button>
               </div>
             </div>
@@ -227,7 +228,7 @@ export function ComboBuilder({ db, state, update, presetBladeId, presetRatchetId
           <Verdict result={result} />
         </div>
       ) : (
-        <Empty title="Wähle Blade, Ratchet und Bit">Dann siehst du Typ, Profil und Hinweise zu deiner Kombo.</Empty>
+        <Empty title={tr('Wähle Blade, Ratchet und Bit')}>{tr('Dann siehst du Typ, Profil und Hinweise zu deiner Kombo.')}</Empty>
       )}
 
       <CompareCombos db={db} initial={combo ? { bladeId: combo.bladeId, ratchetId: combo.ratchetId, bitId: combo.bitId } : undefined} openSignal={compareSignal} />
@@ -252,7 +253,7 @@ function SavedCombos({ db, state, update }: Props) {
     const at = state.combos.findIndex((x) => x.id === c.id);
     const deckAt = state.deck.indexOf(c.id);
     remove(c.id);
-    showUndo(`Kombo „${title}“ gelöscht`, () =>
+    showUndo(tr('Kombo „{0}“ gelöscht', title), () =>
       update((s) => {
         if (s.combos.some((x) => x.id === c.id)) return s;
         const combos = [...s.combos.slice(0, at), c, ...s.combos.slice(at)];
@@ -262,7 +263,7 @@ function SavedCombos({ db, state, update }: Props) {
     );
   };
   return (
-    <Section title={`Gespeichert (${state.combos.length})`}>
+    <Section title={tr('Gespeichert ({0})', state.combos.length)}>
       <ul class="list saved-list">
         {state.combos.map((c) => {
           const r = resolveCombo(db, c);
@@ -271,14 +272,14 @@ function SavedCombos({ db, state, update }: Props) {
           // Gespeichert bleibt gespeichert – enthält die Kombo inzwischen gesperrte Teile, nur kennzeichnen
           const locked = lockedParts(rel, c).length > 0;
           return (
-            <SwipeRow key={c.id} class="row saved-row" deleteLabel={`Kombo ${c.name ?? (a ? a.label : '')} löschen`.replace(/\s+/g, ' ')} onlyDelete onDelete={() => swipeRemove(c, c.name ?? (a ? a.label : 'Unbekannte Teile'))}>
+            <SwipeRow key={c.id} class="row saved-row" deleteLabel={tr('Kombo {0} löschen', c.name ?? (a ? a.label : '')).replace(/\s+/g, ' ')} onlyDelete onDelete={() => swipeRemove(c, c.name ?? (a ? a.label : tr('Unbekannte Teile')))}>
               {r && (
                 <span class={`saved-art aura-${a!.type}`}>
                   <BladePhoto blade={r.blade} alt="" variant="card" />
                 </span>
               )}
               <div class="row-main">
-                <span class="row-title">{c.name ?? (a ? nb(a.label) : 'Unbekannte Teile')}</span>
+                <span class="row-title">{c.name ?? (a ? nb(a.label) : tr('Unbekannte Teile'))}</span>
                 {c.name && a && <span class="row-sub">{nb(a.label)}</span>}
                 {r && a && (
                   <span class="saved-badges">
@@ -286,7 +287,7 @@ function SavedCombos({ db, state, update }: Props) {
                     <TypeChip type={a.type} />
                   </span>
                 )}
-                {locked && <span class="row-sub">Enthält noch nicht freigegebene Teile</span>}
+                {locked && <span class="row-sub">{tr('Enthält noch nicht freigegebene Teile')}</span>}
               </div>
               <button
                 type="button"
@@ -295,7 +296,7 @@ function SavedCombos({ db, state, update }: Props) {
                 disabled={!inDeck && state.deck.length >= 3}
                 aria-pressed={inDeck}
               >
-                {inDeck ? 'Im Deck' : '+ Deck'}
+                {inDeck ? tr('Im Deck') : tr('+ Deck')}
               </button>
             </SwipeRow>
           );

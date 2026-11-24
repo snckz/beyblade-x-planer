@@ -1,3 +1,4 @@
+import { tr, DATE_LOCALE, trData, lang } from '../lib/i18n';
 import { displayName } from '../lib/names';
 import type { BeyEvent, Database, NewsFeed } from '../lib/types';
 import { BladeStage } from './BeyImage';
@@ -22,29 +23,31 @@ interface Props {
   active?: boolean;
 }
 
-const KIND = { release: 'Release', tournament: 'Turnier', event: 'Event' } as const;
-const KIND_PLURAL = { release: 'Releases', tournament: 'Turniere', event: 'Events' } as const;
+const KIND = { release: 'Release', tournament: tr('Turnier'), event: 'Event' } as const;
+const KIND_PLURAL = { release: 'Releases', tournament: tr('Turniere'), event: 'Events' } as const;
 const FLAG: Record<string, string> = { AT: '🇦🇹', DE: '🇩🇪', TH: '🇹🇭', JP: '🇯🇵', US: '🇺🇸' };
 
 function when(e: BeyEvent): string {
   const d = daysUntil(e.date);
   const end = e.endDate ? daysUntil(e.endDate) : d;
-  if (d <= 0 && end >= 0) return 'läuft gerade';
-  if (d === 1) return 'morgen';
-  if (d > 1) return `in ${d} Tagen`;
-  return 'vorbei';
+  if (d <= 0 && end >= 0) return tr('läuft gerade');
+  if (d === 1) return tr('morgen');
+  if (d > 1) return tr('in {0} Tagen', d);
+  return tr('vorbei');
 }
 
 function dateRange(e: BeyEvent) {
+  // Deutsch: 12.12.–13.12.2026 · Englisch: 12 Dec – 13 Dec 2026
   const fmt = (s: string, withYear: boolean) => {
     const [y, m, d] = s.split('-');
+    if (lang === 'en') return new Date(`${s}T12:00:00`).toLocaleDateString(DATE_LOCALE, { day: 'numeric', month: 'short', ...(withYear ? { year: 'numeric' } : {}) });
     return withYear ? `${d}.${m}.${y}` : `${d}.${m}.`;
   };
   return e.endDate && e.endDate !== e.date ? `${fmt(e.date, false)}–${fmt(e.endDate, true)}` : fmt(e.date, true);
 }
 
 /** „Abb. ähnlich“, wenn das Foto nicht exakt zum Produkt passt (Set, Sonderfarbe). */
-const similarNote = (eventTitle: string) => (imageTitle: string) => (photoMatchesTitle(eventTitle, imageTitle) ? null : 'Abb. ähnlich');
+const similarNote = (eventTitle: string) => (imageTitle: string) => (photoMatchesTitle(eventTitle, imageTitle) ? null : tr('Abb. ähnlich'));
 
 export function Events({ db, events, news, state, update, active = true }: Props) {
   const { openBlade, rates } = useApp();
@@ -59,7 +62,7 @@ export function Events({ db, events, news, state, update, active = true }: Props
     const jpy = e.kind === 'release' && e.note ? notePriceYen(e.note) : null;
     if (!jpy) return null;
     const c = convert(jpy, rates);
-    return { jpy: yen(jpy), eur: c ? `ca. ${Math.round(c.eur)} €` : null };
+    return { jpy: yen(jpy), eur: c ? tr('ca. {0} €', Math.round(c.eur)) : null };
   };
   const priceTag = (e: BeyEvent) => {
     const p = price(e);
@@ -78,23 +81,23 @@ export function Events({ db, events, news, state, update, active = true }: Props
   const rest = upcoming.slice(1);
   const months = new Map<string, BeyEvent[]>();
   for (const e of rest) {
-    const key = new Date(e.date + 'T00:00:00').toLocaleDateString('de-AT', { month: 'long', year: 'numeric' });
+    const key = new Date(e.date + 'T00:00:00').toLocaleDateString(DATE_LOCALE, { month: 'long', year: 'numeric' });
     months.set(key, [...(months.get(key) ?? []), e]);
   }
 
   /** Kurzbeschreibung + Rest. Besteht der Rest nur aus dem Preis, der schon als Etikett dasteht, entfällt „Mehr“. */
   const shortNote = (e: BeyEvent) => {
-    const n = splitNote(e.note ?? '');
-    return price(e) && /^[\d.]+ Yen\.?$/.test(n.rest) ? { lead: n.lead, rest: '' } : n;
+    const n = splitNote(trData(e.note ?? ''));
+    return price(e) && /^[\d.,]+ Yen\.?$/i.test(n.rest) ? { lead: n.lead, rest: '' } : n;
   };
 
   const cal = (e: BeyEvent): CalItem => ({
     uid: e.id,
     date: e.date,
     endDate: e.endDate,
-    title: `Beyblade X: ${e.title}`,
-    location: e.place,
-    description: e.note,
+    title: tr('Beyblade X: {0}', trData(e.title)),
+    location: e.place && trData(e.place),
+    description: e.note && trData(e.note),
     url: e.url,
   });
 
@@ -105,8 +108,8 @@ export function Events({ db, events, news, state, update, active = true }: Props
         <summary class={cls}>
           {n.lead}{' '}
           <span class="more-label">
-            <span class="when-closed">Mehr</span>
-            <span class="when-open">Weniger</span>
+            <span class="when-closed">{tr('Mehr')}</span>
+            <span class="when-open">{tr('Weniger')}</span>
           </span>
         </summary>
         <span class={cls}>{n.rest}</span>
@@ -122,16 +125,16 @@ export function Events({ db, events, news, state, update, active = true }: Props
       <li key={e.id} class={`tl-item kind-${e.kind}`}>
         <div class="tl-date">
           <span class="event-day">{e.date.slice(8, 10)}</span>
-          <span class="event-mon">{new Date(e.date + 'T00:00:00').toLocaleDateString('de-AT', { month: 'short' })}</span>
+          <span class="event-mon">{new Date(e.date + 'T00:00:00').toLocaleDateString(DATE_LOCALE, { month: 'short' })}</span>
         </div>
         <div class="tl-body">
           <span class="event-kind">
             {KIND[e.kind]}
             {e.country && FLAG[e.country] ? ` ${FLAG[e.country]}` : ''}
-            {!e.confirmed && <span class="unverified">unbestätigt</span>}
+            {!e.confirmed && <span class="unverified">{tr('unbestätigt')}</span>}
             <span class="tl-when">{when(e)}</span>
           </span>
-          <span class="row-title">{e.url ? <a class="link" href={e.url} target="_blank" rel="noopener noreferrer">{e.title} <ArrowUpRight class="ico-inline" aria-hidden="true" /></a> : e.title}</span>
+          <span class="row-title">{e.url ? <a class="link" href={e.url} target="_blank" rel="noopener noreferrer">{trData(e.title)} <ArrowUpRight class="ico-inline" aria-hidden="true" /></a> : trData(e.title)}</span>
           <span class="tl-meta">
             {e.endDate && e.endDate !== e.date && (
               <span>
@@ -140,7 +143,7 @@ export function Events({ db, events, news, state, update, active = true }: Props
             )}
             {e.place && (
               <span>
-                <MapPin aria-hidden="true" /> {e.place}
+                <MapPin aria-hidden="true" /> {trData(e.place)}
               </span>
             )}
             {priceTag(e)}
@@ -155,7 +158,7 @@ export function Events({ db, events, news, state, update, active = true }: Props
         <div class="tl-side">
           {blade && <BladeStage blade={blade} name={displayName(blade)} noteFor={similarNote(e.title)} />}
           {upcomingItem && (
-            <button type="button" class="icon-btn tl-cal" onClick={() => downloadIcs([cal(e)], `${e.id}.ics`)} aria-label={`${e.title} in den Kalender`}>
+            <button type="button" class="icon-btn tl-cal" onClick={() => downloadIcs([cal(e)], `${e.id}.ics`)} aria-label={tr('{0} in den Kalender', trData(e.title))}>
               <CalendarPlus aria-hidden="true" />
             </button>
           )}
@@ -171,9 +174,9 @@ export function Events({ db, events, news, state, update, active = true }: Props
   return (
     <div class="stack">
       {kinds.length > 1 && (
-        <div class="chip-row" role="group" aria-label="Termine filtern">
+        <div class="chip-row" role="group" aria-label={tr('Termine filtern')}>
           <button type="button" class={`chip${kind === 'all' ? ' chip-on' : ''}`} aria-pressed={kind === 'all'} onClick={() => setKind('all')}>
-            Alle
+            {tr('Alle')}
           </button>
           {kinds.map((k) => (
             <button key={k} type="button" class={`chip${kind === k ? ' chip-on' : ''}`} aria-pressed={kind === k} onClick={() => setKind(k)}>
@@ -183,21 +186,21 @@ export function Events({ db, events, news, state, update, active = true }: Props
         </div>
       )}
       {next && (
-        <article class="hero-card" aria-label="Nächster Termin">
+        <article class="hero-card" aria-label={tr('Nächster Termin')}>
           <div class="hero-main">
             <div class="hero-text">
               <span class="hero-kicker">
-                Nächster Termin · {KIND[next.kind]}
+                {tr('Nächster Termin ·')} {KIND[next.kind]}
                 {next.country && FLAG[next.country] ? ` ${FLAG[next.country]}` : ''}
               </span>
-              <h2 class="hero-title">{next.title}</h2>
+              <h2 class="hero-title">{trData(next.title)}</h2>
               <p class="tl-meta hero-meta">
                 <span>
                   <Clock aria-hidden="true" /> {dateRange(next)}
                 </span>
                 {next.place && (
                   <span>
-                    <MapPin aria-hidden="true" /> {next.place}
+                    <MapPin aria-hidden="true" /> {trData(next.place)}
                   </span>
                 )}
                 {priceTag(next)}
@@ -207,7 +210,7 @@ export function Events({ db, events, news, state, update, active = true }: Props
               {nextDays > 0 ? (
                 <span class="hero-count">
                   <b>{nextDays}</b>
-                  <small>{nextDays === 1 ? 'Tag' : 'Tage'}</small>
+                  <small>{nextDays === 1 ? tr('Tag') : tr('Tage')}</small>
                 </span>
               ) : (
                 <span class="hero-count">
@@ -220,7 +223,7 @@ export function Events({ db, events, news, state, update, active = true }: Props
           {noteBlock(nextNote, 'hero-note')}
           <div class="hero-actions">
             <button type="button" class="btn hero-btn" onClick={() => downloadIcs([cal(next)], `${next.id}.ics`)}>
-              <CalendarPlus aria-hidden="true" /> In Kalender
+              <CalendarPlus aria-hidden="true" /> {tr('In Kalender')}
             </button>
             {nextBlade && (
               <button type="button" class="btn btn-ghost hero-link" onClick={() => openBlade(nextBlade.id)}>
@@ -228,7 +231,7 @@ export function Events({ db, events, news, state, update, active = true }: Props
               </button>
             )}
             {next.url && (
-              <a class="btn btn-ghost hero-link hero-icon" href={next.url} target="_blank" rel="noopener noreferrer" aria-label="Quelle öffnen">
+              <a class="btn btn-ghost hero-link hero-icon" href={next.url} target="_blank" rel="noopener noreferrer" aria-label={tr('Quelle öffnen')}>
                 <ArrowUpRight aria-hidden="true" />
               </a>
             )}
@@ -237,7 +240,7 @@ export function Events({ db, events, news, state, update, active = true }: Props
       )}
       {upcoming.length > 1 && (
         <button type="button" class="btn btn-sm cal-all" onClick={() => downloadIcs(upcoming.map(cal), 'beyblade-termine.ics')}>
-          <CalendarPlus aria-hidden="true" /> Alle {upcoming.length} Termine in den Kalender
+          <CalendarPlus aria-hidden="true" /> {tr('Alle')} {upcoming.length} {tr('Termine in den Kalender')}
         </button>
       )}
       {rest.length ? (
@@ -247,20 +250,20 @@ export function Events({ db, events, news, state, update, active = true }: Props
           </Section>
         ))
       ) : next ? null : (
-        <Empty title="Keine kommenden Termine">Neue Releases und Turniere werden regelmäßig automatisch eingetragen.</Empty>
+        <Empty title={tr('Keine kommenden Termine')}>{tr('Neue Releases und Turniere werden regelmäßig automatisch eingetragen.')}</Empty>
       )}
       {hasEuro && rates && (
         <p class="fineprint rate-note">
-          Euro-Beträge sind ungefähre Umrechnungen der japanischen Listenpreise ({rates.source} vom {rates.date.split('-').reverse().join('.')}) – keine Ladenpreise.
+          {tr('Euro-Beträge sind ungefähre Umrechnungen der japanischen Listenpreise (')}{trData(rates.source)} {tr('vom')} {new Date(`${rates.date}T12:00:00`).toLocaleDateString(DATE_LOCALE, { day: '2-digit', month: '2-digit', year: 'numeric' })}{tr(') – keine Ladenpreise.')}
         </p>
       )}
       {past.length > 0 && (
         <details class="past">
-          <summary>Vergangene Termine ({past.length})</summary>
+          <summary>{tr('Vergangene Termine (')}{past.length})</summary>
           <ul class="timeline card">{past.map(card)}</ul>
         </details>
       )}
-      <Section title="Neuheiten-Radar">
+      <Section title={tr('Neuheiten-Radar')}>
         <News news={news} state={state} update={update} active={active} />
       </Section>
     </div>

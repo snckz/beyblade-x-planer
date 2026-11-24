@@ -1,3 +1,4 @@
+import { tr, dec } from './i18n';
 import type { Database, MetaFeed, Product, Rates } from './types';
 import { comboName, META_SEEN, META_TOP, metaUsage, pct, type MetaUsage, type PartKind } from './metaUsage';
 import type { Bey } from './battle';
@@ -23,7 +24,7 @@ export interface Rating {
   reasons: string[];
 }
 
-export const OVERALL_LABEL: Record<Overall, string> = { buy: 'Ja, kaufen!', maybe: 'Kann man machen', skip: 'Nein, lieber nicht', owned: 'Hast du schon ✓', collect: 'Sammlerstück' };
+export const OVERALL_LABEL: Record<Overall, string> = { buy: tr('Ja, kaufen!'), maybe: tr('Kann man machen'), skip: tr('Nein, lieber nicht'), owned: tr('Hast du schon ✓'), collect: tr('Sammlerstück') };
 
 /** Preis-Ampel auf eine Gewinn-Einschätzung anwenden (gleiche Regel für Einzelkauf und Random Booster). */
 export function judge(gain: number, pv: { verdict: Verdict } | null): Overall {
@@ -85,41 +86,41 @@ export function rateProduct(
   let overall: Overall;
   if (!hasParts) {
     overall = 'maybe';
-    reasons.push('Zu dieser Packung fehlen noch die Teile-Daten – den Nutzen fürs Deck kann ich nicht berechnen.');
-    if (pv) reasons.push(pv.verdict === 'good' ? 'Der Preis ist gut.' : pv.verdict === 'ok' ? 'Der Preis ist okay.' : 'Der Preis ist hoch.');
+    reasons.push(tr('Zu dieser Packung fehlen noch die Teile-Daten – den Nutzen fürs Deck kann ich nicht berechnen.'));
+    if (pv) reasons.push(pv.verdict === 'good' ? tr('Der Preis ist gut.') : pv.verdict === 'ok' ? tr('Der Preis ist okay.') : tr('Der Preis ist hoch.'));
   } else if (n > 0) {
     // Kein Kaufurteil – einfach: ist schon da
     overall = 'owned';
-    reasons.push(n > 1 ? `Ist ${n}× in deiner Sammlung.` : 'Ist schon in deiner Sammlung.');
+    reasons.push(n > 1 ? tr('Ist {0}× in deiner Sammlung.', n) : tr('Ist schon in deiner Sammlung.'));
   } else if (!fresh) {
     overall = 'skip';
-    reasons.push('Alle Teile hast du schon aus anderen Packungen.');
+    reasons.push(tr('Alle Teile hast du schon aus anderen Packungen.'));
   } else {
     const strong = gain >= 8;
     const some = gain >= 2;
     const top = metaParts[0];
     if (top) {
-      const ofTotal = `in ${top.decks} von ${meta?.decksTotal} Siegerdecks (${pct(top.share)})`;
-      reasons.push(top.share >= META_TOP ? `${top.name} ist gerade ein Top-Teil im Turnier: ${ofTotal}.` : `${top.name} wird im Turnier regelmäßig gespielt: ${ofTotal}.`);
+      const ofTotal = tr('in {0} von {1} Siegerdecks ({2})', top.decks, meta?.decksTotal, pct(top.share));
+      reasons.push(top.share >= META_TOP ? tr('{0} ist gerade ein Top-Teil im Turnier: {1}.', top.name, ofTotal) : tr('{0} wird im Turnier regelmäßig gespielt: {1}.', top.name, ofTotal));
       if (top.top) {
         const missing = missingFor(db, after, top.top);
-        reasons.push(`Meistgespielt als ${comboName(db, top.top)} (${top.top.decks}×)${missing.length ? ` – dafür fehlt dir noch ${missing.join(' und ')}.` : ' – die Teile dafür hast du dann komplett.'}`);
+        reasons.push(tr('Meistgespielt als {0} ({1}×){2}', comboName(db, top.top), top.top.decks, missing.length ? tr(' – dafür fehlt dir noch {0}.', missing.join(tr(' und '))) : tr(' – die Teile dafür hast du dann komplett.')));
       }
-      for (const u of metaParts.slice(1, 2)) reasons.push(`Auch ${u.name} ist turnierrelevant (${pct(u.share)} der Siegerdecks).`);
+      for (const u of metaParts.slice(1, 2)) reasons.push(tr('Auch {0} ist turnierrelevant ({1} der Siegerdecks).', u.name, pct(u.share)));
     }
-    const pts = gain.toFixed(1).replace('.', ',');
+    const pts = dec(gain);
     reasons.push(
       strong
-        ? `Macht dein bestes Deck deutlich stärker (+${pts} Punkte).`
+        ? tr('Macht dein bestes Deck deutlich stärker (+{0} Punkte).', pts)
         : some
-          ? `Verbessert dein Deck etwas (+${pts} Punkte).`
+          ? tr('Verbessert dein Deck etwas (+{0} Punkte).', pts)
           : top
-            ? `Für dein jetziges 3er-Deck rechnet die App wenig Zugewinn (+${pts}) – oft fehlen nur die passenden Partnerteile.`
-            : `${fresh === 1 ? '1 neues Teil' : `${fresh} neue Teile`}, aber dein bestes Deck wird kaum stärker.`,
+            ? tr('Für dein jetziges 3er-Deck rechnet die App wenig Zugewinn (+{0}) – oft fehlen nur die passenden Partnerteile.', pts)
+            : tr('{0}, aber dein bestes Deck wird kaum stärker.', fresh === 1 ? tr('1 neues Teil') : tr('{0} neue Teile', fresh)),
     );
-    if (pv) reasons.push(pv.verdict === 'good' ? 'Der Preis ist gut.' : pv.verdict === 'ok' ? 'Der Preis ist okay.' : 'Der Preis ist hoch.');
+    if (pv) reasons.push(pv.verdict === 'good' ? tr('Der Preis ist gut.') : pv.verdict === 'ok' ? tr('Der Preis ist okay.') : tr('Der Preis ist hoch.'));
     overall = judgeWithMeta(gain, top?.share ?? 0, pv);
-    if (p.kind === 'random-booster') reasons.push('Random Booster: Welcher Kreisel drin ist, siehst du erst beim Öffnen.');
+    if (p.kind === 'random-booster') reasons.push(tr('Random Booster: Welcher Kreisel drin ist, siehst du erst beim Öffnen.'));
   }
   // Limitierte Kreisel: der Wert liegt im Sammeln/Tauschen, nicht (nur) im Deck – kein „Nein“ nur wegen der Turnierstärke.
   const rare = items.some((x) => rarityOf(x) === 'limited' || rarityOf(x) === 'ultra');
@@ -127,12 +128,12 @@ export function rateProduct(
     const ultra = items.some((x) => rarityOf(x) === 'ultra');
     reasons.unshift(
       ultra
-        ? 'Ultra-limitiert (Turnierpreis oder winzige Auflage): echtes Sammlerstück – kaum zu bekommen und gefragt zum Tauschen.'
-        : 'Limitierte Auflage (Event, Lotterie oder Sonderfarbe): gut zum Sammeln und Tauschen – später oft schwer zu bekommen und teurer.',
+        ? tr('Ultra-limitiert (Turnierpreis oder winzige Auflage): echtes Sammlerstück – kaum zu bekommen und gefragt zum Tauschen.')
+        : tr('Limitierte Auflage (Event, Lotterie oder Sonderfarbe): gut zum Sammeln und Tauschen – später oft schwer zu bekommen und teurer.'),
     );
     if (overall === 'skip' || overall === 'maybe') {
       overall = pv?.verdict === 'high' ? 'maybe' : 'collect';
-      if (pv?.verdict === 'high') reasons.push('Fürs Sammeln okay, aber der Preis ist hoch – vergleichen lohnt sich.');
+      if (pv?.verdict === 'high') reasons.push(tr('Fürs Sammeln okay, aber der Preis ist hoch – vergleichen lohnt sich.'));
     }
   }
   return { owned: n, fresh, gain, deck: res.picks, price: pv, meta: metaParts, overall, reasons };

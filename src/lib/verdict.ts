@@ -1,3 +1,4 @@
+import { tr } from './i18n';
 import type { Analysis } from './analysis';
 
 /** Die vier Richtwerte einer Kombo – in dieser Reihenfolge überall (Balken, Diagramm, Vergleich). */
@@ -14,10 +15,10 @@ export interface MetricInfo {
 }
 
 export const METRICS: MetricInfo[] = [
-  { key: 'attack', label: 'Angriff', tone: 'attack', strong: 'Starker Angriff', weak: 'Wenig Angriffskraft' },
-  { key: 'defense', label: 'Verteidigung', tone: 'defense', strong: 'Stabile Verteidigung', weak: 'Schwache Verteidigung' },
-  { key: 'stamina', label: 'Ausdauer', tone: 'stamina', strong: 'Lange Ausdauer', weak: 'Geringe Ausdauer' },
-  { key: 'burstResistance', label: 'Burst-Schutz', tone: 'balance', strong: 'Hoher Burst-Schutz', weak: 'Anfällig für Burst' },
+  { key: 'attack', label: tr('Angriff'), tone: 'attack', strong: tr('Starker Angriff'), weak: tr('Wenig Angriffskraft') },
+  { key: 'defense', label: tr('Verteidigung'), tone: 'defense', strong: tr('Stabile Verteidigung'), weak: tr('Schwache Verteidigung') },
+  { key: 'stamina', label: tr('Ausdauer'), tone: 'stamina', strong: tr('Lange Ausdauer'), weak: tr('Geringe Ausdauer') },
+  { key: 'burstResistance', label: tr('Burst-Schutz'), tone: 'balance', strong: tr('Hoher Burst-Schutz'), weak: tr('Anfällig für Burst') },
 ];
 
 /** Ab diesem Richtwert gilt etwas als Stärke, bis zu diesem als Schwäche (Skala 0–100). */

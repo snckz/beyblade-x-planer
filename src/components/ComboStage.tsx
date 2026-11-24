@@ -1,3 +1,4 @@
+import { tr } from '../lib/i18n';
 import type { Resolved } from '../lib/analysis';
 import { displayName } from '../lib/names';
 import { useApp } from '../lib/context';
@@ -27,9 +28,9 @@ export function ComboParts({ resolved }: { resolved: Resolved }) {
   const { openBlade } = useApp();
   const { blade, ratchet, bit } = resolved;
   return (
-    <ul class="combo-parts" aria-label="Teile dieser Kombo">
+    <ul class="combo-parts" aria-label={tr('Teile dieser Kombo')}>
       <li>
-        <button type="button" class="combo-part combo-part-link" onClick={() => openBlade(blade.id)} aria-label={`Blade ${displayName(blade)}: Steckbrief öffnen`}>
+        <button type="button" class="combo-part combo-part-link" onClick={() => openBlade(blade.id)} aria-label={tr('Blade {0}: Steckbrief öffnen', displayName(blade))}>
           <span class="combo-part-art">
             <BladePhoto blade={blade} alt="" variant="card" />
           </span>
@@ -43,7 +44,7 @@ export function ComboParts({ resolved }: { resolved: Resolved }) {
       <li class="combo-part">
         <span class="combo-part-art">{ratchet ? <RatchetImage ratchet={ratchet} size="card" /> : <span class="combo-part-none" aria-hidden="true" />}</span>
         <span class="combo-part-kind">Ratchet</span>
-        <span class="combo-part-name">{ratchet ? ratchet.id : 'in der Blade'}</span>
+        <span class="combo-part-name">{ratchet ? ratchet.id : tr('in der Blade')}</span>
       </li>
       <li class="combo-part">
         <span class="combo-part-art">

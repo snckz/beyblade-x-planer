@@ -1,3 +1,4 @@
+import { tr } from '../lib/i18n';
 import { useEffect, useState } from 'preact/hooks';
 import {
   advance,
@@ -41,7 +42,7 @@ export function Tournament() {
     const n = draft.trim().slice(0, 24);
     if (!n) return;
     if (names.some((x) => x.toLowerCase() === n.toLowerCase())) {
-      setError(`„${n}“ ist schon dabei.`);
+      setError(tr('„{0}“ ist schon dabei.', n));
       return;
     }
     if (names.length >= MAX_PLAYERS) return;
@@ -59,9 +60,9 @@ export function Tournament() {
   if (!t) {
     const rounds = format === 'rr' ? (names.length % 2 ? names.length : names.length - 1) : swissRounds(names.length);
     return (
-      <Section title="Mini-Turnier">
+      <Section title={tr('Mini-Turnier')}>
         <div class="card glass stack-sm">
-          <p class="muted">Spielt mit Freunden: Namen eintragen, die App lost die Paarungen aus und führt die Tabelle.</p>
+          <p class="muted">{tr('Spielt mit Freunden: Namen eintragen, die App lost die Paarungen aus und führt die Tabelle.')}</p>
           <form
             class="tour-add"
             onSubmit={(e) => {
@@ -70,11 +71,11 @@ export function Tournament() {
             }}
           >
             <label class="shop-input">
-              <span class="sr-only">Name</span>
-              <input value={draft} onInput={(e) => setDraft(e.currentTarget.value)} placeholder="Name eintragen" maxLength={24} enterKeyHint="enter" disabled={names.length >= MAX_PLAYERS} />
+              <span class="sr-only">{tr('Name')}</span>
+              <input value={draft} onInput={(e) => setDraft(e.currentTarget.value)} placeholder={tr('Name eintragen')} maxLength={24} enterKeyHint="enter" disabled={names.length >= MAX_PLAYERS} />
             </label>
             <button type="submit" class="btn" disabled={!draft.trim() || names.length >= MAX_PLAYERS}>
-              Hinzufügen
+              {tr('Hinzufügen')}
             </button>
           </form>
           {error && (
@@ -86,35 +87,34 @@ export function Tournament() {
             <ul class="chips tour-names">
               {names.map((n) => (
                 <li key={n}>
-                  <button type="button" class="chip chip-on" onClick={() => setNames(names.filter((x) => x !== n))} aria-label={`${n} entfernen`}>
+                  <button type="button" class="chip chip-on" onClick={() => setNames(names.filter((x) => x !== n))} aria-label={tr('{0} entfernen', n)}>
                     {n} ×
                   </button>
                 </li>
               ))}
             </ul>
           )}
-          <div class="segmented seg-2" role="group" aria-label="Modus">
+          <div class="segmented seg-2" role="group" aria-label={tr('Modus')}>
             <button type="button" class={format === 'swiss' ? 'on' : ''} aria-pressed={format === 'swiss'} onClick={() => setFormat('swiss')}>
-              Schweizer System
+              {tr('Schweizer System')}
             </button>
             <button type="button" class={format === 'rr' ? 'on' : ''} aria-pressed={format === 'rr'} onClick={() => setFormat('rr')}>
-              Jeder gegen jeden
+              {tr('Jeder gegen jeden')}
             </button>
           </div>
-          <div class="segmented seg-2" role="group" aria-label="Punkteziel">
+          <div class="segmented seg-2" role="group" aria-label={tr('Punkteziel')}>
             <button type="button" class={target === 4 ? 'on' : ''} aria-pressed={target === 4} onClick={() => setTarget(4)}>
-              Bis 4 Punkte
+              {tr('Bis 4 Punkte')}
             </button>
             <button type="button" class={target === 7 ? 'on' : ''} aria-pressed={target === 7} onClick={() => setTarget(7)}>
-              Bis 7 Punkte
+              {tr('Bis 7 Punkte')}
             </button>
           </div>
           <button type="button" class="btn btn-primary" disabled={names.length < 3} onClick={() => setT(createTournament(names, format, target))}>
-            {names.length < 3 ? 'Mindestens 3 Spieler' : `Turnier starten (${names.length} Spieler, ${rounds} Runden)`}
+            {names.length < 3 ? tr('Mindestens 3 Spieler') : tr('Turnier starten ({0} Spieler, {1} Runden)', names.length, rounds)}
           </button>
           <p class="fineprint">
-            Schweizer System: Gleichstarke spielen gegeneinander, niemand doppelt – ideal ab 5 Spielern. Jeder gegen jeden: alle Paarungen, dauert länger. Bei ungerader Zahl hat pro Runde einer
-            Freilos (zählt als Sieg).
+            {tr('Schweizer System: Gleichstarke spielen gegeneinander, niemand doppelt – ideal ab 5 Spielern. Jeder gegen jeden: alle Paarungen, dauert länger. Bei ungerader Zahl hat pro Runde einer Freilos (zählt als Sieg).')}
           </p>
         </div>
       </Section>
@@ -133,7 +133,7 @@ export function Tournament() {
       {m.b === null ? (
         <span class="row-main">
           <span class="row-title">{name(m.a)}</span>
-          <span class="row-sub">Freilos – zählt als Sieg</span>
+          <span class="row-sub">{tr('Freilos – zählt als Sieg')}</span>
         </span>
       ) : edit?.id === m.id ? (
         <form
@@ -154,31 +154,31 @@ export function Tournament() {
             <input type="number" inputMode="numeric" min={0} max={t.target + 2} step={1} value={edit.b} onInput={(e) => setEdit({ ...edit, b: e.currentTarget.value })} />
           </label>
           <button type="submit" class="btn btn-sm btn-primary" disabled={!valid(edit.a, edit.b)}>
-            OK
+            {tr('OK')}
           </button>
         </form>
       ) : (
         <>
           <span class="row-main">
             <span class="row-title">
-              {name(m.a)} <span class="muted">vs</span> {name(m.b)}
+              {name(m.a)} <span class="muted">{tr('vs')}</span> {name(m.b)}
             </span>
             {isDone(m) && (
               <span class="row-sub">
-                {m.sa}:{m.sb} – {m.sa! > m.sb! ? name(m.a) : name(m.b)} gewinnt
+                {m.sa}:{m.sb} – {m.sa! > m.sb! ? name(m.a) : name(m.b)} {tr('gewinnt')}
               </span>
             )}
           </span>
           {!isDone(m) && (
             <button type="button" class="btn btn-sm btn-primary" onClick={() => setLive(m)}>
-              ▶ Zählen
+              {tr('▶ Zählen')}
             </button>
           )}
           <button
             type="button"
             class="btn btn-sm"
             onClick={() => setEdit({ id: m.id, a: m.sa === null ? '' : String(m.sa), b: m.sb === null ? '' : String(m.sb) })}
-            aria-label={`Ergebnis ${name(m.a)} gegen ${name(m.b)} ${isDone(m) ? 'korrigieren' : 'eintippen'}`}
+            aria-label={tr('Ergebnis {0} gegen {1} {2}', name(m.a), name(m.b), isDone(m) ? tr('korrigieren') : tr('eintippen'))}
           >
             <Pencil aria-hidden="true" />
           </button>
@@ -189,44 +189,44 @@ export function Tournament() {
 
   return (
     <Section
-      title="Mini-Turnier"
+      title={tr('Mini-Turnier')}
       aside={
         <button
           type="button"
           class="btn btn-sm btn-ghost"
           onClick={() => setAskEnd(true)}
         >
-          {done ? 'Neues Turnier' : 'Abbrechen'}
+          {done ? tr('Neues Turnier') : tr('Abbrechen')}
         </button>
       }
     >
       <div class="card glass stack-sm">
         {done ? (
-          <p class="tour-winner"><Trophy aria-hidden="true" /> {table[0]?.player.name} gewinnt das Turnier!</p>
+          <p class="tour-winner"><Trophy aria-hidden="true" /> {table[0]?.player.name} {tr('gewinnt das Turnier!')}</p>
         ) : canAdvance(t) ? (
-          <p class="eyebrow">Runde {round} fertig – bereit für die nächste</p>
+          <p class="eyebrow">{tr('Runde')} {round} {tr('fertig – bereit für die nächste')}</p>
         ) : (
           <p class="eyebrow">
-            Runde {round} von {t.rounds} · bis {t.target} Punkte · {t.format === 'swiss' ? 'Schweizer System' : 'Jeder gegen jeden'}
+            {tr('Runde')} {round} {tr('von')} {t.rounds} {tr('· bis')} {t.target} {tr('Punkte ·')} {t.format === 'swiss' ? tr('Schweizer System') : tr('Jeder gegen jeden')}
           </p>
         )}
 
         <ul class="list">{t.matches.filter((m) => m.round === round).map(matchRow)}</ul>
         {canAdvance(t) && (
           <button type="button" class="btn btn-primary" onClick={() => setT(advance(t))}>
-            Runde {lastRound + 1} auslosen
+            {tr('Runde')} {lastRound + 1} {tr('auslosen')}
           </button>
         )}
         {round > 1 && (
           <details class="tour-past">
-            <summary>Frühere Runden ansehen / korrigieren</summary>
+            <summary>{tr('Frühere Runden ansehen / korrigieren')}</summary>
             {Array.from({ length: round - 1 }, (_, i) => i + 1).map((r) => (
               <div key={r}>
-                <p class="eyebrow">Runde {r}</p>
+                <p class="eyebrow">{tr('Runde')} {r}</p>
                 <ul class="list">{t.matches.filter((m) => m.round === r).map(matchRow)}</ul>
               </div>
             ))}
-            {t.format === 'swiss' && <p class="fineprint">Änderst du ein früheres Ergebnis, bleiben die schon ausgelosten Paarungen bestehen – die Tabelle rechnet neu.</p>}
+            {t.format === 'swiss' && <p class="fineprint">{tr('Änderst du ein früheres Ergebnis, bleiben die schon ausgelosten Paarungen bestehen – die Tabelle rechnet neu.')}</p>}
           </details>
         )}
 
@@ -235,13 +235,13 @@ export function Tournament() {
             <tr>
               <th scope="col">#</th>
               <th scope="col" class="left">
-                Spieler
+                {tr('Spieler')}
               </th>
-              <th scope="col" title="Siege – Niederlagen">
+              <th scope="col" title={tr('Siege – Niederlagen')}>
                 S–N
               </th>
-              <th scope="col" title="Punkte für – gegen">
-                Punkte
+              <th scope="col" title={tr('Punkte für – gegen')}>
+                {tr('Punkte')}
               </th>
             </tr>
           </thead>
@@ -262,7 +262,7 @@ export function Tournament() {
             ))}
           </tbody>
         </table>
-        {t.format === 'swiss' && <p class="fineprint">Bei gleich vielen Siegen zählt zuerst die Stärke der Gegner (Buchholz), dann die Punktedifferenz.</p>}
+        {t.format === 'swiss' && <p class="fineprint">{tr('Bei gleich vielen Siegen zählt zuerst die Stärke der Gegner (Buchholz), dann die Punktedifferenz.')}</p>}
       </div>
       {live && live.b && (
         <DuelScorer
@@ -278,10 +278,10 @@ export function Tournament() {
       )}
       {askEnd && (
         <ConfirmSheet
-          title={done ? 'Turnier schließen?' : 'Turnier abbrechen?'}
-          note={done ? 'Die Spielernamen bleiben für ein neues Turnier eingetragen.' : 'Alle Ergebnisse gehen verloren.'}
-          confirmLabel={done ? 'Schließen' : 'Turnier abbrechen'}
-          cancelLabel={done ? 'Zurück' : 'Weiterspielen'}
+          title={done ? tr('Turnier schließen?') : tr('Turnier abbrechen?')}
+          note={done ? tr('Die Spielernamen bleiben für ein neues Turnier eingetragen.') : tr('Alle Ergebnisse gehen verloren.')}
+          confirmLabel={done ? tr('Schließen') : tr('Turnier abbrechen')}
+          cancelLabel={done ? tr('Zurück') : tr('Weiterspielen')}
           icon={LogOut}
           onConfirm={() => {
             setNames(t.players.map((p) => p.name));

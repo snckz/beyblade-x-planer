@@ -1,3 +1,4 @@
+import { tr } from '../lib/i18n';
 import { useRef, useState } from 'preact/hooks';
 import type { BeyType, Database, Product } from '../lib/types';
 import type { UserState } from '../lib/storage';
@@ -30,21 +31,21 @@ export function Showcase({ db, state, onClose }: Props) {
   const shown = items.filter((x) => filter === 'all' || x.blade.type === filter);
 
   return (
-    <div ref={ref} class="live shop" role="dialog" aria-modal="true" aria-label="Meine Kreisel" tabIndex={-1}>
+    <div ref={ref} class="live shop" role="dialog" aria-modal="true" aria-label={tr('Meine Kreisel')} tabIndex={-1}>
       <div class="live-bar">
         <span class="live-title">
-          Meine Kreisel <span class="muted">({total})</span>
+          {tr('Meine Kreisel')} <span class="muted">({total})</span>
         </span>
         <button type="button" class="btn btn-sm btn-primary" onClick={close}>
-          Schließen
+          {tr('Schließen')}
         </button>
       </div>
       <div class="shop-body stack-sm">
         {types.length > 1 && (
-          <div class="chips" role="group" aria-label="Nach Typ filtern">
+          <div class="chips" role="group" aria-label={tr('Nach Typ filtern')}>
             {(['all', ...types] as Filter[]).map((t) => (
               <button key={t} type="button" class={`chip${filter === t ? ' chip-on' : ''}`} aria-pressed={filter === t} onClick={() => setFilter(t)}>
-                {t === 'all' ? 'Alle' : TYPE_LABEL[t]}
+                {t === 'all' ? tr('Alle') : TYPE_LABEL[t]}
               </button>
             ))}
           </div>
@@ -67,9 +68,9 @@ export function Showcase({ db, state, onClose }: Props) {
             ))}
           </ul>
         ) : (
-          <p class="muted">Noch keine Kreisel in der Sammlung.</p>
+          <p class="muted">{tr('Noch keine Kreisel in der Sammlung.')}</p>
         )}
-        <p class="fineprint">Bild antippen für die Großansicht.</p>
+        <p class="fineprint">{tr('Bild antippen für die Großansicht.')}</p>
       </div>
     </div>
   );

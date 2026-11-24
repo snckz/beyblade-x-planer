@@ -1,3 +1,4 @@
+import { tr } from '../lib/i18n';
 import { createPortal } from 'preact/compat';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { useModal } from '../lib/useModal';
@@ -53,7 +54,7 @@ function DeckExportSheetInner({ initial, make, onClose }: Props) {
       if (!alive.current) return;
       setImages((m) => (m[f] ? m : { ...m, [f]: { file, url: URL.createObjectURL(file) } }));
     } catch {
-      if (alive.current) setMsg('Dieses Format konnte nicht erstellt werden.');
+      if (alive.current) setMsg(tr('Dieses Format konnte nicht erstellt werden.'));
     } finally {
       if (alive.current) setLoading((l) => (l === f ? null : l));
     }
@@ -73,7 +74,7 @@ function DeckExportSheetInner({ initial, make, onClose }: Props) {
     try {
       // Kein await davor: navigator.share muss direkt im Tipp starten, sonst blockt iOS.
       const res = await shareImageFile(current.file);
-      if (res === 'failed') setMsg('Teilen ging nicht. Halte das Bild gedrückt, um es zu sichern oder zu teilen.');
+      if (res === 'failed') setMsg(tr('Teilen ging nicht. Halte das Bild gedrückt, um es zu sichern oder zu teilen.'));
     } finally {
       busy.current = false;
     }
@@ -84,29 +85,29 @@ function DeckExportSheetInner({ initial, make, onClose }: Props) {
     try {
       const viaApp = await saveBlob(current.file, current.file.name);
       // Die Seite weiß nur, dass der Download angestoßen wurde – nicht, ob der Browser ihn ausgeführt hat.
-      setMsg(viaApp ? '' : 'Download gestartet.');
+      setMsg(viaApp ? '' : tr('Download gestartet.'));
     } catch {
-      setMsg('Speichern ging nicht. Halte das Bild gedrückt oder klicke es mit der rechten Maustaste an, um es zu sichern.');
+      setMsg(tr('Speichern ging nicht. Halte das Bild gedrückt oder klicke es mit der rechten Maustaste an, um es zu sichern.'));
     }
   };
 
   const meta = DECK_FORMATS[format];
   return (
     <div class="sheet-backdrop" onClick={(e) => e.target === e.currentTarget && close()}>
-      <div ref={ref} class={`sheet glass deck-export${photoMode ? ' is-photo-mode' : ''}`} role="dialog" aria-modal="true" aria-label="Deck-Bild" tabIndex={-1}>
+      <div ref={ref} class={`sheet glass deck-export${photoMode ? ' is-photo-mode' : ''}`} role="dialog" aria-modal="true" aria-label={tr('Deck-Bild')} tabIndex={-1}>
         <div class="sheet-grab" aria-hidden="true" />
         <div class="win-head">
           <div class="win-heading">
-            <h2 class="win-title">Deck-Bild</h2>
-            <p class="win-sub win-sub-plain">{photoMode ? 'In Fotos sichern' : 'Format wählen, dann sichern oder teilen.'}</p>
+            <h2 class="win-title">{tr('Deck-Bild')}</h2>
+            <p class="win-sub win-sub-plain">{photoMode ? tr('In Fotos sichern') : tr('Format wählen, dann sichern oder teilen.')}</p>
           </div>
-          <button type="button" class="icon-btn win-close" onClick={close} aria-label="Schließen">
+          <button type="button" class="icon-btn win-close" onClick={close} aria-label={tr('Schließen')}>
             <X aria-hidden="true" />
           </button>
         </div>
         <div class="win-scroll deck-export-body">
           {!photoMode && (
-            <div class="deck-formats" role="group" aria-label="Format">
+            <div class="deck-formats" role="group" aria-label={tr('Format')}>
               {ORDER.map((f) => (
                 <button key={f} type="button" class={`chip deck-format deck-format-${f}${format === f ? ' chip-on' : ''}`} aria-pressed={format === f} onClick={() => void choose(f)}>
                   <span class="deck-format-shape" aria-hidden="true" />
@@ -120,23 +121,22 @@ function DeckExportSheetInner({ initial, make, onClose }: Props) {
             <p class="deck-photo-hint" role="status">
               <Hand aria-hidden="true" />
               <span>
-                <strong>Auf einen Kreisel oder eine freie Stelle drücken und halten</strong>, dann „Zu Fotos hinzufügen“ wählen. Auf Schrift
-                markiert iOS sonst nur den Text.
+                <strong>{tr('Auf einen Kreisel oder eine freie Stelle drücken und halten')}</strong>{tr(', dann „Zu Fotos hinzufügen“ wählen. Auf Schrift markiert iOS sonst nur den Text.')}
               </span>
             </p>
           )}
           <div class={`deck-preview deck-preview-${format}${zoom ? ' is-zoomed' : ''}${current ? '' : ' is-loading'}`} style={current ? undefined : { aspectRatio: `${meta.w} / ${meta.h}` }}>
             {current ? (
-              <div class="deck-preview-scroll" tabIndex={zoom ? 0 : undefined} role={zoom ? 'region' : undefined} aria-label={zoom ? 'Vergrößertes Deck-Bild, verschiebbar' : undefined}>
-                <img src={current.url} alt={`Dein Deck als Bild (${meta.label} ${meta.ratio})`} width={meta.w} height={meta.h} />
+              <div class="deck-preview-scroll" tabIndex={zoom ? 0 : undefined} role={zoom ? 'region' : undefined} aria-label={zoom ? tr('Vergrößertes Deck-Bild, verschiebbar') : undefined}>
+                <img src={current.url} alt={tr('Dein Deck als Bild ({0} {1})', meta.label, meta.ratio)} width={meta.w} height={meta.h} />
               </div>
             ) : (
               <span class="deck-preview-wait" role="status">
-                <span class="spinner" aria-hidden="true" /> {meta.label} wird erstellt …
+                <span class="spinner" aria-hidden="true" /> {meta.label} {tr('wird erstellt …')}
               </span>
             )}
             {current && !photoMode && (
-              <button type="button" class="icon-btn deck-preview-zoom" onClick={() => setZoom((z) => !z)} aria-pressed={zoom} aria-label="Bild vergrößern">
+              <button type="button" class="icon-btn deck-preview-zoom" onClick={() => setZoom((z) => !z)} aria-pressed={zoom} aria-label={tr('Bild vergrößern')}>
                 {zoom ? <Minimize2 aria-hidden="true" /> : <Maximize2 aria-hidden="true" />}
               </button>
             )}
@@ -144,7 +144,7 @@ function DeckExportSheetInner({ initial, make, onClose }: Props) {
           <div class="deck-export-actions">
             {photoMode ? (
               <button type="button" class="btn btn-primary" onClick={() => setPhotoMode(false)}>
-                <Check aria-hidden="true" /> Fertig
+                <Check aria-hidden="true" /> {tr('Fertig')}
               </button>
             ) : ios ? (
               <button
@@ -157,21 +157,21 @@ function DeckExportSheetInner({ initial, make, onClose }: Props) {
                   setPhotoMode(true);
                 }}
               >
-                <ImageDown aria-hidden="true" /> In Fotos sichern
+                <ImageDown aria-hidden="true" /> {tr('In Fotos sichern')}
               </button>
             ) : (
               <button type="button" class="btn btn-primary" disabled={!current} onClick={() => void download()}>
-                <Download aria-hidden="true" /> {android ? 'Speichern' : 'Bild speichern'}
+                <Download aria-hidden="true" /> {android ? tr('Speichern') : tr('Bild speichern')}
               </button>
             )}
             {!photoMode && shareable && (
               <button type="button" class="btn" onClick={() => void share()}>
-                <Share aria-hidden="true" /> Teilen
+                <Share aria-hidden="true" /> {tr('Teilen')}
               </button>
             )}
             {!photoMode && (
               <button type="button" class="btn btn-ghost" onClick={close}>
-                Schließen
+                {tr('Schließen')}
               </button>
             )}
           </div>

@@ -1,3 +1,4 @@
+import { tr, DATE_LOCALE } from '../lib/i18n';
 import { displayName } from '../lib/names';
 import { useState } from 'preact/hooks';
 import type { Combo, Database } from '../lib/types';
@@ -51,7 +52,7 @@ export function BattleLog({ db, state, update }: Props) {
     if (!ready || won === null || !finish) return;
     const m: Match = { id: newId(), date: new Date().toISOString(), mine, opp, won, finish };
     update((s) => ({ ...s, matches: [...s.matches, m].slice(-500) }));
-    setMsg(`${won ? 'Sieg' : 'Niederlage'} per ${FINISH[finish].label} gespeichert.`);
+    setMsg(tr('{0} per {1} gespeichert.', won ? tr('Sieg') : tr('Niederlage'), FINISH[finish].label));
     setWon(null);
     setFinish(null);
   };
@@ -60,23 +61,23 @@ export function BattleLog({ db, state, update }: Props) {
   const swipeRemove = (m: Match) => {
     const at = state.matches.findIndex((x) => x.id === m.id);
     remove(m.id);
-    showUndo('Kampf gelöscht', () => update((s) => (s.matches.some((x) => x.id === m.id) ? s : { ...s, matches: [...s.matches.slice(0, at), m, ...s.matches.slice(at)] })));
+    showUndo(tr('Kampf gelöscht'), () => update((s) => (s.matches.some((x) => x.id === m.id) ? s : { ...s, matches: [...s.matches.slice(0, at), m, ...s.matches.slice(at)] })));
   };
 
   return (
     <Section
-      title="Battle-Tagebuch"
+      title={tr('Battle-Tagebuch')}
       aside={
         <button type="button" class="btn btn-sm" onClick={() => setOpen(!open)} aria-expanded={open}>
-          {open ? 'Schließen' : '+ Kampf'}
+          {open ? tr('Schließen') : tr('+ Kampf')}
         </button>
       }
     >
       {open && (
         <div class="card glass stack-sm">
-          <p class="eyebrow">Meine Kombo</p>
+          <p class="eyebrow">{tr('Meine Kombo')}</p>
           {saved.length > 0 && (
-            <div class="chip-row" role="group" aria-label="Gespeicherte Kombos">
+            <div class="chip-row" role="group" aria-label={tr('Gespeicherte Kombos')}>
               {saved.slice(0, 8).map((c) => {
                 const on = c.bladeId === mine.bladeId && (c.ratchetId ?? '') === (mine.ratchetId ?? '') && c.bitId === mine.bitId;
                 const r = resolveCombo(db, c)!;
@@ -88,28 +89,28 @@ export function BattleLog({ db, state, update }: Props) {
               })}
             </div>
           )}
-          <ComboPicker db={db} value={{ id: 'mine', ...mine }} label="Meine Kombo" onChange={({ bladeId, ratchetId, bitId }) => setMine({ bladeId, ratchetId, bitId })} />
-          <p class="eyebrow">Gegner</p>
-          <ComboPicker db={db} value={{ id: 'opp', ...opp }} label="Gegner-Kombo" onChange={({ bladeId, ratchetId, bitId }) => setOpp({ bladeId, ratchetId, bitId })} />
-          <p class="eyebrow">Ergebnis</p>
-          <div class="segmented seg-2" role="group" aria-label="Ergebnis">
+          <ComboPicker db={db} value={{ id: 'mine', ...mine }} label={tr('Meine Kombo')} onChange={({ bladeId, ratchetId, bitId }) => setMine({ bladeId, ratchetId, bitId })} />
+          <p class="eyebrow">{tr('Gegner')}</p>
+          <ComboPicker db={db} value={{ id: 'opp', ...opp }} label={tr('Gegner-Kombo')} onChange={({ bladeId, ratchetId, bitId }) => setOpp({ bladeId, ratchetId, bitId })} />
+          <p class="eyebrow">{tr('Ergebnis')}</p>
+          <div class="segmented seg-2" role="group" aria-label={tr('Ergebnis')}>
             <button type="button" class={won === true ? 'on' : ''} aria-pressed={won === true} onClick={() => setWon(true)}>
-              Gewonnen
+              {tr('Gewonnen')}
             </button>
             <button type="button" class={won === false ? 'on' : ''} aria-pressed={won === false} onClick={() => setWon(false)}>
-              Verloren
+              {tr('Verloren')}
             </button>
           </div>
-          <div class="segmented seg-4" role="group" aria-label="Finish">
+          <div class="segmented seg-4" role="group" aria-label={tr('Finish')}>
             {(Object.keys(FINISH) as Finish[]).map((f) => (
               <button key={f} type="button" class={finish === f ? 'on' : ''} aria-pressed={finish === f} onClick={() => setFinish(f)}>
                 {FINISH[f].label} <small>{FINISH[f].points}P</small>
               </button>
             ))}
           </div>
-          {!(complete(mine) && complete(opp)) && <p class="fineprint">Wähle für beide Kreisel Blade, Ratchet und Bit.</p>}
+          {!(complete(mine) && complete(opp)) && <p class="fineprint">{tr('Wähle für beide Kreisel Blade, Ratchet und Bit.')}</p>}
           <button type="button" class="btn btn-primary" disabled={!ready} onClick={save}>
-            Kampf speichern
+            {tr('Kampf speichern')}
           </button>
           {msg && (
             <p class="muted" role="status">
@@ -124,7 +125,7 @@ export function BattleLog({ db, state, update }: Props) {
           <div class="log-summary">
             <span class="log-big">{pct(wins, total)}%</span>
             <span class="muted">
-              Siegquote · {wins} von {total} Kämpfen
+              {tr('Siegquote ·')} {wins} {tr('von')} {total} {tr('Kämpfen')}
             </span>
           </div>
           <ul class="list">
@@ -133,9 +134,9 @@ export function BattleLog({ db, state, update }: Props) {
                 <div class="row-main">
                   <span class="row-title">{label(db, s.combo)}</span>
                   <span class="row-sub">
-                    {s.wins}/{s.games} Siege · {s.pointDiff >= 0 ? '+' : ''}
-                    {s.pointDiff} Punkte
-                    {s.weakness && ` · verliert meist per ${FINISH[s.weakness].label}`}
+                    {s.wins}/{s.games} {tr('Siege ·')} {s.pointDiff >= 0 ? '+' : ''}
+                    {s.pointDiff} {tr('Punkte')}
+                    {s.weakness && tr(' · verliert meist per {0}', FINISH[s.weakness].label)}
                   </span>
                 </div>
                 <span class={`log-rate ${pct(s.wins, s.games) >= 50 ? 'good' : 'bad'}`}>{pct(s.wins, s.games)}%</span>
@@ -143,20 +144,20 @@ export function BattleLog({ db, state, update }: Props) {
             ))}
           </ul>
           <details class="log-history">
-            <summary>Letzte Kämpfe</summary>
+            <summary>{tr('Letzte Kämpfe')}</summary>
             <ul class="list">
               {[...state.matches]
                 .reverse()
                 .slice(0, 15)
                 .map((m) => (
-                  <SwipeRow key={m.id} class="row" deleteLabel="Kampf löschen" onlyDelete onDelete={() => swipeRemove(m)}>
-                    <span class={`log-dot ${m.won ? 'good' : 'bad'}`} aria-label={m.won ? 'Sieg' : 'Niederlage'} />
+                  <SwipeRow key={m.id} class="row" deleteLabel={tr('Kampf löschen')} onlyDelete onDelete={() => swipeRemove(m)}>
+                    <span class={`log-dot ${m.won ? 'good' : 'bad'}`} aria-label={m.won ? tr('Sieg') : tr('Niederlage')} />
                     <div class="row-main">
                       <span class="row-title">
-                        {label(db, m.mine)} <span class="muted">vs</span> {label(db, m.opp)}
+                        {label(db, m.mine)} <span class="muted">{tr('vs')}</span> {label(db, m.opp)}
                       </span>
                       <span class="row-sub">
-                        {m.won ? 'Sieg' : 'Niederlage'} per {FINISH[m.finish].label} · {new Date(m.date).toLocaleDateString('de-AT')}
+                        {m.won ? tr('Sieg') : tr('Niederlage')} {tr('per')} {FINISH[m.finish].label} · {new Date(m.date).toLocaleDateString(DATE_LOCALE)}
                       </span>
                     </div>
                   </SwipeRow>
@@ -165,7 +166,7 @@ export function BattleLog({ db, state, update }: Props) {
           </details>
         </div>
       ) : (
-        !open && <p class="muted">Trag nach jedem Kampf kurz ein, wie es ausging. Mit der Zeit siehst du hier deine Siegquote pro Kombo und woran du am häufigsten verlierst.</p>
+        !open && <p class="muted">{tr('Trag nach jedem Kampf kurz ein, wie es ausging. Mit der Zeit siehst du hier deine Siegquote pro Kombo und woran du am häufigsten verlierst.')}</p>
       )}
     </Section>
   );

@@ -1,5 +1,6 @@
 // Übertragung der eigenen Daten auf ein anderes Gerät per Link/QR-Code – ohne Server.
 // Format im Link: #import=z.<base64url(deflate(json))>  (ohne CompressionStream: j.<base64url(json)>)
+import { tr } from './i18n';
 import type { UserState } from './storage';
 import { sanitize } from './storage';
 
@@ -30,7 +31,7 @@ async function pipe(bytes: Uint8Array, stream: CompressionStream | Decompression
     // Schutz vor manipulierten Links, die beim Entpacken riesig werden.
     if (size > MAX_BYTES) {
       await reader.cancel();
-      throw new Error('Die Daten im Link sind zu groß.');
+      throw new Error(tr('Die Daten im Link sind zu groß.'));
     }
     parts.push(r.value);
   }
@@ -60,9 +61,9 @@ export async function decodeState(code: string): Promise<UserState> {
   const [kind, data] = [code.slice(0, 2), code.slice(2)];
   let bytes: Uint8Array = fromB64url(data);
   if (kind === 'z.') {
-    if (typeof DecompressionStream === 'undefined') throw new Error('Dieser Browser ist zu alt für den Link – bitte iOS bzw. den Browser aktualisieren oder die Export-Datei nutzen.');
+    if (typeof DecompressionStream === 'undefined') throw new Error(tr('Dieser Browser ist zu alt für den Link – bitte iOS bzw. den Browser aktualisieren oder die Export-Datei nutzen.'));
     bytes = await pipe(bytes, new DecompressionStream('deflate-raw'));
-  } else if (kind !== 'j.') throw new Error('Unbekanntes Format');
+  } else if (kind !== 'j.') throw new Error(tr('Unbekanntes Format'));
   return sanitize(JSON.parse(new TextDecoder().decode(bytes)));
 }
 
@@ -106,14 +107,14 @@ export function isIosBrowserTab(): boolean {
 export function importSummary(incoming: UserState): { counts: string[]; note: string; iosHint: string | null } {
   return {
     counts: [
-      `${Object.keys(incoming.owned).length} Produkte`,
-      `${incoming.combos.length} Kombos`,
-      `${incoming.wishlist.length} Wünsche`,
-      `${incoming.matches.length} Kämpfe`,
+      tr('{0} Produkte', Object.keys(incoming.owned).length),
+      tr('{0} Kombos', incoming.combos.length),
+      tr('{0} Wünsche', incoming.wishlist.length),
+      tr('{0} Kämpfe', incoming.matches.length),
     ],
-    note: 'Fehlendes kommt dazu, bei Anzahlen gilt der höhere Wert. Was du hier gelöscht hast, kann dadurch zurückkommen.',
+    note: tr('Fehlendes kommt dazu, bei Anzahlen gilt der höhere Wert. Was du hier gelöscht hast, kann dadurch zurückkommen.'),
     iosHint: isIosBrowserTab()
-      ? 'Das hier ist Safari. Nutzt du die App vom Home-Bildschirm, öffne sie dort und füge den Link unter Sammlung → „Auf anderes Gerät“ → „Code einfügen“ ein – Safari und die App haben getrennten Speicher.'
+      ? tr('Das hier ist Safari. Nutzt du die App vom Home-Bildschirm, öffne sie dort und füge den Link unter Sammlung → „Auf anderes Gerät“ → „Code einfügen“ ein – Safari und die App haben getrennten Speicher.')
       : null,
   };
 }
@@ -121,10 +122,10 @@ export function importSummary(incoming: UserState): { counts: string[]; note: st
 export function importQuestion(incoming: UserState): string {
   const n = Object.keys(incoming.owned).length;
   const hint = isIosBrowserTab()
-    ? '\n\nHinweis: Das hier ist Safari. Nutzt du die App vom Home-Bildschirm, öffne sie dort und füge den Link unter Sammlung → „Auf anderes Gerät“ → „Code einfügen“ ein – Safari und die App haben getrennten Speicher.'
+    ? tr('\n\nHinweis: Das hier ist Safari. Nutzt du die App vom Home-Bildschirm, öffne sie dort und füge den Link unter Sammlung → „Auf anderes Gerät“ → „Code einfügen“ ein – Safari und die App haben getrennten Speicher.')
     : '';
-  return `Daten von deinem anderen Gerät übernehmen?\n\n${n} Produkte, ${incoming.combos.length} Kombos, ${incoming.wishlist.length} Wünsche, ${incoming.matches.length} Kämpfe.\n\nSie werden mit den Daten hier zusammengeführt: Fehlendes kommt dazu, bei Anzahlen gilt der höhere Wert. Was du hier gelöscht hast, kann dadurch zurückkommen.${hint}`;
+  return tr('Daten von deinem anderen Gerät übernehmen?\n\n{0} Produkte, {1} Kombos, {2} Wünsche, {3} Kämpfe.\n\nSie werden mit den Daten hier zusammengeführt: Fehlendes kommt dazu, bei Anzahlen gilt der höhere Wert. Was du hier gelöscht hast, kann dadurch zurückkommen.{4}', n, incoming.combos.length, incoming.wishlist.length, incoming.matches.length, hint);
 }
 
 export const importError = (err: unknown) =>
-  err instanceof Error && /alt|groß/.test(err.message) ? err.message : 'Der Link oder Code ist unvollständig oder beschädigt. Erstelle auf dem anderen Gerät einen neuen.';
+  err instanceof Error && /alt|groß/.test(err.message) ? err.message : tr('Der Link oder Code ist unvollständig oder beschädigt. Erstelle auf dem anderen Gerät einen neuen.');

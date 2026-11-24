@@ -1,3 +1,4 @@
+import { tr } from '../lib/i18n';
 import { lockScroll } from '../lib/scrollLock';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { largeUrl } from '../lib/images';
@@ -55,10 +56,10 @@ export function Lightbox({ db, id, kind = 'blade', onClose }: { db: Database; id
       <p class="lightbox-cap">
         <strong>{name}</strong>
         <a href={img.page} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
-          Bild: Beyblade Wiki <ArrowUpRight aria-hidden="true" />
+          {tr('Bild: Beyblade Wiki')} <ArrowUpRight aria-hidden="true" />
         </a>
       </p>
-      <button type="button" class="icon-btn lightbox-close" aria-label="Schließen" onClick={onClose}>
+      <button type="button" class="icon-btn lightbox-close" aria-label={tr('Schließen')} onClick={onClose}>
         ×
       </button>
     </div>

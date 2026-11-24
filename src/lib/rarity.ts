@@ -1,17 +1,18 @@
+import { tr } from './i18n';
 import type { Product, Rarity } from './types';
 
 export const RARITY_LABEL: Record<Rarity, string> = {
   standard: 'Standard',
-  random: 'Zufall',
-  limited: 'Limitiert',
-  ultra: 'Ultra-Limitiert',
+  random: tr('Zufall'),
+  limited: tr('Limitiert'),
+  ultra: tr('Ultra-Limitiert'),
 };
 
 export const RARITY_HINT: Record<Rarity, string> = {
-  standard: 'Normal im Handel als Starter, Booster oder Set.',
-  random: 'Aus einem Random Booster – welche Variante drin ist, siehst du erst beim Öffnen.',
-  limited: 'Nur bei Events, Lotterien oder in kleiner Stückzahl erschienen (z. B. BX-00, Metal Coat).',
-  ultra: 'Turnierpreise oder extrem kleine Auflagen.',
+  standard: tr('Normal im Handel als Starter, Booster oder Set.'),
+  random: tr('Aus einem Random Booster – welche Variante drin ist, siehst du erst beim Öffnen.'),
+  limited: tr('Nur bei Events, Lotterien oder in kleiner Stückzahl erschienen (z. B. BX-00, Metal Coat).'),
+  ultra: tr('Turnierpreise oder extrem kleine Auflagen.'),
 };
 
 export const RARITY_ORDER: Rarity[] = ['ultra', 'limited', 'random', 'standard'];

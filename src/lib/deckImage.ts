@@ -1,3 +1,4 @@
+import { tr } from './i18n';
 import type { BeyType, Combo, Database, ImageIndex } from './types';
 import { analyze, resolveCombo, TYPE_LABEL } from './analysis';
 import { displayName } from './names';
@@ -15,8 +16,8 @@ export type DeckFormat = 'post' | 'square' | 'story';
  * - story: 1080×1920 (9:16) – Aufbau senkrecht mittig, liegt damit im sicheren Bereich von Instagram & Co.
  */
 export const DECK_FORMATS: Record<DeckFormat, { label: string; ratio: string; w: number; h: number; scale: number; dx: number; dy: number }> = {
-  post: { label: 'Hochformat', ratio: '4:5', w: 1080, h: 1350, scale: 1, dx: 0, dy: 0 },
-  square: { label: 'Quadrat', ratio: '1:1', w: 1080, h: 1080, scale: 0.8, dx: (1080 - W * 0.8) / 2, dy: 0 },
+  post: { label: tr('Hochformat'), ratio: '4:5', w: 1080, h: 1350, scale: 1, dx: 0, dy: 0 },
+  square: { label: tr('Quadrat'), ratio: '1:1', w: 1080, h: 1080, scale: 0.8, dx: (1080 - W * 0.8) / 2, dy: 0 },
   story: { label: 'Story', ratio: '9:16', w: 1080, h: 1920, scale: 1, dx: 0, dy: (1920 - H) / 2 },
 };
 const TYPE_COLOR: Record<BeyType, string> = { attack: '#ff5a45', defense: '#4c8dff', stamina: '#36d37f', balance: '#f5c542' };
@@ -121,13 +122,13 @@ function drawMark(ctx: CanvasRenderingContext2D, cx: number, baseline: number) {
  * Zeichnet das Deck als teilbares Bild – Standard 1080×1350 (Instagram/WhatsApp-Hochformat), sonst im gewählten Format.
  * Fotos der Blades kommen vom Wiki – erlaubt der Server keine Weiterverwendung im Canvas, gibt es eine gezeichnete Scheibe.
  */
-export async function renderDeckImage(db: Database, combos: Combo[], images: ImageIndex | null, title = 'Mein Deck', format: DeckFormat = 'post'): Promise<Blob> {
+export async function renderDeckImage(db: Database, combos: Combo[], images: ImageIndex | null, title = tr('Mein Deck'), format: DeckFormat = 'post'): Promise<Blob> {
   const f = DECK_FORMATS[format];
   const canvas = document.createElement('canvas');
   canvas.width = f.w;
   canvas.height = f.h;
   const ctx = canvas.getContext('2d');
-  if (!ctx) throw new Error('Canvas nicht verfügbar');
+  if (!ctx) throw new Error(tr('Canvas nicht verfügbar'));
   try {
     await Promise.all([document.fonts?.load(`700 40px 'Inter Tight'`), document.fonts?.load(`italic 800 40px 'Inter Tight'`)]);
   } catch {
@@ -252,7 +253,7 @@ export async function renderDeckImage(db: Database, combos: Combo[], images: Ima
   drawMark(ctx, W / 2, H - 58);
   ctx.restore();
 
-  return new Promise((resolve, reject) => canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('Bild konnte nicht erstellt werden'))), 'image/png'));
+  return new Promise((resolve, reject) => canvas.toBlob((b) => (b ? resolve(b) : reject(new Error(tr('Bild konnte nicht erstellt werden')))), 'image/png'));
 }
 
 /** Teilen ist direkt im Tipp möglich (Bild muss schon fertig sein – Safari verlangt das). */

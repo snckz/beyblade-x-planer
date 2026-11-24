@@ -1,3 +1,4 @@
+import { tr } from './i18n';
 import type { Combo } from './types';
 import { sanitizeMatches, type Match } from './matches';
 
@@ -105,7 +106,7 @@ export function importState(text: string): UserState {
   // Nur Sicherungen dieser App annehmen – eine fremde JSON-Datei würde sonst alles durch einen leeren Stand ersetzen.
   const r = parsed as Record<string, unknown> | null;
   const known = !!r && typeof r === 'object' && !Array.isArray(r) && (r.app === 'beyblade-x-planer' || ['owned', 'combos', 'deck', 'wishlist'].some((k) => k in r));
-  if (!known) throw new Error('keine X-Planer-Sicherung');
+  if (!known) throw new Error(tr('keine X-Planer-Sicherung'));
   return sanitize(parsed);
 }
 

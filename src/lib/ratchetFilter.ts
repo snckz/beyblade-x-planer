@@ -1,3 +1,4 @@
+import { tr, NUM_LOCALE } from './i18n';
 import type { Ratchet } from './types';
 
 /**
@@ -7,10 +8,10 @@ import type { Ratchet } from './types';
 export type TeethGroup = '' | 'low' | 'mid' | 'high' | 'special';
 
 export const TEETH_GROUPS: { id: Exclude<TeethGroup, ''>; value: string; caption: string; test: (r: Ratchet) => boolean }[] = [
-  { id: 'low', value: '1–3', caption: 'Zacken', test: (r) => r.contacts != null && r.contacts >= 1 && r.contacts <= 3 },
-  { id: 'mid', value: '4–5', caption: 'Zacken', test: (r) => r.contacts != null && r.contacts >= 4 && r.contacts <= 5 },
-  { id: 'high', value: '6+', caption: 'Zacken', test: (r) => r.contacts != null && r.contacts >= 6 },
-  { id: 'special', value: '0 / M', caption: 'Sonderform', test: (r) => r.contacts == null || r.contacts === 0 },
+  { id: 'low', value: '1–3', caption: tr('Zacken'), test: (r) => r.contacts != null && r.contacts >= 1 && r.contacts <= 3 },
+  { id: 'mid', value: '4–5', caption: tr('Zacken'), test: (r) => r.contacts != null && r.contacts >= 4 && r.contacts <= 5 },
+  { id: 'high', value: '6+', caption: tr('Zacken'), test: (r) => r.contacts != null && r.contacts >= 6 },
+  { id: 'special', value: '0 / M', caption: tr('Sonderform'), test: (r) => r.contacts == null || r.contacts === 0 },
 ];
 
 /** Gruppen, in denen es überhaupt Ratchets gibt (z. B. keine Sonderform-Gruppe ohne Sonderformen). */
@@ -21,7 +22,7 @@ export const ratchetHeights = (ratchets: Ratchet[]): number[] =>
   [...new Set(ratchets.map((r) => r.heightMm).filter((h): h is number => typeof h === 'number'))].sort((a, b) => a - b);
 
 /** Höhe mit deutschem Komma, z. B. „6,0 mm“. */
-export const heightLabel = (mm: number) => `${mm.toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} mm`;
+export const heightLabel = (mm: number) => `${mm.toLocaleString(NUM_LOCALE, { minimumFractionDigits: 1, maximumFractionDigits: 1 })} mm`;
 
 const norm = (s: string) => s.toLowerCase().replace(/\s+/g, '');
 

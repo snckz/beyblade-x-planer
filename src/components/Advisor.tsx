@@ -1,3 +1,4 @@
+import { tr, NUM_LOCALE } from '../lib/i18n';
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import type { Database, MetaFeed } from '../lib/types';
 import type { UserState } from '../lib/storage';
@@ -60,43 +61,43 @@ export function Advisor({ db, state, update, meta }: Props) {
       const b = db.blades.find((x) => x.id === p.id);
       return b ? displayName(b) : p.id;
     }
-    if (p.kind === 'bit') return `${db.bits.find((x) => x.id === p.id)?.name ?? p.id} (Bit)`;
-    return `${p.id} (Ratchet)`;
+    if (p.kind === 'bit') return tr('{0} (Bit)', db.bits.find((x) => x.id === p.id)?.name ?? p.id);
+    return tr('{0} (Ratchet)', p.id);
   };
   const toggleWish = (o: Offer) =>
     update((s) => {
       const on = o.codes.some((c) => s.wishlist.includes(c));
       return { ...s, wishlist: on ? s.wishlist.filter((c) => !o.codes.includes(c)) : [...s.wishlist, o.code] };
     });
-  const pts = (n: number) => `+${n.toLocaleString('de-DE', { maximumFractionDigits: 1 })}`;
+  const pts = (n: number) => `+${n.toLocaleString(NUM_LOCALE, { maximumFractionDigits: 1 })}`;
 
   return (
-    <Section title="Kaufberater">
+    <Section title={tr('Kaufberater')}>
       <div class="card glass stack-sm">
         <p class="muted">
-          Welche Packung macht dein bestes Deck {vsMeta ? 'gegen die aktuellen Turnier-Kombos' : 'gegen typische Gegner'} am stärksten? Teile, die du schon hast, zählen nicht doppelt.
+          {tr('Welche Packung macht dein bestes Deck')} {vsMeta ? tr('gegen die aktuellen Turnier-Kombos') : tr('gegen typische Gegner')} {tr('am stärksten? Teile, die du schon hast, zählen nicht doppelt.')}
         </p>
-        {!hasCollection && <p class="muted">Tipp: Trag zuerst deine Kreisel in der Sammlung ein – dann passen die Vorschläge zu dem, was dir noch fehlt.</p>}
+        {!hasCollection && <p class="muted">{tr('Tipp: Trag zuerst deine Kreisel in der Sammlung ein – dann passen die Vorschläge zu dem, was dir noch fehlt.')}</p>}
 
         {!result && (
           <button type="button" class="btn btn-primary" onClick={start} disabled={progress !== null}>
-            {progress !== null ? `Rechne … ${Math.round(progress * 100)} %` : 'Was soll ich als Nächstes kaufen?'}
+            {progress !== null ? tr('Rechne … {0} %', Math.round(progress * 100)) : tr('Was soll ich als Nächstes kaufen?')}
           </button>
         )}
         {progress !== null && (
-          <div class="progress" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(progress * 100)} aria-label="Kaufberater rechnet">
+          <div class="progress" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(progress * 100)} aria-label={tr('Kaufberater rechnet')}>
             <span style={{ width: `${Math.round(progress * 100)}%` }} />
           </div>
         )}
 
         {result && (
           <>
-            <div class="segmented seg-2" role="group" aria-label="Sortierung">
+            <div class="segmented seg-2" role="group" aria-label={tr('Sortierung')}>
               <button type="button" class={sort === 'value' ? 'on' : ''} aria-pressed={sort === 'value'} onClick={() => setSort('value')}>
-                Preis-Leistung
+                {tr('Preis-Leistung')}
               </button>
               <button type="button" class={sort === 'gain' ? 'on' : ''} aria-pressed={sort === 'gain'} onClick={() => setSort('gain')}>
-                Größter Sprung
+                {tr('Größter Sprung')}
               </button>
             </div>
             {offers.length ? (
@@ -114,21 +115,21 @@ export function Advisor({ db, state, update, meta }: Props) {
                         <span class="advice-gain">
                           {o.kind === 'random-booster' ? (
                             <>
-                              Zufall: im Schnitt <strong>{pts(o.gain)}</strong>, bester Treffer {pts(o.bestGain ?? o.gain)}
+                              {tr('Zufall: im Schnitt')} <strong>{pts(o.gain)}</strong>{tr(', bester Treffer')} {pts(o.bestGain ?? o.gain)}
                             </>
                           ) : (
                             <>
-                              <strong>{pts(o.gain)} Punkte</strong> fürs Deck
+                              <strong>{pts(o.gain)} {tr('Punkte')}</strong> {tr('fürs Deck')}
                             </>
                           )}
-                          {v !== null && sort === 'value' && <span class="muted"> · {v.toLocaleString('de-DE', { maximumFractionDigits: 1 })} pro 1.000 ¥</span>}
+                          {v !== null && sort === 'value' && <span class="muted"> · {v.toLocaleString(NUM_LOCALE, { maximumFractionDigits: 1 })} {tr('pro 1.000 ¥')}</span>}
                         </span>
                         {o.meta && (
                           <span class={`meta-tag${o.meta.share >= META_TOP ? ' top' : ''}`}>
-                            {o.meta.share >= META_TOP ? 'Top im Turnier' : 'Turnier-relevant'}: {o.meta.name} · {pct(o.meta.share)} der Siegerdecks
+                            {o.meta.share >= META_TOP ? tr('Top im Turnier') : tr('Turnier-relevant')}: {o.meta.name} · {pct(o.meta.share)} {tr('der Siegerdecks')}
                           </span>
                         )}
-                        <span class="row-sub">Neu: {o.newParts.map(partName).join(', ')}</span>
+                        <span class="row-sub">{tr('Neu:')} {o.newParts.map(partName).join(', ')}</span>
                         {hint && <span class="row-sub">{hint}</span>}
                       </div>
                       <button
@@ -136,22 +137,22 @@ export function Advisor({ db, state, update, meta }: Props) {
                         class={`chip${wished ? ' chip-on' : ''}`}
                         aria-pressed={wished}
                         onClick={() => toggleWish(o)}
-                        aria-label={`${product.name} ${wished ? 'von der Wunschliste nehmen' : 'auf die Wunschliste'}`}
+                        aria-label={`${product.name} ${wished ? tr('von der Wunschliste nehmen') : tr('auf die Wunschliste')}`}
                       >
-                        <Heart aria-hidden="true" fill={wished ? 'currentColor' : 'none'} /> Wunsch
+                        <Heart aria-hidden="true" fill={wished ? 'currentColor' : 'none'} /> {tr('Wunsch')}
                       </button>
                     </li>
                   );
                 })}
               </ol>
             ) : (
-              <p class="muted">Kein Kauf verbessert dein Deck noch spürbar – du bist gut aufgestellt.</p>
+              <p class="muted">{tr('Kein Kauf verbessert dein Deck noch spürbar – du bist gut aufgestellt.')}</p>
             )}
             <p class="fineprint">
-              Punkte = wie viel stärker dein bestes 3er-Deck wird (Richtwert aus Typ, Werten, Gewicht und Drehrichtung). Preise: Japan-Verkaufspreis (Takara Tomy), sofern bekannt.
+              {tr('Punkte = wie viel stärker dein bestes 3er-Deck wird (Richtwert aus Typ, Werten, Gewicht und Drehrichtung). Preise: Japan-Verkaufspreis (Takara Tomy), sofern bekannt.')}
             </p>
             <button type="button" class="btn btn-sm" onClick={start}>
-              Neu berechnen
+              {tr('Neu berechnen')}
             </button>
           </>
         )}

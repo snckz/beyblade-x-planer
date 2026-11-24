@@ -1,3 +1,4 @@
+import { tr, NUM_LOCALE } from './i18n';
 import { displayName } from './names';
 import type { BeyType, Blade, Bit, Combo, Database, Ratchet } from './types';
 
@@ -9,10 +10,10 @@ export const TYPE_LABEL: Record<BeyType, string> = {
 };
 
 export const TYPE_HINT: Record<BeyType, string> = {
-  attack: 'Aggressiv, sucht den Treffer und will Xtreme- oder Burst-Finishes.',
-  defense: 'Steht stabil in der Mitte und hält Angriffe aus.',
-  stamina: 'Dreht möglichst lange und gewinnt nach Spin-Zeit.',
-  balance: 'Vielseitig, Mischung aus Angriff und Ausdauer.',
+  attack: tr('Aggressiv, sucht den Treffer und will Xtreme- oder Burst-Finishes.'),
+  defense: tr('Steht stabil in der Mitte und hält Angriffe aus.'),
+  stamina: tr('Dreht möglichst lange und gewinnt nach Spin-Zeit.'),
+  balance: tr('Vielseitig, Mischung aus Angriff und Ausdauer.'),
 };
 
 export interface Resolved {
@@ -81,11 +82,11 @@ export function analyze(r: Resolved): Analysis {
   let valid = true;
 
   if (r.blade.integratedRatchet && r.ratchet) {
-    warnings.push(`${displayName(r.blade)} hat einen integrierten Ratchet – ein zusätzlicher Ratchet passt nicht.`);
+    warnings.push(tr('{0} hat einen integrierten Ratchet – ein zusätzlicher Ratchet passt nicht.', displayName(r.blade)));
     valid = false;
   }
   if (!r.blade.integratedRatchet && !r.ratchet) {
-    warnings.push('Ratchet fehlt: Diese Blade braucht einen Ratchet zwischen Blade und Bit.');
+    warnings.push(tr('Ratchet fehlt: Diese Blade braucht einen Ratchet zwischen Blade und Bit.'));
     valid = false;
   }
 
@@ -106,8 +107,8 @@ export function analyze(r: Resolved): Analysis {
     stamina += f * 10;
     defense += f * 9;
     attack += f * 5;
-    if (w >= 38) tips.push(`Schwere Blade (${w.toLocaleString('de-DE')} g): viel Schwung – gut für Ausdauer und Konter.`);
-    else if (w <= 32) tips.push(`Leichte Blade (${w.toLocaleString('de-DE')} g): verliert schneller Schwung, dafür wendiger.`);
+    if (w >= 38) tips.push(tr('Schwere Blade ({0} g): viel Schwung – gut für Ausdauer und Konter.', w.toLocaleString(NUM_LOCALE)));
+    else if (w <= 32) tips.push(tr('Leichte Blade ({0} g): verliert schneller Schwung, dafür wendiger.', w.toLocaleString(NUM_LOCALE)));
   }
 
   const h = r.ratchet?.heightMm ?? null;
@@ -116,29 +117,29 @@ export function analyze(r: Resolved): Analysis {
     if (h <= 5.0) {
       defense += 5;
       burst += 5;
-      tips.push('Niedriger Ratchet: tiefer Schwerpunkt, trifft Gegner eher von unten.');
+      tips.push(tr('Niedriger Ratchet: tiefer Schwerpunkt, trifft Gegner eher von unten.'));
     } else if (h >= 8.0) {
       attack -= 5;
       burst -= 5;
-      tips.push('Hoher Ratchet: kann über niedrige Gegner hinwegtreffen, ist aber anfälliger.');
+      tips.push(tr('Hoher Ratchet: kann über niedrige Gegner hinwegtreffen, ist aber anfälliger.'));
     }
   }
   if (contacts !== null) {
     burst += (contacts - 4) * 4;
-    if (contacts >= 7) tips.push('Viele Zacken: der Ratchet löst sich schwerer, also mehr Burst-Schutz.');
-    if (contacts <= 2) warnings.push('Wenige Zacken: erhöhtes Burst-Risiko bei harten Treffern.');
+    if (contacts >= 7) tips.push(tr('Viele Zacken: der Ratchet löst sich schwerer, also mehr Burst-Schutz.'));
+    if (contacts <= 2) warnings.push(tr('Wenige Zacken: erhöhtes Burst-Risiko bei harten Treffern.'));
   }
   if (r.blade.spin === 'left') {
-    tips.push('Linksdreher: Starte mit einem Launcher für Linksdrehung. Gegen Rechtsdreher klaut er Spin durch Gegendrehung.');
+    tips.push(tr('Linksdreher: Starte mit einem Launcher für Linksdrehung. Gegen Rechtsdreher klaut er Spin durch Gegendrehung.'));
   }
   if (type === 'attack' && r.bit.type !== 'attack') {
-    tips.push('Für mehr X-Dash-Speed ein flaches Attack-Bit wie F, LF oder R probieren.');
+    tips.push(tr('Für mehr X-Dash-Speed ein flaches Attack-Bit wie F, LF oder R probieren.'));
   }
   if (r.blade.type === 'stamina' && r.bit.type === 'attack') {
-    warnings.push('Stamina-Blade mit Attack-Bit: wird schnell müde, eher als Überraschungs-Kombo geeignet.');
+    warnings.push(tr('Stamina-Blade mit Attack-Bit: wird schnell müde, eher als Überraschungs-Kombo geeignet.'));
   }
-  if (r.bit.uncertain) warnings.push(`Typ von Bit „${r.bit.id}“ ist noch nicht bestätigt.`);
-  if (!r.blade.verified) warnings.push(`Daten zu ${displayName(r.blade)} sind noch nicht geprüft.`);
+  if (r.bit.uncertain) warnings.push(tr('Typ von Bit „{0}“ ist noch nicht bestätigt.', r.bit.id));
+  if (!r.blade.verified) warnings.push(tr('Daten zu {0} sind noch nicht geprüft.', displayName(r.blade)));
 
   return {
     label: comboLabel(r),
@@ -157,18 +158,21 @@ export interface DeckCheck {
   types: BeyType[];
 }
 
+/** Hinweis „falsche Anzahl“ – eigene Funktion, damit Aufrufer ihn erkennen können, ohne am Wortlaut zu hängen */
+export const deckSizeProblem = (count: number) => tr('Ein Deck hat genau 3 Kreisel (aktuell {0}).', count);
+
 /** Turnier-Faustregel: 3 Kreisel, keine Blade/kein Ratchet/kein Bit doppelt. */
 export function checkDeck(db: Database, combos: Combo[]): DeckCheck {
   const problems: string[] = [];
-  if (combos.length !== 3) problems.push(`Ein Deck hat genau 3 Kreisel (aktuell ${combos.length}).`);
+  if (combos.length !== 3) problems.push(deckSizeProblem(combos.length));
   const resolved = combos.map((c) => resolveCombo(db, c));
-  if (resolved.some((r) => r === null)) problems.push('Mindestens ein Kreisel enthält unbekannte Teile.');
+  if (resolved.some((r) => r === null)) problems.push(tr('Mindestens ein Kreisel enthält unbekannte Teile.'));
   const ok = resolved.filter((r): r is Resolved => r !== null);
   const dup = (vals: (string | undefined)[], label: string) => {
     const seen = new Set<string>();
     for (const v of vals) {
       if (!v) continue;
-      if (seen.has(v)) problems.push(`${label} „${v}“ ist doppelt – im Turnier nicht erlaubt.`);
+      if (seen.has(v)) problems.push(tr('{0} „{1}“ ist doppelt – im Turnier nicht erlaubt.', label, v));
       seen.add(v);
     }
   };

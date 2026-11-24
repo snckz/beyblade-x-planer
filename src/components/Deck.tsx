@@ -1,3 +1,4 @@
+import { tr } from '../lib/i18n';
 import type { Database } from '../lib/types';
 import type { UserState } from '../lib/storage';
 import { analyze, checkDeck, nb, resolveCombo, TYPE_LABEL } from '../lib/analysis';
@@ -27,7 +28,7 @@ export function Deck({ db, state, update, goToBuilder }: Props) {
   const [draft, setDraft] = useState<Part[]>(DEFAULT_DECK);
   const saveDraft = () =>
     update((s) => {
-      const list = draft.map((p, i) => s.combos.find((c) => c.bladeId === p.bladeId && (c.ratchetId ?? '') === (p.ratchetId ?? '') && c.bitId === p.bitId) ?? { id: newId(), name: `Deck ${i + 1}`, ...p });
+      const list = draft.map((p, i) => s.combos.find((c) => c.bladeId === p.bladeId && (c.ratchetId ?? '') === (p.ratchetId ?? '') && c.bitId === p.bitId) ?? { id: newId(), name: tr('Deck {0}', i + 1), ...p });
       const fresh = list.filter((c) => !s.combos.includes(c));
       return { ...s, combos: [...fresh, ...s.combos], deck: list.map((c) => c.id) };
     });
@@ -48,7 +49,7 @@ export function Deck({ db, state, update, goToBuilder }: Props) {
       const file = deckFile(await renderDeckImage(db, combos, images));
       setImg(file);
     } catch {
-      setShareMsg('Das Bild konnte nicht erstellt werden.');
+      setShareMsg(tr('Das Bild konnte nicht erstellt werden.'));
     } finally {
       setSharing(false);
     }
@@ -66,30 +67,30 @@ export function Deck({ db, state, update, goToBuilder }: Props) {
   if (!combos.length) {
     if (building)
       return (
-        <Section title="Deck zusammenstellen">
+        <Section title={tr('Deck zusammenstellen')}>
           <div class="card glass stack-sm">
-            <p class="muted">Wähle deine 3 Kreisel. Im Turnier darf kein Blade, Ratchet oder Bit doppelt vorkommen.</p>
-            <DeckPicker db={db} value={draft} onChange={setDraft} label="Kreisel" />
+            <p class="muted">{tr('Wähle deine 3 Kreisel. Im Turnier darf kein Blade, Ratchet oder Bit doppelt vorkommen.')}</p>
+            <DeckPicker db={db} value={draft} onChange={setDraft} label={tr('Kreisel')} />
             <div class="btn-row">
               <button type="button" class="btn btn-primary" onClick={saveDraft} disabled={!draft.every((p) => resolveCombo(db, { id: '', ...p }))}>
-                Als mein Deck speichern
+                {tr('Als mein Deck speichern')}
               </button>
               <button type="button" class="btn btn-ghost" onClick={() => setBuilding(false)}>
-                Abbrechen
+                {tr('Abbrechen')}
               </button>
             </div>
           </div>
         </Section>
       );
     return (
-      <Empty title="Noch kein Deck">
-        <p>Ein Turnier-Deck hat 3 Kreisel ohne doppelte Teile. Stell es direkt hier zusammen.</p>
+      <Empty title={tr('Noch kein Deck')}>
+        <p>{tr('Ein Turnier-Deck hat 3 Kreisel ohne doppelte Teile. Stell es direkt hier zusammen.')}</p>
         <div class="btn-row" style={{ justifyContent: 'center' }}>
           <button type="button" class="btn btn-primary" onClick={() => setBuilding(true)}>
-            3er-Deck zusammenstellen
+            {tr('3er-Deck zusammenstellen')}
           </button>
           <button type="button" class="btn" onClick={goToBuilder}>
-            Kombo bauen
+            {tr('Kombo bauen')}
           </button>
         </div>
       </Empty>
@@ -98,7 +99,7 @@ export function Deck({ db, state, update, goToBuilder }: Props) {
 
   return (
     <div class="stack">
-      <Section title={`Mein Deck (${combos.length}/3)`}>
+      <Section title={tr('Mein Deck ({0}/3)', combos.length)}>
         <ol class="deck">
           {combos.map((c, i) => {
             const r = resolveCombo(db, c);
@@ -112,7 +113,7 @@ export function Deck({ db, state, update, goToBuilder }: Props) {
                   </span>
                 )}
                 <div class="row-main">
-                  <span class="row-title">{c.name ?? (a ? nb(a.label) : 'Unbekannte Teile')}</span>
+                  <span class="row-title">{c.name ?? (a ? nb(a.label) : tr('Unbekannte Teile'))}</span>
                   {c.name && a && <span class="row-sub">{nb(a.label)}</span>}
                   {r && a && (
                     <span class="saved-badges">
@@ -124,17 +125,17 @@ export function Deck({ db, state, update, goToBuilder }: Props) {
                 </div>
                 <div class="row-side">
                   <div class="reorder">
-                    <button type="button" class="icon-btn" onClick={() => move(i, -1)} disabled={i === 0} aria-label="Nach oben">
+                    <button type="button" class="icon-btn" onClick={() => move(i, -1)} disabled={i === 0} aria-label={tr('Nach oben')}>
                       <ChevronUp aria-hidden="true" />
                     </button>
-                    <button type="button" class="icon-btn" onClick={() => move(i, 1)} disabled={i === combos.length - 1} aria-label="Nach unten">
+                    <button type="button" class="icon-btn" onClick={() => move(i, 1)} disabled={i === combos.length - 1} aria-label={tr('Nach unten')}>
                       <ChevronDown aria-hidden="true" />
                     </button>
                     <button
                       type="button"
                       class="icon-btn"
                       onClick={() => update((s) => ({ ...s, deck: s.deck.filter((d) => d !== c.id) }))}
-                      aria-label="Aus Deck entfernen"
+                      aria-label={tr('Aus Deck entfernen')}
                     >
                       ×
                     </button>
@@ -147,7 +148,7 @@ export function Deck({ db, state, update, goToBuilder }: Props) {
       </Section>
 
       <div class={`card check ${check.ok ? 'check-ok' : 'check-bad'}`} role="status">
-        <p class="check-title">{check.ok ? <><Check aria-hidden="true" /> Turnier-tauglich</> : 'Noch nicht turnier-tauglich'}</p>
+        <p class="check-title">{check.ok ? <><Check aria-hidden="true" /> {tr('Turnier-tauglich')}</> : tr('Noch nicht turnier-tauglich')}</p>
         {check.problems.length > 0 && (
           <ul class="notes notes-warn">
             {check.problems.map((p) => (
@@ -157,14 +158,14 @@ export function Deck({ db, state, update, goToBuilder }: Props) {
         )}
         {combos.length === 3 && missingTypes.length > 0 && (
           <p class="muted">
-            Tipp: Dir fehlt noch {missingTypes.map((t) => TYPE_LABEL[t]).join(' und ')} – ein gemischtes Deck kontert mehr Gegner.
+            {tr('Tipp: Dir fehlt noch')} {missingTypes.map((t) => TYPE_LABEL[t]).join(tr(' und '))} {tr('– ein gemischtes Deck kontert mehr Gegner.')}
           </p>
         )}
-        <p class="fineprint">Regeln können je nach Veranstalter abweichen – vor dem Turnier kurz nachfragen.</p>
+        <p class="fineprint">{tr('Regeln können je nach Veranstalter abweichen – vor dem Turnier kurz nachfragen.')}</p>
       </div>
       {/* Nicht „disabled“: Der Knopf soll den Fokus behalten, damit er ihn nach dem Schließen der Vorschau zurückbekommt */}
       <button type="button" class="btn" onClick={create} aria-busy={sharing}>
-        {sharing ? 'Bild wird erstellt …' : <><Share aria-hidden="true" /> Deck als Bild teilen</>}
+        {sharing ? tr('Bild wird erstellt …') : <><Share aria-hidden="true" /> {tr('Deck als Bild teilen')}</>}
       </button>
       {img && <DeckExportSheet initial={img} make={async (format) => deckFile(await renderDeckImage(db, combos, images, undefined, format), format)} onClose={() => setImg(null)} />}
       {shareMsg && (

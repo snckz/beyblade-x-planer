@@ -1,3 +1,4 @@
+import { tr, NUM_LOCALE } from '../lib/i18n';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import type { Combo, Database } from '../lib/types';
 import { matchup, toBey } from '../lib/battle';
@@ -37,15 +38,15 @@ export function CompareCombos({ db, initial, openSignal = 0 }: { db: Database; i
   type Row = { label: string; a: number | null; b: number | null; unit?: string; higherIsBetter?: boolean };
   // Die vier Richtwerte in derselben Reihenfolge wie in Balken und Netzdiagramm
   const metrics: Row[] = ok ? METRICS.map((mt) => ({ label: mt.label, a: ba!.analysis.profile[mt.key], b: bb!.analysis.profile[mt.key] })) : [];
-  const total: Row | null = ok ? { label: 'Gesamt', a: totalScore(ba!.analysis.profile), b: totalScore(bb!.analysis.profile) } : null;
+  const total: Row | null = ok ? { label: tr('Gesamt'), a: totalScore(ba!.analysis.profile), b: totalScore(bb!.analysis.profile) } : null;
   const facts: Row[] = ok
     ? [
-        { label: 'Blade-Gewicht', a: ba!.resolved.blade.weightG ?? null, b: bb!.resolved.blade.weightG ?? null, unit: ' g' },
-        { label: 'Ratchet-Höhe', a: ba!.analysis.heightMm, b: bb!.analysis.heightMm, unit: ' mm', higherIsBetter: false },
+        { label: tr('Blade-Gewicht'), a: ba!.resolved.blade.weightG ?? null, b: bb!.resolved.blade.weightG ?? null, unit: ' g' },
+        { label: tr('Ratchet-Höhe'), a: ba!.analysis.heightMm, b: bb!.analysis.heightMm, unit: ' mm', higherIsBetter: false },
       ]
     : [];
   // Millimeter immer mit einer Nachkommastelle („6,0 mm“ wie in der Auswahl)
-  const fmt = (v: number | null, unit = '') => (v === null ? '–' : `${v.toLocaleString('de-DE', unit === ' mm' ? { minimumFractionDigits: 1, maximumFractionDigits: 1 } : undefined)}${unit}`);
+  const fmt = (v: number | null, unit = '') => (v === null ? '–' : `${v.toLocaleString(NUM_LOCALE, unit === ' mm' ? { minimumFractionDigits: 1, maximumFractionDigits: 1 } : undefined)}${unit}`);
   const better = (r: Row, side: 'a' | 'b') => {
     if (r.a === null || r.b === null || r.a === r.b || r.higherIsBetter === false) return false;
     return side === 'a' ? r.a > r.b : r.b > r.a;
@@ -61,7 +62,7 @@ export function CompareCombos({ db, initial, openSignal = 0 }: { db: Database; i
   return (
     <div ref={anchor} class="scroll-anchor">
     <Section
-      title="Kombos vergleichen"
+      title={tr('Kombos vergleichen')}
       aside={
         <button
           type="button"
@@ -73,7 +74,7 @@ export function CompareCombos({ db, initial, openSignal = 0 }: { db: Database; i
           }}
           aria-expanded={open}
         >
-          {open ? 'Schließen' : 'Öffnen'}
+          {open ? tr('Schließen') : tr('Öffnen')}
         </button>
       }
     >
@@ -81,12 +82,12 @@ export function CompareCombos({ db, initial, openSignal = 0 }: { db: Database; i
         <div class="ref-card vs">
           <div class="cmp-pickers">
             <div>
-              <p class="eyebrow">Kombo A</p>
-              <ComboPicker db={db} value={{ id: 'a', ...a }} label="Kombo A" onChange={({ bladeId, ratchetId, bitId }) => setA({ bladeId, ratchetId, bitId })} />
+              <p class="eyebrow">{tr('Kombo A')}</p>
+              <ComboPicker db={db} value={{ id: 'a', ...a }} label={tr('Kombo A')} onChange={({ bladeId, ratchetId, bitId }) => setA({ bladeId, ratchetId, bitId })} />
             </div>
             <div>
-              <p class="eyebrow">Kombo B</p>
-              <ComboPicker db={db} value={{ id: 'b', ...b }} label="Kombo B" onChange={({ bladeId, ratchetId, bitId }) => setB({ bladeId, ratchetId, bitId })} />
+              <p class="eyebrow">{tr('Kombo B')}</p>
+              <ComboPicker db={db} value={{ id: 'b', ...b }} label={tr('Kombo B')} onChange={({ bladeId, ratchetId, bitId }) => setB({ bladeId, ratchetId, bitId })} />
             </div>
           </div>
           {ok && m ? (
@@ -100,10 +101,10 @@ export function CompareCombos({ db, initial, openSignal = 0 }: { db: Database; i
                         <span class={`vs-art aura-${x.analysis.type}`}>
                           <BladePhoto blade={x.resolved.blade} alt="" variant="card" />
                         </span>
-                        <span class="vs-side">Kombo {i === 0 ? 'A' : 'B'}</span>
+                        <span class="vs-side">{tr('Kombo')} {i === 0 ? 'A' : 'B'}</span>
                         <span class="vs-name">{name(x)}</span>
                         <TypeChip type={x.analysis.type} />
-                        {x.resolved.blade.spin === 'left' && <span class="vs-spin">Linksdreher</span>}
+                        {x.resolved.blade.spin === 'left' && <span class="vs-spin">{tr('Linksdreher')}</span>}
                       </th>
                     ))}
                   </tr>
@@ -115,12 +116,12 @@ export function CompareCombos({ db, initial, openSignal = 0 }: { db: Database; i
                 </tbody>
               </table>
               <div class="cmp-verdict">
-                <div class="cmp-bar" role="img" aria-label={`Kombo A gewinnt etwa ${m.chance} %, Kombo B ${100 - m.chance} %`}>
+                <div class="cmp-bar" role="img" aria-label={tr('Kombo A gewinnt etwa {0} %, Kombo B {1} %', m.chance, 100 - m.chance)}>
                   <span style={{ width: `${m.chance}%` }} />
                 </div>
                 <p>
                   <strong>
-                    {m.chance > 55 ? `A liegt vorne (${m.chance} %)` : m.chance < 45 ? `B liegt vorne (${100 - m.chance} %)` : `Ausgeglichen (${m.chance} : ${100 - m.chance})`}
+                    {m.chance > 55 ? tr('A liegt vorne ({0} %)', m.chance) : m.chance < 45 ? tr('B liegt vorne ({0} %)', 100 - m.chance) : tr('Ausgeglichen ({0} : {1})', m.chance, 100 - m.chance)}
                   </strong>
                 </p>
                 {m.reasons.length > 0 && (
@@ -130,11 +131,11 @@ export function CompareCombos({ db, initial, openSignal = 0 }: { db: Database; i
                     ))}
                   </ul>
                 )}
-                <p class="fineprint">Gesamt ist die Summe der vier Richtwerte. Das Duell ist eine grobe Einschätzung aus Typ, Profil, Gewicht und Drehrichtung – Höhe ist je nach Stil Vor- oder Nachteil.</p>
+                <p class="fineprint">{tr('Gesamt ist die Summe der vier Richtwerte. Das Duell ist eine grobe Einschätzung aus Typ, Profil, Gewicht und Drehrichtung – Höhe ist je nach Stil Vor- oder Nachteil.')}</p>
               </div>
             </>
           ) : (
-            <p class="muted">Wähle für beide Kombos Blade, Ratchet und Bit.</p>
+            <p class="muted">{tr('Wähle für beide Kombos Blade, Ratchet und Bit.')}</p>
           )}
         </div>
       )}

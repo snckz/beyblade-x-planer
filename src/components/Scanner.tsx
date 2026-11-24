@@ -1,3 +1,4 @@
+import { tr } from '../lib/i18n';
 import { createPortal } from 'preact/compat';
 import { useModal } from '../lib/useModal';
 import { displayProductName } from '../lib/names';
@@ -69,14 +70,14 @@ function ScannerInner({ db, state, update, onClose }: Props) {
   const identify = async (img: Blob, liveCode: string | null) => {
     const id = ++run.current;
     setPhase('reading');
-    setReadStep('Suche Barcode …');
+    setReadStep(tr('Suche Barcode …'));
     try {
       const res = await recognizePhoto(
         img,
         db,
         barcodes.current,
         (step, p) => {
-          if (run.current === id) setReadStep(step === 'barcode' ? 'Suche Barcode …' : p !== undefined && p < 1 ? 'Lade Texterkennung (nur beim ersten Mal) …' : 'Lese die Packung …');
+          if (run.current === id) setReadStep(step === 'barcode' ? tr('Suche Barcode …') : p !== undefined && p < 1 ? tr('Lade Texterkennung (nur beim ersten Mal) …') : tr('Lese die Packung …'));
         },
         register,
       );
@@ -148,12 +149,12 @@ function ScannerInner({ db, state, update, onClose }: Props) {
       for (const c of codes) owned[c] = (owned[c] ?? 0) + 1;
       return { ...s, owned, wishlist: s.wishlist.filter((c) => !codes.includes(c)) };
     });
-    setMsg(codes.length > 1 ? `${contentLabel(items)} aus ${groupKey(p)} sind jetzt in deiner Sammlung.` : `${p.code} ist jetzt in deiner Sammlung (${(state.owned[p.code] ?? 0) + 1}×).`);
+    setMsg(codes.length > 1 ? tr('{0} aus {1} sind jetzt in deiner Sammlung.', contentLabel(items), groupKey(p)) : tr('{0} ist jetzt in deiner Sammlung ({1}×).', p.code, (state.owned[p.code] ?? 0) + 1));
     setPhase('done');
   };
   const addWish = (p: Product) => {
     update((s) => ({ ...s, wishlist: s.wishlist.includes(p.code) ? s.wishlist : [...s.wishlist, p.code] }));
-    setMsg(`${p.code} steht auf deiner Wunschliste.`);
+    setMsg(tr('{0} steht auf deiner Wunschliste.', p.code));
     setPhase('done');
   };
   const forget = () => {
@@ -187,11 +188,11 @@ function ScannerInner({ db, state, update, onClose }: Props) {
 
   return (
     <div class="sheet-backdrop" onClick={(e) => e.target === e.currentTarget && close()}>
-      <div ref={ref} class="sheet glass scan-sheet" role="dialog" aria-modal="true" aria-label="Packung scannen" tabIndex={-1}>
+      <div ref={ref} class="sheet glass scan-sheet" role="dialog" aria-modal="true" aria-label={tr('Packung scannen')} tabIndex={-1}>
         <div class="sheet-grab" aria-hidden="true" />
         <div class="win-head">
-          <h2 class="win-title">Packung scannen</h2>
-          <button type="button" class="icon-btn win-close" onClick={close} aria-label="Schließen">
+          <h2 class="win-title">{tr('Packung scannen')}</h2>
+          <button type="button" class="icon-btn win-close" onClick={close} aria-label={tr('Schließen')}>
             <X aria-hidden="true" />
           </button>
         </div>
@@ -209,8 +210,8 @@ function ScannerInner({ db, state, update, onClose }: Props) {
                   </svg>
                 </span>
                 <span>
-                  <strong>Packung fotografieren</strong>
-                  <small>Rückseite mit Barcode und Produktnummer – ohne Kamera-Freigabe</small>
+                  <strong>{tr('Packung fotografieren')}</strong>
+                  <small>{tr('Rückseite mit Barcode und Produktnummer – ohne Kamera-Freigabe')}</small>
                 </span>
               </button>
               <button type="button" class="scan-choice" onClick={startLive}>
@@ -220,8 +221,8 @@ function ScannerInner({ db, state, update, onClose }: Props) {
                   </svg>
                 </span>
                 <span>
-                  <strong>Live scannen</strong>
-                  <small>Für viele Packungen hintereinander</small>
+                  <strong>{tr('Live scannen')}</strong>
+                  <small>{tr('Für viele Packungen hintereinander')}</small>
                 </span>
               </button>
             </div>
@@ -236,10 +237,10 @@ function ScannerInner({ db, state, update, onClose }: Props) {
 
           {camera && (
             <div class="scan-cam">
-              <video ref={video} playsInline muted aria-label="Kamerabild" />
+              <video ref={video} playsInline muted aria-label={tr('Kamerabild')} />
               <span class="scan-frame" aria-hidden="true" />
               <p class="scan-hint" role="status">
-                {phase === 'starting' ? 'Kamera wird gestartet …' : 'Barcode auf der Packungsrückseite in den Rahmen halten'}
+                {phase === 'starting' ? tr('Kamera wird gestartet …') : tr('Barcode auf der Packungsrückseite in den Rahmen halten')}
               </p>
             </div>
           )}
@@ -247,27 +248,27 @@ function ScannerInner({ db, state, update, onClose }: Props) {
           <div class="scan-body">
             {phase === 'nocam' && (
               <p class="muted">
-                Keine Kamera verfügbar oder Zugriff abgelehnt (Einstellungen → Safari → Kamera). Du kannst das Produkt auch hier suchen.{' '}
+                {tr('Keine Kamera verfügbar oder Zugriff abgelehnt (Einstellungen → Safari → Kamera). Du kannst das Produkt auch hier suchen.')}{' '}
                 <button type="button" class="btn btn-ghost btn-sm" onClick={again}>
-                  Erneut versuchen
+                  {tr('Erneut versuchen')}
                 </button>
               </p>
             )}
             {phase === 'noreader' && (
               <p class="muted">
-                Der Barcode-Leser konnte nicht geladen werden – bist du offline? Du kannst das Produkt auch hier suchen.{' '}
+                {tr('Der Barcode-Leser konnte nicht geladen werden – bist du offline? Du kannst das Produkt auch hier suchen.')}{' '}
                 <button type="button" class="btn btn-ghost btn-sm" onClick={again}>
-                  Erneut versuchen
+                  {tr('Erneut versuchen')}
                 </button>
               </p>
             )}
             {phase === 'unknown' && (
               <p class="muted">
                 {candidates.length
-                  ? 'Welche Packung ist es?'
+                  ? tr('Welche Packung ist es?')
                   : code
-                    ? <>Barcode <strong class="mono">{code}</strong> kenne ich noch nicht. Welches Produkt ist das? Danach erkennt die App ihn sofort wieder.</>
-                    : 'Ich konnte die Packung nicht sicher erkennen. Tipp: Rückseite mit Produktnummer (z. B. G4568 oder BX-05) scharf fotografieren – oder hier suchen.'}
+                    ? <>{tr('Barcode')} <strong class="mono">{code}</strong> {tr('kenne ich noch nicht. Welches Produkt ist das? Danach erkennt die App ihn sofort wieder.')}</>
+                    : tr('Ich konnte die Packung nicht sicher erkennen. Tipp: Rückseite mit Produktnummer (z. B. G4568 oder BX-05) scharf fotografieren – oder hier suchen.')}
               </p>
             )}
             {phase === 'unknown' && candidates.length > 0 && (
@@ -282,7 +283,7 @@ function ScannerInner({ db, state, update, onClose }: Props) {
 
             {(pick || phase === 'choose') && (
               <>
-                <input type="search" placeholder="Name oder Code, z. B. BX-24 …" value={query} onInput={(e) => setQuery(e.currentTarget.value)} aria-label="Produkt suchen" />
+                <input type="search" placeholder={tr('Name oder Code, z. B. BX-24 …')} value={query} onInput={(e) => setQuery(e.currentTarget.value)} aria-label={tr('Produkt suchen')} />
                 <ul class="list scan-results">
                   {results.map((p) => (
                     <li key={p.code}>
@@ -304,15 +305,15 @@ function ScannerInner({ db, state, update, onClose }: Props) {
                 </div>
                 <div class="btn-row">
                   <button type="button" class="btn btn-primary" onClick={() => addOwned(product)}>
-                    In die Sammlung
+                    {tr('In die Sammlung')}
                   </button>
                   <button type="button" class="btn" onClick={() => addWish(product)}>
-                    Auf Wunschliste
+                    {tr('Auf Wunschliste')}
                   </button>
                 </div>
                 {code && (
                   <button type="button" class="btn btn-ghost btn-sm" onClick={forget}>
-                    Falsches Produkt? Neu zuordnen
+                    {tr('Falsches Produkt? Neu zuordnen')}
                   </button>
                 )}
               </div>
@@ -323,10 +324,10 @@ function ScannerInner({ db, state, update, onClose }: Props) {
                 <p role="status">{msg}</p>
                 <div class="btn-row">
                   <button type="button" class="btn btn-primary" onClick={again}>
-                    Nächste Packung
+                    {tr('Nächste Packung')}
                   </button>
                   <button type="button" class="btn" onClick={onClose}>
-                    Fertig
+                    {tr('Fertig')}
                   </button>
                 </div>
               </div>
@@ -355,7 +356,7 @@ function ProductRow({ db, product, onClick }: { db: Database; product: Product; 
 /** Im Laden das Wichtigste auf einen Blick: schon da? auf der Wunschliste? bringt es neue Teile? */
 function OwnStatus({ db, state, product }: { db: Database; state: UserState; product: Product }) {
   const n = state.owned[product.code] ?? 0;
-  if (n > 0) return <p class="scan-status have"><Check aria-hidden="true" /> Hast du schon ({n}×)</p>;
+  if (n > 0) return <p class="scan-status have"><Check aria-hidden="true" /> {tr('Hast du schon (')}{n}×)</p>;
   const parts = ownedParts(db, state.owned);
   // Sets zählen als ganze Packung: jedes neue Teil einmal, auch wenn es mehrfach drin ist
   const items = purchaseProducts(db.products, product);
@@ -365,8 +366,8 @@ function OwnStatus({ db, state, product }: { db: Database; state: UserState; pro
     new Set(items.map((x) => x.bitId).filter((id) => id && !parts.bits.has(id))).size;
   return (
     <>
-      {state.wishlist.includes(product.code) && <p class="scan-status wish"><Heart aria-hidden="true" fill="currentColor" /> Steht auf deiner Wunschliste</p>}
-      {product.bladeId && (fresh ? <p class="scan-status new">{fresh === 1 ? '1 neues Teil' : `${fresh} neue Teile`} für deine Sammlung</p> : <p class="scan-status have">Alle Teile hast du schon aus anderen Packungen</p>)}
+      {state.wishlist.includes(product.code) && <p class="scan-status wish"><Heart aria-hidden="true" fill="currentColor" /> {tr('Steht auf deiner Wunschliste')}</p>}
+      {product.bladeId && (fresh ? <p class="scan-status new">{fresh === 1 ? tr('1 neues Teil') : tr('{0} neue Teile', fresh)} {tr('für deine Sammlung')}</p> : <p class="scan-status have">{tr('Alle Teile hast du schon aus anderen Packungen')}</p>)}
     </>
   );
 }

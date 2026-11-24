@@ -1,3 +1,4 @@
+import { tr, DATE_LOCALE } from '../lib/i18n';
 import { useEffect, useRef } from 'preact/hooks';
 import type { NewsFeed } from '../lib/types';
 import type { UserState } from '../lib/storage';
@@ -11,7 +12,7 @@ interface Props {
   active?: boolean;
 }
 
-const fmt = (iso: string) => new Date(iso).toLocaleDateString('de-AT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+const fmt = (iso: string) => new Date(iso).toLocaleDateString(DATE_LOCALE, { day: '2-digit', month: '2-digit', year: 'numeric' });
 
 export function News({ news, state, update, active = true }: Props) {
   // „neu“-Markierung aus dem Stand beim Öffnen des Tabs, damit sie während des Lesens sichtbar bleibt.
@@ -32,10 +33,10 @@ export function News({ news, state, update, active = true }: Props) {
       <div class="card radar">
         <div class="radar-dot" aria-hidden="true" />
         <div>
-          <p class="row-title">Neuheiten-Radar</p>
+          <p class="row-title">{tr('Neuheiten-Radar')}</p>
           <p class="muted">
-            Prüft täglich das Beyblade Wiki auf neue Produktnummern (BX, UX, CX), die noch nicht in der Datenbank stehen.
-            {news.updatedAt ? ` Letzter Fund: ${fmt(news.updatedAt)}.` : ''}
+            {tr('Prüft täglich das Beyblade Wiki auf neue Produktnummern (BX, UX, CX), die noch nicht in der Datenbank stehen.')}
+            {news.updatedAt ? tr(' Letzter Fund: {0}.', fmt(news.updatedAt)) : ''}
           </p>
         </div>
       </div>
@@ -49,15 +50,15 @@ export function News({ news, state, update, active = true }: Props) {
                   {n.title}
                 </a>
                 <span class="row-sub">
-                  {n.source} · gefunden {fmt(n.foundAt)}
+                  {n.source} {tr('· gefunden')} {fmt(n.foundAt)}
                 </span>
               </div>
-              {!seen.has(n.id) && <span class="badge badge-new">neu</span>}
+              {!seen.has(n.id) && <span class="badge badge-new">{tr('neu')}</span>}
             </li>
           ))}
         </ul>
       ) : (
-        <Empty title="Noch keine Neuheiten">Sobald im Wiki neue Produktnummern auftauchen, erscheinen sie hier.</Empty>
+        <Empty title={tr('Noch keine Neuheiten')}>{tr('Sobald im Wiki neue Produktnummern auftauchen, erscheinen sie hier.')}</Empty>
       )}
     </div>
   );

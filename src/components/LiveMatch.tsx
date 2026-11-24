@@ -1,3 +1,4 @@
+import { tr } from '../lib/i18n';
 import { createPortal } from 'preact/compat';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { useModal } from '../lib/useModal';
@@ -102,7 +103,7 @@ function LiveMatchInner({ db, state, update, onClose }: Props) {
           const found = combos.find((c) => c.bladeId === p.bladeId && (c.ratchetId ?? '') === (p.ratchetId ?? '') && c.bitId === p.bitId);
           if (found) ids.push(found.id);
           else {
-            const c = { id: newId(), name: `Deck ${i + 1}`, ...p };
+            const c = { id: newId(), name: tr('Deck {0}', i + 1), ...p };
             combos.unshift(c);
             ids.push(c.id);
           }
@@ -118,8 +119,8 @@ function LiveMatchInner({ db, state, update, onClose }: Props) {
     <div class={`live-side ${won ? 'me' : 'them'}`}>
       <div class="live-head">
         <span class="live-who">
-          {won ? 'Du' : 'Gegner'}
-          {withBeys && (won ? mineDeck : oppDeck).length > 1 && <small> · Kreisel {(log.length % (won ? mineDeck : oppDeck).length) + 1}/{(won ? mineDeck : oppDeck).length}</small>}
+          {won ? 'Du' : tr('Gegner')}
+          {withBeys && (won ? mineDeck : oppDeck).length > 1 && <small> {tr('· Kreisel')} {(log.length % (won ? mineDeck : oppDeck).length) + 1}/{(won ? mineDeck : oppDeck).length}</small>}
         </span>
         {withBeys && <span class="live-combo">{label(won ? mine : opp)}</span>}
       </div>
@@ -127,9 +128,9 @@ function LiveMatchInner({ db, state, update, onClose }: Props) {
         {won ? me : them}
         <small>/{target}</small>
       </span>
-      <div class="live-btns" role="group" aria-label={won ? 'Punkte für dich' : 'Punkte für den Gegner'}>
+      <div class="live-btns" role="group" aria-label={won ? tr('Punkte für dich') : tr('Punkte für den Gegner')}>
         {(Object.keys(FINISH) as Finish[]).map((f) => (
-          <button key={f} type="button" onClick={() => score(won, f)} disabled={over} aria-label={`${FINISH[f].label}-Finish für ${won ? 'dich' : 'den Gegner'}, ${FINISH[f].points} Punkte`}>
+          <button key={f} type="button" onClick={() => score(won, f)} disabled={over} aria-label={tr('{0}-Finish für {1}, {2} Punkte', FINISH[f].label, won ? tr('dich') : tr('den Gegner'), FINISH[f].points)}>
             <strong>{FINISH[f].label}</strong>
             <small>+{FINISH[f].points}</small>
           </button>
@@ -139,51 +140,51 @@ function LiveMatchInner({ db, state, update, onClose }: Props) {
   );
 
   return (
-    <div ref={ref} class="live" role="dialog" aria-modal="true" aria-label="Live-Match" tabIndex={-1}>
+    <div ref={ref} class="live" role="dialog" aria-modal="true" aria-label={tr('Live-Match')} tabIndex={-1}>
       <div class="live-bar">
         <button type="button" class="btn btn-sm" onClick={close}>
-          Schließen
+          {tr('Schließen')}
         </button>
-        <span class="live-title">Live-Match</span>
+        <span class="live-title">{tr('Live-Match')}</span>
         {setup ? (
           <span class="btn-sm" aria-hidden="true" />
         ) : (
           <button type="button" class="btn btn-sm" onClick={() => setSetup(true)}>
-            Einstellungen
+            {tr('Einstellungen')}
           </button>
         )}
       </div>
 
       {setup ? (
         <div class="live-setup stack-sm">
-          <p class="eyebrow">Ziel</p>
-          <div class="segmented seg-2" role="group" aria-label="Punkteziel">
+          <p class="eyebrow">{tr('Ziel')}</p>
+          <div class="segmented seg-2" role="group" aria-label={tr('Punkteziel')}>
             <button type="button" class={target === 4 ? 'on' : ''} aria-pressed={target === 4} onClick={() => setTarget(4)}>
-              4 Punkte (Vorrunde)
+              {tr('4 Punkte (Vorrunde)')}
             </button>
             <button type="button" class={target === 7 ? 'on' : ''} aria-pressed={target === 7} onClick={() => setTarget(7)}>
-              7 Punkte (Finale)
+              {tr('7 Punkte (Finale)')}
             </button>
           </div>
-          <p class="eyebrow">Wie willst du spielen?</p>
-          <div class="segmented seg-2" role="group" aria-label="Spielart">
+          <p class="eyebrow">{tr('Wie willst du spielen?')}</p>
+          <div class="segmented seg-2" role="group" aria-label={tr('Spielart')}>
             <button type="button" class={!withBeys ? 'on' : ''} aria-pressed={!withBeys} onClick={() => setWithBeys(false)}>
-              Nur Punkte zählen
+              {tr('Nur Punkte zählen')}
             </button>
             <button type="button" class={withBeys ? 'on' : ''} aria-pressed={withBeys} onClick={() => setWithBeys(true)}>
-              Mit Kreiseln
+              {tr('Mit Kreiseln')}
             </button>
           </div>
           {!withBeys ? (
-            <p class="fineprint">Einfach losspielen – ohne Kreisel eintragen. Wird nicht im Tagebuch gespeichert.</p>
+            <p class="fineprint">{tr('Einfach losspielen – ohne Kreisel eintragen. Wird nicht im Tagebuch gespeichert.')}</p>
           ) : (
             <>
-              <p class="fineprint">Jede Runde landet im Battle-Tagebuch. Beim 3er-Deck kommt nach jeder Runde der nächste Kreisel dran.</p>
+              <p class="fineprint">{tr('Jede Runde landet im Battle-Tagebuch. Beim 3er-Deck kommt nach jeder Runde der nächste Kreisel dran.')}</p>
               <div class="side-head">
-                <p class="eyebrow">Dein Deck</p>
-                <div class="segmented seg-2 seg-mini" role="group" aria-label="Anzahl deiner Kreisel">
+                <p class="eyebrow">{tr('Dein Deck')}</p>
+                <div class="segmented seg-2 seg-mini" role="group" aria-label={tr('Anzahl deiner Kreisel')}>
                   <button type="button" class={mineDeck.length === 1 ? 'on' : ''} aria-pressed={mineDeck.length === 1} onClick={() => setMineDeck(mineDeck.slice(0, 1))}>
-                    1 Kreisel
+                    {tr('1 Kreisel')}
                   </button>
                   <button
                     type="button"
@@ -191,22 +192,22 @@ function LiveMatchInner({ db, state, update, onClose }: Props) {
                     aria-pressed={mineDeck.length === 3}
                     onClick={() => setMineDeck(savedDeck.length === 3 ? savedDeck.map(toPart) : [mineDeck[0]!, ...DEFAULT_DECK.slice(1)])}
                   >
-                    3er-Deck
+                    {tr('3er-Deck')}
                   </button>
                 </div>
               </div>
-              <DeckPicker db={db} value={mineDeck} onChange={setMineDeck} label="Dein Kreisel" />
+              <DeckPicker db={db} value={mineDeck} onChange={setMineDeck} label={tr('Dein Kreisel')} />
               {mineDeck.length === 3 && (
                 <label class="toggle">
                   <input type="checkbox" checked={saveDeck} onChange={(e) => setSaveDeck(e.currentTarget.checked)} />
-                  <span>Als „Mein Deck“ speichern</span>
+                  <span>{tr('Als „Mein Deck“ speichern')}</span>
                 </label>
               )}
               <div class="side-head">
-                <p class="eyebrow">Gegner</p>
-                <div class="segmented seg-2 seg-mini" role="group" aria-label="Anzahl Gegner-Kreisel">
+                <p class="eyebrow">{tr('Gegner')}</p>
+                <div class="segmented seg-2 seg-mini" role="group" aria-label={tr('Anzahl Gegner-Kreisel')}>
                   <button type="button" class={oppDeck.length === 1 ? 'on' : ''} aria-pressed={oppDeck.length === 1} onClick={() => setOppDeck(oppDeck.slice(0, 1))}>
-                    1 Kreisel
+                    {tr('1 Kreisel')}
                   </button>
                   <button
                     type="button"
@@ -214,15 +215,15 @@ function LiveMatchInner({ db, state, update, onClose }: Props) {
                     aria-pressed={oppDeck.length === 3}
                     onClick={() => setOppDeck(savedOpp.length === 3 ? savedOpp.map(toPart) : [oppDeck[0]!, DEFAULT_DECK[2]!, DEFAULT_DECK[0]!])}
                   >
-                    3er-Deck
+                    {tr('3er-Deck')}
                   </button>
                 </div>
               </div>
-              <DeckPicker db={db} value={oppDeck} onChange={setOppDeck} label="Gegner-Kreisel" />
+              <DeckPicker db={db} value={oppDeck} onChange={setOppDeck} label={tr('Gegner-Kreisel')} />
             </>
           )}
           <button type="button" class="btn btn-primary" onClick={start} disabled={!ready}>
-            {log.length ? 'Weiter' : "Los geht's"}
+            {log.length ? tr('Weiter') : tr('Los geht\'s')}
           </button>
         </div>
       ) : (
@@ -231,16 +232,16 @@ function LiveMatchInner({ db, state, update, onClose }: Props) {
           <div class="live-mid">
             {over ? (
               <>
-                <strong class={me >= target ? 'win' : 'lose'}>{me >= target ? 'Du gewinnst!' : 'Gegner gewinnt'}</strong>
+                <strong class={me >= target ? 'win' : 'lose'}>{me >= target ? tr('Du gewinnst!') : tr('Gegner gewinnt')}</strong>
                 <button type="button" class="btn btn-primary btn-sm" onClick={restart}>
-                  Neues Match
+                  {tr('Neues Match')}
                 </button>
               </>
             ) : (
-              <span class="muted">Runde {log.length + 1}</span>
+              <span class="muted">{tr('Runde')} {log.length + 1}</span>
             )}
             <button type="button" class="btn btn-sm" onClick={undo} disabled={!log.length}>
-              <Undo2 aria-hidden="true" /> Rückgängig
+              <Undo2 aria-hidden="true" /> {tr('Rückgängig')}
             </button>
           </div>
           {pad(true)}
@@ -248,10 +249,10 @@ function LiveMatchInner({ db, state, update, onClose }: Props) {
       )}
       {asking && (
         <ConfirmSheet
-          title="Match beenden?"
-          note={withBeys ? 'Die bisherigen Runden bleiben im Tagebuch.' : 'Der Spielstand geht verloren.'}
-          confirmLabel="Beenden"
-          cancelLabel="Weiterspielen"
+          title={tr('Match beenden?')}
+          note={withBeys ? tr('Die bisherigen Runden bleiben im Tagebuch.') : tr('Der Spielstand geht verloren.')}
+          confirmLabel={tr('Beenden')}
+          cancelLabel={tr('Weiterspielen')}
           icon={Flag}
           onConfirm={onClose}
           onClose={() => setAsking(false)}

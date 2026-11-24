@@ -1,3 +1,4 @@
+import { tr } from '../lib/i18n';
 import { createPortal } from "preact/compat";
 import { useEffect, useState } from "preact/hooks";
 import {
@@ -31,7 +32,7 @@ export function UndoToast() {
               dismissUndo(notice.id);
             }}
           >
-            <RotateCcw aria-hidden="true" /> Rückgängig
+            <RotateCcw aria-hidden="true" /> {tr('Rückgängig')}
           </button>
         </div>
       )}

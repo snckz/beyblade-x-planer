@@ -1,3 +1,4 @@
+import { tr } from '../lib/i18n';
 import { createPortal, memo } from 'preact/compat';
 import { useModal } from '../lib/useModal';
 import { bothNames, displayName, otherName } from '../lib/names';
@@ -40,13 +41,13 @@ export function PartField(props: FieldProps) {
   const bit = kind === 'bit' ? props.bits?.find((b) => b.id === value) : undefined;
   const ratchet = kind === 'ratchet' ? props.ratchets?.find((r) => r.id === value) : undefined;
 
-  let main = `${label} wählen`;
+  let main = tr('{0} wählen', label);
   let title = '';
   let sub = '';
   let type: BeyType | undefined;
   if (blade) {
     main = bothNames(blade);
-    sub = `${blade.line}${blade.spin === 'left' ? ' · Linksdreher' : ''}${blade.integratedRatchet ? ' · Ratchet integriert' : ''}`;
+    sub = `${blade.line}${blade.spin === 'left' ? tr(' · Linksdreher') : ''}${blade.integratedRatchet ? tr(' · Ratchet integriert') : ''}`;
     title = displayName(blade);
     type = blade.type;
   } else if (bit) {
@@ -120,7 +121,7 @@ export function PartField(props: FieldProps) {
         <span class="part-art">{cardArt ?? <span class="part-empty">{disabled ? <Link2 aria-hidden="true" /> : <Plus aria-hidden="true" />}</span>}</span>
         <span class="part-text">
           <span class="part-kind">{label}</span>
-          <span class={filled ? 'part-main' : 'part-main placeholder'}>{filled ? bit ? <BitName bit={bit} /> : title : disabled ? (disabledText ?? '—') : `${label} wählen`}</span>
+          <span class={filled ? 'part-main' : 'part-main placeholder'}>{filled ? bit ? <BitName bit={bit} /> : title : disabled ? (disabledText ?? '—') : tr('{0} wählen', label)}</span>
           {filled && (type || sub) && (
             <span class="part-sub">
               {type && <span class={`part-type type-fg-${type}`}>{TYPE_LABEL[type]}</span>}
@@ -319,32 +320,32 @@ function PickerSheet({ kind, label, blades = NO_BLADES, ratchets = NO_RATCHETS, 
 
   return (
     <div class="sheet-backdrop" onClick={(e) => e.target === e.currentTarget && close()}>
-      <div ref={ref} class="sheet glass picker-sheet" role="dialog" aria-modal="true" aria-label={`${label}-Auswahl`} tabIndex={-1}>
+      <div ref={ref} class="sheet glass picker-sheet" role="dialog" aria-modal="true" aria-label={tr('{0}-Auswahl', label)} tabIndex={-1}>
         <div class="sheet-grab" aria-hidden="true" />
         <div class="win-head">
           <div class="win-heading">
-            <h2 class="win-title">{label}-Auswahl</h2>
+            <h2 class="win-title">{label}{tr('-Auswahl')}</h2>
             <p class="win-sub win-sub-plain">{PICK_HINT[kind]}</p>
           </div>
-          <button type="button" class="icon-btn win-close" onClick={close} aria-label="Schließen">
+          <button type="button" class="icon-btn win-close" onClick={close} aria-label={tr('Schließen')}>
             <X aria-hidden="true" />
           </button>
         </div>
         <div class={`picker-tools${kind === 'ratchet' ? ' picker-tools-ratchet' : ''}`}>
           <div class="search-field">
             <Search aria-hidden="true" />
-            <input type="search" placeholder={SEARCH_HINT[kind]} value={query} onInput={(e) => setQuery(e.currentTarget.value)} aria-label="Suchen" enterkeyhint="search" autocomplete="off" autocorrect="off" spellcheck={false} />
+            <input type="search" placeholder={SEARCH_HINT[kind]} value={query} onInput={(e) => setQuery(e.currentTarget.value)} aria-label={tr('Suchen')} enterkeyhint="search" autocomplete="off" autocorrect="off" spellcheck={false} />
             {query && (
-              <button type="button" class="search-clear" onClick={() => setQuery('')} aria-label="Suche leeren">
+              <button type="button" class="search-clear" onClick={() => setQuery('')} aria-label={tr('Suche leeren')}>
                 <X aria-hidden="true" />
               </button>
             )}
           </div>
           {kind === 'ratchet' ? (
             <>
-              <div class="type-filter teeth-filter" role="group" aria-label="Nach Zacken filtern">
+              <div class="type-filter teeth-filter" role="group" aria-label={tr('Nach Zacken filtern')}>
                 <button type="button" class={`chip type-chip type-chip-all${chipValue === '' ? ' chip-on' : ''}`} aria-pressed={chipValue === ''} onClick={() => setCategory('')}>
-                  Alle
+                  {tr('Alle')}
                 </button>
                 {groups.map((g) => (
                   <button key={g.id} type="button" class={`chip type-chip teeth-chip${chipValue === g.id ? ' chip-on' : ''}`} aria-pressed={chipValue === g.id} aria-label={`${g.value} ${g.caption}`} onClick={() => setCategory(chipValue === g.id ? '' : g.id)}>
@@ -353,9 +354,9 @@ function PickerSheet({ kind, label, blades = NO_BLADES, ratchets = NO_RATCHETS, 
                   </button>
                 ))}
               </div>
-              <div class="height-filter" role="group" aria-label="Nach Höhe filtern">
+              <div class="height-filter" role="group" aria-label={tr('Nach Höhe filtern')}>
                 <button type="button" class={`chip height-chip${height == null ? ' chip-on' : ''}`} aria-pressed={height == null} onClick={() => setHeight(null)}>
-                  Jede Höhe
+                  {tr('Jede Höhe')}
                 </button>
                 {heights.map((h) => (
                   <button key={h} type="button" class={`chip height-chip${height === h ? ' chip-on' : ''}`} aria-pressed={height === h} onClick={() => setHeight(height === h ? null : h)}>
@@ -365,9 +366,9 @@ function PickerSheet({ kind, label, blades = NO_BLADES, ratchets = NO_RATCHETS, 
               </div>
             </>
           ) : (
-            <div class="type-filter" role="group" aria-label="Nach Typ filtern">
+            <div class="type-filter" role="group" aria-label={tr('Nach Typ filtern')}>
               <button type="button" class={`chip type-chip type-chip-all${chipValue === '' ? ' chip-on' : ''}`} aria-pressed={chipValue === ''} onClick={() => setCategory('')}>
-                Alle
+                {tr('Alle')}
               </button>
               {(['attack', 'defense', 'stamina', 'balance'] as const).map((t) => {
                 const Icon = TYPE_ICON[t];
@@ -463,7 +464,7 @@ const PickerPage = memo(function PickerPage({ kind, cat, query, height, value, c
   const shown = useProgressive(bladeList.length + ratchetList.length + bitList.length, isBusy);
   if (kind === 'blade') {
     const list = bladeList.slice(0, shown);
-    if (!list.length) return <p class="muted center">Nichts gefunden.</p>;
+    if (!list.length) return <p class="muted center">{tr('Nichts gefunden.')}</p>;
     return (
       <div class="grid grid-blades">
         {list.map((b) => {
@@ -483,7 +484,7 @@ const PickerPage = memo(function PickerPage({ kind, cat, query, height, value, c
                   {TYPE_LABEL[b.type]}
                 </span>
                 {b.spin === 'left' && (
-                  <span class="mini-badge mini-badge-icon" role="img" aria-label="Linksdreher">
+                  <span class="mini-badge mini-badge-icon" role="img" aria-label={tr('Linksdreher')}>
                     <RotateCcw aria-hidden="true" />
                   </span>
                 )}
@@ -502,14 +503,14 @@ const PickerPage = memo(function PickerPage({ kind, cat, query, height, value, c
       const anyFilter = !!q || !!cat || height != null;
       return (
         <div class="picker-empty" role="status">
-          <p class="picker-empty-title">Kein Ratchet gefunden</p>
+          <p class="picker-empty-title">{tr('Kein Ratchet gefunden')}</p>
           <p class="muted">
-            {query.trim() ? `Zu „${query.trim()}“ passt kein Ratchet` : 'Kein Ratchet passt'}
-            {cat || height != null ? ' mit den gewählten Filtern.' : '.'}
+            {query.trim() ? tr('Zu „{0}“ passt kein Ratchet', query.trim()) : tr('Kein Ratchet passt')}
+            {cat || height != null ? tr(' mit den gewählten Filtern.') : '.'}
           </p>
           {anyFilter && (
             <button type="button" class="btn btn-sm" onClick={onReset}>
-              Suche und Filter zurücksetzen
+              {tr('Suche und Filter zurücksetzen')}
             </button>
           )}
         </div>
@@ -531,7 +532,7 @@ const PickerPage = memo(function PickerPage({ kind, cat, query, height, value, c
               {r.heightMm != null && (
                 <span>
                   <MoveVertical aria-hidden="true" />
-                  <span class="sr-only">Höhe </span>
+                  <span class="sr-only">{tr('Höhe')} </span>
                   {heightMm(r.heightMm)}
                 </span>
               )}
@@ -544,7 +545,7 @@ const PickerPage = memo(function PickerPage({ kind, cat, query, height, value, c
   }
 
   const list = bitList.slice(0, shown);
-  if (!list.length) return <p class="muted center">Nichts gefunden.</p>;
+  if (!list.length) return <p class="muted center">{tr('Nichts gefunden.')}</p>;
   return (
     <div class="grid grid-bits">
       {list.map((b) => {
@@ -590,20 +591,20 @@ function pageSources(
 }
 
 /** Zacken eines Ratchets; Sonderformen (ohne Angabe in den Daten) bekommen keine erfundene Zahl. */
-const teeth = (n?: number | null) => (n == null ? 'Sonderform' : n === 1 ? '1 Zacke' : `${n} Zacken`);
+const teeth = (n?: number | null) => (n == null ? tr('Sonderform') : n === 1 ? tr('1 Zacke') : tr('{0} Zacken', n));
 /** Höhe mit deutschem Komma, z. B. „6,0 mm“. */
 const heightMm = (mm?: number | null) => (mm == null ? '' : heightLabel(mm));
 
 const TYPE_ICON = { attack: Swords, defense: Shield, stamina: Timer, balance: Scale } as const;
 
 const SEARCH_HINT: Record<Kind, string> = {
-  blade: 'Blade suchen …',
-  ratchet: 'Ratchet suchen (z. B. 3-60) …',
-  bit: 'Bit suchen (z. B. LF) …',
+  blade: tr('Blade suchen …'),
+  ratchet: tr('Ratchet suchen (z. B. 3-60) …'),
+  bit: tr('Bit suchen (z. B. LF) …'),
 };
 
 const PICK_HINT: Record<Kind, string> = {
-  blade: 'Wähle eine Blade für deine Kombo.',
-  ratchet: 'Wähle ein Ratchet für deine Kombo.',
-  bit: 'Wähle ein Bit für deine Kombo.',
+  blade: tr('Wähle eine Blade für deine Kombo.'),
+  ratchet: tr('Wähle ein Ratchet für deine Kombo.'),
+  bit: tr('Wähle ein Bit für deine Kombo.'),
 };

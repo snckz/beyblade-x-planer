@@ -1,3 +1,4 @@
+import { tr } from './i18n';
 import { groupKey } from './price';
 import { normalizeGtin, validGtin } from './barcode';
 import type { BarcodeFeed, Blade, Database, EventFeed, ImageIndex, MetaFeed, NewsFeed, Product, Rates } from './types';
@@ -150,6 +151,6 @@ export const purchaseCodes = (products: Product[], p: Product): string[] => purc
 export function contentLabel(items: Pick<Product, 'bladeId' | 'ratchetId' | 'bitId'>[]): string {
   const beys = items.filter((p) => p.bladeId).length;
   const loose = items.filter((p) => !p.bladeId).reduce((n, p) => n + (p.ratchetId ? 1 : 0) + (p.bitId ? 1 : 0), 0);
-  const parts = [beys ? `${beys} Kreisel` : '', loose ? `${loose} ${loose === 1 ? 'Teil' : 'Teile'}` : ''].filter(Boolean);
+  const parts = [beys ? tr('{0} Kreisel', beys) : '', loose ? `${loose} ${loose === 1 ? tr('Teil') : tr('Teile')}` : ''].filter(Boolean);
   return parts.join(' + ');
 }

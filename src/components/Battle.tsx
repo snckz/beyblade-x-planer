@@ -1,3 +1,4 @@
+import { tr } from '../lib/i18n';
 import { useMemo, useState } from 'preact/hooks';
 import type { Combo, Database, MetaFeed } from '../lib/types';
 import type { UserState } from '../lib/storage';
@@ -76,15 +77,15 @@ export function Battle(props: Props) {
     update((s) => ({ ...s, combos: s.combos.map((c) => (c.id === comboId ? { ...c, bitId: to.bitId, ratchetId: to.ratchetId } : c)) }));
 
   const verdict = (score: number) =>
-    score >= 15 ? 'Klarer Vorteil für dich' : score >= 5 ? 'Leichter Vorteil für dich' : score > -5 ? 'Ausgeglichen' : score > -15 ? 'Leichter Nachteil' : 'Klarer Nachteil';
+    score >= 15 ? tr('Klarer Vorteil für dich') : score >= 5 ? tr('Leichter Vorteil für dich') : score > -5 ? tr('Ausgeglichen') : score > -15 ? tr('Leichter Nachteil') : tr('Klarer Nachteil');
 
   return (
     <div class="stack">
       <button type="button" class="card glass live-cta" onClick={() => setLive(true)}>
         <span class="live-cta-icon" aria-hidden="true">▶</span>
         <span>
-          <strong>Live-Match starten</strong>
-          <small>Punkte zählen im Stadion – landet automatisch im Tagebuch</small>
+          <strong>{tr('Live-Match starten')}</strong>
+          <small>{tr('Punkte zählen im Stadion – landet automatisch im Tagebuch')}</small>
         </span>
       </button>
       {live && <LiveMatch db={db} state={state} update={update} onClose={() => setLive(false)} />}
@@ -93,36 +94,36 @@ export function Battle(props: Props) {
 
       <span id="gegner" class="anchor" aria-hidden="true" />
       <Section
-        title={`Gegner-Deck (${state.opponent.length}/3)`}
+        title={tr('Gegner-Deck ({0}/3)', state.opponent.length)}
         aside={
           state.opponent.length > 0 && (
             <button type="button" class="btn btn-ghost" onClick={() => update((s) => ({ ...s, opponent: [] }))}>
-              Leeren
+              {tr('Leeren')}
             </button>
           )
         }
       >
         <div class="card glass stack-sm">
-          {state.opponent.length === 0 && <p class="muted">Trag ein, was dein Gegner spielt. Ohne Eingabe vergleiche ich mit typischen Gegnern.</p>}
+          {state.opponent.length === 0 && <p class="muted">{tr('Trag ein, was dein Gegner spielt. Ohne Eingabe vergleiche ich mit typischen Gegnern.')}</p>}
           {state.opponent.map((c, i) => (
             <div key={c.id} class="opp-row">
               <span class="slot-no">{i + 1}</span>
-              <ComboPicker db={db} value={c} label={`Gegner ${i + 1}`} onChange={(v) => setOpp(i, v)} />
-              <button type="button" class="icon-btn" onClick={() => removeOpp(i)} aria-label={`Gegner ${i + 1} entfernen`}>
+              <ComboPicker db={db} value={c} label={tr('Gegner {0}', i + 1)} onChange={(v) => setOpp(i, v)} />
+              <button type="button" class="icon-btn" onClick={() => removeOpp(i)} aria-label={tr('Gegner {0} entfernen', i + 1)}>
                 ×
               </button>
             </div>
           ))}
           {state.opponent.length < 3 && (
             <button type="button" class="btn" onClick={addOpp}>
-              + Gegner-Kreisel
+              {tr('+ Gegner-Kreisel')}
             </button>
           )}
         </div>
       </Section>
 
       {duel && (
-        <Section title={usingArchetypes ? 'Analyse gegen typische Gegner' : 'Matchup-Analyse'}>
+        <Section title={usingArchetypes ? tr('Analyse gegen typische Gegner') : tr('Matchup-Analyse')}>
           <div class="card glass stack-sm">
             <div class="duel-verdict">
               <span class={`verdict-score ${duel.overall >= 5 ? 'win' : duel.overall <= -5 ? 'lose' : 'even'}`}>
@@ -131,7 +132,7 @@ export function Battle(props: Props) {
               </span>
               <div>
                 <p class="row-title">{verdict(duel.overall)}</p>
-                <p class="fineprint">Durchschnitt über alle Paarungen · Richtwert, keine Simulation</p>
+                <p class="fineprint">{tr('Durchschnitt über alle Paarungen · Richtwert, keine Simulation')}</p>
               </div>
             </div>
             <div class="matrix-wrap">
@@ -139,7 +140,7 @@ export function Battle(props: Props) {
                 <thead>
                   <tr>
                     <th scope="col">
-                      <span class="sr-only">Mein Kreisel</span>
+                      <span class="sr-only">{tr('Mein Kreisel')}</span>
                     </th>
                     {opponents.map((o) => (
                       <th key={o.combo.id} scope="col" title={o.combo.name ? `${o.combo.name} (${o.analysis.label})` : o.analysis.label}>
@@ -164,7 +165,7 @@ export function Battle(props: Props) {
                         <TwoLine name={m.combo.name} label={m.analysis.label} />
                       </th>
                       {duel.matrix[i]!.map((mu, j) => (
-                        <td key={j} class={`cell-${tone(mu)}`} title={mu.reasons.join(' · ') || 'Ausgeglichen'}>
+                        <td key={j} class={`cell-${tone(mu)}`} title={mu.reasons.join(' · ') || tr('Ausgeglichen')}>
                           {mu.chance}%
                         </td>
                       ))}
@@ -173,17 +174,17 @@ export function Battle(props: Props) {
                 </tbody>
               </table>
             </div>
-            <p class="fineprint">Prozent = grobe Siegchance deines Kreisels (Zeile) gegen den Gegner (Spalte).</p>
+            <p class="fineprint">{tr('Prozent = grobe Siegchance deines Kreisels (Zeile) gegen den Gegner (Spalte).')}</p>
             {!usingArchetypes && mine.length >= 2 && (
               <div class="order">
-                <p class="eyebrow">Empfohlene Reihenfolge gegen diese Gegner-Reihenfolge</p>
+                <p class="eyebrow">{tr('Empfohlene Reihenfolge gegen diese Gegner-Reihenfolge')}</p>
                 <ol>
                   {duel.bestOrder.map((i, slot) => {
                     const m = mine[i]!;
                     const mu = duel.matrix[i]![slot]!;
                     return (
                       <li key={m.combo.id}>
-                        <strong>{m.combo.name ?? nb(m.analysis.label)}</strong> gegen {opponents[slot]!.combo.name ?? nb(opponents[slot]!.analysis.label)}{' '}
+                        <strong>{m.combo.name ?? nb(m.analysis.label)}</strong> {tr('gegen')} {opponents[slot]!.combo.name ?? nb(opponents[slot]!.analysis.label)}{' '}
                         <span class={`chance ${tone(mu)}`}>{mu.chance}%</span>
                         {mu.reasons[0] && <span class="row-sub"> · {mu.reasons[0]}</span>}
                       </li>
@@ -197,12 +198,12 @@ export function Battle(props: Props) {
       )}
 
       {duel && (
-        <Section title="Verbesserungen">
+        <Section title={tr('Verbesserungen')}>
           <div class="card glass stack-sm">
             {hasParts && (
               <label class="toggle">
                 <input type="checkbox" checked={onlyOwned} onChange={(e) => setOnlyOwned(e.currentTarget.checked)} />
-                <span>Nur Teile aus meiner Sammlung vorschlagen</span>
+                <span>{tr('Nur Teile aus meiner Sammlung vorschlagen')}</span>
               </label>
             )}
             {suggestions.length ? (
@@ -216,16 +217,16 @@ export function Battle(props: Props) {
                         <span class="suggestion-swap">
                           <span class="suggestion-part">{s.part}</span>
                           <span class="mini-badge">{s.oldId}</span>
-                          <ArrowRight aria-label="wird zu" />
+                          <ArrowRight aria-label={tr('wird zu')} />
                           <span class="mini-badge suggestion-new">{s.newId}</span>
-                          <span class="gain">+{s.gain} Punkte</span>
+                          <span class="gain">+{s.gain} {tr('Punkte')}</span>
                         </span>
-                        <span class="row-sub">Neu: {nb(s.newLabel)} · im Schnitt gegen diese Gegner</span>
+                        <span class="row-sub">{tr('Neu:')} {nb(s.newLabel)} {tr('· im Schnitt gegen diese Gegner')}</span>
                       </div>
                       <div class="suggestion-side">
                         <TypeChip type={toBey(db, s.to)!.analysis.type} />
-                        <button type="button" class="btn btn-sm" onClick={() => apply(m.combo.id, s.to)} aria-label={`${s.part} ${s.oldId} durch ${s.newId} ersetzen`}>
-                          Übernehmen
+                        <button type="button" class="btn btn-sm" onClick={() => apply(m.combo.id, s.to)} aria-label={tr('{0} {1} durch {2} ersetzen', s.part, s.oldId, s.newId)}>
+                          {tr('Übernehmen')}
                         </button>
                       </div>
                     </li>
@@ -233,7 +234,7 @@ export function Battle(props: Props) {
                 })}
               </ul>
             ) : (
-              <p class="muted">Kein Tausch bringt einen klaren Vorteil – dein Deck ist für diese Gegner schon gut eingestellt.</p>
+              <p class="muted">{tr('Kein Tausch bringt einen klaren Vorteil – dein Deck ist für diese Gegner schon gut eingestellt.')}</p>
             )}
           </div>
         </Section>

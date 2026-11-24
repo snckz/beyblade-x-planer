@@ -1,3 +1,4 @@
+import { tr, NUM_LOCALE } from '../lib/i18n';
 import { ThumbsDown, ThumbsUp } from 'lucide-preact';
 import type { ComponentChildren } from 'preact';
 import { TYPE_HINT, nb, type Analysis, type Resolved } from '../lib/analysis';
@@ -13,7 +14,7 @@ export function ComboNow({ resolved, result, children }: { resolved: Resolved; r
   return (
     <section class={`ref-card combo-now aura-${result.type}`} aria-labelledby="combo-now-h">
       <h3 id="combo-now-h" class="block-h">
-        Aktuelle Kombo
+        {tr('Aktuelle Kombo')}
       </h3>
       <div class="combo-now-body">
         <ComboStage resolved={resolved} />
@@ -36,10 +37,10 @@ export function ComboNow({ resolved, result, children }: { resolved: Resolved; r
             </div>
           ))}
           <div class="combo-bar combo-bar-total">
-            <dt>Gesamt</dt>
+            <dt>{tr('Gesamt')}</dt>
             <dd>
               {totalScore(result.profile)}
-              <span class="combo-bar-of" aria-label="von 400">
+              <span class="combo-bar-of" aria-label={tr('von 400')}>
                 {' '}
                 / 400
               </span>
@@ -77,11 +78,11 @@ export function Performance({ result, weightG }: { result: Analysis; weightG?: n
     <section class="ref-card perf" aria-labelledby="perf-h">
       <div class="block-head">
         <h3 id="perf-h" class="block-h">
-          Leistungsbewertung
+          {tr('Leistungsbewertung')}
         </h3>
-        <span class="est-tag">Schätzwerte</span>
+        <span class="est-tag">{tr('Schätzwerte')}</span>
       </div>
-      <svg class="perf-chart" viewBox={`0 0 ${SIZE.w} ${SIZE.h}`} role="img" aria-label={`Leistungsbewertung von 0 bis 100: ${summary}`}>
+      <svg class="perf-chart" viewBox={`0 0 ${SIZE.w} ${SIZE.h}`} role="img" aria-label={tr('Leistungsbewertung von 0 bis 100: {0}', summary)}>
         <defs>
           <linearGradient id="perf-fill" x1="0" y1="0" x2="1" y2="1">
             <stop offset="0" stop-color="#ff5d74" stop-opacity=".78" />
@@ -105,7 +106,19 @@ export function Performance({ result, weightG }: { result: Analysis; weightG?: n
           return (
             <g key={m.key} aria-hidden="true">
               <text class="perf-label" x={pos.x} y={pos.y} text-anchor={pos.anchor}>
-                {m.label}
+                {/* Links und rechts ist wenig Platz: lange Bezeichnungen aus zwei Wörtern („Burst resistance“) stehen zweizeilig */}
+                {pos.anchor !== 'middle' && m.label.length > 12 && m.label.includes(' ') ? (
+                  <>
+                    <tspan x={pos.x} dy="-14">
+                      {m.label.slice(0, m.label.indexOf(' '))}
+                    </tspan>
+                    <tspan x={pos.x} dy="14">
+                      {m.label.slice(m.label.indexOf(' ') + 1)}
+                    </tspan>
+                  </>
+                ) : (
+                  m.label
+                )}
               </text>
               <text class="perf-value" x={pos.x} y={pos.y + 21} text-anchor={pos.anchor}>
                 {values[i]}
@@ -115,8 +128,8 @@ export function Performance({ result, weightG }: { result: Analysis; weightG?: n
         })}
       </svg>
       <p class="fineprint">
-        Richtwerte von 0 bis 100 aus Teile-Typen, Ratchet-Form
-        {typeof weightG === 'number' ? ` und dem echten Blade-Gewicht (${weightG.toLocaleString('de-DE')} g)` : ''} – keine Messwerte.
+        {tr('Richtwerte von 0 bis 100 aus Teile-Typen, Ratchet-Form')}
+        {typeof weightG === 'number' ? tr(' und dem echten Blade-Gewicht ({0} g)', weightG.toLocaleString(NUM_LOCALE)) : ''} {tr('– keine Messwerte.')}
       </p>
     </section>
   );
@@ -128,13 +141,13 @@ export function Verdict({ result }: { result: Analysis }) {
   return (
     <section class="ref-card fazit" aria-labelledby="fazit-h">
       <h3 id="fazit-h" class="block-h">
-        Fazit
+        {tr('Fazit')}
       </h3>
       <p class="fazit-lead">{TYPE_HINT[result.type]}</p>
       <div class="fazit-cols">
         <div>
           <p class="fazit-tag good">
-            <ThumbsUp aria-hidden="true" /> Stärken
+            <ThumbsUp aria-hidden="true" /> {tr('Stärken')}
           </p>
           {strong.length ? (
             <ul class="fazit-list">
@@ -143,12 +156,12 @@ export function Verdict({ result }: { result: Analysis }) {
               ))}
             </ul>
           ) : (
-            <p class="fazit-none">Kein Wert sticht heraus.</p>
+            <p class="fazit-none">{tr('Kein Wert sticht heraus.')}</p>
           )}
         </div>
         <div>
           <p class="fazit-tag bad">
-            <ThumbsDown aria-hidden="true" /> Schwächen
+            <ThumbsDown aria-hidden="true" /> {tr('Schwächen')}
           </p>
           {weak.length ? (
             <ul class="fazit-list">
@@ -157,7 +170,7 @@ export function Verdict({ result }: { result: Analysis }) {
               ))}
             </ul>
           ) : (
-            <p class="fazit-none">Keine auffällige Schwäche.</p>
+            <p class="fazit-none">{tr('Keine auffällige Schwäche.')}</p>
           )}
         </div>
       </div>

@@ -1,3 +1,4 @@
+import { tr, NUM_LOCALE, DATE_LOCALE } from '../lib/i18n';
 import { displayName, displayProductName, regionLabel } from '../lib/names';
 import { BladePhoto } from './BeyImage';
 import { BitImage, RatchetImage } from './BitImage';
@@ -9,6 +10,7 @@ import type { UserState } from '../lib/storage';
 import { exportState, importState } from '../lib/storage';
 import { ownedParts, purchaseCodes } from '../lib/data';
 import { Empty, Section, TypeChip } from './ui';
+import { LanguageSetting } from './LanguagePrompt';
 import { useApp } from '../lib/context';
 import { Scanner } from './Scanner';
 import { Transfer } from './Transfer';
@@ -62,19 +64,19 @@ export function Collection({ db, state, update, events = [], meta }: Props) {
   const wishProducts = state.wishlist.map((c) => db.products.find((p) => p.code === c)).filter((p): p is (typeof db.products)[number] => !!p);
   const wishSum = sumPrices(wishProducts);
   const wishConv = convert(wishSum.jpy, rates);
-  const fmt = (n: number) => new Intl.NumberFormat('de-DE', { maximumFractionDigits: 0 }).format(n);
+  const fmt = (n: number) => new Intl.NumberFormat(NUM_LOCALE, { maximumFractionDigits: 0 }).format(n);
   const releases = wishReleases(db, state, events);
   const releaseOf = (code: string) => releases.find((r) => r.product.code === code);
   const upcoming = releases.filter((r) => r.status === 'upcoming');
-  const fmtDate = (d: string) => new Date(`${d}T12:00:00`).toLocaleDateString('de-AT', { day: 'numeric', month: 'short' });
+  const fmtDate = (d: string) => new Date(`${d}T12:00:00`).toLocaleDateString(DATE_LOCALE, { day: 'numeric', month: 'short' });
   const toCalendar = () =>
     downloadIcs(
       upcoming.map((r) => ({
         uid: `release-${r.product.code}`,
         date: r.date,
-        title: `Beyblade X Release: ${r.product.name}`,
-        location: 'Japan (Takara Tomy)',
-        description: `${r.product.code} von deiner Wunschliste erscheint heute in Japan.`,
+        title: tr('Beyblade X Release: {0}', r.product.name),
+        location: tr('Japan (Takara Tomy)'),
+        description: tr('{0} von deiner Wunschliste erscheint heute in Japan.', r.product.code),
       })),
       'beyblade-wunschliste.ics',
     );
@@ -103,13 +105,13 @@ export function Collection({ db, state, update, events = [], meta }: Props) {
   const swipeRemoveProduct = (code: string) => {
     const before = state.owned[code] ?? 0;
     removeProduct(code);
-    showUndo(`„${productName(code)}“ aus der Sammlung entfernt`, () => update((s) => ({ ...s, owned: { ...s.owned, [code]: (s.owned[code] ?? 0) + before } })));
+    showUndo(tr('„{0}“ aus der Sammlung entfernt', productName(code)), () => update((s) => ({ ...s, owned: { ...s.owned, [code]: (s.owned[code] ?? 0) + before } })));
   };
   const unwish = (code: string) => update((s) => ({ ...s, wishlist: s.wishlist.filter((c) => c !== code) }));
   const swipeUnwish = (code: string) => {
     const at = state.wishlist.indexOf(code);
     unwish(code);
-    showUndo(`„${productName(code)}“ von der Wunschliste genommen`, () =>
+    showUndo(tr('„{0}“ von der Wunschliste genommen', productName(code)), () =>
       update((s) => (s.wishlist.includes(code) ? s : { ...s, wishlist: [...s.wishlist.slice(0, at), code, ...s.wishlist.slice(at)] })),
     );
   };
@@ -133,7 +135,7 @@ export function Collection({ db, state, update, events = [], meta }: Props) {
     try {
       setPendingImport(importState(await file.text()));
     } catch {
-      setMsg('Die Datei konnte nicht gelesen werden.');
+      setMsg(tr('Die Datei konnte nicht gelesen werden.'));
     } finally {
       if (fileRef.current) fileRef.current.value = '';
     }
@@ -145,7 +147,7 @@ export function Collection({ db, state, update, events = [], meta }: Props) {
         <dl class="stat-strip">
           <div>
             <dd>{total}</dd>
-            <dt>Packungen</dt>
+            <dt>{tr('Packungen')}</dt>
           </div>
           <div>
             <dd>{parts.blades.size}</dd>
@@ -162,12 +164,12 @@ export function Collection({ db, state, update, events = [], meta }: Props) {
         </dl>
       )}
       {ownedProducts.length > 0 && (
-        <div class="progress-line" role="img" aria-label={`${parts.blades.size} von ${db.blades.length} Blades gesammelt`}>
+        <div class="progress-line" role="img" aria-label={tr('{0} von {1} Blades gesammelt', parts.blades.size, db.blades.length)}>
           <span class="progress-track">
             <span style={{ width: `${Math.max(2, Math.round((parts.blades.size / Math.max(1, db.blades.length)) * 100))}%` }} />
           </span>
           <span class="progress-text">
-            {parts.blades.size} von {db.blades.length} Blades
+            {parts.blades.size} {tr('von')} {db.blades.length} Blades
           </span>
         </div>
       )}
@@ -177,8 +179,8 @@ export function Collection({ db, state, update, events = [], meta }: Props) {
             <path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3M7 8v8M10 8v8M13 8v8M16 8v8" />
           </svg>
           <span>
-            <strong>Packung scannen</strong>
-            <small>Barcode fotografieren – landet in der Sammlung</small>
+            <strong>{tr('Packung scannen')}</strong>
+            <small>{tr('Barcode fotografieren – landet in der Sammlung')}</small>
           </span>
         </button>
         <button type="button" class="card glass scan-cta" onClick={() => setPhoto(true)}>
@@ -187,8 +189,8 @@ export function Collection({ db, state, update, events = [], meta }: Props) {
             <circle cx="12" cy="13" r="3.5" />
           </svg>
           <span>
-            <strong>Kauf-Check</strong>
-            <small>Foto oder Name – lohnt sich die Packung?</small>
+            <strong>{tr('Kauf-Check')}</strong>
+            <small>{tr('Foto oder Name – lohnt sich die Packung?')}</small>
           </span>
         </button>
       </div>
@@ -201,22 +203,22 @@ export function Collection({ db, state, update, events = [], meta }: Props) {
           <section class="section">
             <div class="section-head">
               {/* Antippen öffnet die Vitrine mit allen Kreiseln */}
-              <button type="button" class="section-link" onClick={() => setShowcase(true)} aria-label="Alle meine Kreisel ansehen">
-                <h2>Meine Produkte</h2>
-                <span class="section-link-hint">Alle ansehen ›</span>
+              <button type="button" class="section-link" onClick={() => setShowcase(true)} aria-label={tr('Alle meine Kreisel ansehen')}>
+                <h2>{tr('Meine Produkte')}</h2>
+                <span class="section-link-hint">{tr('Alle ansehen ›')}</span>
               </button>
               {editing ? (
                 <div class="btn-row-tight">
                   <button type="button" class="btn btn-sm" onClick={() => setAdding(true)}>
-                    + Hinzufügen
+                    {tr('+ Hinzufügen')}
                   </button>
                   <button type="button" class="btn btn-sm btn-primary" onClick={() => setEditing(false)}>
-                    Fertig
+                    {tr('Fertig')}
                   </button>
                 </div>
               ) : (
                 <button type="button" class="btn btn-ghost" onClick={() => setEditing(true)}>
-                  Bearbeiten
+                  {tr('Bearbeiten')}
                 </button>
               )}
             </div>
@@ -228,7 +230,7 @@ export function Collection({ db, state, update, events = [], meta }: Props) {
                 const bit = b ? undefined : db.bits.find((x) => x.id === p.bitId);
                 const isNew = p.code.startsWith('TBA');
                 return (
-                  <SwipeRow key={p.code} class={`tile-bey${b ? ` aura-${b.type}` : ''}`} deleteLabel={`${p.name} aus der Sammlung entfernen`} onDelete={() => swipeRemoveProduct(p.code)}>
+                  <SwipeRow key={p.code} class={`tile-bey${b ? ` aura-${b.type}` : ''}`} deleteLabel={tr('{0} aus der Sammlung entfernen', p.name)} onDelete={() => swipeRemoveProduct(p.code)}>
                     <div class="tile-top">
                       <span class={`region-tag ${p.region === 'hasbro' ? 'hasbro' : 'takara'}`}>{regionLabel(p)}</span>
                       {!editing && <span class="count">{state.owned[p.code]}×</span>}
@@ -242,7 +244,7 @@ export function Collection({ db, state, update, events = [], meta }: Props) {
                           {bit && <BitImage bit={bit} size="card" />}
                         </span>
                       ) : (
-                        <span class="code">{isNew ? 'neu' : p.code}</span>
+                        <span class="code">{isNew ? tr('neu') : p.code}</span>
                       )}
                     </div>
                     <div class="tile-text">
@@ -253,12 +255,12 @@ export function Collection({ db, state, update, events = [], meta }: Props) {
                       </span>
                     </div>
                     {editing && (
-                      <div class="stepper stepper-sm" aria-label={`Anzahl ${p.name}`}>
-                        <button type="button" onClick={() => changeOwned(p.code, -1)} aria-label={(state.owned[p.code] ?? 0) <= 1 ? `${p.name} aus der Sammlung entfernen` : 'Eins weniger'}>
+                      <div class="stepper stepper-sm" aria-label={tr('Anzahl {0}', p.name)}>
+                        <button type="button" onClick={() => changeOwned(p.code, -1)} aria-label={(state.owned[p.code] ?? 0) <= 1 ? tr('{0} aus der Sammlung entfernen', p.name) : tr('Eins weniger')}>
                           {(state.owned[p.code] ?? 0) <= 1 ? '×' : '−'}
                         </button>
                         <span aria-live="polite">{state.owned[p.code]}</span>
-                        <button type="button" onClick={() => changeOwned(p.code, 1)} aria-label="Eins mehr">
+                        <button type="button" onClick={() => changeOwned(p.code, 1)} aria-label={tr('Eins mehr')}>
                           +
                         </button>
                       </div>
@@ -268,7 +270,7 @@ export function Collection({ db, state, update, events = [], meta }: Props) {
               })}
             </ul>
           </section>
-          <Section title="Teile zum Kombinieren">
+          <Section title={tr('Teile zum Kombinieren')}>
             <div class="card parts-grid">
               {(
                 [
@@ -297,18 +299,18 @@ export function Collection({ db, state, update, events = [], meta }: Props) {
           </Section>
         </>
       ) : (
-        <Empty title="Deine Sammlung ist leer">
-          <p>Tipp auf „Produkte hinzufügen“ und trag mit + ein, was du hast – oder nimm den Kauf-Check mit der Nummer von der Packung.</p>
+        <Empty title={tr('Deine Sammlung ist leer')}>
+          <p>{tr('Tipp auf „Produkte hinzufügen“ und trag mit + ein, was du hast – oder nimm den Kauf-Check mit der Nummer von der Packung.')}</p>
           <button type="button" class="btn btn-primary" onClick={() => setAdding(true)}>
-            Produkte hinzufügen
+            {tr('Produkte hinzufügen')}
           </button>
         </Empty>
       )}
       <Section
-        title={`Wunschliste${wishProducts.length ? ` (${wishProducts.length})` : ''}`}
+        title={tr('Wunschliste{0}', wishProducts.length ? ` (${wishProducts.length})` : '')}
         aside={
           <button type="button" class="btn btn-sm" onClick={() => setShop(true)}>
-            <ShoppingCart aria-hidden="true" /> Einkaufsmodus
+            <ShoppingCart aria-hidden="true" /> {tr('Einkaufsmodus')}
           </button>
         }
       >
@@ -319,30 +321,30 @@ export function Collection({ db, state, update, events = [], meta }: Props) {
                 const price = priceHint(p, rates);
                 const rel = releaseOf(p.code);
                 return (
-                  <SwipeRow key={p.code} class="row" deleteLabel={`${p.name} von der Wunschliste nehmen`} onlyDelete onDelete={() => swipeUnwish(p.code)}>
+                  <SwipeRow key={p.code} class="row" deleteLabel={tr('{0} von der Wunschliste nehmen', p.name)} onlyDelete onDelete={() => swipeUnwish(p.code)}>
                     <div class="row-main">
                       <span class="row-title">{nb(displayProductName(p, db))}</span>
                       <span class="row-sub">
-                        {p.code} · {price ?? 'Preis unbekannt'}
+                        {p.code} · {price ?? tr('Preis unbekannt')}
                       </span>
                       {rel && (
                         <span class={`release-tag ${rel.status}`}>
-                          {rel.status === 'new' ? `Neu erschienen (${fmtDate(rel.date)})` : rel.days === 0 ? 'Erscheint heute' : `Erscheint am ${fmtDate(rel.date)}`}
+                          {rel.status === 'new' ? tr('Neu erschienen ({0})', fmtDate(rel.date)) : rel.days === 0 ? tr('Erscheint heute') : tr('Erscheint am {0}', fmtDate(rel.date))}
                         </span>
                       )}
                     </div>
-                    <button type="button" class="buy-q" onClick={() => openCheck(p.code)} aria-label={`Soll ich ${p.name} kaufen?`}>
-                      Kaufen?
+                    <button type="button" class="buy-q" onClick={() => openCheck(p.code)} aria-label={tr('Soll ich {0} kaufen?', p.name)}>
+                      {tr('Kaufen?')}
                     </button>
-                    <button type="button" class="btn btn-ghost btn-sm" onClick={() => gotIt(p.code)} aria-label={`${p.name} gekauft: in die Sammlung`}>
-                      Gekauft
+                    <button type="button" class="btn btn-ghost btn-sm" onClick={() => gotIt(p.code)} aria-label={tr('{0} gekauft: in die Sammlung', p.name)}>
+                      {tr('Gekauft')}
                     </button>
                   </SwipeRow>
                 );
               })}
             </ul>
             <div class="wish-total">
-              <span>Summe Japan-Preis</span>
+              <span>{tr('Summe Japan-Preis')}</span>
               <strong>
                 {wishSum.jpy ? yen(wishSum.jpy) : '–'}
                 {wishSum.jpy > 0 && wishConv && (
@@ -355,17 +357,16 @@ export function Collection({ db, state, update, events = [], meta }: Props) {
             </div>
             {upcoming.length > 0 && (
               <button type="button" class="btn" onClick={toCalendar}>
-                <CalendarPlus aria-hidden="true" /> {upcoming.length === 1 ? 'Release-Termin' : `${upcoming.length} Release-Termine`} in den Kalender
+                <CalendarPlus aria-hidden="true" /> {upcoming.length === 1 ? tr('Release-Termin') : tr('{0} Release-Termine', upcoming.length)} {tr('in den Kalender')}
               </button>
             )}
             <p class="fineprint">
-              Japan-Verkaufspreis (Takara Tomy) laut Beyblade Wiki{wishSum.missing ? `, ${wishSum.missing} ohne Preis` : ''}. In Thailand und Europa (Hasbro) weichen die Preise ab – als grober
-              Richtwert zum Vergleichen.
-              {rates && ` Kurs: EZB vom ${new Date(`${rates.date}T12:00:00`).toLocaleDateString('de-AT')}.`}
+              {tr('Japan-Verkaufspreis (Takara Tomy) laut Beyblade Wiki')}{wishSum.missing ? tr(', {0} ohne Preis', wishSum.missing) : ''}{tr('. In Thailand und Europa (Hasbro) weichen die Preise ab – als grober Richtwert zum Vergleichen.')}
+              {rates && tr(' Kurs: EZB vom {0}.', new Date(`${rates.date}T12:00:00`).toLocaleDateString(DATE_LOCALE))}
             </p>
           </div>
         ) : (
-          <p class="muted">Tippe im Lexikon unter „Karten“ auf den Stern, um Kreisel vorzumerken. Hier siehst du dann, was sie ungefähr kosten.</p>
+          <p class="muted">{tr('Tippe im Lexikon unter „Karten“ auf den Stern, um Kreisel vorzumerken. Hier siehst du dann, was sie ungefähr kosten.')}</p>
         )}
       </Section>
 
@@ -374,36 +375,40 @@ export function Collection({ db, state, update, events = [], meta }: Props) {
 
       {unknownCodes.length > 0 && (
         <p class="fineprint">
-          Nicht mehr in der Datenbank: {unknownCodes.join(', ')}{' '}
+          {tr('Nicht mehr in der Datenbank:')} {unknownCodes.join(', ')}{' '}
           <button type="button" class="link-btn" onClick={() => update((s) => ({ ...s, owned: Object.fromEntries(Object.entries(s.owned).filter(([c]) => !unknownCodes.includes(c))) }))}>
-            entfernen
+            {tr('entfernen')}
           </button>
         </p>
       )}
 
       {isAndroidBrowser() && (
-        <Section title="Android-App">
+        <Section title={tr('Android-App')}>
           <div class="card">
-            <p class="muted">X-Planer gibt es auch als App für Android – mit Kamera-Scan, Teilen und ohne Browserleiste. Deine Daten nimmst du mit „Auf anderes Gerät“ mit.</p>
+            <p class="muted">{tr('X-Planer gibt es auch als App für Android – mit Kamera-Scan, Teilen und ohne Browserleiste. Deine Daten nimmst du mit „Auf anderes Gerät“ mit.')}</p>
             <a class="btn btn-primary" href="https://github.com/snckz/beyblade-x-planer/releases/latest" target="_blank" rel="noopener noreferrer">
-              App herunterladen (APK)
+              {tr('App herunterladen (APK)')}
             </a>
           </div>
         </Section>
       )}
 
-      <Section title="Sichern">
+      <Section title={tr('Sprache')}>
+        <LanguageSetting />
+      </Section>
+
+      <Section title={tr('Sichern')}>
         <div class="card">
-          <p class="muted">Deine Daten liegen auf diesem Gerät. Übertrag sie per QR-Code auf ein anderes Gerät oder sichere sie als Datei.</p>
+          <p class="muted">{tr('Deine Daten liegen auf diesem Gerät. Übertrag sie per QR-Code auf ein anderes Gerät oder sichere sie als Datei.')}</p>
           <div class="btn-row">
             <button type="button" class="btn btn-primary" onClick={() => setTransfer(true)}>
-              Auf anderes Gerät
+              {tr('Auf anderes Gerät')}
             </button>
             <button type="button" class="btn" onClick={doExport}>
-              Exportieren
+              {tr('Exportieren')}
             </button>
             <button type="button" class="btn" onClick={() => fileRef.current?.click()}>
-              Importieren
+              {tr('Importieren')}
             </button>
             <input ref={fileRef} type="file" accept="application/json,.json" hidden onChange={(e) => void doImport(e.currentTarget.files?.[0])} />
           </div>
@@ -417,9 +422,9 @@ export function Collection({ db, state, update, events = [], meta }: Props) {
       {transfer && <Transfer state={state} update={update} onClose={() => setTransfer(false)} />}
       {pendingRemove && (
         <ConfirmSheet
-          title="Aus der Sammlung entfernen?"
-          note="Teile, die nur in diesem Produkt stecken, fehlen dann beim Kombinieren."
-          confirmLabel="Entfernen"
+          title={tr('Aus der Sammlung entfernen?')}
+          note={tr('Teile, die nur in diesem Produkt stecken, fehlen dann beim Kombinieren.')}
+          confirmLabel={tr('Entfernen')}
           onConfirm={() => removeProduct(pendingRemove)}
           onClose={() => setPendingRemove(null)}
         >
@@ -431,19 +436,19 @@ export function Collection({ db, state, update, events = [], meta }: Props) {
       )}
       {pendingImport && (
         <ConfirmSheet
-          title="Daten ersetzen?"
-          note="Sammlung, Kombos und Deck auf diesem Gerät werden durch die Datei ersetzt."
-          confirmLabel="Ersetzen"
+          title={tr('Daten ersetzen?')}
+          note={tr('Sammlung, Kombos und Deck auf diesem Gerät werden durch die Datei ersetzt.')}
+          confirmLabel={tr('Ersetzen')}
           icon={FileDown}
           onConfirm={() => {
             update(() => pendingImport);
-            setMsg('Import erfolgreich.');
+            setMsg(tr('Import erfolgreich.'));
           }}
           onClose={() => setPendingImport(null)}
         >
           <p class="confirm-parts">
-            <span>{Object.keys(pendingImport.owned).length} Produkte</span>
-            <span>{pendingImport.combos.length} Kombos</span>
+            <span>{Object.keys(pendingImport.owned).length} {tr('Produkte')}</span>
+            <span>{pendingImport.combos.length} {tr('Kombos')}</span>
           </p>
         </ConfirmSheet>
       )}

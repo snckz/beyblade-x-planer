@@ -1,3 +1,4 @@
+import { tr } from '../lib/i18n';
 import type { ComponentChildren } from 'preact';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import type { Bit, Ratchet } from '../lib/types';
@@ -28,7 +29,7 @@ function PartPhoto({ src, alt, size, fallback, zoom }: PhotoProps) {
       <button
         type="button"
         class={`bit-img bit-img-${size} zoom`}
-        aria-label={`${alt}: Bild vergrößern`}
+        aria-label={tr('{0}: Bild vergrößern', alt)}
         onClick={(e) => {
           // Liegt das Bild in einem <summary>, soll Antippen nur vergrößern, nicht auf-/zuklappen.
           e.preventDefault();

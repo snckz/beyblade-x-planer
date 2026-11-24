@@ -1,6 +1,7 @@
+import { tr, NUM_LOCALE } from './i18n';
 import type { Product, Rates } from './types';
 
-const nf = (max = 0) => new Intl.NumberFormat('de-DE', { maximumFractionDigits: max });
+const nf = (max = 0) => new Intl.NumberFormat(NUM_LOCALE, { maximumFractionDigits: max });
 
 /** „¥2.321“ */
 export const yen = (jpy: number) => `¥${nf().format(jpy)}`;
@@ -14,7 +15,7 @@ export function convert(jpy: number, rates: Rates | null): { eur: number; thb: n
 
 type Priced = Pick<Product, 'priceJpy'> & Partial<Pick<Product, 'code' | 'kind' | 'priceUsd'>>;
 
-const usd = (n: number) => `$${n.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+const usd = (n: number) => `$${n.toLocaleString(NUM_LOCALE, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 /** Vergleichspreis in € und ฿: Japan-Preis (Takara) oder – bei Hasbro – der US-Preis. */
 export function refPrice(p: Priced, rates: Rates | null): { eur: number; thb: number; label: string; from: 'jp' | 'us' } | null {
@@ -62,12 +63,12 @@ export function parsePrice(raw: string): number | null {
 export function priceHint(p: Priced, rates: Rates | null): string | null {
   if (!p.priceJpy && p.priceUsd) {
     const r = refPrice(p, rates);
-    return r ? `US-Preis ${usd(p.priceUsd)} ≈ ${nf().format(r.eur)} € · ${nf().format(r.thb)} ฿` : `US-Preis ${usd(p.priceUsd)}`;
+    return r ? tr('US-Preis {0} ≈ {1} € · {2} ฿', usd(p.priceUsd), nf().format(r.eur), nf().format(r.thb)) : tr('US-Preis {0}', usd(p.priceUsd));
   }
   if (!p.priceJpy) return null;
   const c = convert(p.priceJpy, rates);
   const text = c ? `${yen(p.priceJpy)} ≈ ${nf().format(c.eur)} € · ${nf().format(c.thb)} ฿` : yen(p.priceJpy);
-  return p.kind === 'set' ? `Set: ${text}` : text;
+  return p.kind === 'set' ? tr('Set: {0}', text) : text;
 }
 
 /** Summe einer Liste: bekannte Preise addiert (jedes Set nur einmal), Anzahl ohne Preis separat. */
@@ -105,4 +106,4 @@ export function shopVerdict(amount: number, cur: 'THB' | 'EUR', p: Priced, rates
   return { verdict: ratio <= good ? 'good' : ratio <= ok ? 'ok' : 'high', ratio };
 }
 
-export const VERDICT_LABEL: Record<Verdict, string> = { good: 'Guter Preis', ok: 'Geht so', high: 'Teuer' };
+export const VERDICT_LABEL: Record<Verdict, string> = { good: tr('Guter Preis'), ok: tr('Geht so'), high: tr('Teuer') };

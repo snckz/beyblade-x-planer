@@ -1,3 +1,4 @@
+import { tr } from '../lib/i18n';
 import { createPortal } from 'preact/compat';
 import { useRef, useState } from 'preact/hooks';
 import { FINISH, type Finish } from '../lib/matches';
@@ -35,7 +36,7 @@ function DuelScorerInner({ left, right, target, onDone, onClose }: Props) {
         {s === 0 ? l : r}
         <small>/{target}</small>
       </span>
-      <div class="live-btns" role="group" aria-label={`Punkte für ${s === 0 ? left : right}`}>
+      <div class="live-btns" role="group" aria-label={tr('Punkte für {0}', s === 0 ? left : right)}>
         {(Object.keys(FINISH) as Finish[]).map((f) => (
           <button
             key={f}
@@ -45,7 +46,7 @@ function DuelScorerInner({ left, right, target, onDone, onClose }: Props) {
               setLog((x) => [...x, { side: s, finish: f }]);
               navigator.vibrate?.(30);
             }}
-            aria-label={`${FINISH[f].label}-Finish für ${s === 0 ? left : right}, ${FINISH[f].points} Punkte`}
+            aria-label={tr('{0}-Finish für {1}, {2} Punkte', FINISH[f].label, s === 0 ? left : right, FINISH[f].points)}
           >
             <strong>{FINISH[f].label}</strong>
             <small>+{FINISH[f].points}</small>
@@ -56,34 +57,34 @@ function DuelScorerInner({ left, right, target, onDone, onClose }: Props) {
   );
 
   return (
-    <div ref={ref} class="live" role="dialog" aria-modal="true" aria-label={`${left} gegen ${right}`} tabIndex={-1}>
+    <div ref={ref} class="live" role="dialog" aria-modal="true" aria-label={tr('{0} gegen {1}', left, right)} tabIndex={-1}>
       <div class="live-bar">
         <button type="button" class="btn btn-sm" onClick={close}>
-          Schließen
+          {tr('Schließen')}
         </button>
-        <span class="live-title">Turnier-Match</span>
+        <span class="live-title">{tr('Turnier-Match')}</span>
         <span class="btn-sm" aria-hidden="true" />
       </div>
       {side(0)}
       <div class="live-mid">
         {over ? (
           <button type="button" class="btn btn-primary" onClick={() => onDone(l, r)}>
-            Ergebnis {l}:{r} eintragen
+            {tr('Ergebnis')} {l}:{r} {tr('eintragen')}
           </button>
         ) : (
-          <span class="muted">Runde {log.length + 1}</span>
+          <span class="muted">{tr('Runde')} {log.length + 1}</span>
         )}
         <button type="button" class="btn btn-sm" onClick={() => setLog((x) => x.slice(0, -1))} disabled={!log.length}>
-          <Undo2 aria-hidden="true" /> Rückgängig
+          <Undo2 aria-hidden="true" /> {tr('Rückgängig')}
         </button>
       </div>
       {side(1)}
       {asking && (
         <ConfirmSheet
-          title={over ? 'Ergebnis nicht eingetragen' : 'Zähler schließen?'}
-          note={over ? `Das Ergebnis ${l}:${r} wird dann nicht ins Turnier übernommen.` : 'Der Zwischenstand geht verloren.'}
-          confirmLabel="Schließen"
-          cancelLabel="Weiterzählen"
+          title={over ? tr('Ergebnis nicht eingetragen') : tr('Zähler schließen?')}
+          note={over ? tr('Das Ergebnis {0}:{1} wird dann nicht ins Turnier übernommen.', l, r) : tr('Der Zwischenstand geht verloren.')}
+          confirmLabel={tr('Schließen')}
+          cancelLabel={tr('Weiterzählen')}
           icon={LogOut}
           onConfirm={onClose}
           onClose={() => setAsking(false)}

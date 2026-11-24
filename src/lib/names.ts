@@ -1,3 +1,4 @@
+import { tr } from './i18n';
 import type { Blade, Database, Product } from './types';
 
 // Namen: Überall der englische Hasbro-Name (wie auf den Packungen in Europa/USA), falls es einen gibt.
@@ -12,7 +13,7 @@ const hasOther = (b: Pick<Blade, 'name' | 'hasbroName'>) => !!b.hasbroName && le
 export const displayName = (b: Pick<Blade, 'name' | 'hasbroName'>) => (hasOther(b) ? b.hasbroName! : b.name);
 
 /** Takara-Name als Untertitel, falls er sich unterscheidet: „Japan: Wizard Rod“. */
-export const otherName = (b: Pick<Blade, 'name' | 'hasbroName'>) => (hasOther(b) ? `Japan: ${b.name}` : null);
+export const otherName = (b: Pick<Blade, 'name' | 'hasbroName'>) => (hasOther(b) ? tr('Japan: {0}', b.name) : null);
 
 /** Beide Namen in einer Zeile: „Wand Wizard · Wizard Rod“ (gleiche Wörter → nur einer). */
 export const bothNames = (b: Pick<Blade, 'name' | 'hasbroName'>) => (hasOther(b) && words(b.hasbroName!) !== words(b.name) ? `${b.hasbroName} · ${b.name}` : displayName(b));

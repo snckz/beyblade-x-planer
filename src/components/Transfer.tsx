@@ -1,3 +1,4 @@
+import { tr } from '../lib/i18n';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import type { UserState } from '../lib/storage';
 import { decodeState, encodeState, extractCode, importError, isIosBrowserTab, mergeState, transferLink } from '../lib/transfer';
@@ -22,7 +23,7 @@ export function Transfer({ state, update, onClose }: { state: UserState; update:
         const { renderSVG } = await import('uqr');
         if (alive) setSvg(renderSVG(url, { border: 2, whiteColor: '#ffffff', blackColor: '#0b0c12' }));
       }
-    })().catch(() => setMsg('Link konnte nicht erstellt werden.'));
+    })().catch(() => setMsg(tr('Link konnte nicht erstellt werden.')));
     return () => {
       alive = false;
     };
@@ -39,7 +40,7 @@ export function Transfer({ state, update, onClose }: { state: UserState; update:
   const doImport = async () => {
     const code = extractCode(paste);
     if (!code) {
-      setMsg('Das ist kein gültiger Link oder Code.');
+      setMsg(tr('Das ist kein gültiger Link oder Code.'));
       return;
     }
     try {
@@ -52,40 +53,40 @@ export function Transfer({ state, update, onClose }: { state: UserState; update:
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(link);
-      setMsg('Link kopiert – auf dem anderen Gerät im Browser öffnen.');
+      setMsg(tr('Link kopiert – auf dem anderen Gerät im Browser öffnen.'));
     } catch {
-      setMsg('Kopieren nicht möglich – halte den Link gedrückt und kopiere ihn manuell.');
+      setMsg(tr('Kopieren nicht möglich – halte den Link gedrückt und kopiere ihn manuell.'));
     }
   };
   const share = async () => {
     try {
-      await navigator.share({ title: 'Beyblade X Planer – meine Daten', url: link });
+      await navigator.share({ title: tr('Beyblade X Planer – meine Daten'), url: link });
     } catch {
       /* abgebrochen */
     }
   };
 
   return (
-    <div ref={ref} tabIndex={-1} class="card glass stack-sm transfer" aria-label="Auf anderes Gerät übertragen">
-      <p class="row-title">Auf anderes Gerät übertragen</p>
-      <p class="muted">Scanne den Code mit dem anderen Gerät oder schick dir den Link. Dort wird alles mit den vorhandenen Daten zusammengeführt.</p>
+    <div ref={ref} tabIndex={-1} class="card glass stack-sm transfer" aria-label={tr('Auf anderes Gerät übertragen')}>
+      <p class="row-title">{tr('Auf anderes Gerät übertragen')}</p>
+      <p class="muted">{tr('Scanne den Code mit dem anderen Gerät oder schick dir den Link. Dort wird alles mit den vorhandenen Daten zusammengeführt.')}</p>
       {svg ? (
         // SVG stammt aus uqr (nur Pfade, kein Nutzer-HTML)
-        <div class="qr" role="img" aria-label="QR-Code mit deinen Daten" dangerouslySetInnerHTML={{ __html: svg }} />
+        <div class="qr" role="img" aria-label={tr('QR-Code mit deinen Daten')} dangerouslySetInnerHTML={{ __html: svg }} />
       ) : (
-        link && <p class="fineprint">Deine Daten sind zu umfangreich für einen QR-Code – nutze den Link.</p>
+        link && <p class="fineprint">{tr('Deine Daten sind zu umfangreich für einen QR-Code – nutze den Link.')}</p>
       )}
       <div class="btn-row">
         <button type="button" class="btn btn-primary" onClick={copy} disabled={!link}>
-          Link kopieren
+          {tr('Link kopieren')}
         </button>
         {'share' in navigator && (
           <button type="button" class="btn" onClick={share} disabled={!link}>
-            Teilen …
+            {tr('Teilen …')}
           </button>
         )}
         <button type="button" class="btn btn-ghost" onClick={onClose}>
-          Fertig
+          {tr('Fertig')}
         </button>
       </div>
       {msg && (
@@ -93,16 +94,16 @@ export function Transfer({ state, update, onClose }: { state: UserState; update:
           {msg}
         </p>
       )}
-      <p class="fineprint">Der Link enthält deine Daten. Schick ihn nur an dich selbst.</p>
+      <p class="fineprint">{tr('Der Link enthält deine Daten. Schick ihn nur an dich selbst.')}</p>
       <hr class="sep" />
-      <p class="row-title">Code einfügen</p>
+      <p class="row-title">{tr('Code einfügen')}</p>
       <p class="muted">
-        Hast du den Link von einem anderen Gerät kopiert? Füge ihn hier ein.
-        {isIosBrowserTab() ? ' Tipp: Nutzt du die App vom Home-Bildschirm, mach das dort – Safari und die App haben getrennten Speicher.' : ''}
+        {tr('Hast du den Link von einem anderen Gerät kopiert? Füge ihn hier ein.')}
+        {isIosBrowserTab() ? tr(' Tipp: Nutzt du die App vom Home-Bildschirm, mach das dort – Safari und die App haben getrennten Speicher.') : ''}
       </p>
-      <input type="text" inputMode="url" autoComplete="off" placeholder="Link oder Code einfügen …" value={paste} onInput={(e) => setPaste(e.currentTarget.value)} aria-label="Übertragungs-Link einfügen" />
+      <input type="text" inputMode="url" autoComplete="off" placeholder={tr('Link oder Code einfügen …')} value={paste} onInput={(e) => setPaste(e.currentTarget.value)} aria-label={tr('Übertragungs-Link einfügen')} />
       <button type="button" class="btn" onClick={doImport} disabled={!paste.trim()}>
-        Übernehmen
+        {tr('Übernehmen')}
       </button>
       {incoming && (
         <ImportConfirm
@@ -110,7 +111,7 @@ export function Transfer({ state, update, onClose }: { state: UserState; update:
           onConfirm={() => {
             update((s) => mergeState(s, incoming));
             setPaste('');
-            setMsg('Daten übernommen.');
+            setMsg(tr('Daten übernommen.'));
           }}
           onClose={() => setIncoming(null)}
         />

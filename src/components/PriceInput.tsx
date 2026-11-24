@@ -1,3 +1,4 @@
+import { tr, NUM_LOCALE } from '../lib/i18n';
 import { useEffect, useState } from 'preact/hooks';
 import type { ShopPrice } from '../lib/storage';
 import { parsePrice } from '../lib/price';
@@ -9,7 +10,7 @@ interface Props {
   onCommit: (v: ShopPrice | null) => void;
 }
 
-const show = (v: ShopPrice | null, cur: ShopPrice['cur']) => (v && v.cur === cur ? v.amount.toLocaleString('de-DE', { maximumFractionDigits: 2, useGrouping: false }) : '');
+const show = (v: ShopPrice | null, cur: ShopPrice['cur']) => (v && v.cur === cur ? v.amount.toLocaleString(NUM_LOCALE, { maximumFractionDigits: 2, useGrouping: false }) : '');
 
 /** Ladenpreis-Eingabe: tippt frei (auch „1,290“ oder „1.290“), übernimmt beim Verlassen oder Enter. */
 export function PriceInput({ value, cur, label, onCommit }: Props) {
@@ -39,7 +40,7 @@ export function PriceInput({ value, cur, label, onCommit }: Props) {
         <input
           type="text"
           inputMode="decimal"
-          placeholder="Ladenpreis"
+          placeholder={tr('Ladenpreis')}
           value={draft}
           onInput={(e) => setDraft(e.currentTarget.value)}
           onBlur={commit}
@@ -51,7 +52,7 @@ export function PriceInput({ value, cur, label, onCommit }: Props) {
       </label>
       {bad && (
         <span class="price-bad" role="alert">
-          Preis nicht erkannt – z. B. „1290“ oder „12,50“
+          {tr('Preis nicht erkannt – z. B. „1290“ oder „12,50“')}
         </span>
       )}
     </div>

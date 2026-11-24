@@ -1,3 +1,4 @@
+import { tr, dec, NUM_LOCALE, DATE_LOCALE } from '../lib/i18n';
 import { useRef, useState } from 'preact/hooks';
 import type { Database, MetaFeed, Product } from '../lib/types';
 import { PhotoCheck } from './PhotoCheck';
@@ -22,7 +23,7 @@ interface Props {
   onClose: () => void;
 }
 
-const fmt = (n: number) => new Intl.NumberFormat('de-DE', { maximumFractionDigits: 0 }).format(n);
+const fmt = (n: number) => new Intl.NumberFormat(NUM_LOCALE, { maximumFractionDigits: 0 }).format(n);
 
 /**
  * Einkaufsmodus fürs Geschäft: Wunschliste mit Japan-Vergleichspreis in Baht/Euro,
@@ -44,8 +45,8 @@ export function ShopMode({ db, state, update, meta, onClose }: Props) {
     const r = refPrice(p, rates);
     if (r) return `${r.label} ≈ ${fmt(cur === 'THB' ? r.thb : r.eur)} ${sym}`;
     if (p.priceJpy) return `Japan ${yen(p.priceJpy)}`;
-    if (p.priceUsd) return `USA $${p.priceUsd.toFixed(2).replace('.', ',')}`;
-    return 'Preis unbekannt';
+    if (p.priceUsd) return tr('USA ${0}', dec(p.priceUsd, 2));
+    return tr('Preis unbekannt');
   };
 
   const setPrice = (code: string, v: ShopPrice | null) =>
@@ -72,14 +73,14 @@ export function ShopMode({ db, state, update, meta, onClose }: Props) {
   const jpConv = convert(jp.jpy, rates);
 
   return (
-    <div ref={ref} class="live shop" role="dialog" aria-modal="true" aria-label="Einkaufsmodus" tabIndex={-1}>
+    <div ref={ref} class="live shop" role="dialog" aria-modal="true" aria-label={tr('Einkaufsmodus')} tabIndex={-1}>
       <div class="live-bar">
         <button type="button" class="btn btn-sm" onClick={close}>
-          Schließen
+          {tr('Schließen')}
         </button>
-        <span class="live-title">Einkaufsmodus</span>
+        <span class="live-title">{tr('Einkaufsmodus')}</span>
         <button type="button" class="btn btn-sm btn-primary" onClick={() => setScan(true)}>
-          Scannen
+          {tr('Scannen')}
         </button>
       </div>
 
@@ -90,32 +91,32 @@ export function ShopMode({ db, state, update, meta, onClose }: Props) {
             <circle cx="12" cy="13" r="3.5" />
           </svg>
           <span>
-            <strong>Kauf-Check: Foto oder Name</strong>
-            <small>Packung fotografieren oder eintippen – sofort Bewertung</small>
+            <strong>{tr('Kauf-Check: Foto oder Name')}</strong>
+            <small>{tr('Packung fotografieren oder eintippen – sofort Bewertung')}</small>
           </span>
         </button>
         <div class="shop-head">
-          <div class="segmented seg-2" role="group" aria-label="Währung im Laden">
+          <div class="segmented seg-2" role="group" aria-label={tr('Währung im Laden')}>
             <button type="button" class={cur === 'THB' ? 'on' : ''} aria-pressed={cur === 'THB'} onClick={() => setCur('THB')}>
-              Baht ฿
+              {tr('Baht ฿')}
             </button>
             <button type="button" class={cur === 'EUR' ? 'on' : ''} aria-pressed={cur === 'EUR'} onClick={() => setCur('EUR')}>
-              Euro €
+              {tr('Euro €')}
             </button>
           </div>
           {rates ? (
             <p class="fineprint">
-              1 € = {rates.THB.toLocaleString('de-DE', { maximumFractionDigits: 2 })} ฿ · Kurs vom {new Date(`${rates.date}T12:00:00`).toLocaleDateString('de-AT')}
+              1 € = {rates.THB.toLocaleString(NUM_LOCALE, { maximumFractionDigits: 2 })} {tr('฿ · Kurs vom')} {new Date(`${rates.date}T12:00:00`).toLocaleDateString(DATE_LOCALE)}
             </p>
           ) : (
-            <p class="fineprint">Keine Wechselkurse geladen – Vergleich erst nach einmal Online-Öffnen.</p>
+            <p class="fineprint">{tr('Keine Wechselkurse geladen – Vergleich erst nach einmal Online-Öffnen.')}</p>
           )}
         </div>
 
         <p class="fineprint">
-          Offline im Laden: Die App funktioniert ohne Internet.{' '}
+          {tr('Offline im Laden: Die App funktioniert ohne Internet.')}{' '}
           {offline === 'ok' ? (
-            'Foto-Erkennung ist offline bereit ✓'
+            tr('Foto-Erkennung ist offline bereit ✓')
           ) : (
             <button
               type="button"
@@ -127,12 +128,12 @@ export function ShopMode({ db, state, update, meta, onClose }: Props) {
               }}
             >
               {offline === 'busy'
-                ? 'Lade Foto-Erkennung (ca. 7 MB) …'
+                ? tr('Lade Foto-Erkennung (ca. 7 MB) …')
                 : offline === 'fail'
-                  ? 'Laden fehlgeschlagen – nochmal versuchen'
+                  ? tr('Laden fehlgeschlagen – nochmal versuchen')
                   : offline === 'nosw'
-                    ? 'Offline-Speicher noch nicht aktiv – App einmal neu öffnen und nochmal tippen'
-                    : 'Foto-Erkennung jetzt für offline laden (ca. 7 MB, am besten im WLAN)'}
+                    ? tr('Offline-Speicher noch nicht aktiv – App einmal neu öffnen und nochmal tippen')
+                    : tr('Foto-Erkennung jetzt für offline laden (ca. 7 MB, am besten im WLAN)')}
             </button>
           )}
         </p>
@@ -151,35 +152,35 @@ export function ShopMode({ db, state, update, meta, onClose }: Props) {
                       <span class="row-title">{nb(displayProductName(p, db))}</span>
                       <span class="row-sub">
                         {p.code} · {refLabel(p)}
-                        {p.kind === 'set' && ' (ganzes Set)'}
+                        {p.kind === 'set' && tr(' (ganzes Set)')}
                       </span>
                     </div>
                   </div>
                   <div class="shop-price">
-                    <PriceInput value={price ?? null} cur={cur} label={`Preis im Laden für ${p.name} in ${cur === 'THB' ? 'Baht' : 'Euro'}`} onCommit={(v) => setPrice(p.code, v)} />
+                    <PriceInput value={price ?? null} cur={cur} label={tr('Preis im Laden für {0} in {1}', p.name, cur === 'THB' ? 'Baht' : 'Euro')} onCommit={(v) => setPrice(p.code, v)} />
                     {v ? (
                       <span class={`verdict v-${v.verdict}`}>
                         {VERDICT_LABEL[v.verdict]}
-                        <small>{v.ratio < 1 ? `${Math.round((1 - v.ratio) * 100)} % unter Japan` : `+${Math.round((v.ratio - 1) * 100)} % zu Japan`}</small>
+                        <small>{v.ratio < 1 ? tr('{0} % unter Japan', Math.round((1 - v.ratio) * 100)) : tr('+{0} % zu Japan', Math.round((v.ratio - 1) * 100))}</small>
                       </span>
                     ) : price && !p.priceJpy ? (
-                      <span class="verdict">Kein Vergleich</span>
+                      <span class="verdict">{tr('Kein Vergleich')}</span>
                     ) : null}
                   </div>
                   {other && (
                     <p class="fineprint">
-                      Gemerkt: {fmt(price.amount)} {price.cur === 'THB' ? '฿' : '€'}
+                      {tr('Gemerkt:')} {fmt(price.amount)} {price.cur === 'THB' ? '฿' : '€'}
                     </p>
                   )}
                   <div class="btn-row">
                     <button type="button" class="btn btn-sm btn-primary" onClick={() => bought(p)}>
-                      <Check aria-hidden="true" /> Gekauft
+                      <Check aria-hidden="true" /> {tr('Gekauft')}
                     </button>
                     <button type="button" class="btn btn-sm" onClick={() => openCheck(p.code)}>
-                      Kaufen?
+                      {tr('Kaufen?')}
                     </button>
                     <button type="button" class="btn btn-sm btn-ghost" onClick={() => update((s) => ({ ...s, wishlist: s.wishlist.filter((c) => c !== p.code) }))}>
-                      Entfernen
+                      {tr('Entfernen')}
                     </button>
                   </div>
                 </li>
@@ -188,7 +189,7 @@ export function ShopMode({ db, state, update, meta, onClose }: Props) {
           </ul>
         ) : (
           <div class="card">
-            <p class="muted">Deine Wunschliste ist leer. Merk dir Kreisel im Lexikon (Stern) oder über den Kaufberater – dann stehen sie hier als Einkaufsliste.</p>
+            <p class="muted">{tr('Deine Wunschliste ist leer. Merk dir Kreisel im Lexikon (Stern) oder über den Kaufberater – dann stehen sie hier als Einkaufsliste.')}</p>
           </div>
         )}
 
@@ -196,7 +197,7 @@ export function ShopMode({ db, state, update, meta, onClose }: Props) {
           <div class="card wish-total-card">
             {seen.length > 0 && (
               <div class="wish-total">
-                <span>Ladenpreise ({seen.length})</span>
+                <span>{tr('Ladenpreise (')}{seen.length})</span>
                 <strong>
                   {fmt(seenSum)} {sym}
                   {cur === 'THB' && rates && <small> ≈ {fmt(seenSum / rates.THB)} €</small>}
@@ -204,7 +205,7 @@ export function ShopMode({ db, state, update, meta, onClose }: Props) {
               </div>
             )}
             <div class="wish-total">
-              <span>Japan-Preis gesamt</span>
+              <span>{tr('Japan-Preis gesamt')}</span>
               <strong>
                 {jp.jpy ? yen(jp.jpy) : '–'}
                 {jpConv && jp.jpy > 0 && (
@@ -216,8 +217,7 @@ export function ShopMode({ db, state, update, meta, onClose }: Props) {
               </strong>
             </div>
             <p class="fineprint">
-              Ampel: Takara bis +30 % zum Japan-Preis gut, bis +60 % okay. Hasbro: Vergleich mit dem US-Preis (ohne Steuer) – bis +70 % gut, bis +120 % okay. Takara-Tomy-Ware kostet außerhalb Japans fast immer mehr. Achte im Laden auf das Takara-Tomy-Logo – günstige
-              Kreisel ohne Logo sind oft Fälschungen.
+              {tr('Ampel: Takara bis +30 % zum Japan-Preis gut, bis +60 % okay. Hasbro: Vergleich mit dem US-Preis (ohne Steuer) – bis +70 % gut, bis +120 % okay. Takara-Tomy-Ware kostet außerhalb Japans fast immer mehr. Achte im Laden auf das Takara-Tomy-Logo – günstige Kreisel ohne Logo sind oft Fälschungen.')}
             </p>
           </div>
         )}

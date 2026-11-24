@@ -1,3 +1,4 @@
+import { tr, trData } from '../lib/i18n';
 import { useModal } from '../lib/useModal';
 import { displayName, displayProductName, otherName } from '../lib/names';
 import { useEffect, useRef } from 'preact/hooks';
@@ -19,8 +20,8 @@ interface Props {
   meta?: MetaFeed | null;
 }
 
-const LINE_NAME = { BX: 'Basic Line', UX: 'Unique Line', CX: 'Custom Line' } as const;
-const SPIN_LABEL = { right: 'Rechts', left: 'Links', both: 'Beide' } as const;
+const LINE_NAME = { BX: tr('Basic Line'), UX: tr('Unique Line'), CX: tr('Custom Line') } as const;
+const SPIN_LABEL = { right: tr('Rechts'), left: tr('Links'), both: tr('Beide') } as const;
 const SPIN_ICON = { right: RotateCw, left: RotateCcw, both: ArrowLeftRight } as const;
 const TYPE_ICON = { attack: Swords, defense: Shield, stamina: Timer, balance: Scale } as const;
 
@@ -48,8 +49,8 @@ export function DetailSheet({ db, events, bladeId, onClose, onUse, meta = null }
   const SpinIcon = SPIN_ICON[blade.spin];
   const japanName = otherName(blade) ? blade.name : null;
   // Gewicht: bevorzugt der ganze Kreisel laut Packung, sonst die Blade allein laut Wiki – jeweils so beschriftet.
-  const weightStat = weight ? { value: `${weight} g`, of: 'Kreisel' } : blade.weightG ? { value: `${blade.weightG} g`, of: 'Blade' } : null;
-  const codes = products.map((p) => (p.code.startsWith('TBA') ? 'Neuheit' : p.code)).join(', ');
+  const weightStat = weight ? { value: `${weight} g`, of: tr('Kreisel') } : blade.weightG ? { value: `${blade.weightG} g`, of: 'Blade' } : null;
+  const codes = products.map((p) => (p.code.startsWith('TBA') ? tr('Neuheit') : p.code)).join(', ');
 
   return (
     <div class="sheet-backdrop" onClick={(e) => e.target === e.currentTarget && close()}>
@@ -57,10 +58,10 @@ export function DetailSheet({ db, events, bladeId, onClose, onUse, meta = null }
         <div class="sheet-grab" aria-hidden="true" />
         <div class="win-head">
           <div class="win-heading">
-            <p class="win-title">Steckbrief</p>
-            <p class="win-sub">Beyblade X</p>
+            <p class="win-title">{tr('Steckbrief')}</p>
+            <p class="win-sub">{tr('Beyblade X')}</p>
           </div>
-          <button ref={closeRef} type="button" class="icon-btn win-close" onClick={close} aria-label="Schließen">
+          <button ref={closeRef} type="button" class="icon-btn win-close" onClick={close} aria-label={tr('Schließen')}>
             <X aria-hidden="true" />
           </button>
         </div>
@@ -75,7 +76,7 @@ export function DetailSheet({ db, events, bladeId, onClose, onUse, meta = null }
                 <h2 id="sheet-title" class="sb-name">
                   {displayName(blade)} <UnverifiedMark show={!blade.verified} />
                 </h2>
-                {japanName && <p class="sb-alt">Japan: {japanName}</p>}
+                {japanName && <p class="sb-alt">{tr('Japan:')} {japanName}</p>}
                 <span class="sb-type">
                   <TypeIcon aria-hidden="true" />
                   {TYPE_LABEL[blade.type]}
@@ -88,7 +89,7 @@ export function DetailSheet({ db, events, bladeId, onClose, onUse, meta = null }
                 <div class="sb-stat">
                   <Weight aria-hidden="true" />
                   <dt>
-                    <span class="sr-only">Gewicht </span>
+                    <span class="sr-only">{tr('Gewicht')} </span>
                     {weightStat.of}
                   </dt>
                   <dd>{weightStat.value}</dd>
@@ -96,7 +97,7 @@ export function DetailSheet({ db, events, bladeId, onClose, onUse, meta = null }
               )}
               <div class="sb-stat">
                 <SpinIcon aria-hidden="true" />
-                <dt>Drehrichtung</dt>
+                <dt>{tr('Drehrichtung')}</dt>
                 <dd>{SPIN_LABEL[blade.spin]}</dd>
               </div>
               <div class="sb-stat">
@@ -108,25 +109,25 @@ export function DetailSheet({ db, events, bladeId, onClose, onUse, meta = null }
 
             <section class="sb-card" aria-labelledby="details-h">
               <h3 id="details-h" class="sheet-h">
-                Details
+                {tr('Details')}
               </h3>
               <dl class="sb-rows">
                 <div class="sb-row">
                   <Cog aria-hidden="true" />
                   <dt>Ratchet</dt>
-                  <dd>{blade.integratedRatchet ? 'In Blade integriert' : 'Austauschbar'}</dd>
+                  <dd>{blade.integratedRatchet ? tr('In Blade integriert') : tr('Austauschbar')}</dd>
                 </div>
                 {japanName && (
                   <div class="sb-row">
                     <Languages aria-hidden="true" />
-                    <dt>Japanischer Name</dt>
+                    <dt>{tr('Japanischer Name')}</dt>
                     <dd>{japanName}</dd>
                   </div>
                 )}
                 {codes && (
                   <div class="sb-row">
                     <Package aria-hidden="true" />
-                    <dt>Erschienen in</dt>
+                    <dt>{tr('Erschienen in')}</dt>
                     <dd>{codes}</dd>
                   </div>
                 )}
@@ -135,17 +136,17 @@ export function DetailSheet({ db, events, bladeId, onClose, onUse, meta = null }
                     <CircleAlert aria-hidden="true" />
                     <dt>Release</dt>
                     <dd>
-                      <span class="sb-status">Angekündigt – {release.reason}</span>
+                      <span class="sb-status">{tr('Angekündigt –')} {trData(release.reason)}</span>
                     </dd>
                   </div>
                 )}
                 <div class="sb-row">
                   {blade.verified ? <BadgeCheck aria-hidden="true" /> : <CircleAlert aria-hidden="true" />}
-                  <dt>Datenstatus</dt>
+                  <dt>{tr('Datenstatus')}</dt>
                   <dd>
                     <span class={`sb-status${blade.verified ? ' ok' : ''}`}>
                       {blade.verified && <Check aria-hidden="true" />}
-                      {blade.verified ? 'Geprüft' : 'Ungeprüft'}
+                      {blade.verified ? tr('Geprüft') : tr('Ungeprüft')}
                     </span>
                   </dd>
                 </div>
@@ -155,21 +156,21 @@ export function DetailSheet({ db, events, bladeId, onClose, onUse, meta = null }
             {products.length > 0 && (
               <section class="sb-card" aria-labelledby="products-h">
                 <h3 id="products-h" class="sheet-h">
-                  Produkte
+                  {tr('Produkte')}
                 </h3>
                 <ul class="sb-products">
                   {products.map((p) => (
                     <li key={p.code}>
-                      <span class="sb-code">{p.code.startsWith('TBA') ? 'neu' : p.code}</span>
+                      <span class="sb-code">{p.code.startsWith('TBA') ? tr('neu') : p.code}</span>
                       <span class="sb-product-name">{displayProductName(p, db)}</span>
                       {p.kind !== 'stadium' && (
                         <button
                           type="button"
                           class={`sb-buy${ownedCount(p.code) ? ' have' : ''}`}
                           onClick={() => openCheck(p.code)}
-                          aria-label={ownedCount(p.code) ? `${p.name}: hast du schon` : `Soll ich ${p.name} kaufen?`}
+                          aria-label={ownedCount(p.code) ? tr('{0}: hast du schon', p.name) : tr('Soll ich {0} kaufen?', p.name)}
                         >
-                          <span>{ownedCount(p.code) ? <><Check aria-hidden="true" /> Hab ich</> : 'Kaufen?'}</span>
+                          <span>{ownedCount(p.code) ? <><Check aria-hidden="true" /> {tr('Hab ich')}</> : tr('Kaufen?')}</span>
                         </button>
                       )}
                     </li>
@@ -180,7 +181,7 @@ export function DetailSheet({ db, events, bladeId, onClose, onUse, meta = null }
 
             <section class="sb-card" aria-labelledby="traits-h">
               <h3 id="traits-h" class="sheet-h">
-                Besonderheiten
+                {tr('Besonderheiten')}
               </h3>
               <p class="sb-lead">{TYPE_HINT[blade.type]}</p>
               {traits.length > 0 && (
@@ -203,7 +204,7 @@ export function DetailSheet({ db, events, bladeId, onClose, onUse, meta = null }
             {related.length > 0 && (
               <section class="sb-card" aria-labelledby="events-h">
                 <h3 id="events-h" class="sheet-h">
-                  Termine
+                  {tr('Termine')}
                 </h3>
                 <ul class="sb-products">
                   {related.map((e) => (
@@ -223,16 +224,16 @@ export function DetailSheet({ db, events, bladeId, onClose, onUse, meta = null }
               {release.status === 'confirmed' ? (
                 <button type="button" class="sb-cta" onClick={() => onUse(blade.id)}>
                   <Shuffle aria-hidden="true" />
-                  <span>Im Kombo-Planer nutzen</span>
+                  <span>{tr('Im Kombo-Planer nutzen')}</span>
                   <ChevronRight aria-hidden="true" />
                 </button>
               ) : (
-                <p class="fineprint">Im Kombo-Planer wählbar, sobald {displayName(blade)} erschienen und geprüft ist.</p>
+                <p class="fineprint">{tr('Im Kombo-Planer wählbar, sobald')} {displayName(blade)} {tr('erschienen und geprüft ist.')}</p>
               )}
               {wiki && (
                 <a class="sb-wiki" href={wiki.page} target="_blank" rel="noopener noreferrer">
                   <BookOpen aria-hidden="true" />
-                  Im Beyblade Wiki
+                  {tr('Im Beyblade Wiki')}
                   <ArrowUpRight aria-hidden="true" />
                 </a>
               )}

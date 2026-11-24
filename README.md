@@ -75,6 +75,7 @@ Es gibt zwei Wege. Der erste ist der einfachere.
 - **Detailseiten:** Steckbrief im Wiki-Stil je Blade. Bilder werden direkt vom Beyblade Wiki verlinkt (nicht kopiert), mit Quellenlink; ohne Bild erscheint ein eigenes Emblem.
 - **Neuheiten-Radar:** GitHub Action durchsucht täglich das Beyblade Wiki nach neuen Produktnummern und zeigt Treffer im News-Tab.
 - **Wischen:** Zwischen den Hauptseiten (Kombo, Lexikon, Battle, Termine, Sammlung) blättert man mit einem Wisch nach links oder rechts – mit denselben Werten wie in den Auswahlfenstern (`src/lib/categorySwipe.ts`, `src/components/TabPager.tsx`). Alle Werte fürs Wischen und für die Fenster stehen zum Übernehmen in andere Apps in [`docs/wischen-und-fenster.md`](docs/wischen-und-fenster.md).
+- **Sprache:** Deutsch oder Englisch. Beim ersten Start wird einmal gefragt, später lässt sich die Sprache unter Sammlung → Sprache ändern.
 - **Offline:** Nach dem ersten Öffnen funktioniert die App auch ohne Internet.
 
 Daten zur Sammlung bleiben lokal auf dem Gerät (localStorage).
@@ -86,6 +87,14 @@ npm install
 npm run dev        # Entwicklungsserver
 npm run check      # Typecheck, Lint, Datenprüfung, Tests, Build
 ```
+
+## Sprache (Deutsch / Englisch)
+
+- Im Code stehen die deutschen Texte, eingewickelt in `tr('…')` (`src/lib/i18n.ts`). Der deutsche Text ist zugleich der Schlüssel; Platzhalter schreibt man als `tr('{0} von {1} Blades', a, b)`.
+- Die englischen Texte stehen in `src/lib/i18n.en.ts` (`EN`). **Neuer Text in der App = neuer Eintrag dort** – `tests/i18n.test.ts` schlägt sonst fehl (fehlende und verwaiste Einträge, Platzhalter, Leerzeichen am Rand).
+- Texte aus den Daten (Notizen zu Teilen, Termine) laufen über `trData(…)`: feste Übersetzungen in `EN_DATA`, Muster für erzeugte Texte in `EN_RULES`. Die Daten selbst bleiben deutsch; was dort neu dazukommt (z. B. ein Termin aus dem wöchentlichen Update), erscheint auf Englisch erst nach einem Eintrag in `EN_DATA`, bis dahin auf Deutsch.
+- Zahlen und Datumsangaben richten sich nach `NUM_LOCALE` / `DATE_LOCALE`.
+- Die Sprache steht für die Laufzeit fest (viele Texte sind Konstanten); ein Wechsel lädt die App neu. Das englische Wörterbuch ist ein eigener Programmteil und wird nur für Englisch geladen.
 
 ## Daten pflegen
 

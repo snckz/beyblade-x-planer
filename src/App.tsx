@@ -1,3 +1,4 @@
+import { tr, canStoreLang, storedLang } from './lib/i18n';
 import { displayName } from './lib/names';
 import { useCallback, useEffect, useMemo, useState } from 'preact/hooks';
 import type { BarcodeFeed, Database, EventFeed, ImageIndex, MetaFeed, NewsFeed, Rates } from './lib/types';
@@ -19,6 +20,7 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { UndoToast } from './components/UndoToast';
 import { lazy, Suspense } from 'preact/compat';
 import { TabPager } from './components/TabPager';
+import { LanguagePrompt } from './components/LanguagePrompt';
 import { rememberTab } from './lib/tabSwipe';
 
 // Tabs und selten genutzte Fenster erst bei Bedarf laden – der Start bleibt schlank.
@@ -63,37 +65,37 @@ const TABS: {
 }[] = [
   {
     id: 'builder',
-    label: 'Kombo',
-    title: 'Kombo-Planer',
-    kicker: 'Blade, Ratchet und Bit kombinieren und bewerten lassen.',
+    label: tr('Kombo'),
+    title: tr('Kombo-Planer'),
+    kicker: tr('Blade, Ratchet und Bit kombinieren und bewerten lassen.'),
     icon: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Zm0 5a4 4 0 1 1 0 8 4 4 0 0 1 0-8Z',
   },
   {
     id: 'parts',
-    label: 'Lexikon',
-    title: 'Lexikon',
-    kicker: 'Alle Blades, Ratchets und Bits mit Werten und Bildern.',
+    label: tr('Lexikon'),
+    title: tr('Lexikon'),
+    kicker: tr('Alle Blades, Ratchets und Bits mit Werten und Bildern.'),
     icon: 'M5 4h10a4 4 0 0 1 4 4v12H9a4 4 0 0 1-4-4zM5 16a4 4 0 0 1 4-4h10',
   },
   {
     id: 'battle',
     label: 'Battle',
     title: 'Battle',
-    kicker: 'Deck aufstellen, Gegner einschätzen, Punkte zählen.',
+    kicker: tr('Deck aufstellen, Gegner einschätzen, Punkte zählen.'),
     icon: 'M5 19 19 5M14 5h5v5M5 5l5 5M14 14l5 5M19 14v5h-5',
   },
   {
     id: 'events',
-    label: 'Termine',
-    title: 'Termine & News',
-    kicker: 'Neuerscheinungen, Turniere und Meldungen.',
+    label: tr('Termine'),
+    title: tr('Termine & News'),
+    kicker: tr('Neuerscheinungen, Turniere und Meldungen.'),
     icon: 'M5 6h14v14H5zM5 10h14M9 3v4M15 3v4',
   },
   {
     id: 'collection',
-    label: 'Sammlung',
-    title: 'Sammlung',
-    kicker: 'Was du hast, was dir fehlt und was sich lohnt.',
+    label: tr('Sammlung'),
+    title: tr('Sammlung'),
+    kicker: tr('Was du hast, was dir fehlt und was sich lohnt.'),
     icon: 'M4 7l8-4 8 4-8 4-8-4Zm0 5l8 4 8-4M4 17l8 4 8-4',
   },
 ];
@@ -135,6 +137,8 @@ export function App() {
   // Beim Wischen: Ziel in der Leiste schon markieren, sobald der Finger loslässt (die Seite rastet noch ein)
   const [previewTab, setPreviewTab] = useState<Tab | null>(null);
   const [, setPreloaded] = useState(false);
+  // Erster Start: einmal nach der Sprache fragen (nur wenn sich die Antwort auch merken lässt)
+  const [askLang, setAskLang] = useState(() => storedLang() === null && canStoreLang());
   const [storageOk, setStorageOk] = useState(true);
   const [detail, setDetail] = useState<string | null>(null);
   const [zoom, setZoom] = useState<{ id: string; kind: ImageKind } | null>(null);
@@ -149,7 +153,7 @@ export function App() {
     setError(null);
     loadDatabase()
       .then(setDb)
-      .catch(() => setError('Die Teile-Datenbank konnte nicht geladen werden. Prüfe deine Internetverbindung.'));
+      .catch(() => setError(tr('Die Teile-Datenbank konnte nicht geladen werden. Prüfe deine Internetverbindung.')));
     void loadNews().then(setNews);
     void loadImages().then(setImages);
     void loadEvents().then(setEvents);
@@ -285,11 +289,11 @@ export function App() {
   }, []);
 
   const spinner = (
-    <div class="loading" aria-busy="true" aria-label="Lädt">
+    <div class="loading" aria-busy="true" aria-label={tr('Lädt')}>
       <div class="spinner" />
     </div>
   );
-  const storageBanner = !storageOk && <p class="banner">Speichern auf diesem Gerät ist blockiert (z. B. privater Modus). Änderungen gehen beim Schließen verloren.</p>;
+  const storageBanner = !storageOk && <p class="banner">{tr('Speichern auf diesem Gerät ist blockiert (z. B. privater Modus). Änderungen gehen beim Schließen verloren.')}</p>;
   const pageHead = (id: Tab) => {
     const t = TABS.find((x) => x.id === id)!;
     return (
@@ -344,6 +348,8 @@ export function App() {
     </a>
   );
 
+  if (askLang) return <LanguagePrompt onDone={() => setAskLang(false)} />;
+
   return (
     <AppContext.Provider value={ctx}>
       <div class="app">
@@ -352,9 +358,9 @@ export function App() {
         </div>
         <header class="top glass-bar">
           <div class="brand">
-            <img class="brand-logo" src="./logo.webp" alt="Beyblade X" width="600" height="94" />
+            <img class="brand-logo" src="./logo.webp" alt={tr('Beyblade X')} width="600" height="94" />
           </div>
-          <nav class="tabs-top" aria-label="Hauptnavigation">
+          <nav class="tabs-top" aria-label={tr('Hauptnavigation')}>
             {TABS.map((t) => navLink(t, false))}
           </nav>
         </header>
@@ -368,7 +374,7 @@ export function App() {
                 <div class="card glass error" role="alert">
                   <p>{error}</p>
                   <button type="button" class="btn btn-primary" onClick={load}>
-                    Erneut versuchen
+                    {tr('Erneut versuchen')}
                   </button>
                 </div>
               ) : (
@@ -380,13 +386,13 @@ export function App() {
           )}
         </main>
 
-        <nav class="tabbar glass-bar" aria-label="Hauptnavigation">
+        <nav class="tabbar glass-bar" aria-label={tr('Hauptnavigation')}>
           {TABS.map((t) => navLink(t, true))}
         </nav>
         <UndoToast />
         {incoming && <ImportConfirm incoming={incoming} onConfirm={() => setState((s) => mergeState(s, incoming))} onClose={() => setIncoming(null)} />}
         {importFailed && (
-          <ConfirmSheet title="Übernehmen ging nicht" confirmLabel="OK" cancelLabel={null} icon={TriangleAlert} onConfirm={() => {}} onClose={() => setImportFailed(null)}>
+          <ConfirmSheet title={tr('Übernehmen ging nicht')} confirmLabel="OK" cancelLabel={null} icon={TriangleAlert} onConfirm={() => {}} onClose={() => setImportFailed(null)}>
             <p>{importFailed}</p>
           </ConfirmSheet>
         )}

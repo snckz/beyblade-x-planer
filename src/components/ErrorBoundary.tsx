@@ -1,3 +1,4 @@
+import { tr } from '../lib/i18n';
 import { Component, type ComponentChildren } from 'preact';
 
 const RELOAD_KEY = 'bxplaner:reloaded';
@@ -33,14 +34,14 @@ export class ErrorBoundary extends Component<{ children: ComponentChildren }, { 
     if (!this.state.error) return this.props.children;
     return (
       <div class="card glass stack-sm" role="alert" style={{ margin: '16px 0' }}>
-        <p class="row-title">Da ist etwas schiefgegangen</p>
-        <p class="muted">Meist hilft neu laden – zum Beispiel nach einem App-Update. Deine Sammlung und Kombos bleiben gespeichert.</p>
+        <p class="row-title">{tr('Da ist etwas schiefgegangen')}</p>
+        <p class="muted">{tr('Meist hilft neu laden – zum Beispiel nach einem App-Update. Deine Sammlung und Kombos bleiben gespeichert.')}</p>
         <div class="btn-row">
           <button type="button" class="btn btn-primary" onClick={() => window.location.reload()}>
-            Neu laden
+            {tr('Neu laden')}
           </button>
           <button type="button" class="btn" onClick={() => this.setState({ error: null })}>
-            Nochmal versuchen
+            {tr('Nochmal versuchen')}
           </button>
         </div>
       </div>

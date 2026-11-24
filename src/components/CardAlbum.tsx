@@ -1,3 +1,4 @@
+import { tr } from '../lib/i18n';
 import { displayProductName } from '../lib/names';
 import { useMemo, useState } from 'preact/hooks';
 import type { Database, Rarity } from '../lib/types';
@@ -66,7 +67,7 @@ export function CardAlbum({ db, state, update }: Props) {
             <small>/{cards.length}</small>
           </span>
           <div>
-            <p class="row-title">Karten gesammelt</p>
+            <p class="row-title">{tr('Karten gesammelt')}</p>
             <div class="progress" role="progressbar" aria-valuemin={0} aria-valuemax={cards.length} aria-valuenow={have}>
               <span style={{ width: `${cards.length ? (have / cards.length) * 100 : 0}%` }} />
             </div>
@@ -99,11 +100,11 @@ export function CardAlbum({ db, state, update }: Props) {
       <div class="filters album-filters">
         <label class="search-field">
           <Search aria-hidden="true" />
-          <input type="search" placeholder="Karte suchen: Name oder Code …" value={query} onInput={(e) => setQuery(e.currentTarget.value)} aria-label="Karten suchen" />
+          <input type="search" placeholder={tr('Karte suchen: Name oder Code …')} value={query} onInput={(e) => setQuery(e.currentTarget.value)} aria-label={tr('Karten suchen')} />
         </label>
         <label class="toggle">
           <input type="checkbox" checked={onlyMissing} onChange={(e) => setOnlyMissing(e.currentTarget.checked)} />
-          <span>Nur fehlende Karten</span>
+          <span>{tr('Nur fehlende Karten')}</span>
         </label>
       </div>
       {rarity && <p class="fineprint">{RARITY_HINT[rarity]}</p>}
@@ -124,7 +125,7 @@ export function CardAlbum({ db, state, update }: Props) {
                       type="button"
                       class={`wish-btn${w ? ' on' : ''}`}
                       aria-pressed={w}
-                      aria-label={w ? `${p.name} von der Wunschliste nehmen` : `${p.name} auf die Wunschliste`}
+                      aria-label={w ? tr('{0} von der Wunschliste nehmen', p.name) : tr('{0} auf die Wunschliste', p.name)}
                       onClick={() => toggleWish(p.code)}
                     >
                       <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -143,18 +144,18 @@ export function CardAlbum({ db, state, update }: Props) {
                     type="button"
                     class={`buy-q${ownedCount(p.code) ? ' have' : ''}`}
                     onClick={() => openCheck(p.code)}
-                    aria-label={ownedCount(p.code) ? `${p.name}: hast du schon` : `Soll ich ${p.name} kaufen?`}
+                    aria-label={ownedCount(p.code) ? tr('{0}: hast du schon', p.name) : tr('Soll ich {0} kaufen?', p.name)}
                   >
-                    {ownedCount(p.code) ? <><Check aria-hidden="true" /> Hab ich</> : 'Kaufen?'}
+                    {ownedCount(p.code) ? <><Check aria-hidden="true" /> {tr('Hab ich')}</> : tr('Kaufen?')}
                   </button>
                   <div class="bcard-foot">
                     <TypeChip type={blade.type} />
-                    <div class="stepper stepper-sm" aria-label={`Anzahl ${p.name}`}>
-                      <button type="button" onClick={() => setOwned(p.code, -1)} disabled={!n} aria-label="Eins weniger">
+                    <div class="stepper stepper-sm" aria-label={tr('Anzahl {0}', p.name)}>
+                      <button type="button" onClick={() => setOwned(p.code, -1)} disabled={!n} aria-label={tr('Eins weniger')}>
                         −
                       </button>
                       <span aria-live="polite">{n}</span>
-                      <button type="button" onClick={() => setOwned(p.code, 1)} aria-label="Eins mehr">
+                      <button type="button" onClick={() => setOwned(p.code, 1)} aria-label={tr('Eins mehr')}>
                         +
                       </button>
                     </div>
@@ -166,9 +167,9 @@ export function CardAlbum({ db, state, update }: Props) {
           {count < shown.length && <div ref={sentinel} class="load-more" aria-hidden="true" />}
         </>
       ) : (
-        <Empty title="Keine Karten gefunden" />
+        <Empty title={tr('Keine Karten gefunden')} />
       )}
-      <p class="fineprint">Seltenheit nach Erhältlichkeit (Handel, Random Booster, Event/Limitiert) – kein offizielles Takara-Tomy-System.</p>
+      <p class="fineprint">{tr('Seltenheit nach Erhältlichkeit (Handel, Random Booster, Event/Limitiert) – kein offizielles Takara-Tomy-System.')}</p>
     </div>
   );
 }

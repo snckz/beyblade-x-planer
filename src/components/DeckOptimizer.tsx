@@ -1,3 +1,4 @@
+import { tr, NUM_LOCALE } from '../lib/i18n';
 import { useEffect, useMemo, useState } from 'preact/hooks';
 import type { Database, MetaFeed } from '../lib/types';
 import type { UserState } from '../lib/storage';
@@ -62,31 +63,31 @@ export function DeckOptimizer({ db, state, update, meta }: Props) {
       const ids = result.picks.map((p, i) => {
         const existing = s.combos.find((c) => sameCombo(c, p.combo));
         if (existing) return existing.id;
-        const c = { id: newId(), name: `Optimiert ${i + 1}`, bladeId: p.combo.bladeId, ratchetId: p.combo.ratchetId, bitId: p.combo.bitId };
+        const c = { id: newId(), name: tr('Optimiert {0}', i + 1), bladeId: p.combo.bladeId, ratchetId: p.combo.ratchetId, bitId: p.combo.bitId };
         fresh.push(c);
         return c.id;
       });
       return { ...s, combos: [...fresh, ...s.combos], deck: ids };
     });
-    setMsg('Als dein Deck übernommen – oben siehst du es.');
+    setMsg(tr('Als dein Deck übernommen – oben siehst du es.'));
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
-    <Section title="Deck-Optimierer">
+    <Section title={tr('Deck-Optimierer')}>
       <div class="card glass stack-sm">
         <p class="muted">
-          Sucht das stärkste Turnier-Deck (3 Kreisel, kein Teil doppelt) {vsMeta ? 'gegen die aktuellen Turnier-Kombos' : 'gegen typische Gegner'}.
+          {tr('Sucht das stärkste Turnier-Deck (3 Kreisel, kein Teil doppelt)')} {vsMeta ? tr('gegen die aktuellen Turnier-Kombos') : tr('gegen typische Gegner')}.
         </p>
         <label class="toggle">
           <input type="checkbox" checked={onlyOwned && hasParts} disabled={!hasParts} onChange={(e) => setOnlyOwned(e.currentTarget.checked)} />
-          <span>{hasParts ? 'Nur Teile aus meiner Sammlung' : 'Für „nur meine Teile“ brauchst du mind. 3 Blades in der Sammlung'}</span>
+          <span>{hasParts ? tr('Nur Teile aus meiner Sammlung') : tr('Für „nur meine Teile“ brauchst du mind. 3 Blades in der Sammlung')}</span>
         </label>
         <button type="button" class="btn btn-primary" onClick={run} disabled={busy}>
-          {busy ? 'Rechne …' : 'Bestes Deck finden'}
+          {busy ? tr('Rechne …') : tr('Bestes Deck finden')}
         </button>
 
-        {result === null && <p class="muted">Mit diesen Teilen geht kein regelkonformes Deck – es fehlen unterschiedliche Ratchets oder Bits.</p>}
+        {result === null && <p class="muted">{tr('Mit diesen Teilen geht kein regelkonformes Deck – es fehlen unterschiedliche Ratchets oder Bits.')}</p>}
         {result && (
           <>
             <ul class="list">
@@ -100,16 +101,16 @@ export function DeckOptimizer({ db, state, update, meta }: Props) {
                     </span>
                     <span class="row-sub">
                       {p.score >= 0 ? '+' : ''}
-                      {Math.round(p.score)} im Schnitt gegen {opponents.length} Gegner
+                      {Math.round(p.score)} {tr('im Schnitt gegen')} {opponents.length} {tr('Gegner')}
                     </span>
                   </div>
                   <TypeBadge type={p.bey.analysis.type} small />
                 </li>
               ))}
             </ul>
-            <p class="fineprint">{result.checked.toLocaleString('de-DE')} Kombos geprüft. Richtwerte aus Typ, Profil, Gewicht und Drehrichtung – kein Ersatz fürs Testen im Stadion.</p>
+            <p class="fineprint">{result.checked.toLocaleString(NUM_LOCALE)} {tr('Kombos geprüft. Richtwerte aus Typ, Profil, Gewicht und Drehrichtung – kein Ersatz fürs Testen im Stadion.')}</p>
             <button type="button" class="btn" onClick={adopt}>
-              Als mein Deck übernehmen
+              {tr('Als mein Deck übernehmen')}
             </button>
           </>
         )}

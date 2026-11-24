@@ -1,3 +1,4 @@
+import { tr } from '../lib/i18n';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import type { BeyType, Blade } from '../lib/types';
 import { largeUrl } from '../lib/images';
@@ -75,7 +76,7 @@ export function BeyImage({ bladeId, type, size = 'md', alt, zoomable = true }: P
     const pic = <img src={img.thumb} alt={alt} loading="lazy" decoding="async" referrerpolicy="no-referrer" {...photo.imgProps} />;
     if (!zoomable) return <span class={cls}>{pic}</span>;
     return (
-      <button type="button" class={`${cls} zoom`} onClick={() => openImage(bladeId)} aria-label={`${alt}: Bild vergrößern`}>
+      <button type="button" class={`${cls} zoom`} onClick={() => openImage(bladeId)} aria-label={tr('{0}: Bild vergrößern', alt)}>
         {pic}
       </button>
     );
@@ -113,7 +114,7 @@ export function BladeStage({
   if (!img || photo.status === 'failed') {
     return (
       <span class={wrap}>
-        <span class={`stage-photo stage-fallback type-fg-${blade.type}`} role="img" aria-label={`${name} (kein Foto verfügbar)`}>
+        <span class={`stage-photo stage-fallback type-fg-${blade.type}`} role="img" aria-label={tr('{0} (kein Foto verfügbar)', name)}>
           <BeyEmblem />
         </span>
       </span>
@@ -122,7 +123,7 @@ export function BladeStage({
   const note = photo.status === 'ok' ? (noteFor?.(img.title) ?? null) : null;
   return (
     <span class={wrap}>
-      <button type="button" class={`stage-photo${photo.status === 'ok' ? ' is-loaded' : ''}`} onClick={() => openImage(blade.id)} aria-label={`${name}: Bild vergrößern`}>
+      <button type="button" class={`stage-photo${photo.status === 'ok' ? ' is-loaded' : ''}`} onClick={() => openImage(blade.id)} aria-label={tr('{0}: Bild vergrößern', name)}>
         <img
           src={img.thumb}
           srcset={sharp ? `${img.thumb} 392w, ${largeUrl(img.thumb)} 700w` : undefined}
@@ -219,7 +220,7 @@ export function BladePhoto({
   const cls = `${base} is-${mode === 'try' ? 'round' : mode}${loading ? ' is-loading' : ''}`;
   if (!zoomable) return <span class={cls}>{pic}</span>;
   return (
-    <button type="button" class={`${cls} zoom`} onClick={() => openImage(blade.id)} aria-label={`${alt}: Bild vergrößern`}>
+    <button type="button" class={`${cls} zoom`} onClick={() => openImage(blade.id)} aria-label={tr('{0}: Bild vergrößern', alt)}>
       {pic}
     </button>
   );
@@ -231,7 +232,7 @@ export function ImageCredit({ bladeId }: { bladeId: string }) {
   if (!img) return null;
   return (
     <a class="credit" href={img.page} target="_blank" rel="noopener noreferrer">
-      Bild: Beyblade Wiki <ArrowUpRight aria-hidden="true" />
+      {tr('Bild: Beyblade Wiki')} <ArrowUpRight aria-hidden="true" />
     </a>
   );
 }

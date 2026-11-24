@@ -1,3 +1,4 @@
+import { tr } from '../lib/i18n';
 import type { ComponentChildren } from 'preact';
 import { createPortal } from 'preact/compat';
 import { useEffect, useRef } from 'preact/hooks';
@@ -26,7 +27,7 @@ interface Props {
  * (useModal: Fokus, Escape, Griff zum Schließen, Safe-Areas). Abbrechen, Escape, Hintergrund und Wischen ändern nichts;
  * nur „Löschen“ ruft onConfirm. Der Fokus startet auf „Abbrechen“ – Enter oder ein versehentlicher Tipp löscht nichts.
  */
-function ConfirmSheetInner({ title, children, note, confirmLabel, cancelLabel = 'Abbrechen', icon: Icon = Trash2, onConfirm, onClose }: Props) {
+function ConfirmSheetInner({ title, children, note, confirmLabel, cancelLabel = tr('Abbrechen'), icon: Icon = Trash2, onConfirm, onClose }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const cancelRef = useRef<HTMLButtonElement>(null);
   const closeRef = useRef(onClose);

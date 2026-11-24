@@ -1,3 +1,4 @@
+import { tr } from './i18n';
 import type { Database, MetaFeed, Product } from './types';
 import { META_SEEN, metaUsage } from './metaUsage';
 import type { Bey } from './battle';
@@ -122,7 +123,7 @@ export async function advise(
       offers.push({
         code: first.code,
         codes: items.map((p) => p.code),
-        name: items.length > 1 ? `${groupKey(first)} Random Booster (${items.length} Varianten)` : first.name,
+        name: items.length > 1 ? tr('{0} Random Booster ({1} Varianten)', groupKey(first), items.length) : first.name,
         kind: first.kind,
         priceJpy: items.find((p) => p.priceJpy)?.priceJpy ?? null,
         gain,
@@ -142,7 +143,7 @@ export async function advise(
       offers.push({
         code: first.code,
         codes: items.map((p) => p.code),
-        name: items.length > 1 ? `${groupKey(first)} Set (${contentLabel(items)})` : first.name,
+        name: items.length > 1 ? tr('{0} Set ({1})', groupKey(first), contentLabel(items)) : first.name,
         kind: first.kind,
         priceJpy: items.find((p) => p.priceJpy)?.priceJpy ?? null,
         gain,

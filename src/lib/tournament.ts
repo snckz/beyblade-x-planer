@@ -1,3 +1,4 @@
+import { DATE_LOCALE } from './i18n';
 import { newId } from './storage';
 
 export interface Player {
@@ -123,7 +124,7 @@ export function standings(t: Tournament): Standing[] {
       (t.format === 'swiss' ? y.buchholz - x.buchholz : 0) ||
       y.pointsFor - y.pointsAgainst - (x.pointsFor - x.pointsAgainst) ||
       y.pointsFor - x.pointsFor ||
-      x.player.name.localeCompare(y.player.name, 'de'),
+      x.player.name.localeCompare(y.player.name, DATE_LOCALE),
   );
 }
 

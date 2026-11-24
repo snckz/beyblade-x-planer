@@ -1,5 +1,6 @@
+import { tr } from '../lib/i18n';
 import type { Combo, Database } from '../lib/types';
-import { checkDeck } from '../lib/analysis';
+import { checkDeck, deckSizeProblem } from '../lib/analysis';
 import { ComboPicker } from './ComboPicker';
 
 export type Part = Omit<Combo, 'id' | 'name'>;
@@ -15,7 +16,7 @@ export const DEFAULT_DECK: Part[] = [
 /** 1–3 Kreisel nebeneinander wählen (3er-Deck), mit Hinweis auf doppelte Teile. */
 export function DeckPicker({ db, value, onChange, label }: { db: Database; value: Part[]; onChange: (v: Part[]) => void; label: string }) {
   const check = value.length === 3 ? checkDeck(db, value.map((p, i) => ({ id: String(i), ...p }))) : null;
-  const dupes = check?.problems.filter((p) => !p.startsWith('Ein Deck hat')) ?? [];
+  const dupes = check?.problems.filter((p) => p !== deckSizeProblem(value.length)) ?? [];
   return (
     <div class="deck-picker stack-sm">
       {value.map((p, i) => (
@@ -31,7 +32,7 @@ export function DeckPicker({ db, value, onChange, label }: { db: Database; value
       ))}
       {dupes.length > 0 && (
         <p class="fineprint deck-warn" role="status">
-          {dupes.join(' ')} Im Turnier darf kein Teil doppelt vorkommen.
+          {dupes.join(' ')} {tr('Im Turnier darf kein Teil doppelt vorkommen.')}
         </p>
       )}
     </div>

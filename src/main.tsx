@@ -1,10 +1,20 @@
 import { render } from 'preact';
-import { App } from './App';
+import { loadLang, tr } from './lib/i18n';
 import { watchPhoneOrientation } from './lib/orientation';
 import './fonts.css';
 import './styles.css';
 
-render(<App />, document.getElementById('app')!);
+// Erst die Sprache, dann die App: Viele Texte sind Konstanten und werden beim Laden der Programmteile festgelegt.
+// Für Deutsch ist nichts zu laden; für Englisch kommt vorher das Wörterbuch (lib/i18n.ts).
+void loadLang()
+  .then(() => {
+    // Der Dreh-Hinweis steht fest in index.html (er muss ohne Programm sichtbar sein) – hier in der gewählten Sprache
+    const set = (selector: string, text: string) => document.querySelector(selector)?.replaceChildren(text);
+    set('.rotate-hint-title', tr('Bitte ins Hochformat drehen'));
+    set('.rotate-hint-text', tr('Beyblade X ist fürs Hochformat gemacht.'));
+    return import('./App');
+  })
+  .then(({ App }) => render(<App />, document.getElementById('app')!));
 
 // Handy nur im Hochformat (iOS ignoriert die Manifest-Vorgabe) – siehe lib/orientation.ts
 watchPhoneOrientation();

@@ -1,3 +1,4 @@
+import { tr } from './i18n';
 import type { BeyType, Combo, Database, MetaFeed } from './types';
 import { analyze, resolveCombo, type Analysis, type Resolved } from './analysis';
 
@@ -43,26 +44,26 @@ export function matchup(a: Bey, b: Bey): Matchup {
 
   if (BEATS[ta] === tb) {
     s += 20;
-    reasons.push(`Typ-Vorteil: ${label(ta)} schlägt ${label(tb)}`);
+    reasons.push(tr('Typ-Vorteil: {0} schlägt {1}', label(ta), label(tb)));
   } else if (BEATS[tb] === ta) {
     s -= 20;
-    reasons.push(`Typ-Nachteil: ${label(tb)} schlägt ${label(ta)}`);
+    reasons.push(tr('Typ-Nachteil: {0} schlägt {1}', label(tb), label(ta)));
   }
 
   s += 0.3 * (pa.attack + pa.defense - pb.attack - pb.defense);
   s += 0.3 * (pa.stamina - pb.stamina);
   s += 0.15 * (pa.burstResistance - pb.burstResistance);
-  if (pa.stamina - pb.stamina >= 20) reasons.push('Dreht deutlich länger');
-  if (pb.stamina - pa.stamina >= 20) reasons.push('Gegner dreht deutlich länger');
-  if (pa.burstResistance - pb.burstResistance >= 12) reasons.push('Mehr Burst-Schutz');
-  if (pb.burstResistance - pa.burstResistance >= 12) reasons.push('Weniger Burst-Schutz als der Gegner');
+  if (pa.stamina - pb.stamina >= 20) reasons.push(tr('Dreht deutlich länger'));
+  if (pb.stamina - pa.stamina >= 20) reasons.push(tr('Gegner dreht deutlich länger'));
+  if (pa.burstResistance - pb.burstResistance >= 12) reasons.push(tr('Mehr Burst-Schutz'));
+  if (pb.burstResistance - pa.burstResistance >= 12) reasons.push(tr('Weniger Burst-Schutz als der Gegner'));
 
   const sa = a.resolved.blade.spin;
   const sb = b.resolved.blade.spin;
   if (sa !== sb && sa !== 'both' && sb !== 'both') {
     if (ta === 'stamina' || ta === 'balance') {
       s += 8;
-      reasons.push('Gegendrehung: kann dem Gegner Spin klauen');
+      reasons.push(tr('Gegendrehung: kann dem Gegner Spin klauen'));
     }
     if (tb === 'stamina' || tb === 'balance') s -= 8;
   }
@@ -72,11 +73,11 @@ export function matchup(a: Bey, b: Bey): Matchup {
   if (ha !== null && hb !== null) {
     if (ta === 'attack' && ha <= hb - 1) {
       s += 6;
-      reasons.push('Niedriger als der Gegner: trifft von unten');
+      reasons.push(tr('Niedriger als der Gegner: trifft von unten'));
     }
     if (tb === 'attack' && hb <= ha - 1) {
       s -= 6;
-      reasons.push('Gegner ist niedriger und trifft von unten');
+      reasons.push(tr('Gegner ist niedriger und trifft von unten'));
     }
   }
 
@@ -120,10 +121,10 @@ export function deckDuel(mine: Bey[], theirs: Bey[]): DeckDuel {
 
 /** Standard-Gegner, wenn kein Gegner-Deck eingegeben ist. */
 export const ARCHETYPES: Combo[] = [
-  { id: 'arch-attack', name: 'Typischer Angreifer', bladeId: 'PhoenixWing', ratchetId: '9-60', bitId: 'GF' },
-  { id: 'arch-stamina', name: 'Typischer Ausdauer-Kreisel', bladeId: 'WizardRod', ratchetId: '5-70', bitId: 'DB' },
-  { id: 'arch-defense', name: 'Typischer Verteidiger', bladeId: 'KnightShield', ratchetId: '3-80', bitId: 'N' },
-  { id: 'arch-balance', name: 'Typischer Allrounder', bladeId: 'HellsScythe', ratchetId: '4-60', bitId: 'T' },
+  { id: 'arch-attack', name: tr('Typischer Angreifer'), bladeId: 'PhoenixWing', ratchetId: '9-60', bitId: 'GF' },
+  { id: 'arch-stamina', name: tr('Typischer Ausdauer-Kreisel'), bladeId: 'WizardRod', ratchetId: '5-70', bitId: 'DB' },
+  { id: 'arch-defense', name: tr('Typischer Verteidiger'), bladeId: 'KnightShield', ratchetId: '3-80', bitId: 'N' },
+  { id: 'arch-balance', name: tr('Typischer Allrounder'), bladeId: 'HellsScythe', ratchetId: '4-60', bitId: 'T' },
 ];
 
 export interface Suggestion {
