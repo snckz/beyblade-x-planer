@@ -3429,3 +3429,55 @@ button.lex-row-art { cursor: zoom-in; }
 .lang-switch .btn.is-on { border-color: color-mix(in srgb, var(--x-red) 60%, transparent); background: color-mix(in srgb, var(--x-red) 16%, var(--surface-2)); color: #fff; opacity: 1; }
 .lang-switch .btn .lucide { width: 16px; height: 16px; }
 @media (prefers-reduced-motion: reduce) { .lang-option { transition: none; } }
+
+/* ==========================================================================================================
+   Referenz-Optik 3: Rahmen der App – näher an den Referenzbildern
+   1. Kopf: kompakter Titel mit Unterzeile statt Riesenschrift (mehr Inhalt auf dem ersten Bildschirm)
+   2. Karten: rotes Kantenlicht unten rechts (Rand läuft von Weiß über Grau nach Rot)
+   3. Grund: roter Schein aus den unteren Ecken und ein schräger Lichtstreifen
+   4. Leiste unten: aktive Seite in Rot (Symbol und Schrift) statt heller Pille
+   ========================================================================================================== */
+:root {
+  --rim: linear-gradient(142deg, rgba(255, 255, 255, .16) 0%, rgba(255, 255, 255, .06) 38%, rgba(255, 255, 255, .05) 62%, color-mix(in srgb, var(--x-red) 78%, transparent) 100%);
+  --card-fill: linear-gradient(155deg, var(--surface-3) 0%, var(--surface-2) 46%, var(--window) 100%);
+}
+
+/* 1. Kopf */
+.top { padding-top: calc(env(safe-area-inset-top, 0px) + 10px); padding-bottom: 6px; }
+.top .brand-logo { height: 20px; opacity: .92; }
+.page-head { margin: 0 0 var(--s-4); }
+.page-title { font: 800 italic clamp(27px, 7.6vw, 34px)/1.08 var(--font); letter-spacing: -.03em; }
+/* Die Referenz hat unter dem Titel keinen Balken – der rote Schrägstrich gehört den Abschnitten */
+.x-rail { display: none; }
+.page-title { margin-bottom: 6px; }
+.page-sub { margin-top: 0; font-size: 14px; line-height: 1.4; color: var(--text-2); max-width: 40ch; }
+
+/* 2. Karten mit Kantenlicht */
+.ref-card { border: 1px solid transparent; background: var(--card-fill) padding-box, var(--rim) border-box; }
+.ref-card::after { right: -30%; bottom: -66%; background: radial-gradient(closest-side, color-mix(in srgb, var(--x-red) 30%, transparent), transparent); }
+.tab-page .card:not(.live-cta, .hero-card, .builder, .sheet *) {
+  border: 1px solid transparent;
+  background:
+    radial-gradient(90% 62% at 106% 112%, var(--card-glow), transparent 70%) padding-box,
+    var(--card-fill) padding-box,
+    var(--rim) border-box;
+}
+/* Kleine Karten in Listen: ruhiger Rand ohne Rot */
+.tab-page .card.deck-slot, .tab-page .card.radar, .tab-page .card.check { --rim: linear-gradient(142deg, rgba(255, 255, 255, .14), rgba(255, 255, 255, .05) 60%); }
+/* Fenster: dasselbe Kantenlicht am oberen Rand */
+.sheet { border: 1px solid transparent; border-bottom: 0; background: linear-gradient(180deg, var(--surface-2), var(--window) 38%) padding-box, linear-gradient(200deg, color-mix(in srgb, var(--x-red) 62%, transparent) 0%, rgba(255, 255, 255, .1) 26%, rgba(255, 255, 255, .05) 100%) border-box; }
+
+/* 3. Grund: roter Schein aus den unteren Ecken, schräger Lichtstreifen */
+.app::before {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(70% 38% at 104% 104%, color-mix(in srgb, var(--x-red) 30%, transparent), transparent 72%),
+    radial-gradient(60% 32% at -6% 102%, color-mix(in srgb, var(--x-red) 20%, transparent), transparent 72%),
+    linear-gradient(118deg, transparent 34%, rgba(255, 255, 255, .032) 47%, rgba(255, 255, 255, .012) 56%, transparent 66%);
+}
+
+/* 4. Leiste unten */
+.tabbar a.on { background: none; color: #ff5a73; box-shadow: none; }
+.tabbar a.on svg { stroke: var(--x-red); filter: drop-shadow(0 0 6px color-mix(in srgb, var(--x-red) 70%, transparent)); }
+.tabbar a.on .tab-label { font-weight: 700; }
+.tabbar a.on .dot-count { box-shadow: 0 0 0 2px #15151a; }

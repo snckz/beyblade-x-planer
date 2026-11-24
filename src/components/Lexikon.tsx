@@ -12,7 +12,7 @@ import { bitText, ratchetText, TERMS } from '../lib/lexicon';
 import { CardAlbum } from './CardAlbum';
 import { BitImage, RatchetImage } from './BitImage';
 import type { ComponentChildren } from 'preact';
-import { BookOpen, ChevronDown, RotateCcw, Search } from 'lucide-preact';
+import { Bomb, BookOpen, ChevronDown, Cog, Cone, Disc3, Factory, Layers, LayoutGrid, Link2, LogOut, Package, RotateCcw, Route, Search, Target, Timer, Zap } from 'lucide-preact';
 
 interface Props {
   db: Database;
@@ -21,6 +21,9 @@ interface Props {
 }
 
 type View = 'cards' | 'blades' | 'bits' | 'ratchets' | 'terms';
+
+/** Ein eigenes Symbol je Begriff – in der Reihenfolge von TERMS (lib/lexicon.ts). Fehlt eines, steht das Buch da. */
+const TERM_ICONS = [Disc3, Cog, Cone, Zap, Route, Target, LogOut, Bomb, Timer, Layers, Link2, RotateCcw, LayoutGrid, Package, Factory];
 /**
  * Teilefoto in einer Lexikon-Zeile. Gibt es ein Foto, öffnet Antippen die Großansicht –
  * auch innerhalb eines <summary>, ohne die Zeile auf- oder zuzuklappen.
@@ -197,7 +200,10 @@ export function Lexikon({ db, state, update }: Props) {
                 <details class="lex-row">
                   <summary>
                     <span class="lex-row-art lex-row-icon" aria-hidden="true">
-                      <BookOpen />
+                      {(() => {
+                        const Icon = TERM_ICONS[TERMS.indexOf(t)] ?? BookOpen;
+                        return <Icon />;
+                      })()}
                     </span>
                     <span class="lex-row-main">
                       <span class="lex-row-title">{t.term}</span>
