@@ -74,7 +74,7 @@ Es gibt zwei Wege. Der erste ist der einfachere.
 - **Termine:** Releases und Turniere mit Countdown (`public/data/events.json`), zweimal pro Woche per Scheduled Task recherchiert.
 - **Detailseiten:** Steckbrief im Wiki-Stil je Blade. Bilder werden direkt vom Beyblade Wiki verlinkt (nicht kopiert), mit Quellenlink; ohne Bild erscheint ein eigenes Emblem.
 - **Neuheiten-Radar:** GitHub Action durchsucht täglich das Beyblade Wiki nach neuen Produktnummern und zeigt Treffer im News-Tab.
-- **Wischen:** Zwischen den Hauptseiten (Kombo, Lexikon, Battle, Termine, Sammlung) blättert man mit einem Wisch nach links oder rechts – mit denselben Werten wie in den Auswahlfenstern (`src/lib/categorySwipe.ts`, `src/components/TabPager.tsx`). Alle Werte fürs Wischen und für die Fenster stehen zum Übernehmen in andere Apps in [`docs/wischen-und-fenster.md`](docs/wischen-und-fenster.md).
+- **Wischen:** Zwischen den Hauptseiten (Kombo, Lexikon, Battle, Termine, Sammlung) blättert man mit einem Wisch nach links oder rechts – mit denselben Werten wie in den Auswahlfenstern (`src/lib/categorySwipe.ts`, `src/components/TabPager.tsx`). Im Lexikon blättert der Wisch oben (Titel, Leiste, Suche) die Hauptseiten und unten auf der Liste die Unterseiten Karten, Blades, Bits, Ratchets, Begriffe; an der ersten und letzten Unterseite geht es zur nächsten Hauptseite weiter. Alle Werte fürs Wischen und für die Fenster stehen zum Übernehmen in andere Apps in [`docs/wischen-und-fenster.md`](docs/wischen-und-fenster.md).
 - **Sprache:** Deutsch oder Englisch. Beim ersten Start wird einmal gefragt, später lässt sich die Sprache unter Sammlung → Sprache ändern.
 - **Offline:** Nach dem ersten Öffnen funktioniert die App auch ohne Internet.
 

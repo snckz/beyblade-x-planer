@@ -36,6 +36,25 @@ export function rowOwnsStep(target: Element, step: 1 | -1): boolean {
   return step === 1 || row.classList.contains('is-open') || row.classList.contains('is-swiping');
 }
 
+/**
+ * Unterseiten innerhalb einer Hauptseite (Lexikon: Karten, Blades, Bits …; components/TabPager.tsx mit `sub`).
+ * Sie melden sich hier an: In ihrem Bereich gehört ein Wisch ihnen, solange es dort in diese Richtung weitergeht.
+ * An der ersten/letzten Unterseite und oberhalb ihres Bereichs blättern die Hauptseiten.
+ */
+type SubOwner = (y: number, step: 1 | -1) => boolean;
+const subPagers = new Set<SubOwner>();
+
+/** Anmelden; die Rückgabe meldet wieder ab. `owns(y, step)`: Setzt der Finger auf Höhe `y` (px im Fenster) auf – blättert dann diese Unterseite? */
+export function registerSubPager(owns: SubOwner): () => void {
+  subPagers.add(owns);
+  return () => void subPagers.delete(owns);
+}
+
+export function subPagerOwnsStep(y: number, step: 1 | -1): boolean {
+  for (const owns of subPagers) if (owns(y, step)) return true;
+  return false;
+}
+
 /** iPhone/iPad (auch iPadOS, das sich als Mac ausgibt) */
 const isIos = () => /iP(hone|ad|od)/.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
 

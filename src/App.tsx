@@ -315,7 +315,7 @@ export function App() {
           {id === 'builder' && (
             <ComboBuilder key={preset?.key ?? 0} db={data} state={state} update={update} presetBladeId={preset?.bladeId} presetRatchetId={preset?.ratchetId} presetBitId={preset?.bitId} presetKey={preset?.key} meta={meta} />
           )}
-          {id === 'parts' && <Lexikon db={data} state={state} update={update} />}
+          {id === 'parts' && <Lexikon db={data} state={state} update={update} active={active} />}
           {id === 'battle' && <Battle db={data} state={state} update={update} goToBuilder={() => go('builder')} meta={meta} onBuild={buildCombo} />}
           {id === 'events' && <Events db={data} events={events.events} news={news} state={state} update={update} active={active} />}
           {id === 'collection' && <Collection events={events.events} db={data} state={state} update={update} meta={meta} />}

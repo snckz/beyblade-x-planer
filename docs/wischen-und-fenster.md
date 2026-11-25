@@ -129,6 +129,34 @@ Regeln:
 - Kein Seitenwechsel, solange ein Fenster offen ist, auf Schiebereglern und in allem, was selbst waagrecht scrollt
   (`blocksTabSwipe` prüft das beim Aufsetzen des Fingers).
 - Einträge mit Wischen-zum-Löschen: nach links gehört die Geste dem Eintrag, nach rechts der Seite (`rowOwnsStep`).
+- Felder im Seitenkopf sind kein toter Streifen (`idleFields`): Auf einem Suchfeld ohne Cursor oder einem Schalter
+  zählt der Wisch. Ein Feld mit Cursor behält das Ziehen (Text markieren), Auswahllisten und Schieberegler immer.
+
+### Unterseiten in einer Hauptseite (`TabPager` mit `sub`)
+
+Hat eine Hauptseite selbst Unterseiten mit Umschaltleiste (hier das Lexikon: Karten, Blades, Bits, Ratchets,
+Begriffe), teilt sich der Bildschirm:
+
+| Bereich | Wisch blättert |
+| --- | --- |
+| oben: Titel, Umschaltleiste, Suche und Filter | die Hauptseiten |
+| unten: ab der Unterkante des Kopfs (`below`, hier `.filters`) bis zum Seitenende | die Unterseiten |
+| unten an der ersten bzw. letzten Unterseite | wieder die Hauptseiten (kein Nachgeben am Rand) |
+
+Regeln:
+
+- Dieselbe Komponente, dieselben Werte. Die Unterseiten sind ein zweiter `TabPager` in der Hauptseite; nur die Liste
+  mit ihrem Kopf geht mit dem Finger, Titel und Umschaltleiste bleiben stehen.
+- Die Grenze ist eine Höhe auf dem Bildschirm, kein Element: Auch der leere Platz unter einer kurzen Liste gehört
+  zum unteren Bereich. Ist der Kopf aus dem Bild gescrollt, ist der ganze Bildschirm unterer Bereich.
+- Es blättert immer genau eine Spur: Die Unterseiten melden sich an (`registerSubPager`); die Hauptseiten überlassen
+  ihnen den Wisch, solange es dort in diese Richtung weitergeht (`subPagerOwnsStep`), und umgekehrt geben die
+  Unterseiten ihn an ihrer ersten/letzten Seite ab.
+- Als Nachbarseite ruhen die Unterseiten (`enabled`): keine eigene Geste, keine eigenen Nachbarn im Hintergrund.
+- Weiter unten in einer Liste gewischt: Die nächste Unterseite kommt mit ihrem Anfang herein (`offset`), und nach dem
+  Wechsel steht die Umschaltleiste wieder oben im Bild – man sieht, wo man gelandet ist.
+- Beim Loslassen schaltet die Umschaltleiste sofort um (`onPreview`), die Unterseite wechselt nach dem Einrasten.
+- Suche und Filter, die für mehrere Unterseiten gelten, bleiben beim Wischen erhalten.
 
 ## 3. Fenster (`useModal.ts`, `sheetDrag.ts`, `scrollLock.ts`)
 

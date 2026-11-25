@@ -43,8 +43,12 @@ const EASE = 'cubic-bezier(.2, .8, .2, 1)';
 /** Feder fürs Einrasten: Eigenfrequenz (1/s) – kritisch gedämpft, also ohne Überschwingen, wie das Blättern in iOS */
 const SPRING_OMEGA = 19;
 
-/** Ausnahmen: Felder und eigene waagrechte Leisten (z. B. Ratchet-Höhen) wechseln nie die Kategorie. */
-const IGNORE = 'input, textarea, select, .height-filter, [data-no-swipe]';
+/** Ausnahmen: eigene waagrechte Leisten (z. B. Ratchet-Höhen) wechseln nie die Kategorie. */
+const IGNORE = '.height-filter, [data-no-swipe]';
+/** Felder: Standard ebenfalls Ausnahme. Mit `idleFields` zählt ein Wisch auch auf einem Feld, das gerade nicht bedient wird. */
+const FIELDS = 'input, textarea, select';
+/** Diese Felder brauchen das waagrechte Ziehen immer selbst. */
+const DRAG_FIELDS = 'select, input[type="range"]';
 
 /**
  * Entscheidet beim Loslassen: 1 = nächste Kategorie (nach links gewischt), -1 = vorherige (nach rechts), 0 = nichts.
@@ -98,6 +102,12 @@ export interface Pager {
   side: (step: 1 | -1) => HTMLElement | null;
 }
 
+/** Stelle auf dem Bildschirm (px, wie `clientX`/`clientY`) */
+export interface Point {
+  x: number;
+  y: number;
+}
+
 interface Options {
   /** Seiten, die beim Wischen mitgehen: Die nächste Kategorie kommt gleichzeitig von der Seite herein. */
   pager?: Pager;
@@ -107,10 +117,16 @@ interface Options {
   onActive?: (active: boolean) => void;
   /** Loslassen mit Wechsel: sofort gemeldet (z. B. Chip umschalten), `onStep` folgt nach dem Einrasten. */
   onSettle?: (step: 1 | -1) => void;
-  /** Weitere Ausnahmen beim Aufsetzen des Fingers (z. B. eigene waagrechte Leisten, offenes Fenster). */
-  ignore?: (target: Element) => boolean;
+  /** Weitere Ausnahmen beim Aufsetzen des Fingers (z. B. eigene waagrechte Leisten, offenes Fenster). `at`: wo der Finger aufsetzt. */
+  ignore?: (target: Element, at: Point) => boolean;
   /** Gehört ein Wisch in diese Richtung an dieser Stelle jemand anderem (z. B. Wischen zum Löschen)? Dann nichts tun. */
-  ownsStep?: (target: Element, step: 1 | -1) => boolean;
+  ownsStep?: (target: Element, step: 1 | -1, at: Point) => boolean;
+  /**
+   * Wisch auch auf Feldern zulassen, die gerade nicht bedient werden (Suchfeld ohne Cursor, Schalter) – für ganze
+   * Seiten, auf denen ein breites Suchfeld sonst ein toter Streifen wäre. Ein Feld mit Cursor behält das Ziehen
+   * (Text markieren), Auswahllisten und Schieberegler immer.
+   */
+  idleFields?: boolean;
   /** Scrollstand der Fläche – Standard: `el.scrollTop`. Für Seiten, die mit dem Fenster scrollen: `window.scrollY`. */
   scrollTop?: () => number;
 }
@@ -122,7 +138,7 @@ const STEPS = [1, -1] as const;
 /** Aushängen; `finish()` beendet ein laufendes Einrasten sofort (z. B. wenn ein Chip-Tipp dazwischenkommt). */
 export type SwipeHandle = (() => void) & { finish: () => void };
 
-export function attachCategorySwipe(el: HTMLElement, onStep: (step: 1 | -1) => void, { pager, canStep = () => true, onActive, onSettle, ignore, ownsStep, scrollTop = () => el.scrollTop }: Options = {}): SwipeHandle {
+export function attachCategorySwipe(el: HTMLElement, onStep: (step: 1 | -1) => void, { pager, canStep = () => true, onActive, onSettle, ignore, ownsStep, idleFields = false, scrollTop = () => el.scrollTop }: Options = {}): SwipeHandle {
   let g: { id: number; x: number; y: number; t: number; horizontal: boolean; target: Element | null; samples: [number, number][] } | null = null;
   let guardUntil = 0;
   /** Laufendes Blättern: Spur, Nachbarseiten (auf Höhe des sichtbaren Ausschnitts gelegt), Seitenbreite */
@@ -202,6 +218,13 @@ export function attachCategorySwipe(el: HTMLElement, onStep: (step: 1 | -1) => v
     };
   };
 
+  /** Setzt der Finger auf einem Feld auf, das die Geste selbst braucht? */
+  const onBusyField = (target: Element) => {
+    const field = target.closest(FIELDS);
+    if (!field) return false;
+    return !idleFields || field.matches(DRAG_FIELDS) || field === document.activeElement;
+  };
+
   const touchOf = (list: TouchList, id: number) => [...list].find((t) => t.identifier === id) ?? null;
 
   const onStart = (e: TouchEvent) => {
@@ -213,7 +236,7 @@ export function attachCategorySwipe(el: HTMLElement, onStep: (step: 1 | -1) => v
     if (e.touches.length !== 1) return;
     const t = e.touches[0]!;
     const target = e.target instanceof Element ? e.target : null;
-    if (target?.closest(IGNORE) || (target && ignore?.(target))) return;
+    if (target && (target.closest(IGNORE) || onBusyField(target) || ignore?.(target, { x: t.clientX, y: t.clientY }))) return;
     g = { id: t.identifier, x: t.clientX, y: t.clientY, t: e.timeStamp, horizontal: false, target, samples: [[e.timeStamp, t.clientX]] };
   };
 
@@ -232,7 +255,7 @@ export function attachCategorySwipe(el: HTMLElement, onStep: (step: 1 | -1) => v
         return;
       }
       // Waagrecht, aber an dieser Stelle gehört die Richtung einer anderen Geste: ihr überlassen
-      if (g.target && ownsStep?.(g.target, dx < 0 ? 1 : -1)) {
+      if (g.target && ownsStep?.(g.target, dx < 0 ? 1 : -1, { x: g.x, y: g.y })) {
         g = null;
         return;
       }
