@@ -1,5 +1,7 @@
 // Unterseiten in einer Hauptseite (Lexikon: Karten, Blades, Bits …): oben blättert der Wisch die Hauptseiten,
 // unten (ab der Liste) die Unterseiten – an deren erster/letzter Seite geht er an die Hauptseiten weiter.
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, cleanup, render } from '@testing-library/preact';
 import { useState } from 'preact/hooks';
@@ -186,6 +188,39 @@ describe('Unterseiten in einer Hauptseite', () => {
     expect(tracks().main).toContain('-120px');
     expect(tracks().sub).toBe('');
     release(last.getByTestId('list-z'), -120);
+  });
+
+  it('Nachbar-Unterseiten sind nur sichtbar, solange die Unterseiten selbst gewischt werden', () => {
+    // Sie liegen dort, wo beim Wischen zwischen den Hauptseiten die nächste Hauptseite hereinkommt, und fahren mit
+    // deren Spur ins Bild – ohne diese Regel liegt z. B. die Blades-Liste über der Battle-Seite.
+    const css = readFileSync(join(process.cwd(), 'src/styles.css'), 'utf8');
+    expect(css).toMatch(/\.tab-pager\.is-sub:not\(\[data-swiping\]\) > \.tab-track > \.tab-page\.is-side \{ visibility: hidden; \}/);
+
+    const view = render(<Harness seen={[]} />);
+    later(300);
+    const sub = () => document.querySelector<HTMLElement>('.tab-pager.is-sub')!;
+    const drag = (el: Element, y: number) =>
+      act(() => {
+        touch(el, 'touchstart', 200, y, 0);
+        for (let i = 1; i <= 5; i++) touch(el, 'touchmove', 200 - 24 * i, y, i * 16);
+      });
+    const release = (el: Element, y: number) => act(() => touch(el, 'touchend', 80, y, 96));
+    expect(sub().hasAttribute('data-swiping')).toBe(false);
+
+    // Hauptseiten wischen (oben): Nachbar-Unterseiten bleiben unsichtbar
+    drag(view.getByTestId('b-title'), 100);
+    expect(document.querySelector<HTMLElement>('#main > .tab-pager > .tab-track')!.style.transform).toContain('-120px');
+    expect(sub().hasAttribute('data-swiping')).toBe(false);
+    cleanup();
+
+    // Unterseiten wischen (unten): sichtbar bis zum Einrasten, danach wieder nicht
+    const again = render(<Harness seen={[]} />);
+    later(300);
+    drag(again.getByTestId('list-y'), 300);
+    expect(sub().hasAttribute('data-swiping')).toBe(true);
+    release(again.getByTestId('list-y'), 300);
+    later(600);
+    expect(sub().hasAttribute('data-swiping')).toBe(false);
   });
 
   it('als Nachbarseite ruhen die Unterseiten: Der Wisch gehört der Hauptseite, danach wieder den Unterseiten', () => {

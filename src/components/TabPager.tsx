@@ -140,8 +140,13 @@ export function TabPager<T extends string>({ tabs, current, render, canPrebuild 
           side: (step) => el.querySelector<HTMLElement>(`:scope > .tab-track > .tab-page[data-dir="${step}"]`),
         },
         canStep: (step) => at(step) !== undefined,
-        // Während der Geste ruht das Freistellen von Fotos – wie in den Auswahlfenstern
-        onActive: pauseCutouts,
+        onActive: (on) => {
+          // Während der Geste ruht das Freistellen von Fotos – wie in den Auswahlfenstern
+          pauseCutouts(on);
+          // Nachbar-Unterseiten sind nur sichtbar, solange die Unterseiten selbst gewischt werden (siehe styles.css):
+          // Sie liegen genau dort, wo beim Wischen zwischen den Hauptseiten die nächste Hauptseite hereinkommt.
+          if (live.current.sub) el.toggleAttribute('data-swiping', on);
+        },
         onSettle: (step) => {
           const to = at(step);
           pending.current = to === undefined ? null : { from: here(), to };

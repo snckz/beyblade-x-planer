@@ -3251,6 +3251,10 @@ button.lex-row-art { cursor: zoom-in; }
 /* Unterseiten in einer Hauptseite (Lexikon: Karten, Blades, Bits …): gleiche Spur, aber ohne eigene Mindesthöhe und
    ohne eigenes Abschneiden – längere Nachbarn begrenzt die Hauptseite (.tab-pager oben), seitlich .main. */
 .tab-pager.is-sub { min-height: 0; margin-block: 0; padding-block: 0; overflow: visible; }
+/* Nachbar-Unterseiten liegen genau dort, wo beim Wischen zwischen den Hauptseiten die nächste Hauptseite hereinkommt
+   (beide eine Seitenbreite daneben) – und sie hängen an der Spur der Hauptseiten, fahren also mit ins Bild. Sichtbar
+   sind sie deshalb nur, solange die Unterseiten selbst gewischt werden (TabPager setzt data-swiping). */
+.tab-pager.is-sub:not([data-swiping]) > .tab-track > .tab-page.is-side { visibility: hidden; }
 
 /* ==========================================================================================================
    Referenz-Optik 2: Hauptseiten (Kombo, Lexikon, Battle, Termine, Sammlung)

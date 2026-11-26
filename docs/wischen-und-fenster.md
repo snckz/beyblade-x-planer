@@ -153,6 +153,9 @@ Regeln:
   ihnen den Wisch, solange es dort in diese Richtung weitergeht (`subPagerOwnsStep`), und umgekehrt geben die
   Unterseiten ihn an ihrer ersten/letzten Seite ab.
 - Als Nachbarseite ruhen die Unterseiten (`enabled`): keine eigene Geste, keine eigenen Nachbarn im Hintergrund.
+- Nachbar-Unterseiten sind unsichtbar (`visibility: hidden`), außer während die Unterseiten selbst gewischt werden
+  (`data-swiping`). Sie liegen eine Seitenbreite daneben – genau dort, wo die nächste Hauptseite hereinkommt – und
+  hängen an der Spur der Hauptseiten. Ohne diese Regel fährt z. B. die Blades-Liste über der Battle-Seite mit ins Bild.
 - Weiter unten in einer Liste gewischt: Die nächste Unterseite kommt mit ihrem Anfang herein (`offset`), und nach dem
   Wechsel steht die Umschaltleiste wieder oben im Bild – man sieht, wo man gelandet ist.
 - Beim Loslassen schaltet die Umschaltleiste sofort um (`onPreview`), die Unterseite wechselt nach dem Einrasten.
@@ -320,6 +323,10 @@ Knopf und Geste lösen dieselbe Bewegung aus (`slideBack`).
   man sie sofort beim Start der App, wird der Start langsam. Deshalb: kurz danach, im Hintergrund.
 - **Nebenwirkungen in vorbereiteten Seiten.** Alles, was beim Anzeigen etwas speichert (gelesen, gesehen, gezählt),
   braucht ein „bin sichtbar“-Signal.
+- **Verschachtelte Seiten überlagern sich.** Hat eine Seite eigene Unterseiten, liegen deren Nachbarn eine
+  Seitenbreite daneben – an derselben Stelle wie die nächste Hauptseite. Wischt man die Hauptseiten, fahren beide
+  zusammen ins Bild und liegen übereinander. Nachbar-Unterseiten deshalb nur während ihrer eigenen Geste sichtbar
+  machen (`visibility: hidden`, sonst bleibt alles fertig gebaut).
 - **Zustand beim Einrasten.** Erst den Zustand wechseln, dann die Inline-Stile lösen. Das Framework zeichnet noch vor
   dem nächsten Bild neu, die neue Seite steht ohne Sprung am selben Platz.
 
