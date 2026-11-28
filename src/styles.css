@@ -594,7 +594,7 @@ button.bit-img:active { transform: scale(.95); }
 .wish-total strong { font-variant-numeric: tabular-nums; text-align: right; }
 .wish-total small { font-weight: 600; color: var(--muted); }
 
-/* Scan-Modus */
+/* Kauf-Check: Einstieg und Kamerabild */
 .scan-cta { display: flex; align-items: center; gap: 14px; width: 100%; padding: 16px 18px; text-align: left; color: var(--text); cursor: pointer; font: inherit; }
 .scan-cta svg { flex: none; width: 34px; height: 34px; fill: none; stroke: var(--accent); stroke-width: 1.8; stroke-linecap: round; }
 .scan-cta span { display: grid; gap: 2px; }
@@ -606,14 +606,7 @@ button.bit-img:active { transform: scale(.95); }
 @keyframes scanline { from { transform: translateY(-28px); } to { transform: translateY(28px); } }
 @media (prefers-reduced-motion: reduce) { .scan-frame::after { animation: none; } }
 .scan-hint { position: absolute; left: 0; right: 0; bottom: 10px; margin: 0; text-align: center; font-size: 13px; color: #fff; text-shadow: 0 1px 4px #000; }
-.scan-body { display: grid; gap: 12px; padding: 14px 16px 4px; }
-.scan-results { max-height: 46dvh; overflow-y: auto; }
 .row-btn { width: 100%; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
-.scan-found { display: grid; gap: 12px; justify-items: start; }
-/* Random Booster: Liste der möglichen Inhalte über die ganze Breite */
-.scan-random > .list { justify-self: stretch; }
-/* Unbekannter Barcode: Foto der Vorderseite als schnellster Weg, darunter die Suche */
-.scan-front { display: grid; gap: 6px; justify-items: start; }
 .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
 .btn-sm { min-height: 34px; padding: 6px 12px; font-size: 13px; }
 
@@ -831,6 +824,9 @@ input[type='text'], input[type='search'], select { border-radius: 16px; backgrou
 .live.shop { overflow-x: hidden; touch-action: pan-y; }
 .shop-stack { display: grid; grid-template: 1fr / 1fr; flex: 1 0 auto; }
 .shop-stack > .kc-page { grid-area: 1 / 1; min-width: 0; }
+/* Die Ebene füllt die Höhe (für den Wisch zurück), ihr Inhalt bleibt aber oben und so hoch, wie er ist – sonst
+   strecken sich Karten über den ganzen Bildschirm. */
+.shop-stack > .kc-page { align-content: start; }
 .kc-under { visibility: hidden; pointer-events: none; opacity: calc(1 - var(--edge-dim, 1) * .55); }
 .kc-under.is-peek { visibility: visible; }
 .shop-stack:has(.kc-under.is-peek) > .kc-page:not(.kc-under) {
@@ -843,7 +839,6 @@ input[type='text'], input[type='search'], select { border-radius: 16px; backgrou
 .nav-back svg { width: 18px; height: 18px; margin-left: -2px; }
 .barcode-note .mono { word-break: break-all; }
 .shop .scan-cam { margin: 0; }
-.photo-start .btn svg { width: 18px; height: 18px; vertical-align: -3px; margin-right: 4px; }
 .shop-head { display: grid; gap: 6px; }
 .shop-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
 .shop-item { display: grid; gap: 10px; border-left: 4px solid var(--card-line); }
@@ -860,10 +855,6 @@ input[type='text'], input[type='search'], select { border-radius: 16px; backgrou
 .verdict.v-good { background: rgba(52, 199, 89, .18); color: #6ee28f; }
 .verdict.v-ok { background: rgba(245, 184, 61, .18); color: #f5c76a; }
 .verdict.v-high { background: rgba(255, 59, 48, .2); color: #ff7b72; }
-.scan-status { margin: 4px 0 0; font-weight: 600; font-size: 14px; }
-.scan-status.have { color: #6ee28f; }
-.scan-status.wish { color: #ff8a80; }
-.scan-status.new { color: #8ab4ff; }
 
 /* Mini-Turnier */
 .tour-add { display: flex; gap: 8px; }
@@ -881,11 +872,7 @@ input[type='text'], input[type='search'], select { border-radius: 16px; backgrou
 .tour-table tr.lead th, .tour-table tr.lead td { color: #f5c76a; }
 .tour-winner { margin: 0; font-size: 20px; font-weight: 650; letter-spacing: -.02em; }
 
-/* Foto-Check */
-.photo-start { justify-items: center; text-align: center; }
-.photo-start p { margin: 0; }
-.photo-start .btn { width: 100%; }
-.photo-icon { font-size: 42px; }
+/* Kauf-Check: Ergebnis */
 .photo-result { display: grid; gap: 10px; border-left: 4px solid var(--card-line); }
 .photo-result.o-buy { border-left-color: var(--stamina); }
 .photo-result.o-maybe { border-left-color: #f5b83d; }
@@ -1346,13 +1333,6 @@ input[type='text']:focus, input[type='search']:focus, select:focus { border-colo
 .live-cta span:last-child { gap: 6px; }
 .live-cta-icon { width: 60px; height: 60px; border-radius: 50%; background: #fff !important; color: var(--x-red); font-size: 20px; padding-left: 3px; box-shadow: 0 10px 24px -8px rgba(80, 0, 10, .7); }
 
-/* Aktions-Kacheln nebeneinander (Bento) */
-.cta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.cta-grid .scan-cta { flex-direction: column; align-items: flex-start; gap: 14px; padding: 18px; min-height: 172px; }
-.cta-grid .scan-cta span { gap: 4px; }
-.cta-grid .scan-cta strong { font-size: 17px; line-height: 1.15; }
-.cta-grid .scan-cta small { font-size: 13px; line-height: 1.35; }
-.cta-grid .scan-cta:first-child svg { stroke: #fff; background: var(--x-red); box-shadow: 0 10px 22px -10px rgba(242, 41, 58, .9); }
 
 /* Kompakter Hinweis „Zum Home-Bildschirm“ */
 .ios-hint { gap: 6px; padding: 16px 18px; border-radius: 24px; }
@@ -1362,7 +1342,7 @@ input[type='text']:focus, input[type='search']:focus, select:focus { border-colo
 
 /* Ruhiger Auftritt: Karten gleiten beim Seitenwechsel nacheinander herein */
 @media (prefers-reduced-motion: no-preference) {
-  .stack > :is(.card, .section, .cta-grid, .hero-card, .empty, .btn, .list) { animation: soft-in .45s var(--ease) backwards; }
+  .stack > :is(.card, .section, .hero-card, .empty, .btn, .list) { animation: soft-in .45s var(--ease) backwards; }
   .stack > :nth-child(2) { animation-delay: .04s; }
   .stack > :nth-child(3) { animation-delay: .08s; }
   .stack > :nth-child(4) { animation-delay: .12s; }
@@ -1402,7 +1382,7 @@ input[type='text']:focus, input[type='search']:focus, select:focus { border-colo
 .owned-row .bey-img-md { width: 56px; height: 56px; flex: none; }
 .owned-code { margin-left: 6px; color: var(--faint); font-size: 12px; font-variant-numeric: tabular-nums; }
 
-/* Scanner: Auswahl Foto / Live */
+/* Kauf-Check: Auswahl scannen / fotografieren */
 .scan-choice {
   display: flex; align-items: center; gap: 16px; width: 100%; padding: 16px; text-align: left; cursor: pointer;
   border-radius: 22px; border: 1px solid var(--hair); background: var(--surface-2); color: var(--text); font: inherit;
@@ -1418,7 +1398,6 @@ input[type='text']:focus, input[type='search']:focus, select:focus { border-colo
 .scan-choice.primary { border-color: transparent; background: linear-gradient(150deg, #ff3b4c, #d81428); box-shadow: 0 16px 32px -18px rgba(242, 41, 58, .9); }
 .scan-choice.primary small { color: rgba(255, 255, 255, .85); }
 .scan-choice.primary .scan-choice-icon { background: #fff; }
-.scan-reading { justify-items: center; text-align: center; padding: 28px 16px; }
 
 /* ===== Soft Plate, Stufe 3: Kombo-Karte, Schichten, Schalter, Überschriften ===== */
 
@@ -1645,8 +1624,6 @@ input[type='text']:focus, input[type='search']:focus, select:focus { background-
 .trait-icon .lucide { width: 18px; height: 18px; color: var(--text); }
 .trait.strong .trait-icon { background: rgba(240, 40, 60, .18); }
 .trait.strong .trait-icon .lucide { color: #ff6b7a; }
-.photo-icon .lucide { width: 30px; height: 30px; stroke-width: 1.8; }
-.scan-status { display: flex; align-items: center; gap: 6px; }
 .link .lucide, .ico-inline { width: .95em; height: .95em; }
 
 /* ---- Typografie: Inter Tight ---- */
@@ -1875,13 +1852,6 @@ html { scroll-padding-bottom: calc(var(--nav-h) + var(--nav-gap) + var(--s-6)); 
 .progress-track span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #ff7a86, var(--x-red)); }
 .progress-text { flex: none; font-size: 12.5px; font-variant-numeric: tabular-nums; color: var(--text-2); }
 
-/* Aktionen: zwei flache Schaltflächen statt hoher Kacheln */
-.cta-grid { gap: var(--s-2); }
-.cta-grid .scan-cta { flex-direction: row; align-items: center; gap: var(--s-3); min-height: 64px; padding: var(--s-2) var(--s-3) var(--s-2) var(--s-2); border-radius: var(--r-md); }
-.cta-grid .scan-cta svg { width: 22px; height: 22px; padding: 12px; border-radius: 14px; }
-.cta-grid .scan-cta strong { font-size: 15px; line-height: 1.2; }
-.cta-grid .scan-cta small { display: none; }
-@media (min-width: 520px) { .cta-grid .scan-cta small { display: block; } }
 
 /* ---- Kreisel-Kacheln: Bild im Mittelpunkt ---- */
 .tiles { gap: var(--s-3); }
@@ -2362,6 +2332,24 @@ html, .live { background-color: var(--night); }
 .sheet .infobox caption::before { content: none; }
 .sheet-body > .lead { margin-top: var(--s-1); }
 .scan-choice.primary { background: var(--grad-primary); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .22), var(--glow-primary); }
+
+/* Kauf-Check: der eine Einstieg in der Sammlung (scannen, fotografieren, eintippen) */
+.check-cta { gap: var(--s-3); padding: var(--s-3); }
+.check-cta svg:first-child { stroke: #fff; background: var(--x-red); box-shadow: 0 10px 22px -10px rgba(242, 41, 58, .9); }
+.check-cta > span { flex: 1; min-width: 0; }
+.check-cta strong { font-size: 18px; line-height: 1.15; }
+.check-cta small { font-size: 13.5px; line-height: 1.35; text-wrap: pretty; }
+.scan-cta .check-cta-go { box-sizing: border-box; width: 22px; height: 22px; padding: 0; border-radius: 0; background: none; stroke: var(--text-3); stroke-width: 2; }
+/* Startseite: die drei Wege untereinander */
+.check-ways { display: grid; gap: 10px; }
+.scan-choice-icon .lucide { stroke-width: 1.8; }
+.check-or { margin: 0; font-size: 15px; }
+.check-local { text-align: center; margin: 0; }
+/* Ergebnis: nächste Packung scannen, falsche Zuordnung korrigieren */
+.check-more { align-items: center; }
+.check-wish { display: flex; align-items: center; gap: 6px; margin: 0; color: #ff8a80; font-weight: 600; font-size: 14px; }
+.check-wish svg { width: 16px; height: 16px; }
+.check-more .btn svg { width: 18px; height: 18px; vertical-align: -3px; margin-right: 4px; }
 .shop-input input::placeholder { text-overflow: ellipsis; }
 .shop-input input { text-overflow: ellipsis; }
 /* Querformat: wenig Höhe – Kopfzeile und Werkzeuge kompakter, damit die Liste Platz behält */

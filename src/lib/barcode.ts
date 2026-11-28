@@ -1,4 +1,4 @@
-// Barcode-Erkennung für den Scan-Modus.
+// Barcode-Erkennung für den Kauf-Check (Live-Scan und Foto).
 // Nutzt den eingebauten BarcodeDetector (Chrome/Android), sonst ZXing als WebAssembly (iPhone/Safari).
 // Die WASM-Datei liegt mit im Build (kein CDN) und wird erst beim ersten Scan geladen.
 

@@ -1,4 +1,4 @@
-// Live-Kamera mit Barcode-Leser – gemeinsam für „Packung scannen“ und den Kauf-Check.
+// Live-Kamera mit Barcode-Leser für den Kauf-Check.
 import { useEffect, useRef } from 'preact/hooks';
 import type { RefObject } from 'preact';
 import { createDetector, normalizeGtin, validGtin } from './barcode';

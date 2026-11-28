@@ -9,7 +9,7 @@ const CLOSE_MS = 180;
 /**
  * Vollbild-Dialog: Fokus rein und zurück, Escape schließt, Tab bleibt im Dialog, Hintergrund scrollt nicht.
  * Läuft nur beim Öffnen/Schließen (onClose per Ref). Ist ein weiteres Fenster darüber offen
- * (Teile-Auswahl, Scanner, Großansicht), kümmert sich dieses um die Tasten.
+ * (Teile-Auswahl, Großansicht), kümmert sich dieses um die Tasten.
  *
  * Gibt `close` zurück: schließt mit kurzer Animation (Klasse `is-closing` am Fenster bzw. seinem Hintergrund)
  * und ruft erst danach `onClose`. Mit „Bewegung reduzieren“ schließt es sofort.

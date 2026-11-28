@@ -27,6 +27,8 @@ interface Props {
   meta?: MetaFeed | null;
   /** direkt mit der Bewertung dieser Packung starten („Kaufen?“-Knopf) */
   initialCode?: string;
+  /** direkt mit der Kamera starten („Scannen“ im Einkaufsmodus) – Zurück führt zur Auswahl */
+  start?: 'live';
   onClose: () => void;
 }
 
@@ -37,7 +39,8 @@ type Level =
   | { k: 'working'; step: string; p?: number }
   | { k: 'pick'; list: Product[]; barcode: string | null; learn: boolean; sure: boolean }
   | { k: 'none'; barcode: string | null; learn: boolean; front?: boolean }
-  | { k: 'result'; product: Product }
+  /** `barcode`: über diesen gelesenen Barcode gefunden (lässt sich neu zuordnen). `live`: kam aus dem Live-Scan. */
+  | { k: 'result'; product: Product; barcode?: string | null; live?: boolean }
   | { k: 'error'; why?: 'nocam' | 'noreader' };
 
 /** Zwischenstände: Sie werden ersetzt statt gestapelt – „Zurück“ landet nie in einer Ladeanzeige oder Fehlermeldung. */
@@ -47,11 +50,12 @@ const fmt = (n: number) => new Intl.NumberFormat(NUM_LOCALE, { maximumFractionDi
 const nextFrame = () => new Promise<void>((r) => requestAnimationFrame(() => r()));
 
 /**
- * Kauf-Check: Packung fotografieren, live scannen oder suchen → erkennen → bewerten (schon da? wie viel fürs Deck? Preis okay?).
+ * Kauf-Check: Packung scannen, fotografieren oder suchen → erkennen → bewerten (schon da? wie viel fürs Deck? Preis okay?)
+ * → von dort in die Sammlung oder auf die Wunschliste. Der eine Einstieg für alles rund um eine Packung.
  * Alle drei Wege enden im selben Ergebnis. Zurück (Knopf oben links oder vom linken Rand wischen) geht eine Ebene zurück,
  * „Neuer Check“ beginnt von vorn, nur „Schließen“ auf der Startseite verlässt den Kauf-Check.
  */
-export function PhotoCheck({ db, state, update, meta, onClose, initialCode }: Props) {
+export function PhotoCheck({ db, state, update, meta, onClose, initialCode, start }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const pageRef = useRef<HTMLDivElement>(null);
   const underRef = useRef<HTMLDivElement>(null);
@@ -61,7 +65,7 @@ export function PhotoCheck({ db, state, update, meta, onClose, initialCode }: Pr
   const { rates, barcodes: shipped, register } = useApp();
   const [stack, setStack] = useState<Level[]>(() => {
     const p = initialCode ? db.products.find((x) => x.code === initialCode) : undefined;
-    if (!p) return [{ k: 'idle' }];
+    if (!p) return start === 'live' ? [{ k: 'idle' }, { k: 'live', ready: false }] : [{ k: 'idle' }];
     const first = db.products.find((x) => x.kind === p.kind && groupKey(x) === groupKey(p)) ?? p;
     return [{ k: 'result', product: first }];
   });
@@ -72,6 +76,8 @@ export function PhotoCheck({ db, state, update, meta, onClose, initialCode }: Pr
   const [msg, setMsg] = useState('');
   const [round, setRound] = useState(0);
   const run = useRef(0);
+  /** Wie die aktuelle Packung hereinkam – nach einem Live-Scan bietet das Ergebnis „Nächste Packung scannen“ an */
+  const way = useRef<'live' | 'photo' | 'text'>(start === 'live' ? 'live' : 'text');
   /** Läuft gerade ein Zurück (Animation)? Weitere Tipps/Gesten warten – ein Doppeltipp geht nur eine Ebene zurück. */
   const leaving = useRef(false);
   /** Richtung des letzten Wechsels: vorwärts gleitet die neue Ebene von rechts herein (wie iOS) */
@@ -130,7 +136,7 @@ export function PhotoCheck({ db, state, update, meta, onClose, initialCode }: Pr
       if (oneBuy && res.sure) {
         // Barcode nur bei eindeutigem Produktcode merken – ein Namens-Treffer soll keinen Barcode „festnageln“.
         if (barcode && learnable && res.via === 'code') learn(barcode, head(first));
-        return go({ k: 'result', product: head(first) });
+        return go({ k: 'result', product: head(first), barcode: learnable ? barcode : null, live: way.current === 'live' });
       }
       // Gleiche Käufe (z. B. drei Kreisel eines Sets) nur einmal anbieten
       const list = res.products.filter((p, i, a) => a.findIndex((q) => q.kind === p.kind && groupKey(q) === groupKey(p)) === i).map(head);
@@ -153,10 +159,12 @@ export function PhotoCheck({ db, state, update, meta, onClose, initialCode }: Pr
   /** Kamera/Galerie öffnen. `barcode`: gelesener, noch unbekannter Barcode, zu dem jetzt die Vorderseite fotografiert wird. */
   const pickPhoto = (input: { current: HTMLInputElement | null }, barcode: string | null = null) => {
     keep.current = barcode;
+    // Das Foto der Vorderseite gehört noch zum selben Scan – der Weg bleibt, wie er war
+    if (!barcode) way.current = 'photo';
     input.current?.click();
   };
 
-  // Live-Scan: dieselbe Kamera-Logik wie „Packung scannen“
+  // Live-Scan: Kamera mit Barcode-Leser (lib/barcodeCamera.ts)
   // Sofort (nicht erst nach dem nächsten Zeichnen) aus, sobald die Live-Ebene verlassen wird – sonst käme ein
   // während der Zurück-Animation gelesener Code noch als Ergebnis an.
   const liveOn = useRef(false);
@@ -167,7 +175,7 @@ export function PhotoCheck({ db, state, update, meta, onClose, initialCode }: Pr
     onCode: (gtin, frame) => {
       if (!liveOn.current) return;
       const p = db.products.find((x) => x.code === known[gtin]);
-      if (p) return go({ k: 'result', product: head(p) });
+      if (p) return go({ k: 'result', product: head(p), barcode: gtin, live: true });
       // Unbekannter Barcode: Packung auf demselben Bild per Texterkennung bestimmen
       if (frame) void analyze(frame, gtin);
       else go({ k: 'none', barcode: gtin, learn: true });
@@ -176,6 +184,7 @@ export function PhotoCheck({ db, state, update, meta, onClose, initialCode }: Pr
   });
   const startLive = () => {
     run.current++;
+    way.current = 'live';
     setRound((r) => r + 1);
     go({ k: 'live', ready: false });
   };
@@ -192,8 +201,29 @@ export function PhotoCheck({ db, state, update, meta, onClose, initialCode }: Pr
 
   // Vom Nutzer bestätigt → Barcode darf gelernt werden
   const choose = (p: Product) => {
-    if ((level.k === 'none' || level.k === 'pick') && level.barcode && level.learn) learn(level.barcode, head(p));
-    go({ k: 'result', product: head(p) });
+    const scanned = (level.k === 'none' || level.k === 'pick') && level.barcode && level.learn ? level.barcode : null;
+    if (scanned) learn(scanned, head(p));
+    // Auf der Startseite eingetippt: kein Scan
+    if (level.k === 'idle') way.current = 'text';
+    go({ k: 'result', product: head(p), barcode: scanned, live: !!scanned && way.current === 'live' });
+  };
+
+  /** Falsch erkannt: eigene Zuordnung des Barcodes löschen und neu wählen (überschreibt danach auch die mitgelieferte Liste). */
+  const reassign = (barcode: string) => {
+    update((s) => ({ ...s, barcodes: Object.fromEntries(Object.entries(s.barcodes).filter(([k]) => k !== barcode)) }));
+    setQuery('');
+    go({ k: 'none', barcode, learn: true });
+  };
+
+  /** Nächste Packung: von vorn, gleich wieder mit der Kamera. */
+  const scanNext = () => {
+    run.current++;
+    way.current = 'live';
+    dir.current = 'fwd';
+    setQuery('');
+    setMsg('');
+    setRound((r) => r + 1);
+    setStack([{ k: 'idle' }, { k: 'live', ready: false }]);
   };
 
   /** Neuer Check: zurück zur Startseite, alles leer */
@@ -264,7 +294,35 @@ export function PhotoCheck({ db, state, update, meta, onClose, initialCode }: Pr
       case 'idle':
         return (
           <>
+            {/* Die Wahl: scannen (am schnellsten), fotografieren oder eintippen – alle drei führen zur selben Bewertung */}
+            {!query.trim() && (
+              <div class="check-ways">
+                <button type="button" class="scan-choice primary" onClick={startLive}>
+                  <span class="scan-choice-icon" aria-hidden="true">
+                    <ScanBarcode />
+                  </span>
+                  <span>
+                    <strong>{tr('Barcode scannen')}</strong>
+                    <small>{tr('Kamera auf den Barcode halten – am schnellsten')}</small>
+                  </span>
+                </button>
+                <button type="button" class="scan-choice" onClick={() => pickPhoto(camRef)}>
+                  <span class="scan-choice-icon" aria-hidden="true">
+                    <Camera />
+                  </span>
+                  <span>
+                    <strong>{tr('Packung fotografieren')}</strong>
+                    <small>{tr('Rückseite mit Barcode oder Vorderseite mit Nummer (z. B. „BX-05“)')}</small>
+                  </span>
+                </button>
+              </div>
+            )}
             <div class="card glass stack-sm">
+              {!query.trim() && (
+                <p class="check-or">
+                  <strong>{tr('Oder eintippen')}</strong>
+                </p>
+              )}
               <label class="shop-input">
                 <span class="sr-only">{tr('Packung eintippen')}</span>
                 <input
@@ -281,28 +339,16 @@ export function PhotoCheck({ db, state, update, meta, onClose, initialCode }: Pr
               {query.trim().length >= 2 ? (
                 <ProductList db={db} list={textMatches(query)} onPick={choose} />
               ) : (
-                <p class="fineprint">{tr('Japanischer oder Hasbro-Name, Produktcode – du bekommst dieselbe Bewertung wie beim Foto.')}</p>
+                <p class="fineprint">{tr('Japanischer oder Hasbro-Name, Produktcode – du bekommst dieselbe Bewertung wie beim Scan.')}</p>
               )}
             </div>
             {!query.trim() && (
-              <div class="card glass stack-sm photo-start">
-                <span class="photo-icon" aria-hidden="true">
-                  <Camera />
-                </span>
-                <p>
-                  <strong>{tr('Packung fotografieren')}</strong>
-                </p>
-                <p class="muted">{tr('Am besten die Rückseite mit dem Barcode – oder die Vorderseite mit Code (z. B. „BX-05“) bzw. Namen, gerade und gut beleuchtet. Die Erkennung läuft auf deinem Handy.')}</p>
-                <button type="button" class="btn btn-primary" onClick={() => pickPhoto(camRef)}>
-                  {tr('Foto machen')}
-                </button>
-                <button type="button" class="btn" onClick={() => pickPhoto(galRef)}>
+              <>
+                <button type="button" class="btn btn-ghost" onClick={() => pickPhoto(galRef)}>
                   {tr('Aus der Galerie wählen')}
                 </button>
-                <button type="button" class="btn btn-ghost" onClick={startLive}>
-                  <ScanBarcode aria-hidden="true" /> {tr('Barcode live scannen')}
-                </button>
-              </div>
+                <p class="fineprint check-local">{tr('Die Erkennung läuft auf deinem Handy – nichts wird hochgeladen.')}</p>
+              </>
             )}
           </>
         );
@@ -388,7 +434,21 @@ export function PhotoCheck({ db, state, update, meta, onClose, initialCode }: Pr
           </div>
         );
       case 'result':
-        return <Result db={db} state={state} update={update} product={l.product} rate={rate} cur={cur} setCur={setCur} msg={msg} setMsg={setMsg} />;
+        return (
+          <Result
+            db={db}
+            state={state}
+            update={update}
+            product={l.product}
+            rate={rate}
+            cur={cur}
+            setCur={setCur}
+            msg={msg}
+            setMsg={setMsg}
+            onNext={l.live ? scanNext : undefined}
+            onReassign={l.barcode && !isStoreCode(l.barcode) ? () => reassign(l.barcode!) : undefined}
+          />
+        );
     }
   };
 
@@ -447,7 +507,7 @@ function BarcodeNote({ code, learn }: { code: string; learn: boolean }) {
   );
 }
 
-function ProductList({ db, list, onPick }: { db: Database; list: Product[]; onPick: (p: Product) => void }) {
+function ProductList({ db, list, onPick, note }: { db: Database; list: Product[]; onPick: (p: Product) => void; note?: (p: Product) => string | undefined }) {
   if (!list.length) return <p class="muted">{tr('Nichts gefunden.')}</p>;
   // Sets mit mehreren Kreiseln: alle Kreisel nennen, nicht nur den ersten
   const title = (p: Product) => {
@@ -473,6 +533,7 @@ function ProductList({ db, list, onPick }: { db: Database; list: Product[]; onPi
               <span class="row-title">{title(p)}</span>
               <span class="row-sub">
                 <span class={`region-tag ${p.region === 'hasbro' ? 'hasbro' : 'takara'}`}>{regionLabel(p)}</span> {p.code}
+                {note?.(p) && <span class="row-note"> · {note(p)}</span>}
               </span>
             </span>
           </button>
@@ -492,9 +553,13 @@ interface ResultProps {
   setCur: (c: ShopPrice['cur']) => void;
   msg: string;
   setMsg: (m: string) => void;
+  /** nach einem Live-Scan: gleich die nächste Packung scannen */
+  onNext?: () => void;
+  /** über einen Barcode gefunden: falsche Zuordnung korrigieren */
+  onReassign?: () => void;
 }
 
-function Result({ db, state, update, product, rate, cur, setCur, msg, setMsg }: ResultProps) {
+function Result({ db, state, update, product, rate, cur, setCur, msg, setMsg, onNext, onReassign }: ResultProps) {
   const { rates } = useApp();
   const isRandom = product.kind === 'random-booster';
   const group = useMemo(() => db.products.filter((p) => p.kind === product.kind && groupKey(p) === groupKey(product)), [db, product]);
@@ -509,6 +574,7 @@ function Result({ db, state, update, product, rate, cur, setCur, msg, setMsg }: 
   const metaHit = ratings.map((r) => r.meta[0]).filter((u) => !!u).sort((a, b) => b!.share - a!.share)[0];
   const overall = isRandom ? (group.every((p) => (state.owned[p.code] ?? 0) > 0) ? 'owned' : judgeWithMeta(avgGain, avgMeta, main.price)) : main.overall;
   const own = overall === 'owned';
+  const ownedInPack = isRandom ? group.filter((p) => (state.owned[p.code] ?? 0) > 0).length : 0;
   const blade = product.bladeId ? db.blades.find((b) => b.id === product.bladeId) : undefined;
   const sym = cur === 'THB' ? '฿' : '€';
   const ref = refPrice(product, rates);
@@ -545,6 +611,7 @@ function Result({ db, state, update, product, rate, cur, setCur, msg, setMsg }: 
                   {tr('Bester Turnier-Treffer:')} {metaHit.name} ({pct(metaHit.share)} {tr('der Siegerdecks')}{metaHit.share >= META_TOP ? tr(', Top-Teil') : ''}).
                 </li>
               )}
+              {ownedInPack > 0 && <li>{tr('{0} von {1} möglichen Kreiseln hast du schon.', ownedInPack, group.length)}</li>}
               <li>{tr('Welcher Kreisel drin ist, siehst du erst beim Öffnen.')}</li>
               {main.price && <li>{main.price.verdict === 'good' ? tr('Der Preis ist gut.') : main.price.verdict === 'ok' ? tr('Der Preis ist okay.') : tr('Der Preis ist hoch.')}</li>}
             </>
@@ -606,6 +673,7 @@ function Result({ db, state, update, product, rate, cur, setCur, msg, setMsg }: 
           <ProductList
             db={db}
             list={group}
+            note={(p) => ((state.owned[p.code] ?? 0) > 0 ? tr('hast du schon') : undefined)}
             onPick={(p) => {
               update((s) => ({ ...s, owned: { ...s.owned, [p.code]: (s.owned[p.code] ?? 0) + 1 }, wishlist: s.wishlist.filter((c) => !group.some((g) => g.code === c)) }));
               setMsg(tr('{0} ist jetzt in deiner Sammlung.', p.code));
@@ -645,10 +713,29 @@ function Result({ db, state, update, product, rate, cur, setCur, msg, setMsg }: 
           </button>
         )}
       </div>
+      {state.wishlist.includes(product.code) && (main.owned ?? 0) === 0 && (
+        <p class="muted check-wish">
+          <Heart aria-hidden="true" fill="currentColor" /> {tr('Steht auf deiner Wunschliste')}
+        </p>
+      )}
       {msg && (
         <p class="muted" role="status">
           {msg}
         </p>
+      )}
+      {(onNext || onReassign) && (
+        <div class="btn-row check-more">
+          {onNext && (
+            <button type="button" class="btn" onClick={onNext}>
+              <ScanBarcode aria-hidden="true" /> {tr('Nächste Packung scannen')}
+            </button>
+          )}
+          {onReassign && (
+            <button type="button" class="btn btn-ghost btn-sm" onClick={onReassign}>
+              {tr('Falsches Produkt? Neu zuordnen')}
+            </button>
+          )}
+        </div>
       )}
       <p class="fineprint">{tr('Punkte = wie viel stärker dein bestes 3er-Deck gegen die aktuellen Turnier-Kombos wird. Richtwert, kein Messwert.')}</p>
     </div>

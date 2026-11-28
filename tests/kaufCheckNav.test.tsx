@@ -60,9 +60,9 @@ describe('Kauf-Check: Navigation', () => {
     fireEvent.click(top().getAllByRole('button').find((b) => b.textContent?.includes('BX-01'))!);
     fireEvent.click(bar.getByRole('button', { name: 'Neuer Check' }));
     expect((top().getByRole('searchbox') as HTMLInputElement).value).toBe('');
-    expect(top().getByRole('button', { name: 'Foto machen' })).toBeTruthy();
+    expect(top().getByRole('button', { name: /Packung fotografieren/ })).toBeTruthy();
     expect(top().getByRole('button', { name: 'Aus der Galerie wählen' })).toBeTruthy();
-    expect(top().getByRole('button', { name: /Barcode live scannen/ })).toBeTruthy();
+    expect(top().getByRole('button', { name: /Barcode scannen/ })).toBeTruthy();
     fireEvent.click(bar.getByRole('button', { name: 'Schließen' }));
     expect(onClose).toHaveBeenCalledTimes(1);
   });
@@ -84,7 +84,7 @@ describe('Kauf-Check: Navigation', () => {
     fireEvent.click(bar.getByRole('button', { name: 'Zurück' }));
     await waitFor(() => expect(top().getByText('Mehrere Treffer – welche ist es?')).toBeTruthy());
     fireEvent.click(bar.getByRole('button', { name: 'Zurück' }));
-    await waitFor(() => expect(top().getByRole('button', { name: 'Foto machen' })).toBeTruthy());
+    await waitFor(() => expect(top().getByRole('button', { name: /Packung fotografieren/ })).toBeTruthy());
   });
 
   it('Zurück während der Erkennung: kein veraltetes Ergebnis danach', async () => {
@@ -94,11 +94,11 @@ describe('Kauf-Check: Navigation', () => {
     pickPhoto(root);
     await waitFor(() => expect(top().getByRole('status')).toBeTruthy());
     fireEvent.click(bar.getByRole('button', { name: 'Zurück' }));
-    await waitFor(() => expect(top().getByRole('button', { name: 'Foto machen' })).toBeTruthy());
+    await waitFor(() => expect(top().getByRole('button', { name: /Packung fotografieren/ })).toBeTruthy());
     finish(result({ products: [prod('BX-01')], via: 'code', sure: true }));
     await new Promise((r) => setTimeout(r, 20));
     expect(document.querySelector('.photo-result')).toBeNull();
-    expect(top().getByRole('button', { name: 'Foto machen' })).toBeTruthy();
+    expect(top().getByRole('button', { name: /Packung fotografieren/ })).toBeTruthy();
   });
 });
 

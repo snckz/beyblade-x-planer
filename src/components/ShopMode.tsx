@@ -12,7 +12,6 @@ import { useModal } from '../lib/useModal';
 import { BeyImage } from './BeyImage';
 import { PriceInput } from './PriceInput';
 import { purchaseCodes } from '../lib/data';
-import { Scanner } from './Scanner';
 import { Check } from 'lucide-preact';
 
 interface Props {
@@ -33,8 +32,8 @@ export function ShopMode({ db, state, update, meta, onClose }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const { rates, openCheck } = useApp();
   const [cur, setCur] = useState<ShopPrice['cur']>(() => Object.values(state.shopPrices)[0]?.cur ?? 'THB');
-  const [scan, setScan] = useState(false);
-  const [photo, setPhoto] = useState(false);
+  // Kauf-Check: mit der Auswahl (scannen, fotografieren, eintippen) oder gleich mit der Kamera
+  const [check, setCheck] = useState<'start' | 'live' | null>(null);
   const [offline, setOffline] = useState<'idle' | 'busy' | 'ok' | 'fail' | 'nosw'>('idle');
   const close = useModal(ref, onClose, { animate: true });
 
@@ -79,20 +78,20 @@ export function ShopMode({ db, state, update, meta, onClose }: Props) {
           {tr('Schließen')}
         </button>
         <span class="live-title">{tr('Einkaufsmodus')}</span>
-        <button type="button" class="btn btn-sm btn-primary" onClick={() => setScan(true)}>
+        <button type="button" class="btn btn-sm btn-primary" onClick={() => setCheck('live')}>
           {tr('Scannen')}
         </button>
       </div>
 
       <div class="shop-body stack-sm">
-        <button type="button" class="card glass scan-cta" onClick={() => setPhoto(true)}>
+        <button type="button" class="card glass scan-cta" onClick={() => setCheck('start')}>
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z" />
             <circle cx="12" cy="13" r="3.5" />
           </svg>
           <span>
-            <strong>{tr('Kauf-Check: Foto oder Name')}</strong>
-            <small>{tr('Packung fotografieren oder eintippen – sofort Bewertung')}</small>
+            <strong>{tr('Kauf-Check')}</strong>
+            <small>{tr('Scannen, fotografieren oder eintippen – sofort Bewertung')}</small>
           </span>
         </button>
         <div class="shop-head">
@@ -222,8 +221,7 @@ export function ShopMode({ db, state, update, meta, onClose }: Props) {
           </div>
         )}
       </div>
-      {scan && <Scanner db={db} state={state} update={update} onClose={() => setScan(false)} />}
-      {photo && <PhotoCheck db={db} state={state} update={update} meta={meta} onClose={() => setPhoto(false)} />}
+      {check && <PhotoCheck key={check} db={db} state={state} update={update} meta={meta} start={check === 'live' ? 'live' : undefined} onClose={() => setCheck(null)} />}
     </div>
   );
 }

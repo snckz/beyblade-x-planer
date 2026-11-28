@@ -264,7 +264,7 @@ export function App() {
   const bladeName = useCallback((b: { name: string; hasbroName?: string }) => displayName(b), []);
   const owned = state.owned;
   const ownedCount = useCallback((code: string) => owned[code] ?? 0, [owned]);
-  // Mitgelieferte Barcodes, auf die Produkte der Datenbank aufgelöst (Scanner und Kauf-Check erkennen Packungen damit sofort)
+  // Mitgelieferte Barcodes, auf die Produkte der Datenbank aufgelöst (der Kauf-Check erkennt Packungen damit sofort)
   const barcodes = useMemo(() => (db ? knownBarcodes(barcodeFeed, db.products) : {}), [barcodeFeed, db]);
   const ctx = useMemo(
     () => ({ images, rates, openBlade, openImage, openCheck, ownedCount, bladeName, hasbroNames, barcodes, register, meta }),

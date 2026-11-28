@@ -12,7 +12,6 @@ import { ownedParts, purchaseCodes } from '../lib/data';
 import { Empty, Section, TypeChip } from './ui';
 import { LanguageSetting } from './LanguagePrompt';
 import { useApp } from '../lib/context';
-import { Scanner } from './Scanner';
 import { Transfer } from './Transfer';
 import { Advisor } from './Advisor';
 import { ShopMode } from './ShopMode';
@@ -22,7 +21,7 @@ import { isAndroidBrowser, saveBlob } from '../lib/download';
 import { Showcase } from './Showcase';
 import { nb } from '../lib/analysis';
 import { convert, groupKey, priceHint, sumPrices, yen } from '../lib/price';
-import { CalendarPlus, FileDown, ShoppingCart } from 'lucide-preact';
+import { CalendarPlus, ChevronRight, FileDown, ShoppingCart } from 'lucide-preact';
 import { ConfirmSheet } from './ConfirmSheet';
 import { SwipeRow } from './SwipeRow';
 import { showUndo } from '../lib/undo';
@@ -39,7 +38,6 @@ export function Collection({ db, state, update, events = [], meta }: Props) {
   const parts = useMemo(() => ownedParts(db, state.owned), [db, state.owned]);
   const fileRef = useRef<HTMLInputElement>(null);
   const [msg, setMsg] = useState('');
-  const [scan, setScan] = useState(false);
   const [transfer, setTransfer] = useState(false);
   const [shop, setShop] = useState(false);
   const [photo, setPhoto] = useState(false);
@@ -173,28 +171,17 @@ export function Collection({ db, state, update, events = [], meta }: Props) {
           </span>
         </div>
       )}
-      <div class="cta-grid">
-        <button type="button" class="card glass scan-cta" onClick={() => setScan(true)}>
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3M7 8v8M10 8v8M13 8v8M16 8v8" />
-          </svg>
-          <span>
-            <strong>{tr('Packung scannen')}</strong>
-            <small>{tr('Barcode fotografieren – landet in der Sammlung')}</small>
-          </span>
-        </button>
-        <button type="button" class="card glass scan-cta" onClick={() => setPhoto(true)}>
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z" />
-            <circle cx="12" cy="13" r="3.5" />
-          </svg>
-          <span>
-            <strong>{tr('Kauf-Check')}</strong>
-            <small>{tr('Foto oder Name – lohnt sich die Packung?')}</small>
-          </span>
-        </button>
-      </div>
-      {scan && <Scanner db={db} state={state} update={update} onClose={() => setScan(false)} />}
+      {/* Ein Einstieg für alles rund um eine Packung: scannen, fotografieren oder eintippen → Bewertung → in die Sammlung */}
+      <button type="button" class="card glass scan-cta check-cta" onClick={() => setPhoto(true)}>
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3M7 8v8M10 8v8M13 8v8M16 8v8" />
+        </svg>
+        <span>
+          <strong>{tr('Kauf-Check')}</strong>
+          <small>{tr('Scannen, fotografieren oder eintippen – lohnt sich die Packung?')}</small>
+        </span>
+        <ChevronRight class="check-cta-go" aria-hidden="true" />
+      </button>
       {showcase && <Showcase db={db} state={state} onClose={() => setShowcase(false)} />}
       {adding && <AddProducts db={db} state={state} update={update} onClose={() => setAdding(false)} />}
       {photo && <PhotoCheck db={db} state={state} update={update} meta={meta} onClose={() => setPhoto(false)} />}
