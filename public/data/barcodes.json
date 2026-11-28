@@ -1,9 +1,12 @@
 {
-  "_hinweis": "Barcodes (EAN-13) auf Packungen → Artikelnummer. Damit erkennt der Scan eine Packung beim ersten Mal, ohne dass man sie zuordnen muss. Nur Einträge aufnehmen, bei denen ein Händler Barcode und Artikelnummer (oder den vollen Produktnamen) zusammen nennt – nichts raten. product = Produktnummer aus db.json; bei Sets die Nummer der Packung ohne Unternummer (G0197 statt G0197-01). Selbst zugeordnete Barcodes in der App haben Vorrang.",
-  "updatedAt": "2026-11-18",
+  "_hinweis": "Barcodes (EAN-13) auf Packungen → Artikelnummer. Damit erkennt der Scan eine Packung beim ersten Mal, ohne dass man sie zuordnen muss. Nur Einträge aufnehmen, bei denen ein Händler Barcode und Artikelnummer (oder den vollen Produktnamen) zusammen nennt – nichts raten, nichts aus anderen Nummern ableiten. product = Produktnummer aus db.json; bei Sets und Random Boostern die Nummer der Packung ohne Unternummer (G0197 statt G0197-01, BX-24 statt BX-24-03). Takara-Tomy-Barcodes stammen von japanischen Händlern; ob Packungen aus anderen Ländern denselben Barcode tragen, ist nicht geprüft. Selbst zugeordnete Barcodes in der App haben Vorrang.",
+  "updatedAt": "2026-11-28",
   "sources": {
     "toys-shop.gr": "https://www.toys-shop.gr/el/s/55-beyblade – Produktseiten nennen „EAN13“ und die Hersteller-Nr.",
-    "collectibleshunters.it": "https://collectibleshunters.it/collections/beyblade – Produktdaten nennen Barcode und „Codice prodotto“."
+    "collectibleshunters.it": "https://collectibleshunters.it/collections/beyblade – Produktdaten nennen Barcode und „Codice prodotto“.",
+    "hlj.com": "https://www.hlj.com – Produktseiten nennen die Produktnummer im Titel (z. B. „BX-01 Starter …“) und „JAN Code“.",
+    "1999.co.jp": "https://www.1999.co.jp/eng – Produktseiten nennen die Produktnummer im Titel und „JAN code“.",
+    "japanzon.com": "https://www.japanzon.com/en/408-beyblade – Produktseiten nennen die Produktnummer im Titel und „JAN Code“; die JAN steht auch in der Adresse der Produktseite."
   },
   "barcodes": {
     "5010996256607": {
@@ -213,6 +216,286 @@
     "5010996439321": {
       "product": "G4571",
       "source": "collectibleshunters.it"
+    },
+    "4904810910381": {
+      "product": "BX-01",
+      "source": "hlj.com"
+    },
+    "4904810084174": {
+      "product": "BX-50",
+      "source": "hlj.com"
+    },
+    "4904810096122": {
+      "product": "BX-49",
+      "source": "hlj.com"
+    },
+    "4904810914532": {
+      "product": "BX-31",
+      "source": "hlj.com"
+    },
+    "4904810096092": {
+      "product": "BX-48",
+      "source": "hlj.com"
+    },
+    "4904810914617": {
+      "product": "BX-36",
+      "source": "hlj.com"
+    },
+    "4904810912972": {
+      "product": "BX-16",
+      "source": "hlj.com"
+    },
+    "4904810912965": {
+      "product": "BX-14",
+      "source": "hlj.com"
+    },
+    "4904810939511": {
+      "product": "BX-39",
+      "source": "hlj.com"
+    },
+    "4904810913061": {
+      "product": "BX-19",
+      "source": "hlj.com"
+    },
+    "4904810914563": {
+      "product": "BX-34",
+      "source": "hlj.com"
+    },
+    "4904810913030": {
+      "product": "BX-15",
+      "source": "hlj.com"
+    },
+    "4904810913092": {
+      "product": "BX-23",
+      "source": "hlj.com"
+    },
+    "4904810939597": {
+      "product": "CX-01",
+      "source": "hlj.com"
+    },
+    "4904810939580": {
+      "product": "BX-45",
+      "source": "hlj.com"
+    },
+    "4904810939504": {
+      "product": "BX-38",
+      "source": "hlj.com"
+    },
+    "4904810914556": {
+      "product": "BX-33",
+      "source": "hlj.com"
+    },
+    "4904810910565": {
+      "product": "BX-13",
+      "source": "hlj.com"
+    },
+    "4904810939528": {
+      "product": "BX-44",
+      "source": "hlj.com"
+    },
+    "4904810939498": {
+      "product": "UX-08",
+      "source": "hlj.com"
+    },
+    "4904810914600": {
+      "product": "UX-06",
+      "source": "hlj.com"
+    },
+    "4904810914488": {
+      "product": "UX-02",
+      "source": "hlj.com"
+    },
+    "4904810914471": {
+      "product": "UX-01",
+      "source": "hlj.com"
+    },
+    "4904810997627": {
+      "product": "UX-17",
+      "source": "hlj.com"
+    },
+    "4904810939535": {
+      "product": "UX-09",
+      "source": "hlj.com"
+    },
+    "4904810958499": {
+      "product": "UX-14",
+      "source": "hlj.com"
+    },
+    "4904810939610": {
+      "product": "CX-03",
+      "source": "hlj.com"
+    },
+    "4904810939603": {
+      "product": "CX-02",
+      "source": "hlj.com"
+    },
+    "4904810097273": {
+      "product": "CX-15",
+      "source": "hlj.com"
+    },
+    "4904810097259": {
+      "product": "CX-13",
+      "source": "hlj.com"
+    },
+    "4904810913047": {
+      "product": "BX-17",
+      "source": "hlj.com"
+    },
+    "4904810914501": {
+      "product": "UX-04",
+      "source": "hlj.com"
+    },
+    "4904810997610": {
+      "product": "BX-46",
+      "source": "hlj.com"
+    },
+    "4904810939542": {
+      "product": "UX-10",
+      "source": "hlj.com"
+    },
+    "4904810914594": {
+      "product": "UX-07",
+      "source": "hlj.com"
+    },
+    "4904810956983": {
+      "product": "CX-08",
+      "source": "hlj.com"
+    },
+    "4904810097167": {
+      "product": "UX-18",
+      "source": "hlj.com"
+    },
+    "4904810914549": {
+      "product": "UX-05",
+      "source": "hlj.com"
+    },
+    "4904810990154": {
+      "product": "UX-16",
+      "source": "hlj.com"
+    },
+    "4904810982432": {
+      "product": "UX-15",
+      "source": "hlj.com"
+    },
+    "4904810939634": {
+      "product": "CX-04",
+      "source": "hlj.com"
+    },
+    "4904810910473": {
+      "product": "BX-03",
+      "source": "hlj.com"
+    },
+    "4904810914495": {
+      "product": "UX-03",
+      "source": "hlj.com"
+    },
+    "4904810939573": {
+      "product": "UX-13",
+      "source": "hlj.com"
+    },
+    "4904810939559": {
+      "product": "UX-11",
+      "source": "hlj.com"
+    },
+    "4904810995678": {
+      "product": "CX-09",
+      "source": "hlj.com"
+    },
+    "4904810956976": {
+      "product": "CX-07",
+      "source": "hlj.com"
+    },
+    "4904810096139": {
+      "product": "UX-20",
+      "source": "hlj.com"
+    },
+    "4904810913108": {
+      "product": "BX-24",
+      "source": "hlj.com"
+    },
+    "4904810913115": {
+      "product": "BX-27",
+      "source": "hlj.com"
+    },
+    "4904810096177": {
+      "product": "CX-18",
+      "source": "hlj.com"
+    },
+    "4904810096146": {
+      "product": "CX-17",
+      "source": "hlj.com"
+    },
+    "4904810913085": {
+      "product": "BX-21",
+      "source": "hlj.com"
+    },
+    "4904810913078": {
+      "product": "BX-20",
+      "source": "hlj.com"
+    },
+    "4904810098775": {
+      "product": "CX-11",
+      "source": "hlj.com"
+    },
+    "4904810939481": {
+      "product": "BX-37",
+      "source": "hlj.com"
+    },
+    "4904810097242": {
+      "product": "CX-10",
+      "source": "hlj.com"
+    },
+    "4904810939627": {
+      "product": "CX-05",
+      "source": "1999.co.jp"
+    },
+    "4904810914464": {
+      "product": "BX-26",
+      "source": "1999.co.jp"
+    },
+    "4904810073734": {
+      "product": "BX-53",
+      "source": "1999.co.jp"
+    },
+    "4904810085553": {
+      "product": "BX-52",
+      "source": "1999.co.jp"
+    },
+    "4904810085546": {
+      "product": "UX-21",
+      "source": "1999.co.jp"
+    },
+    "4904810096160": {
+      "product": "UX-19",
+      "source": "1999.co.jp"
+    },
+    "4904810077596": {
+      "product": "CX-20",
+      "source": "1999.co.jp"
+    },
+    "4904810910404": {
+      "product": "BX-04",
+      "source": "japanzon.com"
+    },
+    "4904810914570": {
+      "product": "BX-35",
+      "source": "japanzon.com"
+    },
+    "4904810910398": {
+      "product": "BX-02",
+      "source": "japanzon.com"
+    },
+    "4904810910589": {
+      "product": "BX-07",
+      "source": "japanzon.com"
+    },
+    "4904810913139": {
+      "product": "BX-22",
+      "source": "japanzon.com"
+    },
+    "4904810910572": {
+      "product": "BX-08",
+      "source": "japanzon.com"
     }
   }
 }

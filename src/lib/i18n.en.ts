@@ -841,6 +841,16 @@ export const EN: Record<string, string> = {
   'eintippen': 'enter',
   'Bitte ins Hochformat drehen': 'Please rotate to portrait',
   'Beyblade X ist fürs Hochformat gemacht.': 'Beyblade X is made for portrait mode.',
+  'Das ist ein Etikett des Ladens.': 'This is a shop label.',
+  'Vorderseite fotografieren': 'Photograph the front',
+  'Auf dem Foto war keine Produktnummer lesbar. Probier es näher und gerade – oder such das Produkt unten.': 'No product number could be read in the photo. Try closer and straight on – or search for the product below.',
+  'Vorne steht die Produktnummer (z. B. BX-05). Die App liest sie und merkt sich den Barcode dazu.': 'The product number (e.g. BX-05) is on the front. The app reads it and remembers the barcode with it.',
+  'Die Nummer': 'The number',
+  'ist ein Etikett des Ladens, kein Barcode des Herstellers. Scann den aufgedruckten Barcode auf der Packung – oder such das Produkt hier.': 'is a shop label, not the manufacturer\'s barcode. Scan the barcode printed on the pack – or search for the product here.',
+  'Welcher Kreisel ist drin?': 'Which Bey is inside?',
+  'Der Inhalt ist zufällig – die Packung verrät ihn nicht. Zum Eintragen den Kreisel wählen.': 'The content is random – the pack doesn\'t give it away. Pick the Bey to add it.',
+  'hast du schon': 'you already own it',
+  'Random Booster: Der Inhalt ist zufällig. Erfasst ist bisher nur dieser Kreisel.': 'Random Booster: the content is random. Only this Bey is listed so far.',
 };
 
 // Texte aus den Daten (Notizen zu Teilen und Produkten, Termine). Neue Datentexte erscheinen auf Deutsch, bis hier ein

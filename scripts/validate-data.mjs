@@ -108,16 +108,19 @@ export function validGtin(code) {
 
 /**
  * Mitgelieferte Barcodes (barcodes.json): gültige Prüfziffer, Herkunft angegeben, und die Nummer muss genau einen Kauf
- * in db.json bezeichnen – ein Produkt oder ein Set (Packungsnummer ohne Unternummer). Nichts Mehrdeutiges:
- * Ein falsch zugeordneter Barcode legt beim Scannen das falsche Produkt in die Sammlung.
+ * in db.json bezeichnen – ein Produkt, ein Set oder einen Random Booster (Packungsnummer ohne Unternummer). Nichts
+ * Mehrdeutiges: Ein falsch zugeordneter Barcode legt beim Scannen das falsche Produkt in die Sammlung.
  */
 export function validateBarcodes(feed, db) {
   if (!feed || typeof feed.barcodes !== 'object' || !feed.barcodes || Array.isArray(feed.barcodes)) return ['barcodes.json: barcodes fehlt'];
   const errors = [];
   const sources = feed.sources && typeof feed.sources === 'object' ? feed.sources : {};
-  // Random Booster haben zufälligen Inhalt: Ihr Barcode sagt nicht, welcher Kreisel drin ist.
+  // Random Booster haben zufälligen Inhalt: Ihr Barcode steht für die Packung (BX-24), nie für einen bestimmten
+  // Kreisel darin (BX-24-03).
   const codes = new Set(db.products.filter((p) => p.kind !== 'random-booster').map((p) => p.code));
-  const setPacks = new Set(db.products.filter((p) => p.kind === 'set').map((p) => /^([A-Z]+-?\d+)-\d{2}$/.exec(p.code)?.[1]).filter(Boolean));
+  const packOf = (p) => /^([A-Z]+-?\d+)-\d{2}$/.exec(p.code)?.[1];
+  const setPacks = new Set(db.products.filter((p) => p.kind === 'set').map(packOf).filter(Boolean));
+  const randomPacks = new Set(db.products.filter((p) => p.kind === 'random-booster').map((p) => packOf(p) ?? p.code));
   const normal = new Set();
   for (const [gtin, entry] of Object.entries(feed.barcodes)) {
     if (!validGtin(gtin)) errors.push(`Barcode ${gtin}: ungültig (Länge oder Prüfziffer)`);
@@ -125,7 +128,7 @@ export function validateBarcodes(feed, db) {
     if (normal.has(key)) errors.push(`Barcode ${gtin}: doppelt (als UPC und EAN)`);
     normal.add(key);
     const pack = entry?.product;
-    if (typeof pack !== 'string' || !(codes.has(pack) || setPacks.has(pack))) errors.push(`Barcode ${gtin}: Produkt ${pack} gibt es nicht (oder es ist kein einzelner Kauf)`);
+    if (typeof pack !== 'string' || !(codes.has(pack) || setPacks.has(pack) || randomPacks.has(pack))) errors.push(`Barcode ${gtin}: Produkt ${pack} gibt es nicht (oder es ist kein einzelner Kauf)`);
     if (typeof entry?.source !== 'string' || !sources[entry.source]) errors.push(`Barcode ${gtin}: Quelle fehlt`);
   }
   return errors;

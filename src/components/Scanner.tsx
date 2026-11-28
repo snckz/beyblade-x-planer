@@ -12,7 +12,8 @@ import { priceHint } from '../lib/price';
 import { BeyImage } from './BeyImage';
 import { recognizePhoto } from '../lib/photo';
 import { groupKey } from '../lib/price';
-import { Check, Heart, X } from 'lucide-preact';
+import { Camera, Check, Heart, X } from 'lucide-preact';
+import { isStoreCode } from '../lib/barcode';
 
 interface Props {
   db: Database;
@@ -25,7 +26,9 @@ type Phase = 'choose' | 'starting' | 'scanning' | 'reading' | 'nocam' | 'noreade
 
 /**
  * Scan-Modus: Barcode der Packung mit der Kamera lesen.
- * Ein Barcode, der noch unbekannt ist, wird einmal einem Produkt zugeordnet und danach wiedererkannt.
+ * Ein Barcode, der noch unbekannt ist, wird einmal einem Produkt zugeordnet und danach wiedererkannt – am schnellsten
+ * mit einem Foto der Vorderseite (dort steht die Produktnummer), sonst über die Suche.
+ * Random Booster: Der Barcode steht für die Packung. Welcher Kreisel drin war, fragt die App danach.
  * Ohne Kamera (oder abgelehnt) bleibt die Produktsuche.
  */
 function ScannerInner({ db, state, update, onClose }: Props) {
@@ -42,6 +45,11 @@ function ScannerInner({ db, state, update, onClose }: Props) {
   const run = useRef(0);
   const [code, setCode] = useState<string | null>(null);
   const [product, setProduct] = useState<Product | null>(null);
+  // Random Booster: Steht schon fest, welcher Kreisel in der Packung war? (sonst erst fragen)
+  const [opened, setOpened] = useState(false);
+  // Barcode, der beim Foto der Vorderseite erhalten bleibt und danach zugeordnet wird
+  const keep = useRef<string | null>(null);
+  const [frontTried, setFrontTried] = useState(false);
   const [query, setQuery] = useState('');
   const [msg, setMsg] = useState('');
   const [round, setRound] = useState(0);
@@ -65,6 +73,19 @@ function ScannerInner({ db, state, update, onClose }: Props) {
 
   // Vertreter eines Kaufs (erstes Produkt eines Sets/Random Boosters)
   const head = (p: Product) => db.products.find((x) => x.kind === p.kind && groupKey(x) === groupKey(p)) ?? p;
+  /** Mögliche Inhalte eines Random Boosters (sonst nur das Produkt selbst) */
+  const contents = (p: Product) => (p.kind === 'random-booster' ? db.products.filter((x) => x.kind === 'random-booster' && groupKey(x) === groupKey(p)) : [p]);
+  /** Gefundenes Produkt zeigen. `chosen`: Bei einem Random Booster steht der Kreisel schon fest (selbst ausgewählt). */
+  const show = (p: Product, chosen = false) => {
+    setProduct(chosen || p.kind !== 'random-booster' ? p : head(p));
+    setOpened(chosen);
+    setPhase('found');
+    setMsg('');
+  };
+  /** Barcode merken – für die Packung, nicht für einen einzelnen Inhalt. Etiketten des Ladens nicht. */
+  const learn = (gtin: string, p: Product) => {
+    if (!isStoreCode(gtin)) update((s) => ({ ...s, barcodes: { ...s.barcodes, [gtin]: (p.kind === 'random-booster' ? head(p) : p).code } }));
+  };
 
   /** Packung auf einem Foto/Kamerabild erkennen: Barcode, sonst Produktcode oder Blade-Name per Texterkennung. */
   const identify = async (img: Blob, liveCode: string | null) => {
@@ -89,11 +110,11 @@ function ScannerInner({ db, state, update, onClose }: Props) {
       // Eindeutig über Barcode oder Produktcode → direkt übernehmen und Barcode merken.
       if (list.length === 1 && (res.via === 'barcode' || res.via === 'code')) {
         const p = list[0]!;
-        if (gtin && res.via === 'code') update((s) => ({ ...s, barcodes: { ...s.barcodes, [gtin]: p.code } }));
-        setProduct(p);
-        setPhase('found');
+        if (gtin && res.via === 'code') learn(gtin, p);
+        show(p);
         return;
       }
+      setFrontTried(!!liveCode && !list.length);
       setCandidates(list.slice(0, 8));
       setPhase('unknown');
     } catch {
@@ -106,7 +127,14 @@ function ScannerInner({ db, state, update, onClose }: Props) {
 
   const onFile = (file: File | undefined) => {
     if (fileRef.current) fileRef.current.value = '';
-    if (file) void identify(file, null);
+    const kept = keep.current;
+    keep.current = null;
+    if (file) void identify(file, kept);
+  };
+  /** Foto aufnehmen. `gtin`: schon gelesener, noch unbekannter Barcode – er wird dem erkannten Produkt zugeordnet. */
+  const takePhoto = (gtin: string | null) => {
+    keep.current = gtin;
+    fileRef.current?.click();
   };
 
   const startLive = () => {
@@ -122,11 +150,8 @@ function ScannerInner({ db, state, update, onClose }: Props) {
     onCode: (gtin, frame) => {
       setCode(gtin);
       const known = db.products.find((p) => p.code === barcodes.current[gtin]);
-      if (known) {
-        setProduct(known);
-        setPhase('found');
-        return;
-      }
+      if (known) return show(known);
+      setFrontTried(false);
       // Unbekannter Barcode: Packung auf demselben Bild per Texterkennung bestimmen.
       if (frame) void identify(frame, gtin);
       else setPhase('unknown');
@@ -134,11 +159,10 @@ function ScannerInner({ db, state, update, onClose }: Props) {
     onFail: (why) => setPhase(why),
   });
 
-  const assign = (p: Product) => {
-    if (code) update((s) => ({ ...s, barcodes: { ...s.barcodes, [code]: p.code } }));
-    setProduct(p);
-    setPhase('found');
-    setMsg('');
+  /** Selbst ausgewählt: Barcode zuordnen. `chosen`: Es wurde ein bestimmter Kreisel gewählt (Suche), nicht nur die Packung. */
+  const assign = (p: Product, chosen: boolean) => {
+    if (code) learn(code, p);
+    show(p, chosen);
   };
   const addOwned = (p: Product) => {
     // Sets: alle Kreisel und losen Teile der Packung eintragen, nicht nur den ersten
@@ -160,12 +184,17 @@ function ScannerInner({ db, state, update, onClose }: Props) {
   const forget = () => {
     if (code) update((s) => ({ ...s, barcodes: Object.fromEntries(Object.entries(s.barcodes).filter(([k]) => k !== code)) }));
     setProduct(null);
+    setOpened(false);
+    setFrontTried(false);
+    setCandidates([]);
     setPhase('unknown');
   };
   const again = () => {
     run.current++;
     setCode(null);
     setProduct(null);
+    setOpened(false);
+    setFrontTried(false);
     setCandidates([]);
     setMsg('');
     setQuery('');
@@ -185,6 +214,10 @@ function ScannerInner({ db, state, update, onClose }: Props) {
           .slice(0, 30)
       : [];
   const blade = product && db.blades.find((b) => b.id === product.bladeId);
+  // Random Booster mit mehreren möglichen Inhalten: erst fragen, welcher Kreisel drin ist
+  const choices = product && !opened ? contents(product) : [];
+  const askContent = choices.length > 1;
+  const storeLabel = !!code && isStoreCode(code);
 
   return (
     <div class="sheet-backdrop" onClick={(e) => e.target === e.currentTarget && close()}>
@@ -202,7 +235,7 @@ function ScannerInner({ db, state, update, onClose }: Props) {
 
           {phase === 'choose' && (
             <div class="scan-body">
-              <button type="button" class="scan-choice primary" onClick={() => fileRef.current?.click()}>
+              <button type="button" class="scan-choice primary" onClick={() => takePhoto(null)}>
                 <span class="scan-choice-icon" aria-hidden="true">
                   <svg viewBox="0 0 24 24">
                     <path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z" />
@@ -266,16 +299,30 @@ function ScannerInner({ db, state, update, onClose }: Props) {
               <p class="muted">
                 {candidates.length
                   ? tr('Welche Packung ist es?')
-                  : code
-                    ? <>{tr('Barcode')} <strong class="mono">{code}</strong> {tr('kenne ich noch nicht. Welches Produkt ist das? Danach erkennt die App ihn sofort wieder.')}</>
-                    : tr('Ich konnte die Packung nicht sicher erkennen. Tipp: Rückseite mit Produktnummer (z. B. G4568 oder BX-05) scharf fotografieren – oder hier suchen.')}
+                  : storeLabel
+                    ? <>{tr('Die Nummer')} <strong class="mono">{code}</strong> {tr('ist ein Etikett des Ladens, kein Barcode des Herstellers. Scann den aufgedruckten Barcode auf der Packung – oder such das Produkt hier.')}</>
+                    : code
+                      ? <>{tr('Barcode')} <strong class="mono">{code}</strong> {tr('kenne ich noch nicht. Welches Produkt ist das? Danach erkennt die App ihn sofort wieder.')}</>
+                      : tr('Ich konnte die Packung nicht sicher erkennen. Tipp: Rückseite mit Produktnummer (z. B. G4568 oder BX-05) scharf fotografieren – oder hier suchen.')}
               </p>
+            )}
+            {phase === 'unknown' && code && !storeLabel && !candidates.length && (
+              <div class="scan-front">
+                <button type="button" class="btn" onClick={() => takePhoto(code)}>
+                  <Camera aria-hidden="true" /> {tr('Vorderseite fotografieren')}
+                </button>
+                <p class="fineprint">
+                  {frontTried
+                    ? tr('Auf dem Foto war keine Produktnummer lesbar. Probier es näher und gerade – oder such das Produkt unten.')
+                    : tr('Vorne steht die Produktnummer (z. B. BX-05). Die App liest sie und merkt sich den Barcode dazu.')}
+                </p>
+              </div>
             )}
             {phase === 'unknown' && candidates.length > 0 && (
               <ul class="list scan-results">
                 {candidates.map((p) => (
                   <li key={p.code}>
-                    <ProductRow db={db} product={p} onClick={() => (code ? assign(p) : (setProduct(p), setPhase('found')))} />
+                    <ProductRow db={db} product={p} onClick={() => assign(p, false)} />
                   </li>
                 ))}
               </ul>
@@ -287,20 +334,43 @@ function ScannerInner({ db, state, update, onClose }: Props) {
                 <ul class="list scan-results">
                   {results.map((p) => (
                     <li key={p.code}>
-                      <ProductRow db={db} product={p} onClick={() => (code ? assign(p) : (setProduct(p), setPhase('found')))} />
+                      <ProductRow db={db} product={p} onClick={() => assign(p, true)} />
                     </li>
                   ))}
                 </ul>
               </>
             )}
 
-            {phase === 'found' && product && (
+            {phase === 'found' && product && askContent && (
+              <div class="scan-found scan-random">
+                <div>
+                  <p class="eyebrow">{tr('{0} · Random Booster', groupKey(product))}</p>
+                  <p class="row-title">{tr('Welcher Kreisel ist drin?')}</p>
+                  <p class="muted">{tr('Der Inhalt ist zufällig – die Packung verrät ihn nicht. Zum Eintragen den Kreisel wählen.')}</p>
+                </div>
+                <ul class="list scan-results">
+                  {choices.map((p) => (
+                    <li key={p.code}>
+                      <ProductRow db={db} product={p} note={(state.owned[p.code] ?? 0) > 0 ? tr('hast du schon') : undefined} onClick={() => show(p, true)} />
+                    </li>
+                  ))}
+                </ul>
+                {code && (
+                  <button type="button" class="btn btn-ghost btn-sm" onClick={forget}>
+                    {tr('Falsches Produkt? Neu zuordnen')}
+                  </button>
+                )}
+              </div>
+            )}
+
+            {phase === 'found' && product && !askContent && (
               <div class="scan-found">
                 {blade && <BeyImage bladeId={blade.id} type={blade.type} size="lg" alt={blade.name} />}
                 <div>
                   <p class="eyebrow">{product.code}</p>
                   <p class="row-title">{displayProductName(product, db)}</p>
                   {priceHint(product, rates) && <p class="muted">{priceHint(product, rates)}</p>}
+                  {product.kind === 'random-booster' && !opened && <p class="muted">{tr('Random Booster: Der Inhalt ist zufällig. Erfasst ist bisher nur dieser Kreisel.')}</p>}
                   <OwnStatus db={db} state={state} product={product} />
                 </div>
                 <div class="btn-row">
@@ -340,14 +410,17 @@ function ScannerInner({ db, state, update, onClose }: Props) {
 }
 
 /** Produkt in einer Trefferliste: Blade-Bild statt Materialnummer. */
-function ProductRow({ db, product, onClick }: { db: Database; product: Product; onClick: () => void }) {
+function ProductRow({ db, product, note, onClick }: { db: Database; product: Product; note?: string; onClick: () => void }) {
   const blade = product.bladeId ? db.blades.find((b) => b.id === product.bladeId) : undefined;
   return (
     <button type="button" class="row row-btn" onClick={onClick}>
       {blade ? <BeyImage bladeId={blade.id} type={blade.type} size="sm" alt="" zoomable={false} /> : <span class="code">{product.code}</span>}
       <span class="row-main">
         <span class="row-title">{displayProductName(product, db)}</span>
-        <span class="row-sub">{product.code}</span>
+        <span class="row-sub">
+          {product.code}
+          {note && ` · ${note}`}
+        </span>
       </span>
     </button>
   );

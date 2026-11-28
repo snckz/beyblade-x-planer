@@ -68,10 +68,15 @@ export async function loadBarcodes(): Promise<BarcodeFeed> {
   }
 }
 
-/** Produkt zu einer Packungsnummer: die Nummer selbst, bei Sets sonst der erste Eintrag der Packung (G0197 → G0197-01). */
+/**
+ * Produkt zu einer Packungsnummer: die Nummer selbst, bei Sets und Random Boostern sonst der erste Eintrag der Packung
+ * (G0197 → G0197-01, BX-24 → BX-24-01).
+ * Random Booster nur über die Packungsnummer: Ihr Barcode steht für die Packung, nicht für einen bestimmten Kreisel
+ * darin. Die App zeigt dann die Packung mit allen möglichen Inhalten (Kauf-Check) bzw. fragt, welcher drin war (Scan).
+ */
 export function packProduct(products: Product[], pack: string): Product | undefined {
-  // Random Booster ausgenommen: Ihr Barcode sagt nicht, welcher Kreisel drin ist.
-  return products.find((p) => p.code === pack && p.kind !== 'random-booster') ?? products.find((p) => p.kind === 'set' && groupKey(p) === pack);
+  const isPack = (p: Product) => (p.kind === 'set' || p.kind === 'random-booster') && groupKey(p) === pack;
+  return products.find((p) => p.code === pack && (p.kind !== 'random-booster' || groupKey(p) === pack)) ?? products.find(isPack);
 }
 
 /**

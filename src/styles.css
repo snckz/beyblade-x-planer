@@ -610,6 +610,10 @@ button.bit-img:active { transform: scale(.95); }
 .scan-results { max-height: 46dvh; overflow-y: auto; }
 .row-btn { width: 100%; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
 .scan-found { display: grid; gap: 12px; justify-items: start; }
+/* Random Booster: Liste der möglichen Inhalte über die ganze Breite */
+.scan-random > .list { justify-self: stretch; }
+/* Unbekannter Barcode: Foto der Vorderseite als schnellster Weg, darunter die Suche */
+.scan-front { display: grid; gap: 6px; justify-items: start; }
 .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
 .btn-sm { min-height: 34px; padding: 6px 12px; font-size: 13px; }
 

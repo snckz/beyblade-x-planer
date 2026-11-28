@@ -114,6 +114,66 @@ describe('Kauf-Check: Rückmeldung der Erkennung', () => {
     expect(state.barcodes['4904810912347']).toBe('BX-03');
   });
 
+  it('unbekannter Barcode → „Vorderseite fotografieren“: Produktnummer gelesen, Barcode dazu gemerkt', async () => {
+    recognize.mockResolvedValueOnce(result({ barcode: '4904810912347', barcodeFrom: 'scan' }));
+    const { root, top } = open();
+    pickPhoto(root);
+    await waitFor(() => expect(top().getByRole('button', { name: /Vorderseite fotografieren/ })).toBeTruthy());
+    // Foto der Vorderseite: kein Barcode darauf, aber die Produktnummer
+    recognize.mockResolvedValueOnce(result({ products: [prod('BX-05')], via: 'code', sure: true }));
+    fireEvent.click(top().getByRole('button', { name: /Vorderseite fotografieren/ }));
+    const cam = root.querySelector<HTMLInputElement>('input[type=file][capture]')!;
+    Object.defineProperty(cam, 'files', { value: [new File(['x'], 'vorne.jpg', { type: 'image/jpeg' })], configurable: true });
+    fireEvent.change(cam);
+    await waitFor(() => expect(document.querySelector('.kc-page:not(.kc-under) .photo-result')).toBeTruthy());
+    expect(state.barcodes['4904810912347']).toBe('BX-05');
+  });
+
+  it('Vorderseite nicht lesbar: Rückmeldung, der Barcode bleibt zum Zuordnen stehen', async () => {
+    recognize.mockResolvedValueOnce(result({ barcode: '4904810912347', barcodeFrom: 'scan' }));
+    const { root, top } = open();
+    pickPhoto(root);
+    await waitFor(() => expect(top().getByRole('button', { name: /Vorderseite fotografieren/ })).toBeTruthy());
+    recognize.mockResolvedValueOnce(result({}));
+    fireEvent.click(top().getByRole('button', { name: /Vorderseite fotografieren/ }));
+    const cam = root.querySelector<HTMLInputElement>('input[type=file][capture]')!;
+    Object.defineProperty(cam, 'files', { value: [new File(['x'], 'vorne.jpg', { type: 'image/jpeg' })], configurable: true });
+    fireEvent.change(cam);
+    await waitFor(() => expect(top().getByText(/Auf dem Foto war keine Produktnummer lesbar/)).toBeTruthy());
+    expect(root.querySelector('.kc-page:not(.kc-under) .barcode-note')!.textContent).toContain('4904810912347');
+    fireEvent.input(top().getByRole('textbox', { name: 'Packung suchen' }), { target: { value: 'BX-03' } });
+    fireEvent.click(top().getAllByRole('button').find((b) => b.textContent?.includes('BX-03'))!);
+    expect(state.barcodes['4904810912347']).toBe('BX-03');
+  });
+
+  it('ein normales Foto danach übernimmt keinen alten Barcode', async () => {
+    recognize.mockResolvedValueOnce(result({ barcode: '4904810912347', barcodeFrom: 'scan' }));
+    const { root, top, bar } = open();
+    pickPhoto(root);
+    await waitFor(() => expect(top().getByRole('button', { name: /Vorderseite fotografieren/ })).toBeTruthy());
+    // angetippt, Kamera aber abgebrochen → neuer Check mit einem ganz anderen Foto
+    fireEvent.click(top().getByRole('button', { name: /Vorderseite fotografieren/ }));
+    fireEvent.click(bar.getByRole('button', { name: 'Neuer Check' }));
+    recognize.mockResolvedValueOnce(result({ products: [prod('BX-05')], via: 'code', sure: true }));
+    fireEvent.click(top().getByRole('button', { name: 'Aus der Galerie wählen' }));
+    pickPhoto(root);
+    await waitFor(() => expect(document.querySelector('.kc-page:not(.kc-under) .photo-result')).toBeTruthy());
+    expect(state.barcodes).toEqual({});
+  });
+
+  it('Etikett des Ladens: Hinweis, kein „Vorderseite fotografieren“, die Nummer wird nie gemerkt', async () => {
+    recognize.mockResolvedValue(result({ barcode: '2000000123455', barcodeFrom: 'scan' }));
+    const { root, top } = open();
+    pickPhoto(root);
+    await waitFor(() => expect(top().getByText('Das ist ein Etikett des Ladens.')).toBeTruthy());
+    expect(root.querySelector('.barcode-note')!.textContent).toContain('kein Barcode des Herstellers');
+    expect(top().queryByRole('button', { name: /Vorderseite fotografieren/ })).toBeNull();
+    fireEvent.input(top().getByRole('textbox', { name: 'Packung suchen' }), { target: { value: 'BX-03' } });
+    fireEvent.click(top().getAllByRole('button').find((b) => b.textContent?.includes('BX-03'))!);
+    expect(document.querySelector('.kc-page:not(.kc-under) .photo-result')).toBeTruthy();
+    expect(state.barcodes).toEqual({});
+  });
+
   it('nichts lesbar: „Keine Packung erkannt“ (kein Barcode genannt)', async () => {
     recognize.mockResolvedValue(result({}));
     const { root, top } = open();

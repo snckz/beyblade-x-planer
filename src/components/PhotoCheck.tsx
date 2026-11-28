@@ -17,6 +17,7 @@ import { useModal } from '../lib/useModal';
 import { BeyImage } from './BeyImage';
 import { Camera, ChevronLeft, Heart, ScanBarcode } from 'lucide-preact';
 import { useBarcodeCamera } from '../lib/barcodeCamera';
+import { isStoreCode } from '../lib/barcode';
 import { attachEdgeBack, slideBack } from '../lib/edgeBack';
 
 interface Props {
@@ -35,7 +36,7 @@ type Level =
   | { k: 'live'; ready: boolean }
   | { k: 'working'; step: string; p?: number }
   | { k: 'pick'; list: Product[]; barcode: string | null; learn: boolean; sure: boolean }
-  | { k: 'none'; barcode: string | null; learn: boolean }
+  | { k: 'none'; barcode: string | null; learn: boolean; front?: boolean }
   | { k: 'result'; product: Product }
   | { k: 'error'; why?: 'nocam' | 'noreader' };
 
@@ -93,11 +94,17 @@ export function PhotoCheck({ db, state, update, meta, onClose, initialCode }: Pr
 
   // Vertreter eines Kaufs: erstes Produkt des Sets/Random Boosters (gleicher Schlüssel für Preis und Wunschliste wie im Kaufberater)
   const head = (p: Product) => db.products.find((x) => x.kind === p.kind && groupKey(x) === groupKey(p)) ?? p;
-  // Barcode merken, damit das nächste Foto/der Live-Scan die Packung sofort erkennt.
-  const learn = (barcode: string, p: Product) => update((s) => ({ ...s, barcodes: { ...s.barcodes, [barcode]: p.code } }));
+  // Barcode merken, damit das nächste Foto/der Live-Scan die Packung sofort erkennt. Etiketten des Ladens nicht:
+  // Dieselbe Nummer kann im nächsten Laden etwas anderes bedeuten.
+  const learn = (barcode: string, p: Product) => {
+    if (!isStoreCode(barcode)) update((s) => ({ ...s, barcodes: { ...s.barcodes, [barcode]: p.code } }));
+  };
 
-  /** Foto oder Kamerabild auswerten. `liveCode` = vom Live-Scan sicher gelesener Barcode. */
-  const analyze = async (img: Blob, liveCode: string | null = null) => {
+  /**
+   * Foto oder Kamerabild auswerten. `liveCode` = sicher gelesener Barcode (Live-Scan bzw. vom Foto davor).
+   * `front`: Das ist das Foto der Vorderseite zu einem schon gelesenen Barcode.
+   */
+  const analyze = async (img: Blob, liveCode: string | null = null, front = false) => {
     const id = ++run.current;
     go({ k: 'working', step: tr('Suche Barcode …') });
     try {
@@ -116,7 +123,7 @@ export function PhotoCheck({ db, state, update, meta, onClose, initialCode }: Pr
       // Zuordnen (lernen) nur mit einem vom Barcode-Leser gelesenen Code – aus dem Text gelesene Ziffern dienen nur zum Nachschlagen.
       const barcode = liveCode ?? res.barcode;
       const learnable = !!liveCode || res.barcodeFrom === 'scan';
-      if (!res.products.length) return go({ k: 'none', barcode, learn: learnable });
+      if (!res.products.length) return go({ k: 'none', barcode, learn: learnable, front });
       // Mehrere Treffer aus demselben Set bzw. Random Booster sind ein Kauf → direkt als Ganzes bewerten.
       const first = res.products[0]!;
       const oneBuy = res.products.every((p) => p.kind === first.kind && groupKey(p) === groupKey(first));
@@ -133,11 +140,20 @@ export function PhotoCheck({ db, state, update, meta, onClose, initialCode }: Pr
     }
   };
 
+  // Schon gelesener, noch unbekannter Barcode: bleibt beim Foto der Vorderseite erhalten und wird dem Produkt zugeordnet
+  const keep = useRef<string | null>(null);
   const onFile = (el: HTMLInputElement) => {
     const file = el.files?.[0];
     // Feld leeren, damit dasselbe Foto erneut gewählt werden kann
     el.value = '';
-    if (file) void analyze(file);
+    const kept = keep.current;
+    keep.current = null;
+    if (file) void analyze(file, kept, !!kept);
+  };
+  /** Kamera/Galerie öffnen. `barcode`: gelesener, noch unbekannter Barcode, zu dem jetzt die Vorderseite fotografiert wird. */
+  const pickPhoto = (input: { current: HTMLInputElement | null }, barcode: string | null = null) => {
+    keep.current = barcode;
+    input.current?.click();
   };
 
   // Live-Scan: dieselbe Kamera-Logik wie „Packung scannen“
@@ -277,10 +293,10 @@ export function PhotoCheck({ db, state, update, meta, onClose, initialCode }: Pr
                   <strong>{tr('Packung fotografieren')}</strong>
                 </p>
                 <p class="muted">{tr('Am besten die Rückseite mit dem Barcode – oder die Vorderseite mit Code (z. B. „BX-05“) bzw. Namen, gerade und gut beleuchtet. Die Erkennung läuft auf deinem Handy.')}</p>
-                <button type="button" class="btn btn-primary" onClick={() => camRef.current?.click()}>
+                <button type="button" class="btn btn-primary" onClick={() => pickPhoto(camRef)}>
                   {tr('Foto machen')}
                 </button>
-                <button type="button" class="btn" onClick={() => galRef.current?.click()}>
+                <button type="button" class="btn" onClick={() => pickPhoto(galRef)}>
                   {tr('Aus der Galerie wählen')}
                 </button>
                 <button type="button" class="btn btn-ghost" onClick={startLive}>
@@ -334,12 +350,28 @@ export function PhotoCheck({ db, state, update, meta, onClose, initialCode }: Pr
                       ? tr('Der Barcode-Leser konnte nicht geladen werden – bist du offline?')
                       : tr('Das Foto konnte nicht gelesen werden.')
                   : l.barcode
-                    ? tr('Barcode gelesen – aber noch keinem Produkt zugeordnet.')
+                    ? isStoreCode(l.barcode)
+                      ? tr('Das ist ein Etikett des Ladens.')
+                      : tr('Barcode gelesen – aber noch keinem Produkt zugeordnet.')
                     : tr('Keine Packung erkannt.')}
               </strong>
             </p>
             {l.k === 'none' && l.barcode ? (
-              <BarcodeNote code={l.barcode} learn={l.learn} />
+              <>
+                <BarcodeNote code={l.barcode} learn={l.learn} />
+                {l.learn && !isStoreCode(l.barcode) && (
+                  <>
+                    <button type="button" class="btn btn-primary" onClick={() => pickPhoto(camRef, l.barcode)}>
+                      <Camera aria-hidden="true" /> {tr('Vorderseite fotografieren')}
+                    </button>
+                    <p class="fineprint">
+                      {l.front
+                        ? tr('Auf dem Foto war keine Produktnummer lesbar. Probier es näher und gerade – oder such das Produkt unten.')
+                        : tr('Vorne steht die Produktnummer (z. B. BX-05). Die App liest sie und merkt sich den Barcode dazu.')}
+                    </p>
+                  </>
+                )}
+              </>
             ) : (
               <p class="muted">
                 {l.k === 'error' && l.why === 'nocam'
@@ -402,6 +434,12 @@ export function PhotoCheck({ db, state, update, meta, onClose, initialCode }: Pr
 
 /** Gelesener, aber noch unbekannter Barcode – sichtbar, damit klar ist: lesbar, nur nicht zugeordnet. */
 function BarcodeNote({ code, learn }: { code: string; learn: boolean }) {
+  if (isStoreCode(code))
+    return (
+      <p class="muted barcode-note">
+        {tr('Die Nummer')} <strong class="mono">{code}</strong> {tr('ist ein Etikett des Ladens, kein Barcode des Herstellers. Scann den aufgedruckten Barcode auf der Packung – oder such das Produkt hier.')}
+      </p>
+    );
   return (
     <p class="muted barcode-note">
       {tr('Barcode')} <strong class="mono">{code}</strong> {learn ? tr('ist noch keinem Produkt zugeordnet. Wähl die Packung aus – danach erkennt die App ihn sofort.') : tr('(aus den Ziffern gelesen) ist noch keinem Produkt zugeordnet.')}

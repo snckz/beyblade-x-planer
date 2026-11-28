@@ -20,6 +20,13 @@ export function validGtin(code: string): boolean {
 /** UPC-A (12 Stellen) als EAN-13 schreiben, damit derselbe Code immer gleich gespeichert wird. */
 export const normalizeGtin = (code: string) => (code.length === 12 ? `0${code}` : code);
 
+/**
+ * Nummer, die ein Laden selbst vergeben hat (Preisetikett) – kein Barcode des Herstellers.
+ * GS1 hält dafür die Präfixe 02, 04 und 20–29 frei (bei EAN-8: 0 und 2). Dieselbe Nummer kann im nächsten Laden
+ * etwas anderes bedeuten, deshalb merkt sich die App solche Nummern nicht.
+ */
+export const isStoreCode = (code: string) => (code.length === 8 ? /^[02]/.test(code) : /^(02|04|2)/.test(normalizeGtin(code)));
+
 let pending: Promise<Detector> | null = null;
 
 export function createDetector(): Promise<Detector> {

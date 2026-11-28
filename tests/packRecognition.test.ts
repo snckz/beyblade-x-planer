@@ -6,6 +6,7 @@ import { readFileSync } from 'node:fs';
 import type { Database } from '../src/lib/types';
 import { findBarcodeDigits, findByCode, matchPackText } from '../src/lib/photo';
 import { knownBarcodes } from '../src/lib/data';
+import { groupKey } from '../src/lib/price';
 import { normalizeGtin, validGtin } from '../src/lib/barcode';
 import { normalizeRegister } from '../src/lib/idRegister';
 
@@ -34,12 +35,19 @@ describe('Barcode-Ziffern im Text', () => {
   });
 });
 
-describe('Barcode-Liste (52 Hasbro-Packungen)', () => {
+describe('Barcode-Liste (Hasbro und Takara Tomy)', () => {
   it('alle Einträge sind gültig und zeigen auf ein vorhandenes, kaufbares Produkt', () => {
     const map = knownBarcodes(feed, db.products);
-    expect(Object.keys(feed.barcodes)).toHaveLength(52);
-    expect(Object.keys(map)).toHaveLength(52);
-    for (const code of Object.values(map)) expect(db.products.some((p) => p.code === code && p.kind !== 'random-booster')).toBe(true);
+    const hasbro = Object.keys(feed.barcodes).filter((gtin) => !gtin.startsWith('4904810'));
+    expect(hasbro).toHaveLength(52);
+    expect(Object.keys(map)).toHaveLength(Object.keys(feed.barcodes).length);
+    for (const code of Object.values(map)) expect(db.products.some((p) => p.code === code && p.kind !== 'stadium')).toBe(true);
+    // Hasbro: keine Random Booster. Takara Tomy: Random Booster nur als Packung (ihr erster Eintrag).
+    for (const gtin of hasbro) expect(db.products.find((p) => p.code === map[gtin])!.kind).not.toBe('random-booster');
+    for (const code of Object.values(map)) {
+      const p = db.products.find((x) => x.code === code)!;
+      if (p.kind === 'random-booster') expect(db.products.find((x) => x.kind === 'random-booster' && groupKey(x) === groupKey(p))!.code).toBe(code);
+    }
   });
   it('kein Barcode und keine Packungsnummer doppelt', () => {
     const packs = Object.values(feed.barcodes as Record<string, { product: string }>).map((e) => e.product);
