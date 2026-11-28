@@ -39,7 +39,7 @@ describe('Barcode-Liste (Hasbro und Takara Tomy)', () => {
   it('alle Einträge sind gültig und zeigen auf ein vorhandenes, kaufbares Produkt', () => {
     const map = knownBarcodes(feed, db.products);
     const hasbro = Object.keys(feed.barcodes).filter((gtin) => !gtin.startsWith('4904810'));
-    expect(hasbro).toHaveLength(52);
+    expect(hasbro).toHaveLength(67);
     expect(Object.keys(map)).toHaveLength(Object.keys(feed.barcodes).length);
     for (const code of Object.values(map)) expect(db.products.some((p) => p.code === code && p.kind !== 'stadium')).toBe(true);
     // Hasbro: keine Random Booster. Takara Tomy: Random Booster nur als Packung (ihr erster Eintrag).

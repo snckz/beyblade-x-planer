@@ -17,13 +17,16 @@ describe('mitgelieferte Barcodes', () => {
     expect(validateBarcodes(feed, db)).toEqual([]);
     const known = knownBarcodes(feed, db.products);
     expect(Object.keys(known).length).toBe(Object.keys(feed.barcodes).length);
-    expect(Object.keys(known).length).toBeGreaterThanOrEqual(110);
+    expect(Object.keys(known).length).toBeGreaterThanOrEqual(135);
   });
 
   it('löst Einzelpackungen und Sets auf', () => {
     const known = knownBarcodes(feed, db.products);
     expect(known['5010996438553']).toBe('G4566'); // Whip Brachio (Einzelpack)
     expect(known['5010996259295']).toBe('G0197-01'); // Dual Pack: erster Eintrag der Packung
+    expect(known['5010996290335']).toBe('G1542-01'); // Dual Pack Beat Tyranno + Knife Shinobi
+    expect(purchaseCodes(db.products, packProduct(db.products, 'G1542')!)).toEqual(['G1542-01', 'G1542-02']);
+    expect(known['5010996259318']).toBe('G0190-01'); // Dual Pack Knife Shinobi + Keel Shark
     expect(purchaseCodes(db.products, packProduct(db.products, 'G0197')!)).toEqual(['G0197-01', 'G0197-02']);
     expect(known['5010996385185']).toBe('G3195'); // X-Treme Expansion Pack
     expect(purchaseCodes(db.products, packProduct(db.products, 'G3195')!)).toHaveLength(5);

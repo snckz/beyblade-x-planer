@@ -6,7 +6,12 @@
     "collectibleshunters.it": "https://collectibleshunters.it/collections/beyblade – Produktdaten nennen Barcode und „Codice prodotto“.",
     "hlj.com": "https://www.hlj.com – Produktseiten nennen die Produktnummer im Titel (z. B. „BX-01 Starter …“) und „JAN Code“.",
     "1999.co.jp": "https://www.1999.co.jp/eng – Produktseiten nennen die Produktnummer im Titel und „JAN code“.",
-    "japanzon.com": "https://www.japanzon.com/en/408-beyblade – Produktseiten nennen die Produktnummer im Titel und „JAN Code“; die JAN steht auch in der Adresse der Produktseite."
+    "japanzon.com": "https://www.japanzon.com/en/408-beyblade – Produktseiten nennen die Produktnummer im Titel und „JAN Code“; die JAN steht auch in der Adresse der Produktseite.",
+    "asmodee.co.uk": "https://www.asmodee.co.uk/collections/beyblade-x-new-releases – Produktseiten nennen „SKU“ (z. B. HASG0196ES0) und „Barcode“.",
+    "turascandinavia.com": "https://www.turascandinavia.com – Sortimentsseiten nennen je Packung Artikelnummer (z. B. G1677EU40) und EAN.",
+    "gedistribuzione.com": "https://www.gedistribuzione.com – Produktseiten nennen den Namen (meist mit Hasbro-Nummer in Klammern) und „EAN“. G1543 steht dort als „GALE WYVERN SWORD DRAN“; yeppon.it führt dieselbe Nummer bei G1543ES0.",
+    "galaxus.ch": "https://www.galaxus.ch – Produktseite nennt die GTIN und in der Beschreibung die enthaltenen Kreisel (Cowl Sphinx 1-80GF & Crest Leon 7-60GN).",
+    "giodicart.it": "https://en.giodicart.it – Produktseite nennt Namen („Knife Shinobi 4-80HN Keel Shark“) und EAN."
   },
   "barcodes": {
     "5010996256607": {
@@ -496,6 +501,66 @@
     "4904810910572": {
       "product": "BX-08",
       "source": "japanzon.com"
+    },
+    "5010996259301": {
+      "product": "G0196",
+      "source": "asmodee.co.uk"
+    },
+    "5010996260147": {
+      "product": "G0199",
+      "source": "asmodee.co.uk"
+    },
+    "5010996257109": {
+      "product": "F9580",
+      "source": "asmodee.co.uk"
+    },
+    "5010996290021": {
+      "product": "G1491",
+      "source": "asmodee.co.uk"
+    },
+    "5010996309518": {
+      "product": "G1677",
+      "source": "turascandinavia.com"
+    },
+    "5010996309501": {
+      "product": "G1678",
+      "source": "turascandinavia.com"
+    },
+    "5010996309488": {
+      "product": "G1679",
+      "source": "turascandinavia.com"
+    },
+    "5010996309471": {
+      "product": "G1680",
+      "source": "turascandinavia.com"
+    },
+    "5010996290335": {
+      "product": "G1542",
+      "source": "gedistribuzione.com"
+    },
+    "5010996290342": {
+      "product": "G1543",
+      "source": "gedistribuzione.com"
+    },
+    "5010996385239": {
+      "product": "G2732",
+      "source": "gedistribuzione.com"
+    },
+    "5010996385246": {
+      "product": "G3392",
+      "source": "gedistribuzione.com"
+    },
+    "5010996420831": {
+      "product": "G3064",
+      "source": "gedistribuzione.com"
+    },
+    "5010996317582": {
+      "product": "G1685",
+      "source": "galaxus.ch"
+    },
+    "5010996259318": {
+      "product": "G0190",
+      "source": "giodicart.it"
     }
   }
 }
